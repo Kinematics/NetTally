@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -12,9 +13,17 @@ namespace NetTally.Tally.ComponentsF.Counting;
 /// <summary>
 /// Class that can handle constructing votes from the parsed text of a post.
 /// </summary>
-public static class VoteConstructor
+public static partial class VoteConstructor
 {
-    #region Public functions
+    #region Regexes
+    // A regex to extract potential references from a vote line.
+    [GeneratedRegex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex ReferenceRegex();
+
+    static readonly Regex referenceNameRegex = ReferenceRegex();
+    #endregion Regexes
+
+    #region General public processing functions
     /// <summary>
     /// Get plans from the provided post during the preprocessing phase.
     /// It takes a parameter for the function that will be used to analyze each
@@ -25,14 +34,13 @@ public static class VoteConstructor
     /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
     /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
-    public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(PostToProcess post, Quest quest,
-        bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)
+    public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(
+        Quest quest,
+        AuthorType author,
+        Func<VoteBlockType, PlanDescriptor> isPlanFunction,
+        List<VoteBlockType> blocks)
     {
         Dictionary<string, VoteBlockType> plans = new(StringComparer.OrdinalIgnoreCase);
-
-        // Either split the vote into blocks, or encapsulate the vote into an enumerable
-        // so that it can be treated the same way.
-        var blocks = asBlocks ? VoteBlocks.GetBlocks(post.VoteLines) : [VoteBlock.Create(post.VoteLines)!];
 
         foreach (var block in blocks)
         {
@@ -40,7 +48,7 @@ public static class VoteConstructor
 
             if (isPlan &&
                 !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                IsValidPlanName(planName, post.Origin.Author.Name, quest) &&
+                IsValidPlanName(planName, author.Name, quest) &&
                 DoesTaskFilterPass(block, quest))
             {
                 plans[planName] = block;
@@ -64,16 +72,15 @@ public static class VoteConstructor
 
         if (!post.Processed)
         {
-            if (!post.WorkingVoteComplete)
-                ConfigureWorkingVote(post, quest);
+            ConfigureWorkingVote(post, quest);
 
             // If the working vote configuration is complete, process the post.
             if (post.WorkingVoteComplete)
             {
                 // If a newer vote has been registered in the vote counter, that means
                 // that this post was a prior future reference that got overridden later.
-                // If so, don't process it now, but allow the post to be marked as
-                // processed so that it doesn't try to re-submit it later.
+                // If so, don't process it now, but mark the post as processed so that
+                // it doesn't get re-submitted later.
                 if (quest.VoteCounterF.HasNewerVote(post))
                 {
                     post.Processed = true;
@@ -83,7 +90,7 @@ public static class VoteConstructor
                     // Get the results of partitioning the post.
                     var results = PartitionPost(post, quest.PartitionMode);
 
-                    // Apply task filtering.
+                    // Add partitions that pass task filtering.
                     votes.AddRange(results.Where(p => DoesTaskFilterPass(p, quest)));
 
                     post.Processed = true;
@@ -93,89 +100,59 @@ public static class VoteConstructor
 
         return post.Processed;
     }
+    #endregion General public processing functions
 
+    #region Utility functions for processing votes.
     /// <summary>
-    /// Given a plan block, if the plan is a base/proposed plan, rename it as just a "Plan".
-    /// Convert the marker for all lines to None.
+    /// Make sure the provided plan name is valid.
+    /// A named vote that is named after a user is only valid if it matches the post author's name.
     /// </summary>
-    /// <param name="plan">The plan to examine.</param>
-    /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-    public static (string name, VoteBlockType contents) NormalizePlan(string keyName, VoteBlockType keyContents)
+    /// <param name="planName">The name of the plan.</param>
+    /// <param name="postAuthor">The post's author.</param>
+    /// <returns>Returns true if the plan name is deemed valid.</returns>
+    private static bool IsValidPlanName(string planName, string postAuthor, Quest quest)
     {
-        VoteLineType firstLine = keyContents.First();
-
-        var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
-
-        // Proposed needs to be converted to an unadorned plan name.
-        if (planType == PlanStatus.Proposed)
+        // A named vote that is named after a user is only valid if it matches the post author's name.
+        if (quest.VoteCounterF.HasVoter(planName))
         {
-            string normalName = $"Plan: {planName}";
-            var content = VoteContent.Create(normalName);
-
-            if (content != null)
+            if (!Agnostic.CaseInsensitiveComparer.Equals(planName, postAuthor))
             {
-                firstLine = firstLine with { Content = content } ;
+                return false;
             }
         }
 
-        // All vote lines in a plan should have MarkerType of None.
-        // This allows them to be part of any comparison, and easily mesh with various output.
-        if (planType != PlanStatus.None)
-        {
-            firstLine = firstLine with { Marker = Marker.Empty } ;
-
-            List<VoteLineType> voteLines = [firstLine, .. keyContents.Skip(1)];
-
-            var returnPlan = VoteBlock.Create(voteLines);
-            
-            if (returnPlan != null)
-            {
-                returnPlan = returnPlan with { Marker = Marker.PlanMarker };
-                return (planName, returnPlan);
-            }
-        }
-
-        // If it's not a plan, how did we get here?
-        return (keyName, keyContents);
+        return true;
     }
 
     /// <summary>
-    /// Partition a plan after initial preprocessing.
+    /// Determine whether the task of the provided vote line block falls within the
+    /// filter range of allowed/desired tasks.
+    /// If task filters are active, the block must have a task that matches what's allowed.
     /// </summary>
-    /// <param name="block">The block defining the plan.</param>
-    /// <param name="partitionMode">The current partitioning mode.</param>
-    /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
-    public static List<VoteBlockType> PartitionPlan(VoteBlockType block, PartitionMode partitionMode)
+    /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
+    /// <param name="quest">The quest being tallied.</param>
+    /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
+    private static bool DoesTaskFilterPass(VoteBlockType block, Quest quest)
     {
-        return Partition(block, partitionMode, asPlan: true);
+        // Always allow if no filters are active.
+        if (!quest.UseCustomTaskFilters)
+            return true;
+
+        return quest.TaskFilter.Match(block.Task.Name);
     }
 
     /// <summary>
-    /// Given a vote block, partition it by block and save the resulting
-    /// split votes in the vote counter.
-    /// </summary>
-    /// <param name="vote">The vote to partition.</param>
-    /// <returns>Returns true if successfully completed.</returns>
-    public static List<VoteBlockType> PartitionChildren(VoteBlockType vote)
-    {
-        // Break vote block into child blocks and return them.
-        return Partition(vote, PartitionMode.ByBlockAll);
-    }
-    #endregion
-
-    #region Working Vote Configuration
-    /// <summary>
-    /// Work through the original post line, remove any base plans, and expand
+    /// Work through the original post lines, remove any base plans, and expand
     /// any vote or plan references.  Store the information in the WorkingVote.
     /// </summary>
     /// <param name="post">The post with the working vote to configure.</param>
     /// <param name="quest">The quest being tallied.</param>
-    public static void ConfigureWorkingVote(PostToProcess post, Quest quest)
+    private static void ConfigureWorkingVote(PostToProcess post, Quest quest)
     {
         if (post.WorkingVoteComplete)
             return;
 
-        List<(VoteLineType? line, VoteBlockType? block)> workingVote = [];
+        List<VoteBlockType> workingVote = [];
 
         // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
         // Keep everything else, flattening the blocks back into a simple list of vote lines.
@@ -195,7 +172,7 @@ public static class VoteConstructor
                 if (isPlan)
                 {
                     // We can rely on GetReference returning a valid plan name.
-                    var refPlan = quest.VoteCounter.GetReferencePlan(refName);
+                    var refPlan = quest.VoteCounterF.GetReferencePlan(refName);
 
                     // If there is no available reference plan, just add the line and continue.
                     if (refPlan == null)
@@ -224,24 +201,26 @@ public static class VoteConstructor
 
                     // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
 
-                    var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
+                    var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
 
                     foreach (var voteBlock in voteBlocks)
                     {
-                        workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                        var replacementBlock = voteBlock with { Marker = currentLine.Marker };
+                        workingVote.Add(replacementBlock);
                     }
                 }
                 // Users
                 else
                 {
-                    PostId postSearchLimit = isPinnedUser ? post.Origin.ID : PostId.Zero;
+                    PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
 
-                    PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
+                    PostToProcess? refUserPost = quest.VoteCounterF.GetLastPostByAuthor(refName, postSearchLimit);
 
                     // If we can't find the reference post, just treat this as a normal line.
                     if (refUserPost == null)
                     {
-                        workingVote.Add((currentLine, block: null));
+                        var block = VoteBlock.Create(currentLine);
+                        workingVote.Add(block);
                     }
                     // If the reference post hasn't been processed yet, bail out entirely,
                     // because we're in a future reference position.
@@ -252,13 +231,14 @@ public static class VoteConstructor
                     // Otherwise save the reference vote.
                     else
                     {
-                        var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
+                        var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
 
-                        if (voteBlocks.Count > 0)
+                        if (voteBlocks.Any())
                         {
                             foreach (var voteBlock in voteBlocks)
                             {
-                                workingVote.Add((line: null, voteBlock.WithMarker(currentLine.Marker, currentLine.MarkerType, currentLine.MarkerValue)));
+                                var replacementBlock = voteBlock with { Marker = currentLine.Marker };
+                                workingVote.Add(replacementBlock);
                             }
                         }
                         else
@@ -266,7 +246,8 @@ public static class VoteConstructor
                             // If the user being referenced doesn't actually have any vote,
                             // just add the line directly.  This is most likely due to the
                             // referenced user just proposing a plan, but not making a vote.
-                            workingVote.Add((currentLine, block: null));
+                            var block = VoteBlock.Create(currentLine);
+                            workingVote.Add(block);
                         }
                     }
                 }
@@ -310,24 +291,18 @@ public static class VoteConstructor
             // Handle trimming extended text.
             if (quest.TrimExtendedText)
             {
-                workingVote.Add((currentLine.WithTrimmedContent(), block: null));
+                var trimmedContent = VoteContent.Trim(currentLine.Content);
+                var replacementLine = currentLine with { Content = trimmedContent };
+                var block = VoteBlock.Create(replacementLine);
+                workingVote.Add(block);
             }
             else
             {
-                workingVote.Add((currentLine, block: null));
+                var block = VoteBlock.Create(currentLine);
+                workingVote.Add(block);
             }
         }
     }
-
-
-
-
-    // A regex to extract potential references from a vote line.
-    static readonly Regex referenceNameRegex =
-        new(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)",
-            RegexOptions.IgnoreCase,
-            TimeSpan.FromSeconds(1));
-
 
     /// <summary>
     /// Attempt to determine if the content of the provided vote line is a reference to a user or plan.
@@ -349,7 +324,7 @@ public static class VoteConstructor
             string label = m.Groups["label"].Value;
             string refName = m.Groups["reference"].Value;
 
-            if (string.Equals(label, "^") || string.Equals(label, "↑"))
+            if (label == "^" || label == "↑")
             {
                 OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
 
@@ -402,156 +377,134 @@ public static class VoteConstructor
     }
     #endregion
 
-    #region Utility functions for processing votes.
-    /// <summary>
-    /// Make sure the provided plan name is valid.
-    /// A named vote that is named after a user is only valid if it matches the post author's name.
-    /// </summary>
-    /// <param name="planName">The name of the plan.</param>
-    /// <param name="postAuthor">The post's author.</param>
-    /// <returns>Returns true if the plan name is deemed valid.</returns>
-    private static bool IsValidPlanName(string planName, string postAuthor, Quest quest)
-    {
-        // A named vote that is named after a user is only valid if it matches the post author's name.
-        if (quest.VoteCounter.HasVoter(planName))
-        {
-            if (!Agnostic.CaseInsensitiveComparer.Equals(planName, postAuthor))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Determine whether the task of the provided vote line block falls within the
-    /// filter range of allowed/desired tasks.
-    /// If task filters are active, the block must have a task that matches what's allowed.
-    /// </summary>
-    /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
-    /// <param name="quest">The quest being tallied.</param>
-    /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-    private static bool DoesTaskFilterPass(VoteBlockType block, Quest quest)
-    {
-        // Always allow if no filters are active.
-        if (!quest.UseCustomTaskFilters)
-            return true;
-
-        return quest.TaskFilter.Match(block.Task.Name);
-    }
-    #endregion
 
     #region Partitioning utility functions for partitioning posts
+
+    #region Paritioning Blocks
+    /// <summary>
+    /// Partition a plan after initial preprocessing.
+    /// </summary>
+    /// <param name="block">The block defining the plan.</param>
+    /// <param name="partitionMode">The current partitioning mode.</param>
+    /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
+    public static List<VoteBlockType> PartitionPlan(VoteBlockType block, PartitionMode partitionMode)
+    {
+        return PartitionBlock(block, partitionMode, asPlan: true);
+    }
+
+    public static List<VoteBlockType> PartitionChildren(VoteBlockType vote)
+    {
+        // Break vote block into child blocks and return them.
+        return PartitionBlock(vote, PartitionMode.ByBlockAll);
+    }
+
     /// <summary>
     /// Run partitioning on a vote block, without consideration for proxy votes.
     /// Will not cascade tasks.
     /// </summary>
     /// <param name="block">The block to partition.</param>
     /// <param name="partitionMode">The partitioning mode.</param>
-    /// <returns></returns>
-    private static List<VoteBlockType> Partition(VoteBlockType block, PartitionMode partitionMode, bool asPlan = false)
+    /// <returns>A list of vote blocks.</returns>
+    private static List<VoteBlockType> PartitionBlock(VoteBlockType block, PartitionMode partitionMode, bool asPlan = false)
     {
-        List<VoteBlockType> partitions = [];
-
         // If we're not partitioning, we have no work to do.
         if (partitionMode == PartitionMode.None)
-        {
-            partitions.Add(block);
-            return partitions;
-        }
+            return [block];
 
         // Single line blocks don't need extra handling.
         if (block.Lines.Count == 1)
-        {
-            partitions.Add(block);
-            return partitions;
-        }
+            return [block];
 
         // A content block is the same as an explicit plan.
         if (VoteBlocks.IsThisAContentBlock(block))
         {
-            // ByLine only needs to skip the first line, and take the rest after promoting one indent level.
-            if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
-            {
-                int minDepth = int.MaxValue;
-                foreach (var line in block.Skip(1))
-                {
-                    if (line.Prefix.Depth < minDepth)
-                        minDepth = line.Prefix.Depth;
-                }
-
-                foreach (var line in block.Skip(1))
-                {
-                    var pLine = line.GetPromotedLine(minDepth);
-                    partitions.Add(new VoteBlockType(pLine));
-                }
-
-                return partitions;
-            }
-            else if (partitionMode == PartitionMode.ByBlock)
-            {
-                // A content block is already partitioned by block
-                partitions.Add(block);
-                return partitions;
-            }
-            else if (partitionMode == PartitionMode.ByBlockAll)
-            {
-                // Visual Studio crashes whenever I try to use the Min() LINQ function.
-
-                int minDepth = int.MaxValue;
-                foreach (var line in block.Skip(1))
-                {
-                    if (line.Prefix.Depth < minDepth)
-                        minDepth = line.Prefix.Depth;
-                }
-
-                // Maybe: Apply main task to sub blocks.
-
-                return VoteBlocks.GetBlocks(block.Skip(1).Select(a => a.GetPromotedLine(minDepth))).ToList();
-            }
-
-            // Failed partition mode checks.
-            throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
+            return PartitionBlockForContentBlock(block, partitionMode);
         }
         // A non-content block is anything else, like an implicit plan.
         else
         {
-            // ByLine is simple.
-            if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
-            {
-                foreach (var line in block.Skip(asPlan ? 1 : 0))
-                {
-                    partitions.Add(new VoteBlockType(line));
-                }
-
-                return partitions;
-            }
-            // Normal By Block does not partition implicit plans
-            else if (partitionMode == PartitionMode.ByBlock)
-            {
-                if (asPlan && !VoteBlocks.IsBlockAnImplicitPlan(block).isImplicit)
-                {
-                    return VoteBlocks.GetBlocks(block.Skip(asPlan ? 1 : 0)).ToList();
-                }
-                else
-                {
-                    partitions.Add(block);
-                    return partitions;
-                }
-            }
-            // By block (all) partitions even implicit plans.
-            else if (partitionMode == PartitionMode.ByBlockAll)
-            {
-                return VoteBlocks.GetBlocks(block.Skip(asPlan ? 1 : 0)).ToList();
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
-            }
+            return PartitionBlockForNonContentBlock(block, partitionMode, asPlan);
         }
     }
 
+    private static List<VoteBlockType> PartitionBlockForContentBlock(
+        VoteBlockType block,
+        PartitionMode partitionMode)
+    {
+        // By Line only needs to skip the first line, and take the rest after promoting.
+        if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+        {
+            int minDepth = block.Lines.Skip(1).Min(a => a.Prefix.Depth);
+
+            var promotedLines = block.Lines.Skip(1)
+                .Select(v => VoteLine.Promote(v, minDepth))
+                .Select(VoteBlock.Create)
+                .Where(v => v != null)
+                .Select(v => v!);
+
+            return promotedLines.ToList();
+        }
+        else if (partitionMode == PartitionMode.ByBlock)
+        {
+            // A content block is already partitioned by block
+            return [block];
+        }
+        else if (partitionMode == PartitionMode.ByBlockAll)
+        {
+            int minDepth = block.Lines.Skip(1).Min(a => a.Prefix.Depth);
+
+            var promotedLines = block.Lines.Skip(1)
+                .Select(v => VoteLine.Promote(v, minDepth));
+
+            var promotedBlocks = VoteBlocks.GetBlocks(promotedLines);
+
+            return promotedBlocks.ToList();
+        }
+
+        // Failed partition mode checks.
+        throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
+    }
+        
+    private static List<VoteBlockType> PartitionBlockForNonContentBlock(
+        VoteBlockType block,
+        PartitionMode partitionMode,
+        bool asPlan = false)
+    {
+        List<VoteBlockType> partitions = [];
+        int skipLines = asPlan ? 1 : 0;
+
+        // By Line is simple.
+        if (partitionMode == PartitionMode.ByLine || partitionMode == PartitionMode.ByLineTask)
+        {
+            var partitionedLines = block.Lines.Skip(skipLines)
+                .Select(VoteBlock.Create)
+                .Where(v => v != null)
+                .Select(v => v!);
+
+            return partitionedLines.ToList();
+        }
+        else if (partitionMode == PartitionMode.ByBlock)
+        {
+            // Normal By Block does not partition implicit plans
+            if (asPlan && VoteBlocks.IsBlockAnImplicitPlan(block).IsImplicit)
+            {
+                return [block];
+            }
+
+            return VoteBlocks.GetBlocks(block.Skip(skipLines)).ToList();
+        }
+        else if (partitionMode == PartitionMode.ByBlockAll)
+        {
+            // By block (all) partitions even implicit plans.
+            return VoteBlocks.GetBlocks(block.Skip(skipLines)).ToList();
+        }
+
+        // Failed partition mode checks.
+        throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
+    }
+    #endregion Paritioning Blocks
+
+    #region Paritioning Posts
     /// <summary>
     /// Partition a post based on the requested partition mode.
     /// </summary>
@@ -560,17 +513,15 @@ public static class VoteConstructor
     /// <returns>Returns the partitions that are to be counted.</returns>
     private static List<VoteBlockType> PartitionPost(PostToProcess post, PartitionMode partitionMode)
     {
-        List<VoteBlockType> results = partitionMode switch
+        return partitionMode switch
         {
             PartitionMode.None => PartitionPostByNone(post),
             PartitionMode.ByLine => PartitionPostByLine(post),
-            PartitionMode.ByLineTask => PartitionPostByLineTask(post),
+            PartitionMode.ByLineTask => PartitionPostByLineTask3(post),
             PartitionMode.ByBlock => PartitionPostByBlock(post),
             PartitionMode.ByBlockAll => PartitionPostByBlock(post),
             _ => throw new InvalidOperationException($"Unknown partition mode: {partitionMode}")
         };
-
-        return results;
     }
 
     /// <summary>
@@ -581,31 +532,13 @@ public static class VoteConstructor
     /// <returns>Returns the partitions that are to be counted.</returns>
     private static List<VoteBlockType> PartitionPostByNone(PostToProcess post)
     {
-        List<VoteLineType> working = [];
+        var collated = post.WorkingVote.SelectMany(v => v);
+        var block = VoteBlock.Create(collated);
 
-        foreach (var (line, block) in post.WorkingVote)
-        {
-            if (line != null)
-            {
-                working.Add(line);
-            }
-            else if (block != null)
-            {
-                working.AddRange(block);
-            }
-        }
+        if (block == null)
+            return [];
 
-        List<VoteBlockType> results = [];
-
-        if (working.Count > 0)
-        {
-            var workingBlock = VoteBlock.Create(working);
-
-            if (workingBlock != null)
-                results.Add(workingBlock);
-        }
-
-        return results;
+        return [block];
     }
 
     /// <summary>
@@ -616,62 +549,13 @@ public static class VoteConstructor
     /// <returns>Returns a list of vote blocks.</returns>
     private static List<VoteBlockType> PartitionPostByLine(PostToProcess post)
     {
-        List<VoteBlockType> working = [];
+        var partitionedLines = post.WorkingVote
+            .SelectMany(v => v)
+            .Select(VoteBlock.Create)
+            .Where(v => v != null)
+            .Select(v => v!);
 
-        foreach (var (line, block) in post.WorkingVote)
-        {
-            if (line != null)
-            {
-                var vb = VoteBlock.Create([line]);
-
-                if (vb != null)
-                {
-                    working.Add(vb);
-                }
-            }
-            else if (block != null)
-            {
-                working.AddRange(block.Select(a => new VoteBlockType(a)));
-            }
-        }
-
-        return working;
-    }
-
-    /// <summary>
-    /// Generate the vote partitions for a post, using line-level partitioning.
-    /// Incorporates any proxy references.
-    /// This cascades tasks from higher level lines to lower level ones when partitioning.
-    /// </summary>
-    /// <param name="post">The post with the vote to be partitioned.</param>
-    /// <returns>Returns a list of vote blocks.</returns>
-    private static List<VoteBlockType> PartitionPostByLineTask(PostToProcess post)
-    {
-        List<VoteBlockType> working = [];
-
-        (int depth, string task) currentTask = (0, "");
-        Stack<(int depth, string task)> taskStack = new();
-
-        foreach (var (line, block) in post.WorkingVote)
-        {
-            if (line != null)
-            {
-                working.Add(CascadeLineTask(line, ref currentTask, ref taskStack));
-            }
-            else if (block != null)
-            {
-                // If we hit an embedded block, reset the current task, break the block up, and do the task cascade.
-                taskStack.Clear();
-                currentTask = (0, "");
-
-                foreach (var blockLine in block)
-                {
-                    working.Add(CascadeLineTask(blockLine, ref currentTask, ref taskStack));
-                }
-            }
-        }
-
-        return working;
+        return partitionedLines.ToList();
     }
 
     /// <summary>
@@ -681,95 +565,97 @@ public static class VoteConstructor
     /// <returns>Returns a list of vote blocks.</returns>
     private static List<VoteBlockType> PartitionPostByBlock(PostToProcess post)
     {
-        List<VoteBlockType> working = [];
-        List<VoteLineType> tempList = [];
-
-        foreach (var (line, block) in post.WorkingVote)
-        {
-            if (line != null)
-            {
-                // Start a new block if we reach a new 0-depth line.
-                if (line.Prefix.Depth == 0 && tempList.Count > 0)
-                {
-                    working.Add(new VoteBlockType(tempList));
-                    tempList.Clear();
-                }
-
-                tempList.Add(line);
-            }
-            else if (block != null)
-            {
-                // Save the accumulated lines if we run into a block element.
-                if (tempList.Count > 0)
-                {
-                    working.Add(new VoteBlockType(tempList));
-                    tempList.Clear();
-                }
-
-                // If partition mode is BlockAll, the plan has already been
-                // partitioned, so we don't need to re-do the work.
-                working.Add(block);
-            }
-        }
-
-        // Save any remainder
-        if (tempList.Count > 0)
-        {
-            working.Add(new VoteBlockType(tempList));
-            tempList.Clear();
-        }
-
-        return working;
+        var collated = post.WorkingVote.SelectMany(v => v);
+        var blocks = VoteBlocks.GetBlocks(collated);
+        return blocks.ToList();
     }
 
-    private static VoteBlockType CascadeLineTask(VoteLineType line,
-        ref (int depth, string task) currentTask,
-        ref Stack<(int depth, string task)> taskStack)
+    /// <summary>
+    /// Assigns parent-most task to all child lines.
+    /// </summary>
+    /// <param name="post"></param>
+    /// <returns></returns>
+    private static List<VoteBlockType> PartitionPostByLineTask2(PostToProcess post)
     {
-        // If we have no task, and the line has no task, do nothing.
-        if (line.Task.Name.Length == 0 && currentTask.task.Length == 0)
-        {
-            return new VoteBlockType(line);
-        }
+        var collated = post.WorkingVote.SelectMany(v => v);
 
-        // If we've moved up a depth level, then make sure to pop off the stack until
-        // our current task is appropriate to the line level.
-        // Once we've done that, we'll be back to checking if the line is equal or greater
-        // depth than the current task.
-        if (line.Prefix.Depth < currentTask.depth)
-        {
-            while (currentTask.depth > line.Prefix.Depth && taskStack.Count > 0)
-            {
-                currentTask = taskStack.Pop();
-            }
-        }
+        var blocks = VoteBlocks.GetBlocks(collated);
 
-        // If we move to a new line that's of the same depth as our current task, update the task.
-        if (line.Depth == currentTask.depth)
-        {
-            currentTask.task = line.Task;
-            return new VoteBlockType(line);
-        }
+        var retaskedBlocks = blocks.Select(Retask)
+                .SelectMany(v => v)
+                .Select(VoteBlock.Create)
+                .Where(v => v != null)
+                .Select(v => v!)
+                .ToList();
 
-        // If we move to a greater depth...
-        if (line.Depth > currentTask.depth)
-        {
-            // If the new line has no task, just propogate the current task and move on.
-            if (!line.HasTask)
-            {
-                return new VoteBlockType(line.WithTask(currentTask.task));
-            }
-            // Otherwise save the current task on the stack and update to the new task.
-            else
-            {
-                taskStack.Push(currentTask);
-                currentTask = (line.Depth, line.Task);
-                return new VoteBlockType(line);
-            }
-        }
+        return retaskedBlocks;
 
-        // We should never get here, but if we do, just return the line.
-        return new VoteBlockType(line);
+        static IEnumerable<VoteLineType> Retask(VoteBlockType block, int arg2)
+        {
+            if (block.Lines.Count == 0)
+                return [];
+
+            var task = block.Lines[0].Task;
+
+            return block.Select(v => v with { Task = task });
+        }
     }
+
+    /// <summary>
+    /// Recursively assigns parent tasks to child lines, taking the closest parent task value.
+    /// </summary>
+    /// <param name="post"></param>
+    /// <returns></returns>
+    private static List<VoteBlockType> PartitionPostByLineTask3(PostToProcess post)
+    {
+        var voteLines = post.WorkingVote
+            .SelectMany(v => v);
+        
+        var r = VoteBlocks.GetBlocks(voteLines);
+
+        var retaskedLines = r.SelectMany(v => RecursePartitionByLineTask(v, VoteTask.Empty));
+
+        return retaskedLines
+            .Select(VoteBlock.Create)
+            .Where(v => v != null)
+            .Select(v => v!)
+            .ToList();
+
+        static IEnumerable<VoteLineType> RecursePartitionByLineTask(VoteBlockType block, VoteTaskType task)
+        {
+            // Hopefully depth 0, but could be spurious prefix indents
+            if (block.All(a => a.Depth == block.Lines[0].Depth))
+            {
+                // If there's no replacement task, we don't have to change anything
+                if (task ==  VoteTask.Empty)
+                {
+                    return [.. block];
+                }
+
+                // If there is a replacement task, replace lines that don't have their own task.
+                return block.Select(v => v.Task == VoteTask.Empty ? v with { Task = task } : v)
+                    .Select(VoteLine.FullPromote);
+            }
+
+            // A content block creates a new task scope.
+            if (VoteBlocks.IsThisAContentBlock(block))
+            {
+                var first = block.Lines[0];
+                VoteTaskType passTask = block.Task != VoteTask.Empty ? block.Task : task;
+
+                return [first,
+                    .. PartitionBlockForContentBlock(block, PartitionMode.ByBlockAll)
+                        .Select(a => RecursePartitionByLineTask(a, passTask))
+                        .SelectMany(a => a)];
+            }
+
+            // Anything else needs to be broken down into either same-depth groups or content blocks.
+            return VoteBlocks.GetBlocks(block)
+                .Select(a => RecursePartitionByLineTask(a, task))
+                .SelectMany(a => a);
+        }
+    }
+    #endregion Paritioning Posts
+
     #endregion
 }

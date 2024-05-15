@@ -15,7 +15,7 @@ public class PostToProcess(PostType post)
     /// The <see cref="VoteLineType"/> is a normal line, while the <see cref="VoteBlockType"/> represents a complete plan.
     /// The WorkingVote is a sequence of one or the other.
     /// </summary>
-    public List<(VoteLineType? line, VoteBlockType? block)> WorkingVote { get; } = [];
+    public List<VoteBlockType> WorkingVote { get; } = [];
 
     /// <summary>
     /// Flag whether the WorkingVote has been completely filled in.

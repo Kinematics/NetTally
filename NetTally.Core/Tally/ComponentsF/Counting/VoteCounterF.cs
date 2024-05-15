@@ -915,17 +915,21 @@ public class VoteCounterF(
             AddReferenceVoter(post.Origin);
         }
 
-        List<(bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
-            planProcesses =
-            [
-                (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
-                (asBlocks: true, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
-                (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
-                (asBlocks: false, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+
+        // Either split the vote into blocks, or encapsulate the vote into an enumerable
+        // so that it can be treated the same way.
+
+        List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
+        planProcesses2 =
+        [
+                (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+                (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+                (postToBlocks: (p) => [VoteBlock.Create(p.VoteLines)!], isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+                (postToBlocks: (p) => [VoteBlock.Create(p.VoteLines)!], isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
             ];
 
         // Run the above series of preprocessing functions to extract plans from the post list.
-        PreprocessPlans(quest, planProcesses);
+        PreprocessPlans(quest, planProcesses2);
     }
 
     /// <summary>
@@ -938,25 +942,30 @@ public class VoteCounterF(
     /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
     private void PreprocessPlans(
         Quest quest,
-        List<(bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses)
+        List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks,
+              Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses)
     {
         Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
 
-        foreach (var (asBlocks, isPlanFunction) in planProcesses)
+        foreach (var (postToBlocksFunction, isPlanFunction) in planProcesses)
         {
             foreach (var post in Posts)
             {
-                var plans = VoteConstructor.PreprocessPostGetPlans(post, quest, asBlocks, isPlanFunction);
+                var blocks = postToBlocksFunction(post);
+                var plans = VoteConstructor.PreprocessPostGetPlans(quest, post.Origin.Author, isPlanFunction, blocks);
 
                 foreach (var (planName, planContent) in plans)
                 {
                     // Convert "Base/Proposed Plan" to "Plan" before saving.
                     // Set to an undefined marker.
-                    (string normalPlanName, VoteBlockType normalPlanContents) =
-                        VoteConstructor.NormalizePlan(planName, planContent);
+                    var normalized = NormalizePlan(planName, planContent);
 
-                    var planAuthor = Author.Create(normalPlanName);
-                    var planOrigin = Origin.CreatePlanOrigin(post.Origin, planAuthor);
+                    if (normalized == null)
+                        continue;
+
+                    (string normalPlanName, VoteBlockType normalPlanContents) = normalized.Value;
+
+                    var planOrigin = Origin.CreatePlanOrigin(post.Origin, normalPlanName);
 
                     if (planOrigin != null)
                     {
