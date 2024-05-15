@@ -13,7 +13,7 @@ using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     public partial class VBulletin3Adapter(
         IOptions<GlobalSettings> options,

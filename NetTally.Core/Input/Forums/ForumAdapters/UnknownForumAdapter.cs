@@ -10,7 +10,7 @@ using NetTally.Enums;
 using NetTally.Tally.Components;
 using NetTally.Web;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     class UnknownForumAdapter(
         IOptions<GlobalSettings> options,

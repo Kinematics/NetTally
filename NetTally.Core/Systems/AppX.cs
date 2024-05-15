@@ -12,7 +12,8 @@ using NetTally.Configure;
 using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
-using NetTally.Forums;
+using NetTally.Input.Forums;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Systems.Config.Json;
@@ -128,9 +129,9 @@ public static class AppX
 
         services.AddSingleton<Tallyer>();
         services.AddTransient<IVoteCounter, VoteCounter>();
-        services.AddTransient<IVoteCounterF, VoteCounterF>();
+        services.AddTransient<Tally.ComponentsF.Counting.IVoteCounterF, Tally.ComponentsF.Counting.VoteCounterF>();
         services.AddTransient<IPageProvider, WebPageProvider>();
-        services.AddTransient<IForumReader, ForumReaderF>();
+        services.AddTransient<IForumReaderF, ForumReaderF>();
         services.AddTransient<ForumReader>();
         services.AddSingleton<ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();

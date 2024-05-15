@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Enums;
-using NetTally.Tally.Components;
-using NetTally.Web;
+using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.ComponentsF.Threads;
 
-namespace NetTally.Input.Forums.ForumAdapters
+namespace NetTally.Forums.ForumAdaptersF
 {
     public interface IForumAdapter
     {
@@ -46,7 +44,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        ThreadInfo GetThreadInfo(HtmlDocument page);
+        ThreadInfoType GetThreadInfoF(Quest quest, HtmlDocument page);
 
         /// <summary>
         /// Gets the range of post numbers to tally, for the given quest.
@@ -56,7 +54,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token);
+        ThreadRangeType GetQuestRangeInfoF(Quest quest, HtmlDocument page);
 
         /// <summary>
         /// Get a list of posts from the provided page.
@@ -64,6 +62,6 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
+        IEnumerable<PostType> GetPostsF(HtmlDocument page, Quest quest, int pageNumber);
     }
 }

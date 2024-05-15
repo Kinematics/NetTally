@@ -2,13 +2,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using NetTally.Forums.ForumAdapters;
-using NetTally.Configure.Legacy;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 
-namespace NetTally.Forums
+namespace NetTally.Input.Forums.ForumAdapters
 {
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.

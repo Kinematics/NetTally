@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using NetTally.Utility;
 
-namespace NetTally.Forums
+namespace NetTally.Input.Forums
 {
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.

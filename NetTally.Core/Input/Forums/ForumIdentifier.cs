@@ -8,7 +8,7 @@ using NetTally.Web;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
 
-namespace NetTally.Forums
+namespace NetTally.Input.Forums
 {
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.

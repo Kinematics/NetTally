@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Forums;
 using NetTally.Forums.ForumAdapters;
+using NetTally.Input.Forums.ForumAdapters;
 
 namespace NetTally.Tests.Forums
 {

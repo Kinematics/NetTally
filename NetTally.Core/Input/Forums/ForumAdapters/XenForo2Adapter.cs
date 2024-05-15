@@ -17,7 +17,7 @@ using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     public partial class XenForo2Adapter(
         IOptions<GlobalSettings> options,

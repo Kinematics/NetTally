@@ -14,7 +14,7 @@ using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     public partial class VBulletin4Adapter(
         IOptions<GlobalSettings> options,

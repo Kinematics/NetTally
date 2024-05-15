@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.CustomEventArgs;
-using NetTally.Forums.ForumAdapters;
 using NetTally.Configure;
+using NetTally.CustomEventArgs;
+using NetTally.Enums;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components;
 using NetTally.Web;
-using NetTally.Enums;
-using NetTally.Forums;
 
 namespace NetTally.Input.Forums.Reading
 {

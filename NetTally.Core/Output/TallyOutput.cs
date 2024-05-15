@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Forums;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Systems;
 using NetTally.Tally.Components;
 using NetTally.Utility;
