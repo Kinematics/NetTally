@@ -11,7 +11,7 @@ public record PostType(OriginType Origin, string Text, List<VoteLineType> VoteLi
 
 public static class Post
 {
-    public static PostType? Create(OriginType origin, string text)
+    public static PostType? Create(OriginType? origin, string text)
     {
         if (origin == null) return null;
         if (string.IsNullOrEmpty(text)) return null;
