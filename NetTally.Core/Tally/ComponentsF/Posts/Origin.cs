@@ -87,10 +87,7 @@ public static class Origin
         if (planName == null)
             return null;
 
-        var author = Author.Create(planName);
-
-        if (author == null)
-            return null;
+        AuthorType author = Author.Create(planName);
 
         return CreatePlanOrigin(origin, author);
     }
