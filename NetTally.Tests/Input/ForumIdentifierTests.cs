@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Forums;
+using NetTally.Input.Forums;
 
 namespace NetTally.Tests.Forums
 {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Forums;
+using NetTally.Input.Forums;
 using NetTally.Tally.Components;
 
 namespace NetTally.Tests.Forums
