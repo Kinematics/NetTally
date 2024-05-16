@@ -131,7 +131,7 @@ public static class AppX
         services.AddTransient<Tally.ComponentsF.Counting.IVoteCounterF, Tally.ComponentsF.Counting.VoteCounterF>();
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<IForumReaderF, ForumReaderF>();
-        services.AddTransient<ForumReader>();
+        services.AddTransient<IForumReader, ForumReader>();
         services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
         services.AddSingleton<Input.Forums.ForumAdaptersF.ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();

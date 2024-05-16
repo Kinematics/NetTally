@@ -23,6 +23,7 @@ namespace NetTally.Tally.Components
         public Post(Origin origin, string text)
         {
             ArgumentNullException.ThrowIfNull(origin);
+            ArgumentException.ThrowIfNullOrEmpty(text);
 
             Origin = origin;
             Text = text ?? "";

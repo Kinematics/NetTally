@@ -21,7 +21,7 @@ namespace NetTally.Input.Forums.Reading
     public class ForumReader(IServiceProvider provider,
         ForumAdapterFactory factory,
         IQuestsInfo questsInfo,
-        ILogger<ForumReader> logger)
+        ILogger<ForumReader> logger) : IForumReader
     {
         #region Constructor
         private readonly IServiceProvider serviceProvider = provider;
@@ -46,7 +46,7 @@ namespace NetTally.Input.Forums.Reading
         #endregion
 
         #region Public method
-        public async Task<(List<string> threadTitles, List<Post> posts)> ReadQuestAsync(Quest quest, CancellationToken token)
+        public async Task<(List<string> Titles, List<Post> Posts)> ReadQuestAsync(Quest quest, CancellationToken token)
         {
             // Tally the selected quests, and any linked quests.
             List<Quest> quests = [quest];
