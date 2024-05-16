@@ -1,4 +1,5 @@
 ﻿using System;
+using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 
@@ -27,7 +28,8 @@ public static class ThreadInformation
         int pageNumberOfStartPost,
         int pagesInThread)
     {
-        title ??= "Untitled";
+        if (string.IsNullOrEmpty(title))
+            title = StringData.UntitledThread;
         author ??= Author.Unknown;
         if (startPostNumber < 0)
             startPostNumber = 0;

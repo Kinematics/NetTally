@@ -921,7 +921,7 @@ public class VoteCounterF(
 
         List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
         planProcesses2 =
-        [
+            [
                 (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
                 (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
                 (postToBlocks: (p) => [VoteBlock.Create(p.VoteLines)!], isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
