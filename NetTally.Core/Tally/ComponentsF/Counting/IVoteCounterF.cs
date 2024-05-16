@@ -32,6 +32,8 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     ObservableCollectionExt<VoteTaskType> TaskList { get; }
 
+    List<PostToProcess> Posts { get; }
+
     VoteStorage VoteStorage { get; }
 
     /// <summary>
