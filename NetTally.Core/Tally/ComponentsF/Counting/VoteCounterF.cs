@@ -1040,7 +1040,7 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="plan">The plan to examine.</param>
     /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-    public static (string Name, VoteBlockType Contents)?
+    public (string Name, VoteBlockType Contents)?
         NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock)
     {
         if (originalVoteBlock.Lines.Count == 0 || string.IsNullOrEmpty(originalPlanName))

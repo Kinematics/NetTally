@@ -377,7 +377,6 @@ public static partial class VoteConstructor
     }
     #endregion
 
-
     #region Partitioning utility functions for partitioning posts
 
     #region Paritioning Blocks
