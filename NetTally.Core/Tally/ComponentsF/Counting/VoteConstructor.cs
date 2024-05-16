@@ -38,7 +38,7 @@ public static partial class VoteConstructor
         Quest quest,
         AuthorType author,
         Func<VoteBlockType, PlanDescriptor> isPlanFunction,
-        List<VoteBlockType> blocks)
+        IEnumerable<VoteBlockType> blocks)
     {
         Dictionary<string, VoteBlockType> plans = new(StringComparer.OrdinalIgnoreCase);
 
