@@ -152,7 +152,7 @@ namespace NetTally.VoteCounting
         private static Dictionary<string, VoteBlockType> PreprocessPlans(
             IReadOnlyList<PostToProcess> posts,
             Quest quest,
-            List<(bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses,
+            IEnumerable<(bool asBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses,
             CancellationToken token)
         {
             Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);

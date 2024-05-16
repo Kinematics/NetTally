@@ -397,9 +397,9 @@ public class VoteCounterF(
     /// </summary>
     /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
     /// <param name="voter">The voter for this vote.</param>
-    public void AddVotes(List<VoteBlockType> votePartitions, OriginType voter)
+    public void AddVotes(IEnumerable<VoteBlockType> votePartitions, OriginType voter)
     {
-        if (votePartitions.Count == 0)
+        if (!votePartitions.Any())
             return;
 
         // Remove the voter from any existing votes

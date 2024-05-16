@@ -165,7 +165,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     /// <param name="votePartitions">The vote blocks to be added.</param>
     /// <param name="voter">The voter.</param>
-    void AddVotes(List<VoteBlockType> votePartitions, OriginType voter);
+    void AddVotes(IEnumerable<VoteBlockType> votePartitions, OriginType voter);
     /// <summary>
     /// Merge the vote supporters from one vote into another.
     /// </summary>

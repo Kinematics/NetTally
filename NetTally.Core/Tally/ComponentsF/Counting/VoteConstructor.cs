@@ -386,12 +386,12 @@ public static partial class VoteConstructor
     /// <param name="block">The block defining the plan.</param>
     /// <param name="partitionMode">The current partitioning mode.</param>
     /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
-    public static List<VoteBlockType> PartitionPlan(VoteBlockType block, PartitionMode partitionMode)
+    public static IEnumerable<VoteBlockType> PartitionPlan(VoteBlockType block, PartitionMode partitionMode)
     {
         return PartitionBlock(block, partitionMode, asPlan: true);
     }
 
-    public static List<VoteBlockType> PartitionChildren(VoteBlockType vote)
+    public static IEnumerable<VoteBlockType> PartitionChildren(VoteBlockType vote)
     {
         // Break vote block into child blocks and return them.
         return PartitionBlock(vote, PartitionMode.ByBlockAll);
@@ -404,7 +404,7 @@ public static partial class VoteConstructor
     /// <param name="block">The block to partition.</param>
     /// <param name="partitionMode">The partitioning mode.</param>
     /// <returns>A list of vote blocks.</returns>
-    private static List<VoteBlockType> PartitionBlock(VoteBlockType block, PartitionMode partitionMode, bool asPlan = false)
+    private static IEnumerable<VoteBlockType> PartitionBlock(VoteBlockType block, PartitionMode partitionMode, bool asPlan = false)
     {
         // If we're not partitioning, we have no work to do.
         if (partitionMode == PartitionMode.None)
@@ -426,7 +426,7 @@ public static partial class VoteConstructor
         }
     }
 
-    private static List<VoteBlockType> PartitionBlockForContentBlock(
+    private static IEnumerable<VoteBlockType> PartitionBlockForContentBlock(
         VoteBlockType block,
         PartitionMode partitionMode)
     {
@@ -441,7 +441,7 @@ public static partial class VoteConstructor
                 .Where(v => v != null)
                 .Select(v => v!);
 
-            return promotedLines.ToList();
+            return promotedLines;
         }
         else if (partitionMode == PartitionMode.ByBlock)
         {
@@ -457,14 +457,14 @@ public static partial class VoteConstructor
 
             var promotedBlocks = VoteBlocks.GetBlocks(promotedLines);
 
-            return promotedBlocks.ToList();
+            return promotedBlocks;
         }
 
         // Failed partition mode checks.
         throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
     }
         
-    private static List<VoteBlockType> PartitionBlockForNonContentBlock(
+    private static IEnumerable<VoteBlockType> PartitionBlockForNonContentBlock(
         VoteBlockType block,
         PartitionMode partitionMode,
         bool asPlan = false)
@@ -480,7 +480,7 @@ public static partial class VoteConstructor
                 .Where(v => v != null)
                 .Select(v => v!);
 
-            return partitionedLines.ToList();
+            return partitionedLines;
         }
         else if (partitionMode == PartitionMode.ByBlock)
         {
@@ -490,12 +490,12 @@ public static partial class VoteConstructor
                 return [block];
             }
 
-            return VoteBlocks.GetBlocks(block.Skip(skipLines)).ToList();
+            return VoteBlocks.GetBlocks(block.Skip(skipLines));
         }
         else if (partitionMode == PartitionMode.ByBlockAll)
         {
             // By block (all) partitions even implicit plans.
-            return VoteBlocks.GetBlocks(block.Skip(skipLines)).ToList();
+            return VoteBlocks.GetBlocks(block.Skip(skipLines));
         }
 
         // Failed partition mode checks.
