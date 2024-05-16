@@ -1,13 +1,8 @@
 ﻿using System;
+using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Tally.ComponentsF.Threads;
-
-public enum ThreadRangeRangeType
-{
-    ByPostNumber,
-    ByPostId
-}
 
 /// <summary>
 /// Data type for thread range information.
