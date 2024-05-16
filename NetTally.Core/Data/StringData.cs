@@ -8,4 +8,7 @@ public class StringData
     public const string ExampleHostUrl = "http://www.example.com/";
 
     public const string Error = "Error";
+
+    public const string UntitledThread = "~Untitled~";
+    public const string UnknownAuthor = "#Unknown#";
 }
