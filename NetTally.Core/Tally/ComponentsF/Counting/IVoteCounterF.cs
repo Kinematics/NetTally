@@ -61,6 +61,9 @@ public interface IVoteCounterF : INotifyPropertyChanged
 
     void ConstructVotesFromPosts();
 
+    (string Name, VoteBlockType Contents)?
+        NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock);
+
     /// <summary>
     /// Store a plan's information to allow it to be looked up by plan name or post ID.
     /// If the plan name has already been entered, will not update anything and return false.
