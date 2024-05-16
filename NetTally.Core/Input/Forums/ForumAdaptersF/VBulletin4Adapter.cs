@@ -101,18 +101,17 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="quest">The quest being queried.</param>
         /// <param name="pageProvider">A page provider for loading pages.</param>
         /// <param name="token">A cancellation token.</param>
-        /// <returns>A tuple of <see cref="ThreadInfoType"/> and <see cref="ThreadRangeType"/></returns>
-        public async Task<(ThreadInfoType, ThreadRangeType)?>
-            GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
+        public async Task<ThreadInformationType?> GetThreadInformationAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
         {
-            var page = await GetInfoPageAsync(quest, pageProvider, token);
+            var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-            if (page == null) return null;
+            if (infoPage == null) return null;
 
-            var threadInfo = GetThreadInfo(page);
-            var rangeInfo = GetRangeInfo(quest);
-
-            return (threadInfo, rangeInfo);
+            return GetThreadInfo(infoPage, quest);
         }
 
         #endregion IForumAdapter interface
@@ -123,32 +122,16 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfoType GetThreadInfo(HtmlDocument page)
+        private ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
         {
-            ArgumentNullException.ThrowIfNull(page);
-
             string title = GetPageTitle(page);
-            var author = Author.None; // vBulletin doesn't show thread authors
+            var author = Author.Unknown; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            var info = ThreadInfo.Create(title, author, pages);
+            var info = ThreadInformation.CreateByPostNumber(title, author, quest.StartPost, pages);
 
-            return info ?? ThreadInfo.None;
+            return info;
         }
-
-        /// <summary>
-        /// Gets the range of post numbers to tally, for the given quest.
-        /// This may require loading information from the site.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
-        /// <param name="token">The cancellation token to check for cancellation requests.</param>
-        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public ThreadRangeType GetRangeInfo(Quest quest)
-        {
-            return ThreadRange.CreateRangeByPost(quest.StartPost);
-        }
-
 
         private async Task<HtmlDocument?> GetInfoPageAsync(
             Quest quest,

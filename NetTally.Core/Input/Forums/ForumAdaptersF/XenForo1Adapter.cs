@@ -125,32 +125,13 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="quest">The quest being queried.</param>
         /// <param name="pageProvider">A page provider for loading pages.</param>
         /// <param name="token">A cancellation token.</param>
-        /// <returns>A tuple of <see cref="ThreadInfoType"/> and <see cref="ThreadRangeType"/></returns>
-        public async Task<(ThreadInfoType, ThreadRangeType)?>
-            GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
-        {
-            var threadInfo = await GetThreadInfoAsync(quest, pageProvider, token);
-            var rangeInfo = await GetRangeInfoAsync(quest, pageProvider, token);
-
-            return (threadInfo, rangeInfo);
-        }
-
-        #endregion IForumAdapter interface
-
-        #region IForumAdapter support
-
-        /// <summary>
-        /// Get thread info from the provided page.
-        /// </summary>
-        /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        private async Task<ThreadInfoType> GetThreadInfoAsync(
+        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
+        public async Task<ThreadInformationType?> GetThreadInformationAsync(
             Quest quest,
             IPageProvider pageProvider,
             CancellationToken token)
         {
             HtmlDocument? page = await GetInfoPageAsync(quest, pageProvider, token);
-            ThreadInfoType? info = null;
 
             if (page != null)
             {
@@ -158,12 +139,17 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                 var author = GetPageAuthor(page);
                 int pages = GetMaxPageNumberOfThread(page);
 
-                info = ThreadInfo.Create(title, author, pages);
+                var (RangeType, ID, StartPost, StartPage) = await GetRangeInfoAsync(quest, pageProvider, token);
+
+                return ThreadInformation.Create(title, author, RangeType, ID, StartPost, StartPage, pages);
             }
 
-            return info ?? ThreadInfo.None;
+            return ThreadInformation.None;
         }
 
+        #endregion IForumAdapter interface
+
+        #region IForumAdapter support
         /// <summary>
         /// Gets the range of post numbers to tally, for the given quest.
         /// This may require loading information from the site.
@@ -172,20 +158,25 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        private async Task<ThreadRangeType> GetRangeInfoAsync(
-            Quest quest,
-            IPageProvider pageProvider,
-            CancellationToken token)
+        private async Task<(ThreadRangeRangeType RangeType, PostIdType ID, int StartPost, int StartPage)>
+            GetRangeInfoAsync(
+                Quest quest,
+                IPageProvider pageProvider,
+                CancellationToken token)
         {
-            ThreadRangeType? rangeInfo = null;
-
             if (quest.CheckForLastThreadmark)
             {
-                rangeInfo = await TryGetRSSThreadmarksRange(quest, pageProvider, token) ??
-                            await TryGetThreadmarksRange(quest, pageProvider, token);
+                var rangeInfo =
+                    await TryGetRSSThreadmarksRange(quest, pageProvider, token) ??
+                    await TryGetThreadmarksRange(quest, pageProvider, token);
+
+                if (rangeInfo != null)
+                {
+                    return (ThreadRangeRangeType.ByPostId, rangeInfo.PostId, 0, rangeInfo.PageNumber);
+                }
             }
 
-            return rangeInfo ?? ThreadRange.CreateRangeByPost(quest.StartPost);
+            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 0);
         }
 
         private async Task<HtmlDocument?> GetInfoPageAsync(

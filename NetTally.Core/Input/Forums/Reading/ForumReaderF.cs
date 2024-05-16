@@ -136,13 +136,11 @@ public class ForumReaderF(
             return (StringData.Error, []);
         }
 
-        var (threadInfo, rangeInfo) = threadData.Value;
-
-        logger.LogDebug("Range info acquired for {questDisplayName}. ({rangeInfo})",
-            quest.DisplayName, rangeInfo);
+        logger.LogDebug("Thread info acquired for {questDisplayName}. ({threadData})",
+            quest.DisplayName, threadData);
 
         List<HtmlDocument?> pagesN =
-            await ReadPagesFromQuestAsync(quest, rangeInfo, pageProvider, adapter, token)
+            await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
             .ConfigureAwait(false);
 
         logger.LogDebug("Got {Count} pages loading {questDisplayName}.", pagesN.Count, quest.DisplayName);
@@ -154,18 +152,17 @@ public class ForumReaderF(
 
         var pages = pagesN.Select(p => p!).ToList();
 
-        var posts = GetPostsFromPages(quest, pages, rangeInfo, threadInfo, adapter);
+        var posts = GetPostsFromPages(quest, pages, threadData, adapter);
 
         logger.LogDebug("Got {Count} posts for quest {questDisplayName}.", posts.Count, quest.DisplayName);
 
-        return (threadInfo.Title, posts);
+        return (threadData.Title, posts);
     }
 
     /// <summary>
     /// Processes the provided pages to extract posts.
     /// </summary>
     /// <param name="pages">All pages loaded for the quest.</param>
-    /// <param name="rangeInfo">The range of posts we want to extract.</param>
     /// <param name="threadInfo">Information about the thread.</param>
     /// <param name="adapter">The forum adapter that can transform this forum's
     /// HTML into posts we can understand.</param>
@@ -174,15 +171,14 @@ public class ForumReaderF(
     private List<PostType> GetPostsFromPages(
         Quest quest,
         List<HtmlDocument> pages,
-        ThreadRangeType rangeInfo,
-        ThreadInfoType threadInfo,
+        ThreadInformationType threadInfo,
         IForumAdapter adapter)
     {
-        int startPage = ThreadRange.GetStartPage(rangeInfo, quest);
+        int startPage = ThreadInformation.GetStartPage(threadInfo, quest);
 
         var posts = pages
             .SelectMany((p, i) => adapter.GetPosts(p, quest, startPage + i))
-            .Where(p => KeepPost(p, quest, rangeInfo, threadInfo))
+            .Where(p => KeepPost(p, quest, threadInfo))
             .DistinctBy(p => p.Origin, OriginComparer.Instance) // remove sticky posts
             .OrderBy(p => p.Origin.ThreadPostNumber)
             .ToList();
@@ -197,19 +193,17 @@ public class ForumReaderF(
     /// </summary>
     /// <param name="post">The post to check.</param>
     /// <param name="quest">The quest being tallied.</param>
-    /// <param name="rangeInfo">Range information about posts to keep.</param>
     /// <param name="threadInfo">Thread information to identify author posts.</param>
     /// <returns><c>True</c> if the post should be kept, or <c>false</c> if the post should be skipped.</returns>
     private bool KeepPost(
         PostType post,
         Quest quest,
-        ThreadRangeType rangeInfo,
-        ThreadInfoType threadInfo)
+        ThreadInformationType threadInfo)
     {
         if (!post.HasVote)
             return false;
 
-        if (PostIsBeforeStart(post, rangeInfo) || PostIsAfterEnd(post, quest, rangeInfo))
+        if (PostIsBeforeStart(post, threadInfo) || PostIsAfterEnd(post, quest, threadInfo))
             return false;
 
         if (post.Origin.Author == threadInfo.Author)
@@ -235,14 +229,14 @@ public class ForumReaderF(
     /// Determine if a post falls before the starting point of the tallied range.
     /// </summary>
     /// <param name="post">The post to check</param>
-    /// <param name="rangeInfo">The tally range</param>
+    /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    private static bool PostIsBeforeStart(PostType post, ThreadRangeType rangeInfo)
+    private static bool PostIsBeforeStart(PostType post, ThreadInformationType threadInfo)
     {
-        if (rangeInfo.RangeType == ThreadRangeRangeType.ByPostNumber)
-            return post.Origin.ThreadPostNumber < rangeInfo.StartPostNumber;
+        if (threadInfo.RangeType == ThreadRangeRangeType.ByPostNumber)
+            return post.Origin.ThreadPostNumber < threadInfo.StartPostNumber;
 
-        return post.Origin.PostId.Id < rangeInfo.PostId.Id;
+        return post.Origin.PostId.Id < threadInfo.StartPostId.Id;
     }
 
     /// <summary>
@@ -250,11 +244,11 @@ public class ForumReaderF(
     /// </summary>
     /// <param name="post">The post to check</param>
     /// <param name="quest">The quest being tallied</param>
-    /// <param name="rangeInfo">The tally range</param>
+    /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    private static bool PostIsAfterEnd(PostType post, Quest quest, ThreadRangeType rangeInfo)
+    private static bool PostIsAfterEnd(PostType post, Quest quest, ThreadInformationType threadInfo)
     {
-        if (quest.ReadToEndOfThread || rangeInfo.RangeType == ThreadRangeRangeType.ByPostId)
+        if (quest.ReadToEndOfThread || threadInfo.RangeType == ThreadRangeRangeType.ByPostId)
             return false;
 
         return post.Origin.ThreadPostNumber > quest.EndPost;
@@ -318,7 +312,7 @@ public class ForumReaderF(
     /// <param name="token">Cancellation token.</param>
     /// <returns>A tuple of range information about the thread, and
     /// title and author information about the thread.</returns>
-    private static async Task<(ThreadInfoType, ThreadRangeType)?> GetThreadInfoAsync(
+    private static async Task<ThreadInformationType?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
@@ -335,20 +329,20 @@ public class ForumReaderF(
     /// thread range information.
     /// </summary>
     /// <param name="quest">The quest</param>
-    /// <param name="threadRange">Thread range data</param>
+    /// <param name="threadInfo">Thread range data</param>
     /// <param name="pageProvider">The page provider to read web pages.</param>
     /// <param name="adapter">The forum adapter for the quest.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>A list of all loaded documents.</returns>
     private static async Task<List<HtmlDocument?>> ReadPagesFromQuestAsync(
         Quest quest,
-        ThreadRangeType threadRange,
+        ThreadInformationType threadInfo,
         IPageProvider pageProvider,
         IForumAdapter adapter,
         CancellationToken token)
     {
-        int firstPage = ThreadRange.GetStartPage(threadRange, quest);
-        int lastPage = ThreadRange.GetEndPage(threadRange, quest);
+        int firstPage = ThreadInformation.GetStartPage(threadInfo, quest);
+        int lastPage = ThreadInformation.GetEndPage(threadInfo, quest);
         int pageCount = lastPage - firstPage + 1;
 
         if (pageCount < 1)

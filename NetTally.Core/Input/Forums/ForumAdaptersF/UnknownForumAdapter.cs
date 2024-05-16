@@ -28,11 +28,11 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
         public string GetUrlForPage(Quest quest, int page) => "";
 
-        public Task<(ThreadInfoType, ThreadRangeType)?> GetThreadInformationAsync(
+        public Task<ThreadInformationType?> GetThreadInformationAsync(
             Quest _0, IPageProvider _1, CancellationToken _2)
         {
-            (ThreadInfoType, ThreadRangeType)? value = (ThreadInfo.None, ThreadRange.Empty);
-            return Task.FromResult(value);
+            ThreadInformationType? value = ThreadInformation.None;
+            return Task.FromResult(value)!;
         }
     }
 }
