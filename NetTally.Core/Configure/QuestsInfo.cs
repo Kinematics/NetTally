@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Data;
+using NetTally.Tally.ComponentsF.Counting;
 using NetTally.VoteCounting;
 
 namespace NetTally.Configure
@@ -88,6 +89,7 @@ namespace NetTally.Configure
             foreach (var quest in Quests)
             {
                 quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+                quest.VoteCounterF = serviceProvider.GetRequiredService<IVoteCounterF>();
             }
         }
 
@@ -114,6 +116,7 @@ namespace NetTally.Configure
                 quest = new Quest
                 {
                     VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
+                    VoteCounterF = serviceProvider.GetRequiredService<IVoteCounterF>(),
                     CheckForLastThreadmark = true
                 };
 

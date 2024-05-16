@@ -55,3 +55,11 @@ global using CollectedVoterStorageF = System.Collections.Generic.IEnumerable<
     System.Collections.Generic.KeyValuePair<
         NetTally.Tally.ComponentsF.Posts.OriginType,
         NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
+
+// Grouping of VoteStorage elements by task:
+global using VotesGroupedByTaskF = System.Linq.IGrouping<
+    string,
+    System.Collections.Generic.KeyValuePair<
+        NetTally.Tally.ComponentsF.Votes.VoteBlockType,
+        NetTally.Tally.ComponentsF.Storage.VoterStorage>>;
+

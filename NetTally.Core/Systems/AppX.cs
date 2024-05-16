@@ -127,6 +127,7 @@ public static class AppX
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
         services.AddSingleton<Tallyer>();
+        services.AddSingleton<TallyerF>();
         services.AddTransient<IVoteCounter, VoteCounter>();
         services.AddTransient<Tally.ComponentsF.Counting.IVoteCounterF, Tally.ComponentsF.Counting.VoteCounterF>();
         services.AddTransient<IPageProvider, WebPageProvider>();
@@ -146,6 +147,7 @@ public static class AppX
 
         services.AddSingleton<RankVoteCounterFactory>();
         services.AddSingleton<ITextResultsProvider, TallyOutput>();
+        services.AddSingleton<ITextResultsProvider, TallyOutputF>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<ManageVotesViewModel>();
@@ -153,6 +155,7 @@ public static class AppX
         services.AddTransient<TasksViewModel>();
         services.AddTransient<GlobalOptionsViewModel>();
 
+        services.AddSingleton<MainViewModelF>();
 
         services.AddSingleton<QuestsInfo>();
 

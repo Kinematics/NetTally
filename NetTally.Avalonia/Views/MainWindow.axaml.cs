@@ -15,7 +15,7 @@ namespace NetTally.Avalonia.Views
     public partial class MainWindow : Window
     {
         #region Fields and Properties
-        private readonly MainViewModel mainViewModel;
+        private readonly MainViewModelF mainViewModel;
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<MainWindow> logger;
         private readonly IHostEnvironment hostEnvironment;
@@ -28,7 +28,7 @@ namespace NetTally.Avalonia.Views
         /// Set up the data context links with the local variables.
         /// </summary>
         public MainWindow(
-            MainViewModel viewModel,
+            MainViewModelF viewModel,
             AvaloniaNavigationService navigationService,
             ILogger<MainWindow> logger,
             IHostEnvironment hostEnvironment)
