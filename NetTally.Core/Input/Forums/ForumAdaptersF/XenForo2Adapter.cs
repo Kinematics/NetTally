@@ -13,9 +13,10 @@ using Microsoft.Extensions.Options;
 using NetTally.Extensions;
 using NetTally.Configure;
 using NetTally.Input.Utility;
-using NetTally.Tally.Components;
 using NetTally.Web;
 using NetTally.Enums;
+using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -28,7 +29,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
         #region Regex data
         // May possibly end with /page-00#post-00
-        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#post-(?<post>\d+))?$")]
+        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#?post-(?<post>\d+))?$")]
         private static partial Regex LongFragment();
 
         // The short HREF version gives the post ID
@@ -40,7 +41,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         private static partial Regex PermalinkFragment();
         #endregion
 
-        #region IForumAdapter2 interface
+        #region IForumAdapter interface
         /// <summary>
         /// String to use for a line break between tasks.
         /// </summary>
@@ -96,62 +97,12 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         }
 
         /// <summary>
-        /// Get thread info from the provided page.
-        /// </summary>
-        /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfo GetThreadInfo(HtmlDocument page)
-        {
-            ArgumentNullException.ThrowIfNull(page);
-
-            var (headerNode, bodyNode) = GetPageInfoNodes(page);
-            string title = GetPageTitle(page, headerNode);
-            string author = GetPageAuthor(headerNode);
-            int pages = GetMaxPageNumberOfThread(bodyNode);
-
-            ThreadInfo info = new(title, author, pages);
-
-            return info;
-        }
-
-        /// <summary>
-        /// Gets the range of post numbers to tally, for the given quest.
-        /// This may require loading information from the site.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
-        /// <param name="token">The cancellation token to check for cancellation requests.</param>
-        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public async Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
-        {
-            ArgumentNullException.ThrowIfNull(quest);
-            ArgumentNullException.ThrowIfNull(pageProvider);
-
-            // Use the provided start post if we aren't trying to find the threadmarks.
-            if (!quest.CheckForLastThreadmark)
-                return new ThreadRangeInfo(true, quest.StartPost);
-
-            var (foundThreadmark, rangeInfo) = await TryGetRSSThreadmarksRange(quest, pageProvider, token);
-
-            if (foundThreadmark)
-                return rangeInfo;
-
-            (foundThreadmark, rangeInfo) = await TryGetThreadmarksRange(quest, pageProvider, token);
-
-            if (foundThreadmark)
-                return rangeInfo;
-
-            // If we get here, just fall back on default start post.
-            return new ThreadRangeInfo(true, quest.StartPost);
-        }
-
-        /// <summary>
         /// Get a list of posts from the provided page.
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
+        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
@@ -165,7 +116,92 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return posts;
         }
 
-        #endregion IForumAdapter2 interface
+        /// <summary>
+        /// Get information about the thread.
+        /// This includes title, author, and starting range.
+        /// </summary>
+        /// <param name="quest">The quest being queried.</param>
+        /// <param name="pageProvider">A page provider for loading pages.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>A tuple of <see cref="ThreadInfoType"/> and <see cref="ThreadRangeType"/></returns>
+        public async Task<(ThreadInfoType, ThreadRangeType)?>
+            GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        {
+            var threadInfo = await GetThreadInfoAsync(quest, pageProvider, token);
+            var rangeInfo = await GetRangeInfoAsync(quest, pageProvider, token);
+
+            return (threadInfo, rangeInfo);
+        }
+        #endregion IForumAdapter interface
+
+        #region IForumAdapter support
+
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
+        private async Task<ThreadInfoType> GetThreadInfoAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
+        {
+            HtmlDocument? page = await GetInfoPageAsync(quest, pageProvider, token);
+            ThreadInfoType? info = null;
+
+            if (page != null)
+            {
+                var (headerNode, bodyNode) = GetPageInfoNodes(page);
+                string title = GetPageTitle(page);
+                var author = GetPageAuthor(headerNode);
+                int pages = GetMaxPageNumberOfThread(bodyNode);
+
+                info = ThreadInfo.Create(title, author, pages);
+            }
+
+            return info ?? ThreadInfo.None;
+        }
+
+        /// <summary>
+        /// Gets the range of post numbers to tally, for the given quest.
+        /// This may require loading information from the site.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
+        /// <param name="token">The cancellation token to check for cancellation requests.</param>
+        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
+        private async Task<ThreadRangeType> GetRangeInfoAsync(
+            Quest quest, IPageProvider pageProvider, CancellationToken token)
+        {
+            ThreadRangeType? rangeInfo = null;
+
+            if (quest.CheckForLastThreadmark)
+            {
+                rangeInfo = await TryGetRSSThreadmarksRange(quest, pageProvider, token) ??
+                            await TryGetThreadmarksRange(quest, pageProvider, token);
+            }
+
+            return rangeInfo ?? ThreadRange.CreateRangeByPost(quest.StartPost);
+        }
+
+        private async Task<HtmlDocument?> GetInfoPageAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
+        {
+            string infoPageUrl = GetUrlForPage(quest, 1);
+
+            // Make sure to bypass the cache, since it may have changed since the last load.
+            HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
+                infoPageUrl, "Info Page",
+                CachingMode.BypassCache, ShouldCache.Yes,
+                SuppressNotifications.Yes, token)
+                .ConfigureAwait(false);
+
+            return page;
+        }
+
+        #endregion IForumAdapter support
 
         #region Get Page Information
         private static (HtmlNode headerNode, HtmlNode bodyNode) GetPageInfoNodes(HtmlDocument page)
@@ -187,14 +223,8 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return (headerNode, bodyNode);
         }
 
-        private static string GetPageTitle(HtmlDocument page, HtmlNode _)
+        private static string GetPageTitle(HtmlDocument page)
         {
-            //var titleNode = headerNode.GetChildWithClass("div", "p-title");
-            //string title = ForumPostTextConverter.CleanupWebString(titleNode?.Element("h1")?.InnerText.Trim());
-
-            //if (!string.IsNullOrEmpty(title))
-            //    return title;
-
             return ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
                     .Element("html")
@@ -203,11 +233,12 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                     ?.InnerText);
         }
 
-        private static string GetPageAuthor(HtmlNode headerNode)
+        private static AuthorType GetPageAuthor(HtmlNode headerNode)
         {
             var descripNode = headerNode.GetChildWithClass("div", "p-description");
             var authorNode = descripNode?.GetDescendantWithClass("a", "username");
-            return ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
+            string authorName = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
+            return Author.Create(authorName);
         }
 
         private static int GetMaxPageNumberOfThread(HtmlNode bodyNode)
@@ -240,11 +271,11 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         #endregion Get Page Information
 
         #region Get ThreadInfoRange information
-        private async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetThreadmarksRange(
+        private async Task<ThreadRangeType?> TryGetThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
@@ -253,13 +284,13 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                 SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarksPage == null)
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             var threadmarks = GetThreadmarksListFromPage(threadmarksPage, quest);
 
             // If there aren't any threadmarks, bail.
             if (!threadmarks.Any())
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             // Threadmarks have already been filtered, so just pick the last one,
             // and get the URL for the threadmark.
@@ -267,7 +298,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
             // Make sure we found something.
             if (string.IsNullOrEmpty(lastThreadmarkHref))
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             // The threadmark list might use the long version of the URL (including thread info),
             // or the short version (which only shows the post number).
@@ -278,14 +309,18 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             {
                 // Get the post ID for the threadmark
                 string tmID = mShort.Groups["tmID"].Value;
+                var postId = PostId.Create(tmID);
+
+                if (postId == null)
+                    return null;
 
                 // The threadmark href might be a relative path, so make sure to
                 // create a proper absolute path to load.
-                string permalink = GetPermalinkForId(quest.ThreadUri, tmID);
+                Uri permalink = GetPermalinkForId(quest.ThreadUri, postId);
 
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
                 string fullUrl = await pageProvider.GetRedirectUrlAsync(
-                    permalink, null,
+                    permalink.AbsoluteUri, null,
                     CachingMode.BypassCache, ShouldCache.No,
                     SuppressNotifications.Yes, token).ConfigureAwait(false);
 
@@ -306,30 +341,30 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                     post = int.Parse(m1.Groups["post"].Value);
 
                 // If neither matched, it's post 1/page 1
-                // Store 0 in the post ID slot, since we don't know what it is.
                 if (page == 0 && post == 0)
-                    return (true, new ThreadRangeInfo(true, 1, 1, 0));
+                    return ThreadRange.CreateRangeByPost(1);
+
+                var postId = PostId.Create(post);
 
                 // If no page number was found, it's page 1
                 if (page == 0)
-                    return (true, new ThreadRangeInfo(false, 0, 1, post));
+                    page = 1;
 
-                // Otherwise, take the provided values.
-                return (true, new ThreadRangeInfo(false, 0, page, post));
+                return ThreadRange.CreateRangeFromPostId(postId, page);
             }
 
             // Failed to find anything.
-            return (false, ThreadRangeInfo.Empty);
+            return null;
         }
 
-        private static async Task<(bool found, ThreadRangeInfo rangeInfo)> TryGetRSSThreadmarksRange(
+        private static async Task<ThreadRangeType?> TryGetRSSThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             if (quest.UseRSSThreadmarks == BoolEx.False)
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             XDocument? rss = await pageProvider.GetXmlDocumentAsync(
                 GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
@@ -341,11 +376,11 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                 if (quest.UseRSSThreadmarks == BoolEx.Unknown)
                     quest.UseRSSThreadmarks = BoolEx.False;
 
-                return (false, ThreadRangeInfo.Empty);
+                return null;
             }
 
             if (rss.Root?.Name != "rss")
-                return (false, ThreadRangeInfo.Empty);
+                return null;
 
             XElement? channel = rss.Root.Element(XName.Get("channel", ""));
 
@@ -403,21 +438,22 @@ namespace NetTally.Input.Forums.ForumAdaptersF
                             post = int.Parse(mr.Groups["post"].Value);
 
                         // If neither matched, it's post 1/page 1
-                        // Store 0 in the post ID slot, since we don't know what it is.
-                        if (page == 0 && post == 0)
-                            return (true, new ThreadRangeInfo(true, 1, 1, 0));
+                        // Return a By Post range
+                        if (page == 0 || post == 0)
+                            return ThreadRange.CreateRangeByPost(1);
+
+                        var postId = PostId.Create(post);
 
                         // If no page number was found, it's page 1
                         if (page == 0)
-                            return (true, new ThreadRangeInfo(false, 0, 1, post));
+                            page = 1;
 
-                        // Otherwise, take the provided values.
-                        return (true, new ThreadRangeInfo(false, 0, page, post));
+                        return ThreadRange.CreateRangeFromPostId(postId, page);
                     }
                 }
             }
 
-            return (false, ThreadRangeInfo.Empty);
+            return null;
         }
 
         private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, Quest quest)
@@ -485,43 +521,38 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return articles;
         }
 
-        private Post? GetPost(HtmlNode article, Quest quest)
+        private PostType? GetPost(HtmlNode article, Quest quest)
         {
             if (article == null)
                 return null;
 
-            string author = GetPostAuthor(article);
-            string id = GetPostId(article);
+            var id = GetPostId(article);
+            var author = GetPostAuthor(article);
             string text = GetPostText(article, quest);
             int number = GetPostNumber(article);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = $"{author}_{id}";
+                author = author with { Name = $"{author.Name}_{id.Id}" };
 
-            try
-            {
-                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
-                return new Post(origin, text);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e,
-                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{displayName})",
-                    author, id, number, quest.DisplayName);
-            }
+            var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+            var post = Post.Create(origin, text);
 
-            return null;
+            return post;
         }
 
-        private static string GetPostAuthor(HtmlNode article)
+        private static AuthorType GetPostAuthor(HtmlNode article)
         {
-            return ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-author", ""));
+            string authorName = article.GetAttributeValue("data-author", "");
+            authorName = ForumPostTextConverter.CleanupWebString(authorName);
+            return Author.Create(authorName);
         }
 
-        private static string GetPostId(HtmlNode article)
+        private static PostIdType GetPostId(HtmlNode article)
         {
-            return ForumPostTextConverter.CleanupWebString(article.GetAttributeValue("data-content", "post-")
-                                                           ["post-".Length..]);
+            var attribute = article.GetAttributeValue("data-content", "post-");
+            var number = attribute["post-".Length..];
+            var id = ForumPostTextConverter.CleanupWebString(number);
+            return PostId.Create(id) ?? PostId.Zero;
         }
 
         private static string GetPostText(HtmlNode article, Quest quest)
@@ -640,9 +671,10 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return $"{GetBaseThreadUrl(uri)}threadmarks.rss?threadmark_category_id=1";
         }
 
-        private static string GetPermalinkForId(Uri uri, string postId)
+        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
         {
-            return $"{GetHostBasePostsUrl(uri)}{postId}/";
+            string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}/";
+            return new Uri(url);
         }
         #endregion URL Manipulation
 

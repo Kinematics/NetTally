@@ -136,7 +136,7 @@ public class ForumReaderF(
             return (StringData.Error, []);
         }
 
-        var (rangeInfo, threadInfo) = threadData.Value;
+        var (threadInfo, rangeInfo) = threadData.Value;
 
         logger.LogDebug("Range info acquired for {questDisplayName}. ({rangeInfo})",
             quest.DisplayName, rangeInfo);
@@ -192,6 +192,14 @@ public class ForumReaderF(
     #endregion Basic Flow
 
     #region Keep Post Filtering
+    /// <summary>
+    /// A filtering function to determine if a post is to be kept by the quest.
+    /// </summary>
+    /// <param name="post">The post to check.</param>
+    /// <param name="quest">The quest being tallied.</param>
+    /// <param name="rangeInfo">Range information about posts to keep.</param>
+    /// <param name="threadInfo">Thread information to identify author posts.</param>
+    /// <returns><c>True</c> if the post should be kept, or <c>false</c> if the post should be skipped.</returns>
     private bool KeepPost(
         PostType post,
         Quest quest,
@@ -223,6 +231,12 @@ public class ForumReaderF(
         return true;
     }
 
+    /// <summary>
+    /// Determine if a post falls before the starting point of the tallied range.
+    /// </summary>
+    /// <param name="post">The post to check</param>
+    /// <param name="rangeInfo">The tally range</param>
+    /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
     private static bool PostIsBeforeStart(PostType post, ThreadRangeType rangeInfo)
     {
         if (rangeInfo.RangeType == ThreadRangeRangeType.ByPostNumber)
@@ -231,6 +245,13 @@ public class ForumReaderF(
         return post.Origin.PostId.Id < rangeInfo.PostId.Id;
     }
 
+    /// <summary>
+    /// Determine if a post falls after the ending point of the tallied range.
+    /// </summary>
+    /// <param name="post">The post to check</param>
+    /// <param name="quest">The quest being tallied</param>
+    /// <param name="rangeInfo">The tally range</param>
+    /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
     private static bool PostIsAfterEnd(PostType post, Quest quest, ThreadRangeType rangeInfo)
     {
         if (quest.ReadToEndOfThread || rangeInfo.RangeType == ThreadRangeRangeType.ByPostId)
@@ -253,6 +274,12 @@ public class ForumReaderF(
     #endregion Keep Post Filtering
 
     #region Forum Adapter Setup
+    /// <summary>
+    /// Helper method to get a forum adapter and sync it up with the quest.
+    /// </summary>
+    /// <param name="quest">The quest being processed.</param>
+    /// <param name="token">A cancellation token</param>
+    /// <returns>An <see cref="IForumAdapter"/> for the quest.</returns>
     private async Task<IForumAdapter> GetForumAdapter(Quest quest, CancellationToken token)
     {
         IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, token)
@@ -291,44 +318,16 @@ public class ForumReaderF(
     /// <param name="token">Cancellation token.</param>
     /// <returns>A tuple of range information about the thread, and
     /// title and author information about the thread.</returns>
-    private static async Task<(ThreadRangeType, ThreadInfoType)?> GetThreadInfoAsync(
+    private static async Task<(ThreadInfoType, ThreadRangeType)?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
         CancellationToken token)
     {
-        string infoPageUrl = adapter.GetUrlForPage(quest, 1);
-        var page = await GetQuestInfoPageAsync(infoPageUrl, pageProvider, token);
-
-        if (page == null)
-            return null;
-
-        ThreadRangeType range = adapter.GetQuestRangeInfo(quest, page);
-        ThreadInfoType thread = adapter.GetThreadInfo(page);
-
-        return (range, thread);
-    }
-
-    /// <summary>
-    /// Loads a specific page that will be used to gather information about the thread.
-    /// </summary>
-    /// <param name="pageUrl">The URL to load.</param>
-    /// <param name="pageProvider">The page provider to read web pages.</param>
-    /// <param name="token">Cancellation token.</param>
-    /// <returns>The requested page, or null if reading failed.</returns>
-    private static async Task<HtmlDocument?> GetQuestInfoPageAsync(
-        string pageUrl,
-        IPageProvider pageProvider,
-        CancellationToken token)
-    {
-        // Make sure to bypass the cache, since it may have changed since the last load.
-        HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
-            pageUrl, "Info Page",
-            CachingMode.BypassCache, ShouldCache.Yes,
-            SuppressNotifications.Yes, token)
+        var infos = await adapter.GetThreadInformationAsync(quest, pageProvider, token)
             .ConfigureAwait(false);
 
-        return page;
+        return infos;
     }
 
     /// <summary>

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Web;
 using NetTally.Enums;
-using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Extensions;
 using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -74,36 +74,6 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return $"{GetBaseThreadUrl(quest.ThreadUri)}{append}";
         }
 
-        /// <summary>
-        /// Get thread info from the provided page.
-        /// </summary>
-        /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfoType GetThreadInfo(HtmlDocument page)
-        {
-            ArgumentNullException.ThrowIfNull(page);
-
-            string title = GetPageTitle(page);
-            var author = Author.None; // vBulletin doesn't show thread authors
-            int pages = GetMaxPageNumberOfThread(page);
-
-            var info = ThreadInfo.Create(title, author, pages);
-
-            return info ?? ThreadInfo.None;
-        }
-
-        /// <summary>
-        /// Gets the range of post numbers to tally, for the given quest.
-        /// This may require loading information from the site.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
-        /// <param name="token">The cancellation token to check for cancellation requests.</param>
-        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page)
-        {
-            return ThreadRange.CreateRangeByPost(quest.StartPost);
-        }
 
         /// <summary>
         /// Get a list of posts from the provided page.
@@ -124,7 +94,80 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
             return posts;
         }
-        #endregion IForumAdapter2 interface
+
+        /// <summary>
+        /// Get information about the thread.
+        /// This includes title, author, and starting range.
+        /// </summary>
+        /// <param name="quest">The quest being queried.</param>
+        /// <param name="pageProvider">A page provider for loading pages.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>A tuple of <see cref="ThreadInfoType"/> and <see cref="ThreadRangeType"/></returns>
+        public async Task<(ThreadInfoType, ThreadRangeType)?>
+            GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        {
+            var page = await GetInfoPageAsync(quest, pageProvider, token);
+
+            if (page == null) return null;
+
+            var threadInfo = GetThreadInfo(page);
+            var rangeInfo = GetRangeInfo(quest);
+
+            return (threadInfo, rangeInfo);
+        }
+
+        #endregion IForumAdapter interface
+
+        #region IForumAdapter supoprt
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
+        private ThreadInfoType GetThreadInfo(HtmlDocument page)
+        {
+            ArgumentNullException.ThrowIfNull(page);
+
+            string title = GetPageTitle(page);
+            var author = Author.None; // vBulletin doesn't show thread authors
+            int pages = GetMaxPageNumberOfThread(page);
+
+            var info = ThreadInfo.Create(title, author, pages);
+
+            return info ?? ThreadInfo.None;
+        }
+
+        /// <summary>
+        /// Gets the range of post numbers to tally, for the given quest.
+        /// This may require loading information from the site.
+        /// </summary>
+        /// <param name="quest">The quest being tallied.</param>
+        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
+        /// <param name="token">The cancellation token to check for cancellation requests.</param>
+        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
+        private ThreadRangeType GetRangeInfo(Quest quest)
+        {
+            return ThreadRange.CreateRangeByPost(quest.StartPost);
+        }
+
+        private async Task<HtmlDocument?> GetInfoPageAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
+        {
+            string infoPageUrl = GetUrlForPage(quest, 1);
+
+            // Make sure to bypass the cache, since it may have changed since the last load.
+            HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
+                infoPageUrl, "Info Page",
+                CachingMode.BypassCache, ShouldCache.Yes,
+                SuppressNotifications.Yes, token)
+                .ConfigureAwait(false);
+
+            return page;
+        }
+        #endregion IForumAdapter supoprt
+
 
         #region Get Page Information
         private static string GetPageTitle(HtmlDocument page)

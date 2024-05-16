@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -30,7 +33,6 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <returns>Returns the string to use for a line break event when outputting the tally.</returns>
         string GetDefaultLineBreak(Uri uri);
 
-
         /// <summary>
         /// Get a proper URL for a specific page of a thread of the URI provided.
         /// </summary>
@@ -40,28 +42,24 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         string GetUrlForPage(Quest quest, int page);
 
         /// <summary>
-        /// Get thread info from the provided page.
-        /// </summary>
-        /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        ThreadInfoType GetThreadInfo(HtmlDocument page);
-
-        /// <summary>
-        /// Gets the range of post numbers to tally, for the given quest.
-        /// This may require loading information from the site.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
-        /// <param name="token">The cancellation token to check for cancellation requests.</param>
-        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page);
-
-        /// <summary>
         /// Get a list of posts from the provided page.
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
         IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
+
+        /// <summary>
+        /// Get information about the thread.
+        /// This includes title, author, and starting range.
+        /// </summary>
+        /// <param name="quest">The quest being queried.</param>
+        /// <param name="pageProvider">A page provider for loading pages.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns>A tuple of <see cref="ThreadInfoType"/> and <see cref="ThreadRangeType"/></returns>
+        Task<(ThreadInfoType, ThreadRangeType)?> GetThreadInformationAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token);
     }
 }

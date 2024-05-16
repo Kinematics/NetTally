@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -7,6 +9,7 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {
@@ -23,8 +26,13 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx HasRssThreadmarksFeed(Uri uri) => BoolEx.False;
         public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
-        public ThreadRangeType GetQuestRangeInfo(Quest quest, HtmlDocument page) => ThreadRange.Empty;
-        public ThreadInfoType GetThreadInfo(HtmlDocument page) => ThreadInfo.None;
         public string GetUrlForPage(Quest quest, int page) => "";
+
+        public Task<(ThreadInfoType, ThreadRangeType)?> GetThreadInformationAsync(
+            Quest _0, IPageProvider _1, CancellationToken _2)
+        {
+            (ThreadInfoType, ThreadRangeType)? value = (ThreadInfo.None, ThreadRange.Empty);
+            return Task.FromResult(value);
+        }
     }
 }
