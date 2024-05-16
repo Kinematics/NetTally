@@ -28,7 +28,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         #region Regex data
         // May possibly end with /page-00#post-00
-        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#post-(?<post>\d+))?$")]
+        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#?post-(?<post>\d+))?$")]
         private static partial Regex LongFragment();
 
         // The short HREF version gives the post ID

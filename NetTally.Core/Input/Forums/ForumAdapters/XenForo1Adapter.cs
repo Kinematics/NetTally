@@ -31,8 +31,9 @@ namespace NetTally.Input.Forums.ForumAdapters
         // The short HREF version gives the post ID
         static readonly Regex shortFragment = ShortFragmentRegex();
 
-        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(#post-(?<post>\d+))?$")]
+        [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(#?post-(?<post>\d+))?$")]
         private static partial Regex LongFragmentRegex();
+
         [GeneratedRegex(@"posts/(?<tmID>\d+)/?$")]
         private static partial Regex ShortFragmentRegex();
         #endregion
