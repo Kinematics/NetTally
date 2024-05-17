@@ -75,8 +75,9 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         {
             return uri.Host switch
             {
-                "forums.sufficientvelocity.com" or "forums.spacebattles.com" => BoolEx.True,
-                "forum.questionablequesting.com" => BoolEx.False,
+                "forums.sufficientvelocity.com" or
+                "forums.spacebattles.com" or
+                "forum.questionablequesting.com" => BoolEx.True,
                 _ => BoolEx.Unknown,
             };
         }
