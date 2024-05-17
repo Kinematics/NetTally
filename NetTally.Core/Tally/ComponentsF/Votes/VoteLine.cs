@@ -20,6 +20,9 @@ public record VoteLineType(PrefixType Prefix, MarkerData Marker, VoteTaskType Ta
 /// </summary>
 public static class VoteLine
 {
+    public static VoteLineType Empty { get; } =
+        new VoteLineType(Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
+
     public static VoteLineType? Create(
         PrefixType? prefix,
         MarkerData? marker,
