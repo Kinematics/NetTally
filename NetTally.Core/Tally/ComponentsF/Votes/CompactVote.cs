@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NetTally.Extensions;
 using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Utility;
 
 namespace NetTally.Tally.ComponentsF.Votes;
 public record CompactVoteType(
@@ -163,11 +164,11 @@ public static class CompactVoteDisplay
 
     public static string ToOutputString(
         CompactVoteType compactVote,
-        MarkerData? marker = null,
-        VoteTaskType? task = null)
+        string? marker = null,
+        string? task = null)
     {
-        marker ??= Marker.Create("X");
-        task ??= VoteTask.Empty;
+        marker ??= Strings.VoteMarker;
+        task ??= string.Empty;
 
         return "";
     }
