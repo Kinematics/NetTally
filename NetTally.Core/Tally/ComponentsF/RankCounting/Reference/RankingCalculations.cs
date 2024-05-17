@@ -42,9 +42,11 @@ public static class RankingCalculations
         // Value of each rank is 1/N.
         foreach (var vote in votes.Value)
         {
-            if (vote.Value.MarkerType == MarkerType.Rank && vote.Value.MarkerValue > 0 && vote.Value.MarkerValue < 10)
+            if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
+                vote.Value.Marker.MarkerValue > 0 &&
+                vote.Value.Marker.MarkerValue < 10)
             {
-                voteValue += (1.0 / vote.Value.MarkerValue);
+                voteValue += (1.0 / vote.Value.Marker.MarkerValue);
             }
         }
 
@@ -60,7 +62,7 @@ public static class RankingCalculations
     /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
     public static (double score, int count) LowerWilsonRankingScore(VoteStorageEntryF votes)
     {
-        int n = votes.Value.Count(v => v.Value.MarkerType == MarkerType.Rank);
+        int n = votes.Value.Count(v => v.Value.Marker.MarkerType == MarkerType.Rank);
 
         if (n == 0)
             return (0, 0);
@@ -72,9 +74,11 @@ public static class RankingCalculations
         // Value of each rank is 1/N.
         foreach (var vote in votes.Value)
         {
-            if (vote.Value.MarkerType == MarkerType.Rank && vote.Value.MarkerValue > 0 && vote.Value.MarkerValue < 10)
+            if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
+                vote.Value.Marker.MarkerValue > 0 &&
+                vote.Value.Marker.MarkerValue < 10)
             {
-                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.MarkerValue);
+                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.MarkerValue);
 
                 positiveScore += scaledPositiveScore;
                 negativeScore += (1.0 - scaledPositiveScore);
