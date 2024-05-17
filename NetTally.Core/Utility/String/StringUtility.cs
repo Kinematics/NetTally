@@ -20,6 +20,10 @@ namespace NetTally.Utility
         public const string NoRankMarker = "⊘";
         public const string NonVotingMarker = "-";
         public const string UnknownMarker = "?";
+        public const string VoteMarker = "X";
+        public const string ApprovalMarker = "±";
+        public const string ScoreMarker = "%";
+        public const string RankMarker = "#";
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
