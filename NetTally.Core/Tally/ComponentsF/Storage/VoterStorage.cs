@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
@@ -76,7 +74,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>The number of users in storage.</returns>
     public int GetUserCount()
     {
-        return this.Count(s => s.Key.IsUser);
+        return VoterAnalysis.GetUserCount(this);
     }
 
     /// <summary>
@@ -86,7 +84,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>The number of users making non-rank votes.</returns>
     public int GetNonRankUserCount()
     {
-        return GetNonRankUsers().Count();
+        return VoterAnalysis.GetNonRankUserCount(this);
     }
 
     /// <summary>
@@ -96,8 +94,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>The number of users who expressed positive support.</returns>
     public int GetSupportCount()
     {
-        return this.Count(s => s.Key.IsUser &&
-                          MarkerComparer.IsPositive(s.Value.Marker).GetValueOrDefault());
+        return VoterAnalysis.GetSupportCount(this);
     }
 
     /// <summary>
@@ -107,27 +104,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// the average, and the lower 95% statistical margin.</returns>
     public (int score, double average, double lowerMargin) GetScore()
     {
-        var users = GetNonRankUsers();
-
-        int count = 0;
-        int accum = 0;
-
-        var (rating, lowerBound) = VoteCounting.RankVotes.Reference
-            .RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.MarkerValue);
-
-        foreach (var (userOrigin, userVote) in users)
-        {
-            count++;
-            accum += userVote.Marker.MarkerValue;
-        }
-
-        if (count == 0)
-            return (0, 0, 0);
-
-        double average = (double)accum / count;
-        int simpleScore = (int)Math.Round(average, 0, MidpointRounding.AwayFromZero);
-
-        return (simpleScore, average, lowerBound);
+        return VoterAnalysis.GetScore(this);
     }
 
     /// <summary>
@@ -138,22 +115,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// while 50 and lower is negative.</returns>
     public (int positive, int negative) GetApproval()
     {
-        var users = GetNonRankUsers();
-
-        int positive = 0;
-        int negative = 0;
-
-        // Standard votes have a value of 100, Approval+ have a value of 80, and Scores are variable.
-        // Sum up the positive and negative results.
-        foreach (var (userOrigin, userVote) in users)
-        {
-            if (userVote.Marker.MarkerValue > 50)
-                positive++;
-            else
-                negative++;
-        }
-
-        return (positive, negative);
+        return VoterAnalysis.GetApproval(this);
     }
     #endregion Queries - Counts
 
@@ -167,25 +129,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns an ordered list of the voters.</returns>
     public OrderedVoterStorageF GetOrderedVoterList()
     {
-        // If 0 or 1 voters, nothing to sort
-        if (Count < 2)
-        {
-            return [.. this];
-        }
-
-        VoterStorageEntryF? firstEntry = GetFirstVoter();
-
-        if (firstEntry == null)
-            return [];
-
-        var orderRemaining = this
-            .Where(v => !OriginComparer.Instance.Equals(v.Key, firstEntry.Value.Key))
-            .OrderByDescending(v => v.Value.Marker.MarkerValue)
-            .ThenBy(v => v.Key, OriginComparer.Instance);
-
-        OrderedVoterStorageF voterList = [firstEntry.Value, .. orderRemaining];
-
-        return voterList;
+        return VoterAnalysis.GetOrderedVoterList(this);
     }
 
     /// <summary>
@@ -197,59 +141,20 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns an ordered list of the voters.</returns>
     public OrderedVoterStorageF GetOrderedRankedVoterList()
     {
-        var ranksOnly = this
-            .Where(v => v.Value.Marker.MarkerType == MarkerType.Rank)
-            .OrderBy(v => v.Value.Marker.MarkerValue)
-            .ThenBy(v => v.Key, OriginComparer.Instance);
-        var others = this
-            .Where(v => v.Value.Marker.MarkerType != MarkerType.Rank)
-            .OrderBy(v => v.Key, OriginComparer.Instance);
-
-        OrderedVoterStorageF result = [.. ranksOnly, .. others];
-
-        return result;
+        return VoterAnalysis.GetOrderedRankedVoterList(this);
     }
     #endregion Queries - Ordered Results
 
     #region Queries - General
-    static readonly List<MarkerType> nonRankMarkerTypes = [MarkerType.Vote, MarkerType.Score, MarkerType.Approval];
-
     /// <summary>
     /// Get users from storage that used non-rank voting.
     /// </summary>
     /// <returns></returns>
     public CollectedVoterStorageF GetNonRankUsers()
     {
-        return this.Where(s => s.Key.IsUser &&
-                               nonRankMarkerTypes.Contains(s.Value.Marker.MarkerType));
+        return VoterAnalysis.GetNonRankUsers(this);
     }
     #endregion
-
-    #region Support functions
-    /// <summary>
-    /// Get the first voter from the provided list of VoterStorage entries.
-    /// Plans always have priority over users.
-    /// </summary>
-    /// <param name="voters">The VoterStorage collection of voters.</param>
-    /// <returns>Returns the earliest VoterStorageEntry found.</returns>
-    //private (OriginType voter, VoteBlockType vote) GetFirstVoter()
-    private VoterStorageEntryF? GetFirstVoter()
-    {
-        if (Count == 0)
-            return null;
-
-        var entries = this.Where(v => v.Key.IsPlan);
-
-        if (!entries.Any())
-        {
-            entries = this;
-        }
-
-        var sorted = entries.OrderBy(v => v.Key.PostId, PostIdComparer.Instance);
-
-        return sorted.FirstOrDefault();
-    }
-    #endregion Support functions
 }
 
 /// <summary>
