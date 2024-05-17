@@ -33,6 +33,11 @@ global using VotesGroupedByTask = System.Linq.IGrouping<
         NetTally.Votes.VoterStorage>>;
 
 
+// Dictionary lookup of votes by each voter
+global using VotesByVoterF =
+    System.Collections.Generic.Dictionary<
+        NetTally.Tally.ComponentsF.Posts.OriginType,
+        System.Collections.Generic.List<NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
 
 // Individual dictionary element from VoteStorageF:
 global using VoteStorageEntryF = System.Collections.Generic.KeyValuePair<
