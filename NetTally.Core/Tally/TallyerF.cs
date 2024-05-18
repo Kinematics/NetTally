@@ -43,8 +43,15 @@ namespace NetTally.VoteCounting
         /// If it changes to or from an empty string, the HasTallyResults property also changes.
         /// </summary>
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasTallyResults))]
         private string tallyResults = string.Empty;
+
+        partial void OnTallyResultsChanged(string? oldValue, string newValue)
+        {
+            if (string.IsNullOrEmpty(oldValue) || string.IsNullOrEmpty(newValue))
+            {
+                OnPropertyChanged(nameof(HasTallyResults));
+            }
+        }
 
         public bool HasTallyResults => !string.IsNullOrEmpty(TallyResults);
         #endregion
