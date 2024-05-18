@@ -766,12 +766,12 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="voters">List of voters.</param>
         /// <param name="spoilerLabel">Optional spoiler label.</param>
-        private void AddRankedVoters(VoterStorage voters, IEnumerable<OriginType> allVoters, string spoilerLabel = "Voters")
+        private void AddRankedVoters(VoterStorage voters, IEnumerable<OriginType> allVoters)
         {
             if (displayMode == DisplayMode.NormalNoVoters || displayMode == DisplayMode.CompactNoVoters)
                 return;
 
-            using (new Spoiler(sb, spoilerLabel, displayMode != DisplayMode.Normal))
+            using (new Spoiler(sb, "Voters", displayMode != DisplayMode.Normal))
             {
                 var orderedVoters = voters.GetOrderedRankedVoterList();
 

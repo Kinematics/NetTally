@@ -13,8 +13,8 @@ namespace NetTally.Output
         readonly bool Display;
 
         /// <summary>
-        /// Constructor.  Initialize required values so we know what and whether
-        /// to display the spoiler tags.
+        /// Initialize required values so we know whether to display the spoiler tags,
+        /// and what label to apply.
         /// </summary>
         /// <param name="sb">The string builder that the text will be added to.</param>
         /// <param name="label">The label for the spoiler.  No spoiler will be displayed if it's null.</param>
@@ -22,7 +22,7 @@ namespace NetTally.Output
         internal Spoiler(StringBuilder sb, string label, bool display)
         {
             SB = sb;
-            Display = display && label != null;
+            Display = display && !string.IsNullOrEmpty(label);
 
             if (Display)
             {
