@@ -40,7 +40,7 @@ public class VoteCounterF(
 
     VoterStorage ReferencePlans { get; } = [];
 
-    HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginComparer.Instance);
+    HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginNameComparer.Instance);
 
     Stack<UndoAction> UndoBuffer { get; } = new();
 

@@ -162,3 +162,35 @@ public class OriginComparer : IEqualityComparer<OriginType>, IComparer<OriginTyp
         return AuthorComparer.Instance.GetHashCode(obj.Author);
     }
 }
+
+public class OriginNameComparer : IEqualityComparer<OriginType>, IComparer<OriginType>
+{
+    public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
+    public static OriginNameComparer Instance { get; } = new();
+
+    public int Compare(OriginType? x, OriginType? y)
+    {
+        if (ReferenceEquals(x, y)) return 0;
+        if (x is null) return -1;
+        if (y is null) return 1;
+
+        int result = x.Category.CompareTo(y.Category);
+
+        if (result != 0) return result;
+
+        return AuthorComparer.Instance.Compare(x.Author, y.Author);
+    }
+
+    public bool Equals(OriginType? x, OriginType? y)
+    {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
+        return Compare(x, y) == 0;
+    }
+
+    public int GetHashCode([DisallowNull] OriginType obj)
+    {
+        return AuthorComparer.Instance.GetHashCode(obj.Author);
+    }
+}
