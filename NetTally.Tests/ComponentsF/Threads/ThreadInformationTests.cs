@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Data;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Utility;
 
 namespace NetTally.Tests.ComponentsF.Threads;
 [TestClass]
