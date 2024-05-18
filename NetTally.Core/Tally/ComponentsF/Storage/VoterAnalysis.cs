@@ -13,7 +13,7 @@ public static class VoterAnalysis
     /// Get the total number of users who are vote supporters.
     /// </summary>
     /// <returns>The number of users in storage.</returns>
-    public static int GetUserCount(CollectedVoterStorageF storage)
+    public static int GetUserCount(VoterStorageType storage)
     {
         return storage.Count(s => s.Key.IsUser);
     }
@@ -23,7 +23,7 @@ public static class VoterAnalysis
     /// used standard, score, or approval votes.
     /// </summary>
     /// <returns>The number of users making non-rank votes.</returns>
-    public static int GetNonRankUserCount(CollectedVoterStorageF storage)
+    public static int GetNonRankUserCount(VoterStorageType storage)
     {
         return GetNonRankUsers(storage).Count();
     }
@@ -33,7 +33,7 @@ public static class VoterAnalysis
     /// Approval +'s and Scores above 50 count for support.
     /// </summary>
     /// <returns>The number of users who expressed positive support.</returns>
-    public static int GetSupportCount(CollectedVoterStorageF storage)
+    public static int GetSupportCount(VoterStorageType storage)
     {
         return storage.Count(s => s.Key.IsUser &&
                                   MarkerComparer.IsPositive(s.Value.Marker).GetValueOrDefault());
@@ -44,7 +44,7 @@ public static class VoterAnalysis
     /// </summary>
     /// <returns>Returns a triplet of the score (int rounded version of the average),
     /// the average, and the lower 95% statistical margin.</returns>
-    public static (int score, double average, double lowerMargin) GetScore(CollectedVoterStorageF storage)
+    public static (int score, double average, double lowerMargin) GetScore(VoterStorageType storage)
     {
         var users = GetNonRankUsers(storage);
 
@@ -75,7 +75,7 @@ public static class VoterAnalysis
     /// <returns>Returns the positive and negative results of how
     /// users voted for this vote.  A value above 50 is positive,
     /// while 50 and lower is negative.</returns>
-    public static (int positive, int negative) GetApproval(CollectedVoterStorageF storage)
+    public static (int positive, int negative) GetApproval(VoterStorageType storage)
     {
         var users = GetNonRankUsers(storage);
 
@@ -104,7 +104,7 @@ public static class VoterAnalysis
     /// </summary>
     /// <param name="voters">The voters being ordered.</param>
     /// <returns>Returns an ordered list of the voters.</returns>
-    public static OrderedVoterStorageF GetOrderedVoterList(CollectedVoterStorageF storage)
+    public static OrderedVoterStorageF GetOrderedVoterList(VoterStorageType storage)
     {
         // If 0 or 1 voters, nothing to sort
         if (storage.Count() < 2)
@@ -134,7 +134,7 @@ public static class VoterAnalysis
     /// </summary>
     /// <param name="voters">The voters being ordered.</param>
     /// <returns>Returns an ordered list of the voters.</returns>
-    public static OrderedVoterStorageF GetOrderedRankedVoterList(CollectedVoterStorageF storage)
+    public static OrderedVoterStorageF GetOrderedRankedVoterList(VoterStorageType storage)
     {
         var ranksOnly = storage
             .Where(v => v.Value.Marker.MarkerType == MarkerType.Rank)
@@ -157,7 +157,7 @@ public static class VoterAnalysis
     /// Get users from storage that used non-rank voting.
     /// </summary>
     /// <returns></returns>
-    public static CollectedVoterStorageF GetNonRankUsers(CollectedVoterStorageF storage)
+    public static VoterStorageType GetNonRankUsers(VoterStorageType storage)
     {
         return storage.Where(s => s.Key.IsUser &&
                                nonRankMarkerTypes.Contains(s.Value.Marker.MarkerType));
@@ -172,7 +172,7 @@ public static class VoterAnalysis
     /// <param name="voters">The VoterStorage collection of voters.</param>
     /// <returns>Returns the earliest VoterStorageEntry found.</returns>
     //private (OriginType voter, VoteBlockType vote) GetFirstVoter()
-    private static VoterStorageEntryF? GetFirstVoter(CollectedVoterStorageF storage)
+    private static VoterStorageEntryF? GetFirstVoter(VoterStorageType storage)
     {
         if (storage.Count() == 0)
             return null;

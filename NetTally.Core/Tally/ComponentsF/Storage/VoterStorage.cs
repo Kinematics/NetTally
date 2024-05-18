@@ -26,7 +26,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="collectedVoterStorage">Voter storage elements to initialize
     /// the <see cref="VoterStorage"/> object with.</param>
-    public VoterStorage(CollectedVoterStorageF collectedVoterStorage)
+    public VoterStorage(VoterStorageType collectedVoterStorage)
         : base(collectedVoterStorage, OriginComparer.Instance)
     { }
     #endregion Constructors
@@ -150,7 +150,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// Get users from storage that used non-rank voting.
     /// </summary>
     /// <returns></returns>
-    public CollectedVoterStorageF GetNonRankUsers()
+    public VoterStorageType GetNonRankUsers()
     {
         return VoterAnalysis.GetNonRankUsers(this);
     }
@@ -168,7 +168,7 @@ public static class VoterStorageCreate
     /// </summary>
     /// <param name="collectedVoterStorage">An enumeration of key/value pairs of voter storage info.</param>
     /// <returns>A <see cref="VoterStorage"/> object.</returns>
-    public static VoterStorage AsVoterStorage(this CollectedVoterStorageF collectedVoterStorage)
+    public static VoterStorage AsVoterStorage(this VoterStorageType collectedVoterStorage)
     {
         return new VoterStorage(collectedVoterStorage);
     }
@@ -177,7 +177,7 @@ public static class VoterStorageCreate
     /// Create a deep copy of the provided <see cref="VoterStorage"/> object.
     /// </summary>
     /// <returns>A deep copy of the provided <see cref="VoterStorage"/> object.</returns>
-    public static VoterStorage Copy(this CollectedVoterStorageF copyFrom)
+    public static VoterStorage Copy(this VoterStorageType copyFrom)
     {
         var copy = new VoterStorage();
 
