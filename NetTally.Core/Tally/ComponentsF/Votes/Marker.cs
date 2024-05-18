@@ -20,6 +20,10 @@ public static partial class Marker
 {
     public static MarkerData Empty { get; } = new MarkerData(MarkerType.None, 0, "");
     public static MarkerData PlanMarker { get; } = new MarkerData(MarkerType.Plan, 0, Strings.PlanNameMarker);
+    public static MarkerData VoteMarker { get; } = new MarkerData(MarkerType.Vote, 0, Strings.VoteMarker);
+    public static MarkerData ApprovalMarker { get; } = new MarkerData(MarkerType.Approval, 0, Strings.ApprovalMarker);
+    public static MarkerData ScoreMarker { get; } = new MarkerData(MarkerType.Score, 0, Strings.ScoreMarker);
+    public static MarkerData RankMarker { get; } = new MarkerData(MarkerType.Rank, 0, Strings.RankMarker);
 
 
     static readonly Regex markerRegex = MarkerRegex();
