@@ -243,11 +243,11 @@ namespace NetTally.ViewModels
         {
             // If the display mode is changed, we just have to update the output.
             // Any other change to the quest preferences needs a full re-tally.
-            if (sender is Quest quest)
+            if (sender is Quest)
             {
                 switch (e.PropertyName)
                 {
-                    case nameof(quest.DisplayMode):
+                    case nameof(Quest.DisplayMode):
                         UpdateOutput();
                         break;
                     default:

@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.CustomEventArgs;
-using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdaptersF;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Utility;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
@@ -71,7 +71,7 @@ public class ForumReaderF(
         var allTitles = results.Select(q => q.Title).ToList();
         var allPosts = results.SelectMany(q => q.Posts).ToList();
 
-        if (allTitles.Any(t => t == StringData.Error))
+        if (allTitles.Any(t => t == Strings.Error))
         {
             throw new Exception("Unable to load all pages.");
         }
@@ -107,7 +107,7 @@ public class ForumReaderF(
         {
             logger.LogError(e, "Error loading quest from page provider for quest {questName}.",
                 quest.DisplayName);
-            return (StringData.Error, []);
+            return (Strings.Error, []);
         }
     }
 
@@ -133,7 +133,7 @@ public class ForumReaderF(
 
         if (threadData == null)
         {
-            return (StringData.Error, []);
+            return (Strings.Error, []);
         }
 
         logger.LogDebug("Thread info acquired for {questDisplayName}. ({threadData})",
@@ -147,7 +147,7 @@ public class ForumReaderF(
 
         if (pagesN.Any(p => p == null))
         {
-            return (StringData.Error, []);
+            return (Strings.Error, []);
         }
 
         var pages = pagesN.Select(p => p!).ToList();

@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Data;
+using NetTally.Utility;
 using NetTally.Tally.ComponentsF.Counting;
 using NetTally.VoteCounting;
 
@@ -111,7 +111,7 @@ namespace NetTally.Configure
         /// <returns>Returns a new quest.</returns>
         public Quest CreateQuest()
         {
-            if (Quests.FirstOrDefault(q => q.ThreadName == StringData.NewThreadEntry) is not Quest quest)
+            if (Quests.FirstOrDefault(q => q.ThreadName == Strings.NewThreadEntry) is not Quest quest)
             {
                 quest = new Quest
                 {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using NetTally.Data;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
@@ -17,7 +16,7 @@ public record AuthorType(string Name);
 public static class Author
 {
     public static AuthorType None { get; } = new(string.Empty);
-    public static AuthorType Unknown { get; } = new(StringData.UnknownAuthor);
+    public static AuthorType Unknown { get; } = new(Strings.UnknownAuthor);
 
     public static AuthorType Create(string name)
     {

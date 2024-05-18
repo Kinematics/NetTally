@@ -300,13 +300,12 @@ namespace NetTally.Output
 
         private static List<Origin> GetAllVotersInTask(VotesGroupedByTask task)
         {
-            return task
+            return [.. task
                 .SelectMany(t => t.Value)
                 .Select(u => u.Key)
                 .Distinct()
                 .Where(v => v.AuthorType == IdentityType.User)
-                .OrderBy(v => v)
-                .ToList();
+                .OrderBy(v => v)];
         }
 
         /// <summary>

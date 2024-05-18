@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.Data;
 using NetTally.Systems;
 using NetTally.Utility;
 
@@ -18,7 +17,7 @@ namespace NetTally.Input.Utility
         #region Class Fields
         public static readonly Filter Empty = new(EmptyRegex());
         public static readonly Filter DefaultThreadmarkFilter =
-            new(StringData.OmakeFilter, injectString: null);
+            new(Strings.OmakeFilter, injectString: null);
 
         readonly Regex filterRegex;
         readonly Regex emptyRegex = EmptyRegex();

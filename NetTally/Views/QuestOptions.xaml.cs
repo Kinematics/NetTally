@@ -36,7 +36,7 @@ namespace NetTally.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (questOptionsViewModel.ThreadName == StringData.NewThreadEntry)
+            if (questOptionsViewModel.ThreadName == Strings.NewThreadEntry)
             {
                 QuestUrlBox.Focus();
             }

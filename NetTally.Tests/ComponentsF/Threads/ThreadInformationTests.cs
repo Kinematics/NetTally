@@ -83,7 +83,7 @@ public class ThreadInformationTests
         var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
 
         Assert.IsNotNull(threadInfo);
-        Assert.AreEqual(StringData.UntitledThread, threadInfo.Title);
+        Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
         Assert.AreEqual(authorName, threadInfo.Author.Name);
         Assert.AreEqual(1, threadInfo.StartPostNumber);
         Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
@@ -101,8 +101,8 @@ public class ThreadInformationTests
         var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
 
         Assert.IsNotNull(threadInfo);
-        Assert.AreEqual(StringData.UntitledThread, threadInfo.Title);
-        Assert.AreEqual(StringData.UnknownAuthor, threadInfo.Author.Name);
+        Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
+        Assert.AreEqual(Strings.UnknownAuthor, threadInfo.Author.Name);
         Assert.AreEqual(1, threadInfo.StartPostNumber);
         Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
         Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);

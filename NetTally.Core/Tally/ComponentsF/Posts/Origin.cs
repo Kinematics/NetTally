@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using NetTally.Data;
+using NetTally.Utility;
 using NetTally.Enums;
 
 namespace NetTally.Tally.ComponentsF.Posts;
@@ -112,7 +112,7 @@ public static class Origin
 
 public class OriginComparer : IEqualityComparer<OriginType>, IComparer<OriginType>
 {
-    public static readonly Uri ExampleUri = new(StringData.ExampleHostUrl);
+    public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
     public static OriginComparer Instance { get; } = new();
 
     public int Compare(OriginType? x, OriginType? y)

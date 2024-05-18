@@ -85,9 +85,9 @@ namespace NetTally.Tests.Tallying
         [TestMethod]
         public void IQuest_Construction_State()
         {
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
-            Assert.AreEqual(StringData.NewThreadDisplayName, Quest.DisplayName);
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(Strings.NewThreadDisplayName, Quest.DisplayName);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
 
             Assert.AreEqual(0, Quest.PostsPerPage);
             Assert.AreEqual(1, Quest.StartPost);
@@ -131,7 +131,7 @@ namespace NetTally.Tests.Tallying
                 Assert.Fail("Unexpected exception caught:\n" + e.Message);
             }
 
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadName);
             VerifyNoNotification();
         }
 

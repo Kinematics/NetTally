@@ -1,7 +1,7 @@
 ﻿using System;
-using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Utility;
 
 namespace NetTally.Tally.ComponentsF.Threads;
 public record ThreadInformationType(
@@ -29,7 +29,7 @@ public static class ThreadInformation
         int pagesInThread)
     {
         if (string.IsNullOrEmpty(title))
-            title = StringData.UntitledThread;
+            title = Strings.UntitledThread;
         author ??= Author.Unknown;
         if (startPostNumber < 0)
             startPostNumber = 0;
