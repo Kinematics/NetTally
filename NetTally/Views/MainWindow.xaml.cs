@@ -16,12 +16,12 @@ namespace NetTally.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly MainViewModel mainViewModel;
+        private readonly MainViewModelF mainViewModel;
         private readonly WPFNavigationService navigationService;
         private readonly ILogger<MainWindow> logger;
 
         public MainWindow(
-            MainViewModel mainViewModel,
+            MainViewModelF mainViewModel,
             WPFNavigationService navigationService,
             ILogger<MainWindow> logger)
         {
