@@ -24,12 +24,13 @@ namespace NetTally.Output
         #region Private fields
         private readonly GlobalSettings globalSettings = globalSettings.Value;
         private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
-        private readonly StringBuilder sb = new();
 
         private Quest quest = null!;
         private DisplayMode displayMode;
         private IVoteCounterF voteCounter = null!;
         private IRankVoteCounter rankVoteCounter = null!;
+
+        private readonly StringBuilder sb = new();
 
         /// <summary>
         /// Gets the line break text from the quest's forum adapter, since some
@@ -44,6 +45,14 @@ namespace NetTally.Output
 
         const string NoTask = "【NONE】";
         #endregion
+
+        #region Delegates
+        delegate void ConstructOutputFn(
+            VotesGroupedByTaskF votesInTask,
+            IEnumerable<CompactVoteType> compactVotesInTask,
+            IEnumerable<OriginType> allVoters);
+
+        #endregion Delegates
 
         #region Public functions
         /// <summary>
@@ -64,13 +73,12 @@ namespace NetTally.Output
         private void InitializeBuild(Quest quest)
         {
             this.quest = quest;
-            voteCounter = quest.VoteCounterF;
             displayMode = quest.DisplayMode;
+            voteCounter = quest.VoteCounterF;
+            rankVoteCounter = RankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
             var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
             lineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
-
-            rankVoteCounter = RankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
             sb.Clear();
         }
@@ -87,22 +95,22 @@ namespace NetTally.Output
             {
                 AddHeader();
 
-                ConstructOutput(voteGroupings[MarkerType.Rank], MarkerType.Rank);
                 if (voteGroupings[MarkerType.Rank].Count > 0)
                 {
+                    ConstructOutput(voteGroupings[MarkerType.Rank], ConstructRankedOutput);
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Score], MarkerType.Score);
                 if (voteGroupings[MarkerType.Score].Count > 0)
                 {
+                    ConstructOutput(voteGroupings[MarkerType.Score], ConstructScoredOutput);
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Approval], MarkerType.Approval);
                 if (voteGroupings[MarkerType.Approval].Count > 0)
                 {
+                    ConstructOutput(voteGroupings[MarkerType.Approval], ConstructApprovedOutput);
                     AddDoubleLineBreak();
                 }
-                ConstructOutput(voteGroupings[MarkerType.Vote], MarkerType.Vote);
+                ConstructOutput(voteGroupings[MarkerType.Vote], ConstructNormalOutput);
 
                 AddTotalVoters();
             }
@@ -223,13 +231,8 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votes">Votes to be tallied.</param>
         /// <param name="marker">Type of construction being done.</param>
-        private void ConstructOutput(VoteStorage votes, MarkerType marker)
+        private void ConstructOutput(VoteStorage votes, ConstructOutputFn constructOutputFn)
         {
-            if (votes.Count == 0)
-            {
-                return;
-            }
-
             var groupByTask = GetVotesGroupedByTask(votes);
 
             bool firstTask = true;
@@ -258,24 +261,9 @@ namespace NetTally.Output
                     if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                         compactTask = CompactVote.GetCompactVotes(task);
 
-                    switch (marker)
-                    {
-                        case MarkerType.Vote:
-                            ConstructNormalOutput(task, compactTask);
-                            break;
-                        case MarkerType.Score:
-                            ConstructScoredOutput(task, compactTask);
-                            break;
-                        case MarkerType.Approval:
-                            ConstructApprovedOutput(task, compactTask);
-                            break;
-                        case MarkerType.Rank:
-                            var allVoters = GetAllVotersInTask(task);
-                            ConstructRankedOutput(task, compactTask, allVoters);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException(nameof(marker), $"Unknown marker type: {marker}");
-                    }
+                    var allVoters = GetAllVotersInTask(task);
+
+                    constructOutputFn(task, compactTask, allVoters);
 
                     sb.AppendLine();
                 }
@@ -330,7 +318,10 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructNormalOutput(VotesGroupedByTaskF votesInTask, IEnumerable<CompactVoteType> compactVotesInTask)
+        private void ConstructNormalOutput(
+            VotesGroupedByTaskF votesInTask,
+            IEnumerable<CompactVoteType> compactVotesInTask,
+            IEnumerable<OriginType> allVoters)
         {
             bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
@@ -393,7 +384,10 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructScoredOutput(VotesGroupedByTaskF votesInTask, IEnumerable<CompactVoteType> compactVotesInTask)
+        private void ConstructScoredOutput(
+            VotesGroupedByTaskF votesInTask,
+            IEnumerable<CompactVoteType> compactVotesInTask,
+            IEnumerable<OriginType> allVoters)
         {
             bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
@@ -453,7 +447,10 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="votesInTask">The group of votes falling under a task.</param>
         /// <param name="token">Cancellation token.</param>
-        private void ConstructApprovedOutput(VotesGroupedByTaskF votesInTask, IEnumerable<CompactVoteType> compactVotesInTask)
+        private void ConstructApprovedOutput(
+            VotesGroupedByTaskF votesInTask,
+            IEnumerable<CompactVoteType> compactVotesInTask,
+            IEnumerable<OriginType> allVoters)
         {
             bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
 
