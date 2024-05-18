@@ -1,13 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NetTally.Tally.Components;
 using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Wilson vote scoring uses the lower bounds of a Bournoulli analysis of the vote
     /// rankings to get the 95% minimum confidence interval.

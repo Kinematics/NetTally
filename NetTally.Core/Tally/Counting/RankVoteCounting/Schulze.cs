@@ -6,8 +6,6 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Implementation to generate the ranking list for the provided set
     /// of votes for a specific task, based on the Schulze algorithm.

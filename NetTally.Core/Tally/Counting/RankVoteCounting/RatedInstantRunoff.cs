@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NetTally.Enums;
 using NetTally.VoteCounting.RankVotes.Reference;
 using NetTally.Votes;
-using NetTally.Tally.Components;
-using NetTally.Enums;
 
 namespace NetTally.VoteCounting.RankVotes
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Rated Instant Runoff voting scores all vote options, taking the top two,
     /// and does an instant runoff between them.
@@ -26,8 +23,7 @@ namespace NetTally.VoteCounting.RankVotes
         {
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList = [];
 
             var workingVotes = new VoteStorage(taskVotes);
 

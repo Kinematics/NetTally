@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NetTally.Votes;
-using NetTally.Tally.Components;
 using NetTally.Enums;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Borda is being removed as a valid option from the list of rank vote options.
     /// Aside from systemic failures of the method itself, it cannot give proper

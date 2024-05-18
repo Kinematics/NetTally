@@ -6,8 +6,6 @@ using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     public class Pairwise : IRankVoteCounter2
     {
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
