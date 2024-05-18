@@ -33,12 +33,6 @@ global using VotesGroupedByTask = System.Linq.IGrouping<
         NetTally.Votes.VoterStorage>>;
 
 
-// Dictionary lookup of votes by each voter
-global using VotesByVoterF =
-    System.Collections.Generic.Dictionary<
-        NetTally.Tally.ComponentsF.Posts.OriginType,
-        System.Collections.Generic.List<NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
-
 // Individual dictionary element from VoteStorageF:
 global using VoteStorageEntryF = System.Collections.Generic.KeyValuePair<
     NetTally.Tally.ComponentsF.Votes.VoteBlockType,
@@ -49,17 +43,29 @@ global using VoterStorageEntryF = System.Collections.Generic.KeyValuePair<
     NetTally.Tally.ComponentsF.Posts.OriginType,
     NetTally.Tally.ComponentsF.Votes.VoteBlockType>;
 
+// Enumeration of VoteStorage elements:
+global using VoteStorageType = System.Collections.Generic.IEnumerable<
+    System.Collections.Generic.KeyValuePair<
+        NetTally.Tally.ComponentsF.Votes.VoteBlockType,
+        NetTally.Tally.ComponentsF.Storage.VoterStorage>>;
+
+// Enumeration of VoterStorage elements:
+global using VoterStorageType = System.Collections.Generic.IEnumerable<
+    System.Collections.Generic.KeyValuePair<
+        NetTally.Tally.ComponentsF.Posts.OriginType,
+        NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
+
 // List of VoterStorage elements (ordered):
 global using OrderedVoterStorageF = System.Collections.Generic.List<
     System.Collections.Generic.KeyValuePair<
         NetTally.Tally.ComponentsF.Posts.OriginType,
         NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
 
-// List of VoterStorage elements:
-global using CollectedVoterStorageF = System.Collections.Generic.IEnumerable<
-    System.Collections.Generic.KeyValuePair<
+// Dictionary lookup of votes by each voter
+global using VotesByVoterF =
+    System.Collections.Generic.Dictionary<
         NetTally.Tally.ComponentsF.Posts.OriginType,
-        NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
+        System.Collections.Generic.List<NetTally.Tally.ComponentsF.Votes.VoteBlockType>>;
 
 // Grouping of VoteStorage elements by task:
 global using VotesGroupedByTaskF = System.Linq.IGrouping<
