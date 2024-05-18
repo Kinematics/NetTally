@@ -12,18 +12,18 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="votes">Votes with rank information included.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static double BordaScore(VoteStorageEntryF votes)
+        public static double BordaScore(VoteStorageEntry votes)
         {
             double voteValue = 0;
 
             // Normalize to 9 points for #1, 8 points for #2, etc.
             foreach (var vote in votes.Value)
             {
-                if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                    vote.Value.Marker.MarkerValue > 0 &&
-                    vote.Value.Marker.MarkerValue < 10)
+                if (vote.Value.MarkerType == MarkerType.Rank &&
+                    vote.Value.MarkerValue > 0 &&
+                    vote.Value.MarkerValue < 10)
                 {
-                    voteValue += (10 - vote.Value.Marker.MarkerValue);
+                    voteValue += (10 - vote.Value.MarkerValue);
                 }
             }
 
@@ -35,18 +35,18 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="votes">Votes with rank information included.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static double InverseBordaScore(VoteStorageEntryF votes)
+        public static double InverseBordaScore(VoteStorageEntry votes)
         {
             double voteValue = 0;
 
             // Value of each rank is 1/N.
             foreach (var vote in votes.Value)
             {
-                if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                    vote.Value.Marker.MarkerValue > 0 &&
-                    vote.Value.Marker.MarkerValue < 10)
+                if (vote.Value.MarkerType == MarkerType.Rank &&
+                    vote.Value.MarkerValue > 0 &&
+                    vote.Value.MarkerValue < 10)
                 {
-                    voteValue += (1.0 / vote.Value.Marker.MarkerValue);
+                    voteValue += (1.0 / vote.Value.MarkerValue);
                 }
             }
 
@@ -60,9 +60,9 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="votes">Votes with associated ranks, for the voters who ranked the vote with a given value.</param>
         /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
-        public static (double score, int count) LowerWilsonRankingScore(VoteStorageEntryF votes)
+        public static (double score, int count) LowerWilsonRankingScore(VoteStorageEntry votes)
         {
-            int n = votes.Value.Count(v => v.Value.Marker.MarkerType == MarkerType.Rank);
+            int n = votes.Value.Count(v => v.Value.MarkerType == MarkerType.Rank);
 
             if (n == 0)
                 return (0, 0);
@@ -74,11 +74,11 @@ namespace NetTally.VoteCounting.RankVotes.Reference
             // Value of each rank is 1/N.
             foreach (var vote in votes.Value)
             {
-                if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                    vote.Value.Marker.MarkerValue > 0 &&
-                    vote.Value.Marker.MarkerValue < 10)
+                if (vote.Value.MarkerType == MarkerType.Rank &&
+                    vote.Value.MarkerValue > 0 &&
+                    vote.Value.MarkerValue < 10)
                 {
-                    double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.MarkerValue);
+                    double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.MarkerValue);
 
                     positiveScore += scaledPositiveScore;
                     negativeScore += (1.0 - scaledPositiveScore);
