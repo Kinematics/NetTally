@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NetTally.Utility;
-using NetTally.Votes;
-using NetTally.Tally.Components;
 using NetTally.Enums;
+using NetTally.Votes;
 
 namespace NetTally.VoteCounting.RankVotes.Reference
 {
-    using VoteStorageEntry = KeyValuePair<VoteLineBlock, VoterStorage>;
-
     /// <summary>
     /// Borda is being removed as a valid option from the list of rank vote options.
     /// Aside from systemic failures of the method itself, it cannot give proper
@@ -28,8 +22,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
         {
-            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList = [];
 
             var processedVotes = taskVotes.Select(v => new { score = GetBordaScore(v), vote = v })
                 .OrderByDescending(a => a.score).ThenBy(a => a.vote.Value.First().Key.ID)
@@ -50,7 +43,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="vote">The vote being scored.</param>
         /// <returns>Returns the Borda score based on the voters for the vote.</returns>
-        private double GetBordaScore(VoteStorageEntry vote)
+        private static double GetBordaScore(VoteStorageEntry vote)
         {
             double voteValue = 0;
             int count = 0;
