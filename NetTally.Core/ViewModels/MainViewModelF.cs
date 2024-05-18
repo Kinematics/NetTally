@@ -206,6 +206,7 @@ namespace NetTally.ViewModels
             catch (Exception e)
             {
                 tally.TallyResults += e.Message;
+                logger.LogError(e, "Failure while tallying.");
                 RunTallyCommand.Cancel();
             }
         }
