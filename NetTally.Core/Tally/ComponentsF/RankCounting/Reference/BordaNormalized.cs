@@ -23,8 +23,7 @@ public class BordaNormalized : IRankVoteCounter
     public List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
         CountVotesForTask(VoteStorage taskVotes)
     {
-        List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)> resultList
-            = new List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>();
+        List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)> resultList = [];
 
         var processedVotes = taskVotes
             .Select(v => new { score = GetBordaScore(v), vote = v })

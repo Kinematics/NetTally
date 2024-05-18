@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using NetTally.Tally.ComponentsF.RankCounting.Reference;
 using NetTally.Tally.ComponentsF.Storage;
-using NetTally.VoteCounting.RankVotes.Reference;
 
 namespace NetTally.Tally.ComponentsF.RankCounting;
 

@@ -20,7 +20,7 @@ public class BordaFraction
     /// </summary>
     /// <param name="taskVotes">The votes in the current task.</param>
     /// <returns>Returns a list of rankings per vote.</returns>
-    public List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
+    public static List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
         CountVotesForTask(VoteStorage taskVotes)
     {
         List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)> resultList = [];
