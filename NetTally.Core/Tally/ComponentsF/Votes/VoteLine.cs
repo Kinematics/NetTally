@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 
 namespace NetTally.Tally.ComponentsF.Votes;
 /// <summary>
@@ -14,6 +13,11 @@ public record VoteLineType(PrefixType Prefix, MarkerData Marker, VoteTaskType Ta
 {
     public int Depth => Prefix.Depth;
     public bool HasTask => Task.Name.Length > 0;
+
+    public override string ToString()
+    {
+        return $"{{{Prefix.Indent}[{Marker.MarkerSymbol}][{Task.Name}] {Content.CleanContent}}}";
+    }
 }
 
 /// <summary>

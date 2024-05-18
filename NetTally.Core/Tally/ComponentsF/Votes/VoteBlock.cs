@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using NetTally.Enums;
 
 namespace NetTally.Tally.ComponentsF.Votes;
@@ -40,6 +38,11 @@ public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTas
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public override string ToString()
+    {
+        return $"{{[{Marker.MarkerSymbol}][{Task.Name}]||{Lines[0]}}}";
     }
 }
 

@@ -17,6 +17,11 @@ public sealed record OriginType(
 {
     public bool IsUser => Category == IdentityType.User;
     public bool IsPlan => Category == IdentityType.Plan;
+
+    public override string ToString()
+    {
+        return $"{{Name: {Author.Name} ({Category}), {ThreadPostNumber} @ {Thread}";
+    }
 }
 
 public static class Origin
