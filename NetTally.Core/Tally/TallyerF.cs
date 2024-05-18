@@ -20,11 +20,11 @@ namespace NetTally.VoteCounting
     public partial class TallyerF : ObservableObject
     {
         #region Construction
-        private readonly IForumReaderF forumReader;
+        private readonly IForumReader forumReader;
         private readonly ITextResultsProvider textResultsProvider;
         private readonly ILogger<TallyerF> logger;
 
-        public TallyerF(IForumReaderF forumReader,
+        public TallyerF(IForumReader forumReader,
                      ITextResultsProvider textResultsProvider,
                      ILogger<TallyerF> logger)
         {

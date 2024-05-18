@@ -16,14 +16,14 @@ using NetTally.Utility;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ReadingF;
-public class ForumReaderF(
+public class ForumReader(
     IServiceProvider serviceProvider,
     ForumAdapterFactory forumAdapterFactory,
     IQuestsInfo questsInfo,
-    ILogger<ForumReaderF> logger) : IForumReaderF
+    ILogger<ForumReader> logger) : IForumReader
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
-    private readonly ILogger<ForumReaderF> logger = logger;
+    private readonly ILogger<ForumReader> logger = logger;
     private readonly IQuestsInfo questsInfo = questsInfo;
     private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
 

@@ -6,7 +6,7 @@ using NetTally.CustomEventArgs;
 using NetTally.Tally.ComponentsF.Posts;
 
 namespace NetTally.Input.Forums.ReadingF;
-public interface IForumReaderF
+public interface IForumReader
 {
     Task<(List<string> Titles, List<PostType> Posts)>
         ReadQuestAsync(Quest quest, CancellationToken cancellationToken);
