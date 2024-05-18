@@ -15,7 +15,7 @@ using NetTally.Tally.ComponentsF.Threads;
 using NetTally.Utility;
 using NetTally.Web;
 
-namespace NetTally.Input.Forums.Reading;
+namespace NetTally.Input.Forums.ReadingF;
 public class ForumReaderF(
     IServiceProvider serviceProvider,
     ForumAdapterFactory forumAdapterFactory,

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
 using NetTally.Tally.ComponentsF.Posts;
 
-namespace NetTally.Input.Forums.Reading;
+namespace NetTally.Input.Forums.ReadingF;
 public interface IForumReaderF
 {
     Task<(List<string> Titles, List<PostType> Posts)>
