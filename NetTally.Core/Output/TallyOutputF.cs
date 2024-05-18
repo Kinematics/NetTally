@@ -286,14 +286,15 @@ namespace NetTally.Output
             }
         }
 
-        private static List<OriginType> GetAllVotersInTask(VotesGroupedByTaskF task)
+        private static IEnumerable<OriginType> GetAllVotersInTask(VotesGroupedByTaskF task)
         {
-            return [.. task
+            return task
                 .SelectMany(t => t.Value)
                 .Select(u => u.Key)
-                .Distinct()
                 .Where(v => v.Category == IdentityType.User)
-                .OrderBy(v => v, OriginComparer.Instance)];
+                .GroupBy(v => v, OriginNameComparer.Instance)
+                .Select(g => g.MaxBy(v => v.PostId, PostIdComparer.Instance)!)
+                .OrderBy(v => v, OriginNameComparer.Instance);
         }
 
         /// <summary>
@@ -302,7 +303,10 @@ namespace NetTally.Output
         /// <param name="task">The task being displayed.</param>
         private void ConstructVoterSummary(VotesGroupedByTaskF task)
         {
-            GetAllVotersInTask(task).ForEach(v => AddVoter(v));
+            GetAllVotersInTask(task)
+                .Distinct(OriginNameComparer.Instance)
+                .ToList()
+                .ForEach(v => AddVoter(v));
 
             sb.AppendLine();
             sb.AppendLine();
@@ -589,7 +593,7 @@ namespace NetTally.Output
             var voters = GetAllVotersInTask(task);
 
             sb.Append("— Voters: ");
-            sb.Append(voters.Count);
+            sb.Append(voters.Count());
             sb.AppendLine();
         }
 
