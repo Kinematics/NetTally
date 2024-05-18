@@ -42,6 +42,8 @@ public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTas
 /// </summary>
 public static class VoteBlock
 {
+    public static VoteBlockType Empty { get; } = new VoteBlockType([], Marker.Empty, VoteTask.Empty);
+
     public static VoteBlockType? Create(IEnumerable<VoteLineType> lines)
     {
         List<VoteLineType> listOfLines = lines.ToList();

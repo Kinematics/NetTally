@@ -1,36 +1,26 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NetTally.Extensions;
-using NetTally.Tally.Components;
+﻿using System.Linq;
+using NetTally.Tally.ComponentsF.Votes;
 
-namespace NetTally.VoteCounting.RankVotes.Reference
+namespace NetTally.Tally.ComponentsF.RankCounting.Reference;
+
+/// <summary>
+/// Implement ranking votes using the standard instant runoff method.
+/// Each round, the least liked of the top-ranked choices is removed.
+/// </summary>
+public class InstantRunoff : InstantRunoffBase
 {
     /// <summary>
-    /// Implement ranking votes using the standard instant runoff method.
-    /// Each round, the least liked of the top-ranked choices is removed.
+    /// Gets the least preferred choice.
+    /// In the standard Instant Runoff, this is the vote with the fewest
+    /// number of top-ranked votes.
     /// </summary>
-    public class InstantRunoff : InstantRunoffBase
+    /// <param name="localRankings">The vote rankings.</param>
+    /// <returns>Returns the vote string for the least preferred vote.</returns>
+    protected override VoteBlockType GetLeastPreferredChoice(
+        VotesByVoterF voterPreferences)
     {
-        /// <summary>
-        /// Gets the least preferred choice.
-        /// In the standard Instant Runoff, this is the vote with the fewest
-        /// number of top-ranked votes.
-        /// </summary>
-        /// <param name="localRankings">The vote rankings.</param>
-        /// <returns>Returns the vote string for the least preferred vote.</returns>
-        protected override VoteLineBlock GetLeastPreferredChoice(
-            VotesByVoter voterPreferences)
-        {
-            var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
-
-            var leastPreferred = highestRankings.MinBy(r => r.Count());
-
-            if (leastPreferred == null)
-            {
-                return VoteLineBlock.Empty;
-            }
-
-            return leastPreferred.Key;
-        }
+        return voterPreferences.GroupBy(v => v.Value.First()) // highest rankings
+            .MinBy(r => r.Count())    // least preferred
+            ?.Key ?? VoteBlock.Empty; // the vote block found, or Empty if none
     }
 }
