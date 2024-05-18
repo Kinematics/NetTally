@@ -62,7 +62,6 @@ namespace NetTally.ViewModels
         public bool HasQuests => Quests.Count > 0;
         public bool IsQuestSelected => SelectedQuest != null;
         public bool TallyIsRunning => RunTallyCommand.IsRunning;
-        public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
         public bool HasOutput => tally.HasTallyResults;
         public string Output => tally.TallyResults;
         #endregion State Properties
@@ -130,7 +129,7 @@ namespace NetTally.ViewModels
         #endregion Update Functions
 
         #region View Model Commands
-        private bool CanAddQuest => TallyIsNotRunning;
+        private bool CanAddQuest => !TallyIsRunning;
 
         [RelayCommand(CanExecute = nameof(CanAddQuest))]
         private void AddQuest()
@@ -147,7 +146,7 @@ namespace NetTally.ViewModels
             logger.LogInformation("Added new quest");
         }
 
-        private bool CanRemoveQuest() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanRemoveQuest() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRemoveQuest))]
         private void RemoveQuest()
@@ -179,7 +178,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanRunTally() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanRunTally() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRunTally),
             IncludeCancelCommand = true)]
@@ -211,7 +210,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanClearTallyCache() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
         private void ClearTallyCache()
@@ -265,7 +264,6 @@ namespace NetTally.ViewModels
                 RemoveQuestCommand.NotifyCanExecuteChanged();
                 ClearTallyCacheCommand.NotifyCanExecuteChanged();
                 OnPropertyChanged(nameof(TallyIsRunning));
-                OnPropertyChanged(nameof(TallyIsNotRunning));
 
                 if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
                 {
