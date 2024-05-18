@@ -5,6 +5,7 @@ using NetTally.Enums;
 using NetTally.Utility;
 
 namespace NetTally.Tally.ComponentsF.Votes;
+
 /// <summary>
 /// Data type to store marker information.
 /// </summary>
@@ -18,26 +19,63 @@ public record MarkerData(MarkerType MarkerType, int MarkerValue, string MarkerSy
 /// </summary>
 public static partial class Marker
 {
+    #region Public predefined markers
+    /// <summary>
+    /// An empty <see cref="MarkerData"/> object.
+    /// </summary>
     public static MarkerData Empty { get; } = new MarkerData(MarkerType.None, 0, "");
+    /// <summary>
+    /// A basic <see cref="MarkerData"/> object for a plan.
+    /// </summary>
     public static MarkerData PlanMarker { get; } = new MarkerData(MarkerType.Plan, 0, Strings.PlanNameMarker);
+    /// <summary>
+    /// A basic <see cref="MarkerData"/> object for a vote.
+    /// </summary>
     public static MarkerData VoteMarker { get; } = new MarkerData(MarkerType.Vote, 0, Strings.VoteMarker);
+    /// <summary>
+    /// A basic <see cref="MarkerData"/> object for an approval vote.
+    /// </summary>
     public static MarkerData ApprovalMarker { get; } = new MarkerData(MarkerType.Approval, 0, Strings.ApprovalMarker);
+    /// <summary>
+    /// A basic <see cref="MarkerData"/> object for a score vote.
+    /// </summary>
     public static MarkerData ScoreMarker { get; } = new MarkerData(MarkerType.Score, 0, Strings.ScoreMarker);
+    /// <summary>
+    /// A basic <see cref="MarkerData"/> object for a rank vote.
+    /// </summary>
     public static MarkerData RankMarker { get; } = new MarkerData(MarkerType.Rank, 0, Strings.RankMarker);
+    #endregion Public predefined markers
 
-
+    #region Regexes
     static readonly Regex markerRegex = MarkerRegex();
 
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex();
+    #endregion Regexes
 
-    public static MarkerData? Create(string marker)
+    #region Marker creation
+    /// <summary>
+    /// Create a marker using the provided numeric value.
+    /// </summary>
+    /// <param name="value">The value for the marker to display.</param>
+    /// <returns>A new <see cref="MarkerData"/> object for the provided value.</returns>
+    public static MarkerData? Create(int value)
     {
-        if (!string.IsNullOrWhiteSpace(marker))
-        {
-            marker = marker.Trim();
+        return new MarkerData(MarkerType.None, value, value.ToString());
+    }
 
-            Match m = markerRegex.Match(marker);
+    /// <summary>
+    /// Create a marker using the provided string value.
+    /// </summary>
+    /// <param name="value">The value for the marker to display.</param>
+    /// <returns>A new <see cref="MarkerData"/> object for the provided value.</returns>
+    public static MarkerData? Create(string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            value = value.Trim();
+
+            Match m = markerRegex.Match(value);
 
             if (m.Success)
             {
@@ -83,7 +121,7 @@ public static partial class Marker
                 }
                 else if (markerType == MarkerType.Approval)
                 {
-                    markerValue = marker == "+" ? 80 : 20;
+                    markerValue = value == "+" ? 80 : 20;
                 }
                 else if (m.Groups["value"].Success)
                 {
@@ -105,12 +143,13 @@ public static partial class Marker
                     }
                 }
 
-                return new MarkerData(markerType, markerValue, marker);
+                return new MarkerData(markerType, markerValue, value);
             }
         }
 
         return null;
     }
+    #endregion Marker creation
 }
 
 /// <summary>
