@@ -141,36 +141,65 @@ public static class CompactVoteTransform
 
 public static class CompactVoteDisplay
 {
+    /// <summary>
+    /// Formats the current object as a string.
+    /// </summary>
+    /// <returns>Returns a string representing the current object.</returns>
     public static string ToString(CompactVoteType compactVote)
     {
-        return "";
+        string starting = VoteLineDisplay.ToString(compactVote.Line);
+
+        return compactVote.Children
+            .Select(s => VoteLineDisplay.ToString(s.Line))
+            .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
+    /// <summary>
+    /// Creates a string that displays the cleaned content, and without any particular marker.
+    /// </summary>
+    /// <returns>Returns a string representing the current object.</returns>
     public static string ToComparableString(CompactVoteType compactVote)
     {
-        return "";
+        string starting = VoteLineDisplay.ToComparableString(compactVote.Line);
+
+        return compactVote.Children
+            .Select(s => VoteLineDisplay.ToComparableString(s.Line))
+            .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
+    /// <summary>
+    /// Creates a string that displays the full vote line content, using the specified marker
+    /// and task instead of the intrinsic vote line's.
+    /// </summary>
+    /// <param name="marker">The optional marker to use when displaying the vote line as a string.</param>
+    /// <param name="task">The optional task to use when displaying the vote line as a string.
+    /// <returns>Returns a string representing the current object.</returns>
     public static string ToOverrideString(
         CompactVoteType compactVote,
-        MarkerData? marker = null,
-        VoteTaskType? task = null)
+        string? marker = null,
+        string? task = null)
     {
-        marker ??= Marker.Empty;
-        task ??= VoteTask.Empty;
+        string starting = VoteLineDisplay.ToOverrideString(compactVote.Line, marker, task);
 
-        return "";
+        return compactVote.Children
+            .Select(s => VoteLineDisplay.ToOverrideString(s.Line, marker, task))
+            .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
+    /// <summary>
+    /// Formats a vote line for output, with optional override marker and task.
+    /// Output string only prints the current compact vote, not the children.
+    /// </summary>
+    /// <param name="marker">The optional marker to use when displaying the vote line as a string.</param>
+    /// <param name="task">The optional task to use when displaying the vote line as a string.</param>
+    /// <returns>Returns a string representing the current vote line.</returns>
     public static string ToOutputString(
         CompactVoteType compactVote,
         string? marker = null,
         string? task = null)
     {
-        marker ??= Strings.VoteMarker;
-        task ??= string.Empty;
-
-        return "";
+        return VoteLineDisplay.ToOverrideString(compactVote.Line, marker, task);
+        // don't display children
     }
 }
 
