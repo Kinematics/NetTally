@@ -302,43 +302,77 @@ namespace NetTally.Output
         /// <param name="task">The task being displayed.</param>
         private void ConstructVoterSummary(VotesGroupedByTaskF task)
         {
-            var voters = GetAllVotersInTask(task);
-
-            foreach (var voter in voters)
-            {
-                AddVoter(voter);
-            }
+            GetAllVotersInTask(task).ForEach(v => AddVoter(v));
 
             sb.AppendLine();
             sb.AppendLine();
         }
 
         /// <summary>
-        /// Construct vote output per task for standard votes.
+        /// Construct vote output for standard votes, per task.
         /// </summary>
-        /// <param name="votesInTask">The group of votes falling under a task.</param>
-        /// <param name="token">Cancellation token.</param>
+        /// <param name="votesInTask">The votes made for a given task.</param>
+        /// <param name="compactVotesInTask">All the compact votes.</param>
+        /// <param name="allVoters">All the voters</param>
         private void ConstructNormalOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
             IEnumerable<OriginType> allVoters)
         {
-            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
-
-            if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
+            // Normal votes, either standard or compact
+            if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
             {
-                var orderedResults = compactVotesInTask
-                    .OrderByDescending(a => VoterAnalysis.GetSupportCount(a.Voters))
-                    .ThenBy(a => a.Line.Content, VoteContentComparer.Instance);
+                ConstructStandardNormalOutput(votesInTask);
+            }
+            else
+            {
+                ConstructCompactNormalOutput(compactVotesInTask);
+            }
 
-                foreach (var result in orderedResults)
+            // Construct standard output
+            void ConstructStandardNormalOutput(VotesGroupedByTaskF votesInTask)
+            {
+                votesInTask
+                    .Select(v => new { vote = v, supportCount = v.Value.GetSupportCount() })
+                    .OrderByDescending(a => a.supportCount)
+                    .ThenBy(a => a.vote.Key.Lines[0].Content, VoteContentComparer.Instance)
+                    .ToList()
+                    .ForEach(a => ConstructStandardVote(a.vote, a.supportCount));
+
+                // Handle each vote
+                void ConstructStandardVote(VoteStorageEntryF entry, int supportCount)
                 {
-                    var flattened = CompactVoteTransform.Flatten(result);
+                    int voterCount = entry.Value.GetNonRankUserCount();
+                    if (voterCount != supportCount)
+                    {
+                        AddStandardVoteSupport(supportCount);
+                    }
+                    AddStandardVoteDisplay(entry, supportCount);
+                    AddVoterCount(voterCount);
+                    AddNonRankVoters(entry.Value);
+
+                    sb.AppendLine();
+                }
+            }
+
+            // Construct compact output
+            void ConstructCompactNormalOutput(IEnumerable<CompactVoteType> compactVotesInTask)
+            {
+                compactVotesInTask
+                    .Select(v => new { vote = v, supportCount = VoterAnalysis.GetSupportCount(v.Voters) })
+                    .OrderByDescending(a => a.supportCount)
+                    .ThenBy(a => a.vote.Line.Content, VoteContentComparer.Instance)
+                    .ToList()
+                    .ForEach(a => ConstructCompactVote(a.vote, a.supportCount));
+
+                // Handle each vote
+                void ConstructCompactVote(CompactVoteType entry, int supportCount)
+                {
+                    var flattened = CompactVoteTransform.Flatten(entry);
 
                     foreach (var vote in flattened)
                     {
-                        sb.AppendLine(
-                            CompactVoteDisplay.ToOutputString(vote, VoterAnalysis.GetSupportCount(vote.Voters).ToString()));
+                        sb.AppendLine(CompactVoteDisplay.ToOutputString(vote, supportCount.ToString()));
 
                         if (displayMode != DisplayMode.CompactNoVoters)
                         {
@@ -350,48 +384,53 @@ namespace NetTally.Output
                         sb.AppendLine();
                 }
             }
-            else
-            {
-                var voteResults = votesInTask.Select(v => new { vote = v, supportCount = v.Value.GetSupportCount() });
-
-                var orderedResults = voteResults
-                    .OrderByDescending(a => a.supportCount)
-                    .ThenBy(a => a.vote.Key.First().Content, VoteContentComparer.Instance);
-
-                foreach (var result in orderedResults)
-                {
-                    VoteStorageEntryF resultVote = result.vote;
-                    int resultSupport = result.supportCount;
-
-                    var (entryVote, entryStorage) = resultVote;
-
-                    int voterCount = entryStorage.GetNonRankUserCount();
-                    if (voterCount != resultSupport)
-                    {
-                        AddStandardVoteSupport(resultSupport);
-                    }
-                    AddStandardVoteDisplay(resultVote, resultSupport);
-                    AddVoterCount(voterCount);
-                    AddNonRankVoters(entryStorage);
-
-                    sb.AppendLine();
-                }
-            }
         }
+
 
         /// <summary>
         /// Construct vote output per task for scored votes.
         /// </summary>
-        /// <param name="votesInTask">The group of votes falling under a task.</param>
-        /// <param name="token">Cancellation token.</param>
+        /// <param name="votesInTask">The votes made for a given task.</param>
+        /// <param name="compactVotesInTask">All the compact votes.</param>
+        /// <param name="allVoters">All the voters</param>
         private void ConstructScoredOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
-            IEnumerable<OriginType> allVoters)
+            IEnumerable<OriginType> _)
         {
-            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
+            // Scored votes, either standard or compact
+            if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
+            {
+                ConstructStandardScoredOutput(votesInTask);
+            }
+            else
+            {
+                ConstructCompactScoredOutput(compactVotesInTask);
+            }
 
-            if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
+            void ConstructStandardScoredOutput(VotesGroupedByTaskF votesInTask)
+            {
+                votesInTask
+                    .Select(v => new { vote = v, score = v.Value.GetScore() })
+                    .OrderByDescending(a => a.score.lowerMargin)
+                    .ThenByDescending(a => a.score.average)
+                    .ThenBy(a => a.vote.Key.Lines[0].Content, VoteContentComparer.Instance)
+                    .ToList()
+                    .ForEach(a => ConstructStandardVote(a.vote, a.score));
+
+                // Handle each vote
+                void ConstructStandardVote(VoteStorageEntryF entry, (int score, double avg, double low) score)
+                {
+                    AddScoreVoteSupport(score);
+                    AddScoreVoteDisplay(entry, score);
+                    AddVoterCount(entry.Value.GetNonRankUserCount());
+                    AddNonRankVoters(entry.Value);
+
+                    sb.AppendLine();
+                }
+            }
+
+            void ConstructCompactScoredOutput(IEnumerable<CompactVoteType> compactVotesInTask)
             {
                 var orderedResults = compactVotesInTask
                     .OrderByDescending(a => VoterAnalysis.GetScore(a.Voters).lowerMargin)
@@ -416,53 +455,64 @@ namespace NetTally.Output
                         sb.AppendLine();
                 }
             }
-            else
-            {
-                var voteResults = votesInTask.Select(v => new { vote = v, score = v.Value.GetScore() });
-
-                var orderedResults = voteResults
-                    .OrderByDescending(a => a.score.lowerMargin)
-                    .ThenByDescending(a => a.score.average)
-                    .ThenBy(a => a.vote.Key.First().Content, VoteContentComparer.Instance);
-
-                foreach (var result in orderedResults)
-                {
-                    VoteStorageEntryF resultVote = result.vote;
-                    var resultScore = result.score;
-
-                    var (entryVote, entryStorage) = resultVote;
-
-                    AddScoreVoteSupport(resultScore);
-                    AddScoreVoteDisplay(resultVote, resultScore);
-                    AddVoterCount(entryStorage.GetNonRankUserCount());
-                    AddNonRankVoters(entryStorage);
-
-                    sb.AppendLine();
-                }
-            }
         }
 
         /// <summary>
         /// Construct vote output per task for approval votes.
         /// </summary>
-        /// <param name="votesInTask">The group of votes falling under a task.</param>
-        /// <param name="token">Cancellation token.</param>
+        /// <param name="votesInTask">The votes made for a given task.</param>
+        /// <param name="compactVotesInTask">All the compact votes.</param>
+        /// <param name="allVoters">All the voters</param>
         private void ConstructApprovedOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
             IEnumerable<OriginType> allVoters)
         {
-            bool multiline = votesInTask.Any(a => a.Key.Lines.Count > 1);
-
-            if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
+            // Scored votes, either standard or compact
+            if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
             {
-                var orderedResults = compactVotesInTask
-                    .OrderByDescending(a => VoterAnalysis.GetApproval(a.Voters).positive)
-                    .ThenBy(a => a.Line.Content, VoteContentComparer.Instance);
+                ConstructStandardApprovalOutput(votesInTask);
+            }
+            else
+            {
+                ConstructCompactApprovalOutput(compactVotesInTask);
+            }
 
-                foreach (var result in orderedResults)
+            void ConstructStandardApprovalOutput(VotesGroupedByTaskF votesInTask)
+            {
+                votesInTask
+                    .Select(v => new { vote = v, support = v.Value.GetApproval() })
+                    .OrderByDescending(a => a.support.positive)
+                    .ThenBy(a => a.support.negative)
+                    .ThenBy(a => a.vote.Key.First().Content, VoteContentComparer.Instance)
+                    .ToList()
+                    .ForEach(a => ConstructStandardVote(a.vote, a.support));
+
+                void ConstructStandardVote(VoteStorageEntryF entry, (int pos, int neg) support)
                 {
-                    var flattened = CompactVoteTransform.Flatten(result);
+                    AddApprovalVoteSupport(support);
+                    AddApprovalVoteDisplay(entry, support);
+                    AddVoterCount(entry.Value.GetNonRankUserCount());
+                    AddNonRankVoters(entry.Value);
+
+                    sb.AppendLine();
+                }
+            }
+
+            void ConstructCompactApprovalOutput(IEnumerable<CompactVoteType> compactVotesInTask)
+            {
+                compactVotesInTask
+                    .Select(v => new { vote = v, support = VoterAnalysis.GetApproval(v.Voters) })
+                    .OrderByDescending(a => a.support.positive)
+                    .ThenBy(a => a.support.negative)
+                    .ThenBy(a => a.vote.Line.Content, VoteContentComparer.Instance)
+                    .ToList()
+                    .ForEach(a => ConstructCompactVote(a.vote));
+
+
+                void ConstructCompactVote(CompactVoteType entry)
+                {
+                    var flattened = CompactVoteTransform.Flatten(entry);
 
                     foreach (var vote in flattened)
                     {
@@ -479,36 +529,14 @@ namespace NetTally.Output
                         sb.AppendLine();
                 }
             }
-            else
-            {
-                var voteResults = votesInTask.Select(v => new { vote = v, support = v.Value.GetApproval() });
-
-                var orderedResults = voteResults.OrderByDescending(a => a.support.positive)
-                                                .ThenBy(a => a.support.negative)
-                                                .ThenBy(a => a.vote.Key.First().Content, VoteContentComparer.Instance);
-
-                foreach (var result in orderedResults)
-                {
-                    VoteStorageEntryF resultVote = result.vote;
-                    var resultApproval = result.support;
-
-                    var (entryVote, entryStorage) = resultVote;
-
-                    AddApprovalVoteSupport(resultApproval);
-                    AddApprovalVoteDisplay(resultVote, resultApproval);
-                    AddVoterCount(entryStorage.GetNonRankUserCount());
-                    AddNonRankVoters(entryStorage);
-
-                    sb.AppendLine();
-                }
-            }
         }
 
         /// <summary>
         /// Construct vote output per task for ranked votes.
         /// </summary>
-        /// <param name="votesInTask">The group of votes falling under a task.</param>
-        /// <param name="token">Cancellation token.</param>
+        /// <param name="votesInTask">The votes made for a given task.</param>
+        /// <param name="compactVotesInTask">All the compact votes.</param>
+        /// <param name="allVoters">All the voters</param>
         private void ConstructRankedOutput(VotesGroupedByTaskF votesInTask, IEnumerable<CompactVoteType> _,
             IEnumerable<OriginType> allVoters)
         {
@@ -645,7 +673,7 @@ namespace NetTally.Output
             if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
                 sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, supportCount.ToString()));
             else
-                sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, Strings.VoteMarker));
+                sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, Strings.VoteMarker, Strings.VoteMarker));
         }
 
         /// <summary>
@@ -689,28 +717,6 @@ namespace NetTally.Output
                 sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, $"#{ranking.rank}"));
             else
                 sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, Strings.RankMarker));
-        }
-
-        private void AddVoteDisplay(MarkerType marker, VoteStorageEntryF vote, string customMarker)
-        {
-            string simpleMarker = GetSimpleMarker(marker);
-
-            if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
-                sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, customMarker));
-            else
-                sb.AppendLine(VoteBlockDisplay.ToOutputString(vote.Key, simpleMarker));
-        }
-
-        private static string GetSimpleMarker(MarkerType marker)
-        {
-            return marker switch
-            {
-                MarkerType.Vote => Strings.VoteMarker,
-                MarkerType.Approval => Strings.ApprovalMarker,
-                MarkerType.Score => Strings.ScoreMarker,
-                MarkerType.Rank => Strings.RankMarker,
-                _ => Strings.VoteMarker,
-            };
         }
 
         /// <summary>
@@ -789,8 +795,6 @@ namespace NetTally.Output
         /// <param name="voter">The voter to add.</param>
         private void AddVoter(OriginType voter, VoteBlockType? vote, MarkerType marker = MarkerType.None)
         {
-            if (voter.Category == IdentityType.Plan) sb.Append("[b]");
-
             string markerToDisplay;
             if (voter.Category == IdentityType.Plan)
                 markerToDisplay = Strings.PlanNameMarker;
@@ -803,28 +807,16 @@ namespace NetTally.Output
             else
                 markerToDisplay = Strings.UnknownMarker;
 
-            sb.Append('[');
-            sb.Append(markerToDisplay);
-            sb.Append("] ");
-
-            if (voter.Category == IdentityType.Plan) sb.Append("Plan: ");
-
-            sb.Append("[url=\"");
-            sb.Append(voter.Permalink);
-            sb.Append("\"]");
-            sb.Append(voter.Author.Name);
-            sb.Append("[/url]");
-
-            if (voter.Category == IdentityType.Plan) sb.Append("[/b]");
-
-            sb.AppendLine();
+            AddVoter(voter, markerToDisplay);
         }
 
-        private void AddVoter(OriginType voter)
+        private void AddVoter(OriginType voter, string marker = "")
         {
             if (voter.Category == IdentityType.Plan) sb.Append("[b]");
 
-            sb.Append("[]");
+            sb.Append('[');
+            sb.Append(marker);
+            sb.Append("] ");
 
             if (voter.Category == IdentityType.Plan) sb.Append("Plan: ");
 
