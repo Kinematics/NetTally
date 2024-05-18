@@ -64,7 +64,9 @@ namespace NetTally.Output
         {
             InitializeBuild(quest);
 
-            return BuildGlobal();
+            BuildGlobal();
+
+            return sb.ToString();
         }
         #endregion
 
@@ -87,7 +89,7 @@ namespace NetTally.Output
         /// General construction.  Add the header and any vote output.
         /// Surround by spoiler tags if requested by the display mode.
         /// </summary>
-        private string BuildGlobal()
+        private void BuildGlobal()
         {
             var voteGroupings = GetVoteGroupings();
 
@@ -114,8 +116,6 @@ namespace NetTally.Output
 
                 AddTotalVoters();
             }
-
-            return sb.ToString();
         }
 
         /// <summary>
