@@ -312,7 +312,7 @@ public class ForumReader(
         var infos = await adapter.GetThreadInformationAsync(quest, pageProvider, token)
             .ConfigureAwait(false);
 
-        logger.LogDebug("Thread information acquired for {questDisplayName}. ({threadData})",
+        logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
             quest.DisplayName, infos);
 
         return infos;
