@@ -20,11 +20,6 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// The titles of the quest threads that have been tallied.
     /// </summary>
     List<string> Titles { get; }
-    /// <summary>
-    /// Set the quest thread titles.
-    /// </summary>
-    /// <param name="titles">A list of titles to use.</param>
-    void SetThreadTitles(IEnumerable<string> titles);
 
     /// <summary>
     /// The list of tasks that have been recorded for the tally, whether drawn from
@@ -32,8 +27,9 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     ObservableCollectionExt<VoteTaskType> TaskList { get; }
 
-    List<PostToProcess> Posts { get; }
-
+    /// <summary>
+    /// Access to the vote storage system.
+    /// </summary>
     VoteStorage VoteStorage { get; }
 
     /// <summary>
@@ -53,11 +49,11 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// Whether the quest has any recorded posts.
     /// </summary>
     bool HasPosts { get; }
+
     /// <summary>
-    /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
+    /// Access to the posts ready to be processed.
     /// </summary>
-    /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
-    void AddPosts(IEnumerable<PostType> posts);
+    List<PostToProcess> Posts { get; }
 
     /// <summary>
     /// Construct votes from existing posts.

@@ -117,7 +117,7 @@ public class VoteCounterF(
     /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
     /// </summary>
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
-    public void AddPosts(IEnumerable<PostType> posts)
+    private void AddPosts(IEnumerable<PostType> posts)
     {
         RawPosts.Clear();
         RawPosts.AddRange(posts);
@@ -129,7 +129,7 @@ public class VoteCounterF(
     /// Set the quest thread titles.
     /// </summary>
     /// <param name="titles">A list of titles to use.</param>
-    public void SetThreadTitles(IEnumerable<string> titles)
+    private void SetThreadTitles(IEnumerable<string> titles)
     {
         Titles.Clear();
         Titles.AddRange(titles);
@@ -267,6 +267,12 @@ public class VoteCounterF(
         return GetOriginByAuthor(author, IdentityType.User);
     }
 
+    /// <summary>
+    /// Gets an existing stored origin that matches the provided author.
+    /// </summary>
+    /// <param name="author">The author to query.</param>
+    /// <param name="identityType">The identity type of the author.</param>
+    /// <returns>The existing origin, if it exists, or null.</returns>
     private OriginType? GetOriginByAuthor(AuthorType author, IdentityType identityType)
     {
         var namedOrigin = Origin.CreateOriginForName(identityType, author);
@@ -277,6 +283,11 @@ public class VoteCounterF(
         return GetReferenceOrigin(namedOrigin);
     }
 
+    /// <summary>
+    /// Gets and existing stored origin that matches the provided origin.
+    /// </summary>
+    /// <param name="namedOrigin">An origin with a named author, either user or plan.</param>
+    /// <returns>An origin stored in our reference pool, if found. Otherwise null.</returns>
     private OriginType? GetReferenceOrigin(OriginType namedOrigin)
     {
         if (ReferenceOrigins.TryGetValue(namedOrigin, out OriginType? actualOrigin))
