@@ -148,7 +148,7 @@ public static class AppX
 
         services.AddSingleton<RankVoteCounterFactory>();
         services.AddSingleton<ITextResultsProvider, TallyOutput>();
-        services.AddSingleton<ITextResultsProvider, TallyOutputF>();
+        services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<ManageVotesViewModel>();
