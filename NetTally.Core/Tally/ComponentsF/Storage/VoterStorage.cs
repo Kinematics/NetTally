@@ -18,7 +18,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// Default constructor
     /// </summary>
     public VoterStorage()
-        : base(OriginComparer.Instance)
+        : base(OriginNameComparer.Instance)
     { }
 
     /// <summary>
@@ -27,7 +27,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <param name="collectedVoterStorage">Voter storage elements to initialize
     /// the <see cref="VoterStorage"/> object with.</param>
     public VoterStorage(VoterStorageType collectedVoterStorage)
-        : base(collectedVoterStorage, OriginComparer.Instance)
+        : base(collectedVoterStorage, OriginNameComparer.Instance)
     { }
     #endregion Constructors
 

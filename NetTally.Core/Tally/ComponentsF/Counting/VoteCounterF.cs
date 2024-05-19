@@ -335,13 +335,11 @@ public class VoteCounterF(
     /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
     public bool HasNewerVote(PostToProcess post)
     {
-        if (!HasVoter(post.Origin.Author))
-            return false;
-
-        return Posts.Any(p =>
-                           p.Processed
-                           && PostIdComparer.Instance.Compare(p.Origin.PostId, post.Origin.PostId) > 1
-                           && AuthorComparer.Instance.Equals(p.Origin.Author, post.Origin.Author));
+        return Posts
+            .Any(p =>
+                p.Processed &&
+                OriginNameComparer.Instance.Equals(p.Origin, post.Origin) &&
+                PostIdComparer.Instance.Compare(p.Origin.PostId, post.Origin.PostId) == 1);
     }
 
     /// <summary>
