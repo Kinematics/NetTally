@@ -888,6 +888,21 @@ public class VoteCounterF(
     #endregion
 
     #region Process Posts into Votes
+    /// <summary>
+    /// Construct votes from the provided posts.
+    /// </summary>
+    /// <param name="titles">The titles to display during output.</param>
+    /// <param name="posts">The posts to be processed.</param>
+    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
+    {
+        SetThreadTitles(titles);
+        AddPosts(posts);
+        ConstructVotesFromPosts();
+    }
+
+    /// <summary>
+    /// Construct votes from existing posts.
+    /// </summary>
     public void ConstructVotesFromPosts()
     {
         if (Quest == null)
@@ -897,22 +912,25 @@ public class VoteCounterF(
         {
             Reset();
 
-            PreprocessPosts(Quest);
-            ProcessPosts(Quest);
+            PreprocessPosts();
+            ProcessPosts();
         }
     }
 
-    private void PreprocessPosts(Quest quest)
+    /// <summary>
+    /// Handle preprocessing of posts for a quest.
+    /// </summary>
+    /// <param name="quest"></param>
+    private void PreprocessPosts()
     {
         foreach (var post in Posts)
         {
             // Reset the processed state of all the posts.
             post.Reset();
+
             // Record all origins
-            // TODO: See if origins overwrite if same user appears twice
             AddReferenceVoter(post.Origin);
         }
-
 
         // Either split the vote into blocks, or encapsulate the vote into an enumerable
         // so that it can be treated the same way.
@@ -927,7 +945,7 @@ public class VoteCounterF(
             ];
 
         // Run the above series of preprocessing functions to extract plans from the post list.
-        PreprocessPlans(quest, planProcesses2);
+        PreprocessPlans(planProcesses2);
     }
 
     /// <summary>
@@ -939,10 +957,12 @@ public class VoteCounterF(
     /// <param name="token">The cancellation token.</param>
     /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
     private void PreprocessPlans(
-        Quest quest,
         List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks,
               Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses)
     {
+        if (Quest == null)
+            return;
+
         Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
 
         foreach (var (postToBlocksFunction, isPlanFunction) in planProcesses)
@@ -950,7 +970,7 @@ public class VoteCounterF(
             foreach (var post in Posts)
             {
                 var blocks = postToBlocksFunction(post);
-                var plans = VoteConstructor.PreprocessPostGetPlans(quest, post.Origin.Author, isPlanFunction, blocks);
+                var plans = VoteConstructor.PreprocessPostGetPlans(Quest, post.Origin.Author, isPlanFunction, blocks);
 
                 foreach (var (planName, planContent) in plans)
                 {
@@ -971,7 +991,7 @@ public class VoteCounterF(
                         {
                             // Each new plan that gets added also needs to be run through partitioning,
                             // and have those results added as votes.
-                            var planPartitions = VoteConstructor.PartitionPlan(normalPlanContents, quest.PartitionMode);
+                            var planPartitions = VoteConstructor.PartitionPlan(normalPlanContents, Quest.PartitionMode);
 
                             AddVotes(planPartitions, planOrigin);
 
@@ -983,9 +1003,12 @@ public class VoteCounterF(
         }
     }
 
-    private void ProcessPosts(Quest quest)
+    private void ProcessPosts()
     {
-        RunProcessing(quest, Posts);
+        if (Quest == null)
+            return;
+
+        RunProcessing(Quest, Posts);
 
         AddUserDefinedTasksToTaskList();
 

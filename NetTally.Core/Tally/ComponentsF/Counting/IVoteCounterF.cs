@@ -59,8 +59,24 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
     void AddPosts(IEnumerable<PostType> posts);
 
+    /// <summary>
+    /// Construct votes from existing posts.
+    /// </summary>
     void ConstructVotesFromPosts();
 
+    /// <summary>
+    /// Construct votes from the provided posts.
+    /// </summary>
+    /// <param name="titles">The titles to display during output.</param>
+    /// <param name="posts">The posts to be processed.</param>
+    void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts);
+
+    /// <summary>
+    /// Normalize the formatting of a plan name.
+    /// </summary>
+    /// <param name="originalPlanName">The original name of the plan.</param>
+    /// <param name="originalVoteBlock">The original vote block.</param>
+    /// <returns>A normalized version of the name and vote block contents.</returns>
     (string Name, VoteBlockType Contents)?
         NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock);
 

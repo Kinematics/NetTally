@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
-using NetTally.Output;
-using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Votes;
-using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Input.Forums.ReadingF;
+using NetTally.Output;
 
 namespace NetTally.VoteCounting
 {
@@ -21,11 +17,11 @@ namespace NetTally.VoteCounting
     {
         #region Construction
         private readonly IForumReader forumReader;
-        private readonly ITextResultsProvider textResultsProvider;
+        private readonly ITextResultsProviderF textResultsProvider;
         private readonly ILogger<TallyerF> logger;
 
         public TallyerF(IForumReader forumReader,
-                     ITextResultsProvider textResultsProvider,
+                     ITextResultsProviderF textResultsProvider,
                      ILogger<TallyerF> logger)
         {
             this.forumReader = forumReader;
@@ -65,10 +61,11 @@ namespace NetTally.VoteCounting
             {
                 quest.VoteCounterF.Reset();
 
-                await ReadPostsFromQuestAsync(quest, cancellationToken)
-                     .ConfigureAwait(false);
+                var (Titles, Posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
+                                            .ConfigureAwait(false);
 
-                UpdateTally(quest);
+                quest.VoteCounterF.ConstructVotes(Titles, Posts);
+                UpdateOutput(quest);
 
                 logger.LogInformation("Tally for quest {questName} completed.", quest.DisplayName);
             }
@@ -93,23 +90,6 @@ namespace NetTally.VoteCounting
         public void ClearTallyResults()
         {
             TallyResults = string.Empty;
-        }
-        #endregion
-
-        #region Support Methods
-        /// <summary>
-        /// Use the forum reader to read the posts from the quest.
-        /// Posts are stored in the quest.
-        /// </summary>
-        /// <param name="quest">The quest to read.</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        private async Task ReadPostsFromQuestAsync(Quest quest, CancellationToken cancellationToken)
-        {
-            var (threadTitles, posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
-                                                         .ConfigureAwait(false);
-
-            quest.VoteCounterF.SetThreadTitles(threadTitles);
-            quest.VoteCounterF.AddPosts(posts);
         }
         #endregion
 
