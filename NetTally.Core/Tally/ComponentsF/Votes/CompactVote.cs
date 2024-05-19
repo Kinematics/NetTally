@@ -26,7 +26,7 @@ public static class CompactVote
     /// </summary>
     /// <param name="votes">The votes to get compact voters from.</param>
     /// <returns>Returns the series of compact votes.</returns>
-    public static IEnumerable<CompactVoteType> GetCompactVotes(IEnumerable<VoteStorageEntryF> votes)
+    public static IEnumerable<CompactVoteType> GetCompactVotes(VoteStorageType votes)
     {
         // Group votes by first vote line, as that's the basis for further consolidation.
         return votes.GroupBy(v => v.Key.Lines[0])
@@ -40,7 +40,7 @@ public static class CompactVote
     public static CompactVoteType Create(VoteLineType line,
         CompactVoteType? parent,
         IEnumerable<VoteLineType> children,
-        IEnumerable<VoteStorageEntryF> voteGroups)
+        VoteStorageType voteGroups)
     {
         parent ??= None;
 
@@ -72,7 +72,7 @@ public static class CompactVote
     /// <returns>Returns a compact vote built on the child line provided.</returns>
     private static CompactVoteType RecursiveCreation(
         VoteLineType childLine,
-        IEnumerable<VoteStorageEntryF> votes,
+        VoteStorageType votes,
         CompactVoteType parent)
     {
         // Get the children for the next layer of the tree.
@@ -93,7 +93,7 @@ public static class CompactVote
     /// <returns>Returns a list of all direct descendents of the provided vote line.</returns>
     private static IEnumerable<VoteLineType> GetChildLinesOfLine(
         VoteLineType key,
-        IEnumerable<VoteStorageEntryF> voteGroup,
+        VoteStorageType voteGroup,
         bool topLevel = false)
     {
         List<VoteStorageEntryF> voteGroupList = new(voteGroup);
