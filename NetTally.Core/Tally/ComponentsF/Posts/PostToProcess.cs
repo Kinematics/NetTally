@@ -10,6 +10,8 @@ public class PostToProcess(PostType post)
 
     public List<VoteLineType> VoteLines => post.VoteLines;
 
+    public bool HasVote => post.HasVote;
+
     /// <summary>
     /// Vote lines after processing to expand plans within the original vote, and remove proposed plans.
     /// The <see cref="VoteLineType"/> is a normal line, while the <see cref="VoteBlockType"/> represents a complete plan.
