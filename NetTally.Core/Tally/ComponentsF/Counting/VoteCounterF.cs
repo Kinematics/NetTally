@@ -1093,14 +1093,12 @@ public class VoteCounterF(
             return null;
 
         // Proposed plans need to be converted to an unadorned plan name.
-        if (planType == PlanStatus.Proposed)
-        {
-            var content = VoteContent.Create($"Plan: {planName}");
+        // Normal plans should be written to be consistent with that.
+        var convertName = VoteContent.Create($"Plan: {planName}");
 
-            if (content != null)
-            {
-                firstLine = firstLine with { Content = content };
-            }
+        if (convertName != null)
+        {
+            firstLine = firstLine with { Content = convertName };
         }
 
         // All vote lines in a plan should have MarkerType of None.
