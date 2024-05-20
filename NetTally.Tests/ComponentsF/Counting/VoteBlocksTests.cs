@@ -391,6 +391,24 @@ public class VoteBlocksTests
     }
 
     [TestMethod]
+    public void ImplicitPlan_ImplicitPlanDouble()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] Plan Action!
+            [X] Plan Stop!
+            """;
+
+        var post = Post.Create(origin, text);
+        Assert.IsNotNull(post);
+
+        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        Assert.IsNotNull(blocks);
+
+        Assert.IsFalse(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
+    }
+
+    [TestMethod]
     public void ImplicitPlan_SingleLinePlan()
     {
         var origin = GetOrigin1();
