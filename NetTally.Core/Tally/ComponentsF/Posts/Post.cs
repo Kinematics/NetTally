@@ -22,7 +22,7 @@ public static class Post
     }
 }
 
-public class PostComparer : IEqualityComparer<PostType>
+public class PostComparer : IEqualityComparer<PostType>, IEqualityComparer<PostToProcess>
 {
     public static PostComparer Instance { get; } = new();
 
@@ -35,8 +35,21 @@ public class PostComparer : IEqualityComparer<PostType>
             Agnostic.InsensitiveComparer.Equals(x.Text, y.Text);
     }
 
+    public bool Equals(PostToProcess? x, PostToProcess? y)
+    {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
+        return Equals(x.Post, y.Post);
+    }
+
     public int GetHashCode([DisallowNull] PostType obj)
     {
         return OriginComparer.Instance.GetHashCode(obj.Origin);
+    }
+
+    public int GetHashCode([DisallowNull] PostToProcess obj)
+    {
+        return GetHashCode(obj.Post);
     }
 }
