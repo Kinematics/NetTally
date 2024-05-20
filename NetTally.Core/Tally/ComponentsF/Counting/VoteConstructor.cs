@@ -147,7 +147,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post">The post with the working vote to configure.</param>
     /// <param name="quest">The quest being tallied.</param>
-    private static void ConfigureWorkingVote(PostToProcess post, Quest quest)
+    public static void ConfigureWorkingVote(PostToProcess post, Quest quest)
     {
         if (post.WorkingVoteComplete)
             return;
