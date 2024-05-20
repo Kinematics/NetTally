@@ -949,15 +949,21 @@ public class VoteCounterF(
         List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
         planProcesses2 =
             [
-                (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
-                (postToBlocks: (p) => VoteBlocks.GetBlocks(p.VoteLines).ToList(), isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
-                (postToBlocks: (p) => [VoteBlock.Create(p.VoteLines)!], isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
-                (postToBlocks: (p) => [VoteBlock.Create(p.VoteLines)!], isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+                (postToBlocks: (p) => GetVoteBlocks(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+                (postToBlocks: (p) => GetVoteBlocks(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+                (postToBlocks: (p) => GetVoteAsBlock(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+                (postToBlocks: (p) => GetVoteAsBlock(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
             ];
 
         // Run the above series of preprocessing functions to extract plans from the post list.
         PreprocessPlans(planProcesses2);
     }
+
+    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLineType> lines) =>
+        VoteBlocks.GetBlocks(lines).ToList();
+
+    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLineType> lines) =>
+        [VoteBlock.Create(lines)!];
 
     /// <summary>
     /// Run the logic for the sequence of processing phases for plan examination and extraction.
