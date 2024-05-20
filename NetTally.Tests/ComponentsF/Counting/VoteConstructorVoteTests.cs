@@ -206,47 +206,62 @@ public class VoteConstructorVoteTests
         return postp;
     }
 
-    //static (string name, VoteLineBlock block) GetBasePlan1()
-    //{
-    //    VoteLine line1 = new("", "X", "", "Base Plan Sound of Music", MarkerType.Vote, 100);
-    //    VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-    //    VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-    //    VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
+    private static PostToProcess GetPlan01()
+    {
+        var origin = GetOrigin_Quincy();
 
-    //    List<VoteLine> lines = [line1, line2, line3, line4];
+        string postText =
+            """
+            [x]Base Plan Sound of Music
+            -[x] Climb the mountain
+            -[x] Sing the songs
+            -[x] Return home
+            """;
 
-    //    VoteLineBlock block = new(lines);
+        var post = Post.Create(origin, postText)!;
+        var postp = new PostToProcess(post);
 
-    //    return ("Sound of Music", block);
-    //}
+        VoteConstructor.ConfigureWorkingVote(postp, quest);
+        return postp;
+    }
 
-    //static (string name, VoteLineBlock block) GetBasePlan2()
-    //{
-    //    VoteLine line1 = new("", "X", "", "Proposed Plan: Sound of Music", MarkerType.Vote, 100);
-    //    VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-    //    VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-    //    VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
+    private static PostToProcess GetPlan02()
+    {
+        var origin = GetOrigin_Quincy();
 
-    //    List<VoteLine> lines = [line1, line2, line3, line4];
+        string postText =
+            """
+            [X]Proposed Plan: Sound of Music
+            -[x] Climb the mountain
+            -[x] Sing the songs
+            -[x] Return home
+            """;
 
-    //    VoteLineBlock block = new(lines);
+        var post = Post.Create(origin, postText)!;
+        var postp = new PostToProcess(post);
 
-    //    return ("Sound of Music", block);
-    //}
+        VoteConstructor.ConfigureWorkingVote(postp, quest);
+        return postp;
+    }
 
-    //static (string name, VoteLineBlock block) GetBasePlan3()
-    //{
-    //    VoteLine line1 = new("", "X", "", "Plan Sound of Music", MarkerType.Vote, 100);
-    //    VoteLine line2 = new("-", "X", "", "Climb the mountain", MarkerType.Vote, 100);
-    //    VoteLine line3 = new("-", "X", "", "Sing the songs", MarkerType.Vote, 100);
-    //    VoteLine line4 = new("-", "X", "", "Return home", MarkerType.Vote, 100);
+    private static PostToProcess GetPlan03()
+    {
+        var origin = GetOrigin_Quincy();
 
-    //    List<VoteLine> lines = [line1, line2, line3, line4];
+        string postText =
+            """
+            [x]Plan Sound of Music
+            -[x] Climb the mountain
+            -[x] Sing the songs
+            -[x] Return home
+            """;
 
-    //    VoteLineBlock block = new(lines);
+        var post = Post.Create(origin, postText)!;
+        var postp = new PostToProcess(post);
 
-    //    return ("Sound of Music", block);
-    //}
+        VoteConstructor.ConfigureWorkingVote(postp, quest);
+        return postp;
+    }
     #endregion
 
     #region Test Sample Posts
@@ -408,44 +423,92 @@ public class VoteConstructorVoteTests
         Assert.AreEqual(1, votes.First().Lines.Count);
     }
 
-    //[TestMethod]
-    //public void Normalize_1()
-    //{
-    //    var (name, block) = GetBasePlan1();
+    [TestMethod]
+    public void Normalize_1()
+    {
+        quest.PartitionMode = PartitionMode.ByBlock;
+        var post = GetPlan01();
 
-    //    var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
+        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
-    //    Assert.AreEqual(name, outName);
-    //    Assert.AreEqual("", votes.Task);
-    //    Assert.AreEqual(4, votes.Lines.Count);
-    //    Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
-    //}
+        var processed = VoteConstructor.PreprocessPostGetPlans(
+            quest,
+            post.Origin.Author,
+            VoteBlocks.IsBlockAProposedPlan,
+            blocks);
 
-    //[TestMethod]
-    //public void Normalize_2()
-    //{
-    //    var (name, block) = GetBasePlan2();
+        var (name, content) = processed.First();
+        
+        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
 
-    //    var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
+        Assert.IsNotNull(normalized);
+        
+        var (normName, normContent) = normalized.Value;
 
-    //    Assert.AreEqual(name, outName);
-    //    Assert.AreEqual("", votes.Task);
-    //    Assert.AreEqual(4, votes.Lines.Count);
-    //    Assert.AreEqual("Plan: Sound of Music", votes.Lines[0].CleanContent);
-    //}
+        Assert.AreEqual(name, normName);
+        Assert.AreEqual("", normContent.Task.Name);
+        Assert.AreEqual(4, normContent.Lines.Count);
+        Assert.AreEqual("Sound of Music", normName);
+        Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
+    }
 
-    //[TestMethod]
-    //public void Normalize_3()
-    //{
-    //    var (name, block) = GetBasePlan3();
+    [TestMethod]
+    public void Normalize_2()
+    {
+        quest.PartitionMode = PartitionMode.ByBlock;
+        var post = GetPlan02();
 
-    //    var (outName, votes) = VoteConstructor.NormalizePlan(name, block);
+        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
-    //    Assert.AreEqual(name, outName);
-    //    Assert.AreEqual("", votes.Task);
-    //    Assert.AreEqual(4, votes.Lines.Count);
-    //    Assert.AreEqual("Plan Sound of Music", votes.Lines[0].CleanContent);
-    //}
+        var processed = VoteConstructor.PreprocessPostGetPlans(
+            quest,
+            post.Origin.Author,
+            VoteBlocks.IsBlockAProposedPlan,
+            blocks);
+
+        var (name, content) = processed.First();
+
+        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
+
+        Assert.IsNotNull(normalized);
+
+        var (normName, normContent) = normalized.Value;
+
+        Assert.AreEqual(name, normName);
+        Assert.AreEqual("", normContent.Task.Name);
+        Assert.AreEqual(4, normContent.Lines.Count);
+        Assert.AreEqual("Sound of Music", normName);
+        Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Normalize_3()
+    {
+        quest.PartitionMode = PartitionMode.ByBlock;
+        var post = GetPlan03();
+
+        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+
+        var processed = VoteConstructor.PreprocessPostGetPlans(
+            quest,
+            post.Origin.Author,
+            VoteBlocks.IsBlockAnExplicitPlan,
+            blocks);
+
+        var (name, content) = processed.First();
+
+        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
+
+        Assert.IsNotNull(normalized);
+
+        var (normName, normContent) = normalized.Value;
+
+        Assert.AreEqual(name, normName);
+        Assert.AreEqual("", normContent.Task.Name);
+        Assert.AreEqual(4, normContent.Lines.Count);
+        Assert.AreEqual("Sound of Music", normName);
+        Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
+    }
     #endregion
 
     #region Test More Posts
