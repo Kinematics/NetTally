@@ -355,16 +355,20 @@ namespace NetTally
         #endregion Linked Quests
 
         #region Vote Counter Pass-Through
-        public void ResetVotes()
-        {
-            VoteCounterF.Reset();
-        }
-
+        /// <summary>
+        /// Construct votes from the provided posts.
+        /// Does a clean build of votes from the data.
+        /// </summary>
+        /// <param name="titles">Titles to show for the quest.</param>
+        /// <param name="posts">Posts to use to construct the votes.</param>
         public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
         {
             VoteCounterF.ConstructVotes(titles, posts);
         }
 
+        /// <summary>
+        /// Construct votes based on the currently held posts.
+        /// </summary>
         public void ConstructVotes()
         {
             VoteCounterF.ConstructVotes();

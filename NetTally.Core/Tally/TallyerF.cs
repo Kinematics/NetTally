@@ -59,8 +59,6 @@ namespace NetTally.VoteCounting
 
             try
             {
-                quest.ResetVotes();
-
                 var (Titles, Posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
                                             .ConfigureAwait(false);
 

@@ -919,14 +919,35 @@ public class VoteCounterF(
         if (Quest == null)
             return;
 
-        if (HasPosts)
-        {
-            Reset();
-
-            PreprocessPosts();
-            ProcessPosts();
-        }
+        Reset();
+        PreprocessPosts();
+        ProcessPosts();
     }
+
+
+    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLineType> lines) =>
+        VoteBlocks.GetBlocks(lines).ToList();
+
+    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLineType> lines) =>
+        [VoteBlock.Create(lines)!];
+
+    private static Func<PostToProcess, List<VoteBlockType>> PostBlocks =>
+        (p) => GetVoteBlocks(p.VoteLines);
+
+    private static Func<PostToProcess, List<VoteBlockType>> PostAsBlock =>
+        (p) => GetVoteAsBlock(p.VoteLines);
+
+    // Either split the vote into blocks, or encapsulate the vote into an enumerable
+    // so that it can be treated the same way.
+    static readonly List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks,
+                          Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
+        planProcesses =
+        [
+            (postToBlocks: PostBlocks, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+            (postToBlocks: PostBlocks, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+            (postToBlocks: PostAsBlock, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+            (postToBlocks: PostAsBlock, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+        ];
 
     /// <summary>
     /// Handle preprocessing of posts for a quest.
@@ -943,39 +964,15 @@ public class VoteCounterF(
             AddReferenceVoter(post.Origin);
         }
 
-        // Either split the vote into blocks, or encapsulate the vote into an enumerable
-        // so that it can be treated the same way.
-
-        List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks, Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
-        planProcesses2 =
-            [
-                (postToBlocks: (p) => GetVoteBlocks(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
-                (postToBlocks: (p) => GetVoteBlocks(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
-                (postToBlocks: (p) => GetVoteAsBlock(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
-                (postToBlocks: (p) => GetVoteAsBlock(p.VoteLines), isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
-            ];
-
         // Run the above series of preprocessing functions to extract plans from the post list.
-        PreprocessPlans(planProcesses2);
+        PreprocessPlans();
     }
 
-    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLineType> lines) =>
-        VoteBlocks.GetBlocks(lines).ToList();
-
-    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLineType> lines) =>
-        [VoteBlock.Create(lines)!];
 
     /// <summary>
-    /// Run the logic for the sequence of processing phases for plan examination and extraction.
+    /// Run the logic for the sequence of preprocessing phases for plan examination and extraction.
     /// </summary>
-    /// <param name="posts">The posts being examined for plans.</param>
-    /// <param name="quest">The quest being tallied.</param>
-    /// <param name="planProcesses">The list of functions to run on the posts.</param>
-    /// <param name="token">The cancellation token.</param>
-    /// <returns>Returns a collection of named plans, and the vote lines that comprise them.</returns>
-    private void PreprocessPlans(
-        List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks,
-              Func<VoteBlockType, PlanDescriptor> isPlanFunction)> planProcesses)
+    private void PreprocessPlans()
     {
         if (Quest == null)
             return;
