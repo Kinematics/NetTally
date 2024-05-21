@@ -21,7 +21,8 @@ namespace NetTally.Tally.ComponentsF.Counting;
 /// <param name="logger">Class logger.</param>
 public class VoteCounterF(
     IOptions<GlobalSettings> globalOptions,
-    ILogger<VoteCounterF> logger) : IVoteCounterF
+    ILogger<VoteCounterF> logger,
+    Quest quest) : IVoteCounterF
 {
     private readonly GlobalSettings globalSettings = globalOptions.Value;
     private readonly ILogger<VoteCounterF> logger = logger;
@@ -57,7 +58,7 @@ public class VoteCounterF(
     /// <summary>
     /// The quest the vote counter is set to track.
     /// </summary>
-    public Quest? Quest { get; set; } = null;
+    public Quest Quest { get; set; } = quest;
 
     /// <summary>
     /// The titles of the quest threads that have been tallied.
@@ -183,9 +184,6 @@ public class VoteCounterF(
 
     private bool CanUpdatePlans()
     {
-        if (Quest == null)
-            return false;
-
         return globalSettings.AllowUsersToUpdatePlans == BoolEx.True ||
               globalSettings.AllowUsersToUpdatePlans == BoolEx.Unknown && Quest.AllowUsersToUpdatePlans;
     }
@@ -434,9 +432,6 @@ public class VoteCounterF(
     /// <returns>Returns true if successfully completed.</returns>
     public bool Merge(VoteBlockType fromVote, VoteBlockType toVote)
     {
-        if (Quest == null)
-            return false;
-
         UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest.PartitionMode);
 
@@ -519,9 +514,6 @@ public class VoteCounterF(
     /// <returns>Returns true if successfully completed.</returns>
     public bool Split(VoteBlockType fromVote, List<VoteBlockType> toVotes)
     {
-        if (Quest == null)
-            return false;
-
         UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest.PartitionMode);
 
@@ -663,9 +655,6 @@ public class VoteCounterF(
     /// <returns>Returns true if it performed an undo action.  Otherwise, false.</returns>
     public bool Undo()
     {
-        if (Quest == null)
-            return false;
-
         if (!HasUndoActions)
             return false;
 
@@ -687,9 +676,6 @@ public class VoteCounterF(
     /// </summary>
     public void RunMergeActions()
     {
-        if (Quest == null)
-            return;
-
         var recordedMerges = UserMerges.GetMergeRecordList(Quest.PartitionMode);
 
         foreach (var mergeData in recordedMerges)
@@ -806,9 +792,6 @@ public class VoteCounterF(
     /// <returns>Returns true if the task was updated.</returns>
     public bool ReplaceTask(VoteBlockType vote, VoteTaskType task)
     {
-        if (Quest == null)
-            return false;
-
         if (VoteTaskComparer.Instance.Equals(vote.Task, task))
         {
             return false;
@@ -916,9 +899,6 @@ public class VoteCounterF(
     /// </summary>
     public void ConstructVotes()
     {
-        if (Quest == null)
-            return;
-
         Reset();
         PreprocessPosts();
         ProcessPosts();
@@ -952,7 +932,6 @@ public class VoteCounterF(
     /// <summary>
     /// Handle preprocessing of posts for a quest.
     /// </summary>
-    /// <param name="quest"></param>
     private void PreprocessPosts()
     {
         foreach (var post in Posts)
@@ -968,15 +947,11 @@ public class VoteCounterF(
         PreprocessPlans();
     }
 
-
     /// <summary>
     /// Run the logic for the sequence of preprocessing phases for plan examination and extraction.
     /// </summary>
     private void PreprocessPlans()
     {
-        if (Quest == null)
-            return;
-
         Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
 
         foreach (var (postToBlocksFunction, isPlanFunction) in planProcesses)
@@ -1019,9 +994,6 @@ public class VoteCounterF(
 
     private void ProcessPosts()
     {
-        if (Quest == null)
-            return;
-
         RunProcessing(Quest, Posts);
 
         AddUserDefinedTasksToTaskList();

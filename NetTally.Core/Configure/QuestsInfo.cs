@@ -18,6 +18,7 @@ namespace NetTally.Configure
     public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     {
         private readonly IServiceProvider serviceProvider;
+        private readonly VoteCounterFactory voteCounterFactory;
         private readonly ILogger<QuestsInfo> logger;
 
         public QuestsInfo(
@@ -25,9 +26,11 @@ namespace NetTally.Configure
             IOptions<UserQuests> userQuests,
             ConfigInfo legacyConfig,
             IServiceProvider serviceProvider,
+            VoteCounterFactory voteCounterFactory,
             ILogger<QuestsInfo> logger)
         {
             this.serviceProvider = serviceProvider;
+            this.voteCounterFactory = voteCounterFactory;
             this.logger = logger;
 
             // If there are no user quests, but there are legacy quests,
@@ -89,7 +92,7 @@ namespace NetTally.Configure
             foreach (var quest in Quests)
             {
                 quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
-                quest.VoteCounterF = serviceProvider.GetRequiredService<IVoteCounterF>();
+                quest.VoteCounterF = voteCounterFactory.GetVoteCounter(quest);
             }
         }
 

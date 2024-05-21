@@ -18,6 +18,7 @@ using NetTally.Input.Forums.ReadingF;
 using NetTally.Output;
 using NetTally.Systems.Config.Json;
 using NetTally.Systems.Config.Xml;
+using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
@@ -130,13 +131,17 @@ public static class AppX
         services.AddSingleton<Tallyer>();
         services.AddSingleton<TallyerF>();
         services.AddTransient<IVoteCounter, VoteCounter>();
-        services.AddTransient<Tally.ComponentsF.Counting.IVoteCounterF, Tally.ComponentsF.Counting.VoteCounterF>();
+        services.AddTransient<IVoteCounterF, VoteCounterF>();
+        services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<Input.Forums.ReadingF.IForumReader, Input.Forums.ReadingF.ForumReader>();
         services.AddTransient<Input.Forums.Reading.IForumReader, Input.Forums.Reading.ForumReader>();
         services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
         services.AddSingleton<Input.Forums.ForumAdaptersF.ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
+
+        // Fake service so that Avalonia doesn't crash on startup.
+        services.AddTransient<Quest>();
 
         services.AddTransient<Input.Forums.ForumAdaptersF.PhpBBAdapter>();
         services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin3Adapter>();

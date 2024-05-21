@@ -41,22 +41,8 @@ namespace NetTally
             }
         }
 
-        private IVoteCounterF voteCounterF = null!;
-
         [JsonIgnore]
-        public IVoteCounterF VoteCounterF
-        {
-            get { return voteCounterF; }
-            set
-            {
-                if (voteCounterF == null &&
-                    value != null)
-                {
-                    voteCounterF = value;
-                    voteCounterF.Quest = this;
-                }
-            }
-        }
+        public IVoteCounterF VoteCounterF { get; set; } = null!;
         #endregion Vote Counter
 
         #region Static class data
