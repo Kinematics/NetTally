@@ -947,6 +947,39 @@ public class VoteCounterF(
         PreprocessPlans();
     }
 
+
+    private void Prep()
+    {
+        var plans = planProcesses.SelectMany(pp =>
+        {
+            return Posts.SelectMany(p =>
+            {
+                return VoteConstructor.PreprocessPostGetPlans(
+                    Quest,
+                    p.Origin.Author,
+                    pp.isPlanFunction,
+                    pp.postToBlocks(p))
+                .Select(pl => NormalizePlan(pl.Key, pl.Value))
+                .Where(a => a.HasValue)
+                .Select(a => a!.Value)
+                .Select(a => (a.Name, a.Contents,
+                              Origin: Origin.CreatePlanOrigin(p.Origin, a.Name)!));
+            });
+        });
+
+        foreach (var plan in plans)
+        {
+            if (AddReferencePlan(plan.Origin, plan.Contents))
+            {
+                // Each new plan that gets added also needs to be run through partitioning,
+                // and have those results added as votes.
+                var planPartitions = VoteConstructor.PartitionPlan(plan.Contents, Quest.PartitionMode);
+
+                AddVotes(planPartitions, plan.Origin);
+            }
+        }
+    }
+
     /// <summary>
     /// Run the logic for the sequence of preprocessing phases for plan examination and extraction.
     /// </summary>
@@ -1057,7 +1090,6 @@ public class VoteCounterF(
 
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
-        // If it's not a plan, how did we get here?
         if (planType == PlanStatus.None)
             return null;
 
