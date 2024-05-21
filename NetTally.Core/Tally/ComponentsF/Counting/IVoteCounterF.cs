@@ -58,7 +58,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <summary>
     /// Construct votes from existing posts.
     /// </summary>
-    void ConstructVotesFromPosts();
+    void ConstructVotes();
 
     /// <summary>
     /// Construct votes from the provided posts.

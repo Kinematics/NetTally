@@ -9,6 +9,7 @@ using NetTally.Enums;
 using NetTally.Input.Utility;
 using NetTally.Quests;
 using NetTally.Tally.ComponentsF.Counting;
+using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Utility;
 using NetTally.VoteCounting;
 
@@ -352,5 +353,22 @@ namespace NetTally
             return LinkedQuestIds.Remove(quest.QuestId);
         }
         #endregion Linked Quests
+
+        #region Vote Counter Pass-Through
+        public void ResetVotes()
+        {
+            VoteCounterF.Reset();
+        }
+
+        public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
+        {
+            VoteCounterF.ConstructVotes(titles, posts);
+        }
+
+        public void ConstructVotes()
+        {
+            VoteCounterF.ConstructVotes();
+        }
+        #endregion Vote Counter Pass-Through
     }
 }

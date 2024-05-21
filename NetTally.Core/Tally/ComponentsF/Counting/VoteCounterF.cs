@@ -908,13 +908,13 @@ public class VoteCounterF(
     {
         SetThreadTitles(titles);
         AddPosts(posts);
-        ConstructVotesFromPosts();
+        ConstructVotes();
     }
 
     /// <summary>
     /// Construct votes from existing posts.
     /// </summary>
-    public void ConstructVotesFromPosts()
+    public void ConstructVotes()
     {
         if (Quest == null)
             return;

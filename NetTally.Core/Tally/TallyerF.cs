@@ -59,12 +59,13 @@ namespace NetTally.VoteCounting
 
             try
             {
-                quest.VoteCounterF.Reset();
+                quest.ResetVotes();
 
                 var (Titles, Posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
                                             .ConfigureAwait(false);
 
-                quest.VoteCounterF.ConstructVotes(Titles, Posts);
+                quest.ConstructVotes(Titles, Posts);
+
                 UpdateOutput(quest);
 
                 logger.LogInformation("Tally for quest {questName} completed.", quest.DisplayName);
@@ -78,7 +79,7 @@ namespace NetTally.VoteCounting
 
         public void UpdateTally(Quest quest)
         {
-            quest.VoteCounterF.ConstructVotesFromPosts();
+            quest.ConstructVotes();
             UpdateOutput(quest);
         }
 
