@@ -17,7 +17,7 @@ namespace NetTally.CLI
         static bool verbose;
 
         static ILogger<Program> logger;
-        static MainViewModel mainViewModel;
+        static MainViewModelF mainViewModel;
         static GlobalOptionsViewModel globalOptionsViewModel;
         #endregion
 
@@ -35,7 +35,7 @@ namespace NetTally.CLI
             logger = loggerFactory.CreateLogger<Program>();
             logger.LogDebug("Services defined, starting console app!");
 
-            mainViewModel = AppX.Services.GetRequiredService<MainViewModel>();
+            mainViewModel = AppX.Services.GetRequiredService<MainViewModelF>();
             globalOptionsViewModel = AppX.Services.GetService<GlobalOptionsViewModel>();
 
             mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
