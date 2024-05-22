@@ -43,6 +43,8 @@ public static partial class Prefix
 
     public static PrefixType Reduce(PrefixType prefix, int promotionDepth = 1)
     {
+        if (promotionDepth < 1) return prefix;
+
         int finalDepth = Math.Max(prefix.Depth - promotionDepth, 0);
         return CreateDepth(finalDepth);
     }
