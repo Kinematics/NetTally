@@ -139,7 +139,7 @@ public static class VoteBlockDisplay
             .Select((a, b) => b == 0
                 ? VoteLineDisplay.ToComparableString(a, block.Task.Name)
                 : VoteLineDisplay.ToComparableString(a))
-            .Aggregate((a, b) => $"{a}\n{b}");
+            .Aggregate((a, b) => $"{a}\r\n{b}");
     }
 }
 
