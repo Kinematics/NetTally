@@ -288,4 +288,24 @@ public class VoteParserTests
         Assert.AreEqual("Plan Air, 『s』Earth, Water,『/s』 Fire", lines[0].Content.Content);
         Assert.AreEqual("Plan Air, Earth, Water, Fire", lines[0].Content.CleanContent);
     }
+
+    [TestMethod]
+    public void ParseVoteLine_ParenTask()
+    {
+        string text = "[x](Info) My vote";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+        Assert.IsNotNull(lines);
+
+        Assert.AreEqual(1, lines.Count);
+        var line = lines[0];
+
+        Assert.AreEqual(0, line.Depth);
+        Assert.IsTrue(line.HasTask);
+        Assert.AreEqual("Info", line.Task.Name);
+        Assert.AreEqual(MarkerType.Vote, line.Marker.MarkerType);
+        Assert.AreEqual("My vote", line.Content.Content);
+        Assert.AreEqual("My vote", line.Content.CleanContent);
+    }
+
 }
