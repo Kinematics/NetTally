@@ -20,6 +20,14 @@ public static class Post
 
         return new PostType(origin, text, voteLines);
     }
+
+    public static PostToProcess? CreateToProcess(OriginType origin, string text)
+    {
+        var post = Create(origin, text);
+        if (post == null) return null;
+
+        return new PostToProcess(post);
+    }
 }
 
 public class PostComparer : IEqualityComparer<PostType>, IEqualityComparer<PostToProcess>
