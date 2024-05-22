@@ -28,6 +28,9 @@ public static class Origin
 {
     static readonly Uri ExampleUri = OriginComparer.ExampleUri;
 
+    /// <summary>
+    /// An empty origin.
+    /// </summary>
     public static OriginType None { get; } = new OriginType(
         IdentityType.User,
         Author.None,
@@ -38,6 +41,18 @@ public static class Origin
         DateTimeOffset.MinValue,
         null);
 
+    /// <summary>
+    /// Create an <see cref="OriginType"/> object, fully defined.
+    /// </summary>
+    /// <param name="category"></param>
+    /// <param name="author"></param>
+    /// <param name="thread"></param>
+    /// <param name="permalink"></param>
+    /// <param name="postId"></param>
+    /// <param name="postNumber"></param>
+    /// <param name="timestamp"></param>
+    /// <param name="source"></param>
+    /// <returns></returns>
     public static OriginType? Create(
         IdentityType category,
         AuthorType author,
@@ -58,6 +73,12 @@ public static class Origin
             thread, permalink, postId, postNumber, timestamp, source);
     }
 
+    /// <summary>
+    /// Create a simple <see cref="OriginType"/> with only name and category values.
+    /// </summary>
+    /// <param name="category">The type of author.</param>
+    /// <param name="author">The author for the origin.</param>
+    /// <returns></returns>
     public static OriginType? CreateOriginForName(
         IdentityType category,
         AuthorType author)
@@ -66,6 +87,15 @@ public static class Origin
             0, DateTimeOffset.MinValue, None);
     }
 
+    /// <summary>
+    /// Shortcut to create an <see cref="OriginType"/> for a user.
+    /// </summary>
+    /// <param name="author"></param>
+    /// <param name="thread"></param>
+    /// <param name="permalink"></param>
+    /// <param name="postId"></param>
+    /// <param name="postNumber"></param>
+    /// <returns></returns>
     public static OriginType? CreateUser(
         AuthorType author,
         Uri thread,
@@ -76,6 +106,17 @@ public static class Origin
         return Create(IdentityType.User, author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue, None);
     }
 
+    /// <summary>
+    /// Shortcut to create an <see cref="OriginType"/> for a user.
+    /// Include timestamp.
+    /// </summary>
+    /// <param name="author"></param>
+    /// <param name="thread"></param>
+    /// <param name="permalink"></param>
+    /// <param name="postId"></param>
+    /// <param name="postNumber"></param>
+    /// <param name="timestamp"></param>
+    /// <returns></returns>
     public static OriginType? CreateUser(
         AuthorType author,
         Uri thread,
@@ -87,6 +128,12 @@ public static class Origin
         return Create(IdentityType.User, author, thread, permalink, postId, postNumber, timestamp, None);
     }
 
+    /// <summary>
+    /// Create an <see cref="OriginType"/> for a plan, using a user as a base.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <param name="planName">The name of the plan to use.</param>
+    /// <returns></returns>
     public static OriginType? CreatePlanOrigin(OriginType origin, string? planName)
     {
         if (planName == null)
@@ -97,6 +144,12 @@ public static class Origin
         return CreatePlanOrigin(origin, author);
     }
 
+    /// <summary>
+    /// Create an <see cref="OriginType"/> for a plan, using a user as a base.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <param name="plan">The <see cref="AuthorType"/> for the plan.</param>
+    /// <returns></returns>
     public static OriginType? CreatePlanOrigin(OriginType origin, AuthorType plan)
     {
         if (origin.Category != IdentityType.User)
