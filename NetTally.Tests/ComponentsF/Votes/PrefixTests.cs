@@ -69,6 +69,22 @@ public class PrefixTests
     }
 
     [TestMethod]
+    public void Construct_EmDash()
+    {
+        var prefix = Prefix.Create("—");
+        Assert.IsNotNull(prefix);
+        Assert.AreEqual(1, prefix.Depth);
+    }
+
+    [TestMethod]
+    public void Construct_EnDash()
+    {
+        var prefix = Prefix.Create("– ");
+        Assert.IsNotNull(prefix);
+        Assert.AreEqual(1, prefix.Depth);
+    }
+
+    [TestMethod]
     public void Reduce_FromThree()
     {
         var prefix = Prefix.Create("- - -");
@@ -100,4 +116,27 @@ public class PrefixTests
         var reduced = Prefix.Reduce(prefix);
         Assert.AreEqual(0, reduced.Depth);
     }
+
+    [TestMethod]
+    public void Reduce_ByZero()
+    {
+        var prefix = Prefix.Create("--");
+        Assert.IsNotNull(prefix);
+        Assert.AreEqual(2, prefix.Depth);
+
+        var reduced = Prefix.Reduce(prefix, 0);
+        Assert.AreEqual(2, reduced.Depth);
+    }
+
+    [TestMethod]
+    public void Reduce_ByNegative()
+    {
+        var prefix = Prefix.Create("--");
+        Assert.IsNotNull(prefix);
+        Assert.AreEqual(2, prefix.Depth);
+
+        var reduced = Prefix.Reduce(prefix, -5);
+        Assert.AreEqual(2, reduced.Depth);
+    }
+
 }
