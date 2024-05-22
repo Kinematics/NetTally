@@ -27,6 +27,8 @@ namespace NetTally.Votes
         const char closeBBCode = '』';
         const char openBracket = '[';
         const char closeBracket = ']';
+        const char openParen = '(';
+        const char closeParen = ')';
         const char whitespace = ' ';
         const char xBox = '☒';
         const char checkBox = '☑';
@@ -423,7 +425,7 @@ namespace NetTally.Votes
 
                             continue;
                         }
-                        else if (ch == openBracket && taskSB.Length == 0)
+                        else if ((ch == openBracket || ch == openParen) && taskSB.Length == 0)
                         {
                             state.Push(currentState);
                             currentState = TokenState.Task;
@@ -450,7 +452,7 @@ namespace NetTally.Votes
                         break;
                     case TokenState.Task:
                         tempContent.Clear();
-                        if (ch == closeBracket)
+                        if (ch == closeBracket || ch == closeParen)
                         {
                             currentState = state.Pop();
                         }
