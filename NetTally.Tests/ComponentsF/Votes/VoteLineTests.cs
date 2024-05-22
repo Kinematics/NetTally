@@ -245,4 +245,176 @@ public class VoteLineTests
 
         Assert.AreEqual(1, VoteLineComparer.Instance.Compare(line1, line2));
     }
+
+    [TestMethod]
+    public void Display_Output_SimpleLine()
+    {
+        string text = """
+            [X] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_RetainCheckmarkMarker()
+    {
+        string text = """
+            [✓] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[✓] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_Prefix()
+    {
+        string text = """
+            [X] Starter line
+            --[X] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(2, voteLines.Count);
+
+        Assert.AreEqual("--[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[1]));
+    }
+
+    [TestMethod]
+    public void Display_Output_AdjustSpacing()
+    {
+        string text = """
+            [X]A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_AdjustSpacingTask()
+    {
+        string text = """
+            [X] [Reward]A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[X][Reward] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_Rank()
+    {
+        string text = """
+            [#7] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[#7] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_Score()
+    {
+        string text = """
+            [77%] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[77%] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Output_Box()
+    {
+        string text = """
+            ☒ A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[☒] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Comparable_SimpleLine()
+    {
+        string text = """
+            [X] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Comparable_Indent()
+    {
+        string text = """
+            [X] A line of stuff
+            -[X]With other stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(2, voteLines.Count);
+
+        Assert.AreEqual("-[] With other stuff", VoteLineDisplay.ToComparableString(voteLines[1]));
+    }
+
+    [TestMethod]
+    public void Display_Comparable_Rank()
+    {
+        string text = """
+            [#7] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Comparable_SimpleLine_Task()
+    {
+        string text = """
+            [X][Today]A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[][Today] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+    }
+
+    [TestMethod]
+    public void Display_Comparable_Rank_Task()
+    {
+        string text = """
+            [#7][Today] A line of stuff
+            """;
+        var voteLines = VoteParser.ExtractVoteLines(text);
+
+        Assert.AreEqual(1, voteLines.Count);
+
+        Assert.AreEqual("[][Today] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+    }
+
 }
