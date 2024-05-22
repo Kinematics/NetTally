@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
 using NetTally.Systems;
+using NetTally.Tally.ComponentsF.Counting;
 
 namespace NetTally.Tests
 {
@@ -40,6 +41,16 @@ namespace NetTally.Tests
             {
                 services.AddSingleton<TimeProvider>(fakeTimeProvider);
             }
+        }
+
+        public static Quest GetExampleQuest(IServiceProvider serviceProvider)
+        {
+            var voteCounterFactory = serviceProvider.GetRequiredService<VoteCounterFactory>();
+
+            Quest quest = new();
+            quest.VoteCounterF = voteCounterFactory.GetVoteCounter(quest);
+
+            return quest;
         }
     }
 }
