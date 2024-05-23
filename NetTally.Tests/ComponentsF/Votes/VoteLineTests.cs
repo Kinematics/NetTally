@@ -14,10 +14,10 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_AllNull_Null()
     {
-        var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
-        var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        //var prefix = Prefix.Empty;
+        //var marker = Marker.Empty;
+        //var task = VoteTask.Empty;
+        //var content = VoteContent.Empty;
 
         var line = VoteLine.Create(null, null, null, null);
         Assert.IsNull(line);
@@ -26,7 +26,7 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_PrefixNull_Null()
     {
-        var prefix = Prefix.Empty;
+        //var prefix = Prefix.Empty;
         var marker = Marker.Empty;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
@@ -39,7 +39,7 @@ public class VoteLineTests
     public void Construct_MarkerNull_Null()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        //var marker = Marker.Empty;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
@@ -52,7 +52,7 @@ public class VoteLineTests
     {
         var prefix = Prefix.Empty;
         var marker = Marker.Empty;
-        var task = VoteTask.Empty;
+        //var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
         var line = VoteLine.Create(prefix, marker, null, content);
@@ -65,7 +65,7 @@ public class VoteLineTests
         var prefix = Prefix.Empty;
         var marker = Marker.Empty;
         var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        //var content = VoteContent.Empty;
 
         var line = VoteLine.Create(prefix, marker, task, null);
         Assert.IsNull(line);

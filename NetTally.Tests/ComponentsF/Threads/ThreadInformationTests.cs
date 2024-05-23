@@ -110,7 +110,7 @@ public class ThreadInformationTests
 
     private static (ThreadInformationType ThreadInfo, Quest Quest) GetStandardInfoByPostNumber()
     {
-        Quest quest = new Quest
+        Quest quest = new()
         {
             StartPost = 410,
             EndPost = 0,
@@ -129,7 +129,7 @@ public class ThreadInformationTests
 
     private static (ThreadInformationType ThreadInfo, Quest Quest) GetStandardInfoByPostId()
     {
-        Quest quest = new Quest
+        Quest quest = new()
         {
             StartPost = 410,
             EndPost = 0,

@@ -33,8 +33,8 @@ public class VoterStorageTests
     private static OriginType GetOrigin_Kinematics()
     {
         var author = Author.Create("Kinematics");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
         int postNumber = 101;
 
@@ -46,8 +46,8 @@ public class VoterStorageTests
     private static OriginType GetOrigin_Atreya()
     {
         var author = Author.Create("Atreya");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123457);
         int postNumber = 102;
 
@@ -59,8 +59,8 @@ public class VoterStorageTests
     private static OriginType GetOrigin_Kimberly()
     {
         var author = Author.Create("Kimberly");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123458);
         int postNumber = 103;
 
@@ -72,8 +72,8 @@ public class VoterStorageTests
     private static OriginType GetOrigin_Biigoh()
     {
         var author = Author.Create("Biigoh");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123459);
         int postNumber = 104;
 
@@ -85,8 +85,8 @@ public class VoterStorageTests
     private static OriginType GetOrigin_Muramasa()
     {
         var author = Author.Create("Muramasa");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123460);
         int postNumber = 105;
 

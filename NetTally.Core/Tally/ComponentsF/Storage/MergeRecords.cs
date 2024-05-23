@@ -65,7 +65,7 @@ public class MergeRecords
     {
         var merges = GetMergesFor(partitionMode);
 
-        MergeData data = new MergeData(fromRecord, toRecord, actionType);
+        MergeData data = new(fromRecord, toRecord, actionType);
 
         merges.Add(data);
     }

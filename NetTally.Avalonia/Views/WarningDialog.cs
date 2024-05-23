@@ -24,6 +24,10 @@ namespace NetTally.Avalonia.Views
         }
 
         private static MessageBoxStandardParams StandardParamGenerator(string title, string message) =>
-            new MessageBoxStandardParams { ContentTitle = title, ContentMessage = message };
+            new()
+            {
+                ContentTitle = title,
+                ContentMessage = message
+            };
     }
 }

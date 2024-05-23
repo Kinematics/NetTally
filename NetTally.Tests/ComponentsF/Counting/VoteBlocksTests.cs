@@ -21,8 +21,8 @@ public class VoteBlocksTests
     private static OriginType GetOrigin1()
     {
         var author = Author.Create("Kinematics");
-        Uri uri = new Uri(Strings.ExampleHostUrl);
-        Uri permalink = new Uri(Strings.ExampleHostUrl);
+        Uri uri = new(Strings.ExampleHostUrl);
+        Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
         int postNumber = 123;
 

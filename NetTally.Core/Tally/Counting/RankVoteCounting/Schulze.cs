@@ -27,7 +27,7 @@ namespace NetTally.VoteCounting.RankVotes
             return winningChoices;
         }
 
-        private int[,] GetPairwisePreferences(VoteStorage taskVotes)
+        private static int[,] GetPairwisePreferences(VoteStorage taskVotes)
         {
             int[,] pairwisePreferences = new int[taskVotes.Count, taskVotes.Count];
 
@@ -69,9 +69,9 @@ namespace NetTally.VoteCounting.RankVotes
         /// </summary>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a dictionary of choices vs list index.</returns>
-        private Dictionary<VoteLineBlock, int> GetChoicesIndexes(IEnumerable<VoteLineBlock> listOfChoices)
+        private static Dictionary<VoteLineBlock, int> GetChoicesIndexes(IEnumerable<VoteLineBlock> listOfChoices)
         {
-            Dictionary<VoteLineBlock, int> choiceIndexes = new Dictionary<VoteLineBlock, int>();
+            Dictionary<VoteLineBlock, int> choiceIndexes = [];
 
             int index = 0;
             foreach (var choice in listOfChoices)
@@ -88,7 +88,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="pairwisePreferences">The pairwise preferences.</param>
         /// <param name="choicesCount">The choices count (size of the table).</param>
         /// <returns>Returns a table with the strongest paths between each pairwise choice.</returns>
-        private int[,] GetStrongestPaths(int[,] pairwisePreferences, int choicesCount)
+        private static int[,] GetStrongestPaths(int[,] pairwisePreferences, int choicesCount)
         {
             int[,] strongestPaths = new int[choicesCount, choicesCount];
 
@@ -121,7 +121,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="strongestPaths">The strongest paths.</param>
         /// <param name="choicesCount">The choices count (size of table).</param>
         /// <returns>Returns a table with the winning choices of the strongest paths.</returns>
-        private int[,] GetWinningPaths(int[,] strongestPaths, int choicesCount)
+        private static int[,] GetWinningPaths(int[,] strongestPaths, int choicesCount)
         {
             int[,] winningPaths = new int[choicesCount, choicesCount];
 
@@ -152,7 +152,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="winningPaths">The winning paths.</param>
         /// <param name="listOfChoices">The list of choices.</param>
         /// <returns>Returns a list of </returns>
-        private List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+        private static List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             GetResultsInOrder(int[,] winningPaths, Dictionary<VoteLineBlock, VoterStorage> listOfChoices)
         {
             int count = listOfChoices.Count;
@@ -173,8 +173,7 @@ namespace NetTally.VoteCounting.RankVotes
 
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList = [];
 
             foreach (var res in orderPaths)
             {
@@ -191,7 +190,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns a count of the number of positive path strength values.</returns>
-        private int GetPositivePathCount(int[,] paths, int row, int count)
+        private static int GetPositivePathCount(int[,] paths, int row, int count)
         {
             int pathCount = 0;
 
@@ -211,7 +210,7 @@ namespace NetTally.VoteCounting.RankVotes
         /// <param name="row">The row.</param>
         /// <param name="count">The size of the table.</param>
         /// <returns>Returns the sum of the given path.</returns>
-        private int GetPathSum(int[,] paths, int row, int count)
+        private static int GetPathSum(int[,] paths, int row, int count)
         {
             int pathSum = 0;
 

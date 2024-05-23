@@ -28,8 +28,7 @@ namespace NetTally.VoteCounting.RankVotes
 
             int r = 1;
 
-            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList = [];
 
             foreach (var res in orderedResults)
             {

@@ -19,11 +19,10 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="taskVotes">The votes in the current task.</param>
         /// <returns>Returns a list of rankings per vote.</returns>
-        public List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
+        public static List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>
             CountVotesForTask(VoteStorage taskVotes)
         {
-            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList
-                = new List<((int rank, double rankScore) ranking, VoteStorageEntry vote)>();
+            List<((int rank, double rankScore) ranking, VoteStorageEntry vote)> resultList = [];
 
             var processedVotes = taskVotes.Select(v => new { score = GetBordaScore(v), vote = v })
                 .OrderByDescending(a => a.score).ThenBy(a => a.vote.Value.First().Key.ID)
@@ -43,7 +42,7 @@ namespace NetTally.VoteCounting.RankVotes.Reference
         /// </summary>
         /// <param name="vote">The vote being scored.</param>
         /// <returns>Returns the Borda Fraction score based on the voters for the vote.</returns>
-        private double GetBordaScore(VoteStorageEntry vote)
+        private static double GetBordaScore(VoteStorageEntry vote)
         {
             double voteValue = 0;
             int count = 0;
