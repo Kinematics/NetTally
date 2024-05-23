@@ -547,7 +547,7 @@ namespace NetTally.Output
             var taskVotes = VoteStorage.CopyFrom(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
 
-            bool multiline = results.Any(a => a.vote.Key.Lines.Count > 1);
+            bool multiline = results.Any(a => a.vote.Key.LineCount > 1);
 
             foreach (var (ranking, vote) in results)
             {

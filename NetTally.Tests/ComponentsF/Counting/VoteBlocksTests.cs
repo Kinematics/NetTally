@@ -73,7 +73,7 @@ public class VoteBlocksTests
         var blocks = VoteBlocks.GetBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
         Assert.AreEqual(1, blocks.Count());
-        Assert.AreEqual(2, blocks.First().Lines.Count);
+        Assert.AreEqual(2, blocks.First().LineCount);
     }
 
     [TestMethod]
@@ -91,7 +91,7 @@ public class VoteBlocksTests
         var blocks = VoteBlocks.GetBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
         Assert.AreEqual(2, blocks.Count());
-        Assert.AreEqual(1, blocks.First().Lines.Count);
+        Assert.AreEqual(1, blocks.First().LineCount);
     }
 
     [TestMethod]

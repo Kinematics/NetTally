@@ -50,7 +50,7 @@ public static partial class VoteBlocks
     /// <returns><c>True</c> if the lines represent a content block. Otherwise <c>false</c>.</returns>
     public static bool IsThisAContentBlock(VoteBlockType block)
     {
-        if (block.Lines.Count < 2)
+        if (block.LineCount < 2)
             return false;
 
         if (block.Lines[0].Prefix.Depth != 0)
@@ -72,7 +72,7 @@ public static partial class VoteBlocks
     /// it's implicit, and what its name is.</returns>
     public static PlanDescriptor IsBlockAProposedPlan(VoteBlockType block)
     {
-        if (block.Lines.Count == 0)
+        if (block.LineCount == 0)
             return PlanDescriptor.None;
 
         bool isPlan = false;
@@ -94,7 +94,7 @@ public static partial class VoteBlocks
     /// it's implicit, and what its name is.</returns>
     public static PlanDescriptor IsBlockAnExplicitPlan(VoteBlockType block)
     {
-        if (block.Lines.Count == 0)
+        if (block.LineCount == 0)
             return PlanDescriptor.None;
 
         bool isPlan = false;
@@ -117,7 +117,7 @@ public static partial class VoteBlocks
     /// it's implicit, and what its name is.</returns>
     public static PlanDescriptor IsBlockAnImplicitPlan(VoteBlockType block)
     {
-        if (block.Lines.Count > 1)
+        if (block.LineCount > 1)
         {
             var firstLine = block.Lines[0];
             var secondLine = block.Lines[1];
@@ -143,13 +143,13 @@ public static partial class VoteBlocks
     /// it's implicit, and what its name is.</returns>
     public static PlanDescriptor IsBlockASingleLinePlan(VoteBlockType block)
     {
-        if (block.Lines.Count == 0)
+        if (block.LineCount == 0)
             return PlanDescriptor.None;
 
         bool isPlan = false;
         var (lineStatus, planName) = CheckIfPlan(block.Lines[0]);
 
-        if (lineStatus == PlanStatus.Plan && block.Lines.Count == 1)
+        if (lineStatus == PlanStatus.Plan && block.LineCount == 1)
         {
             isPlan = true;
         }

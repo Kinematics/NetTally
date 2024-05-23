@@ -182,12 +182,12 @@ public static partial class VoteConstructor
                     }
 
                     // Is the plan reference a single line, or is the entire plan embedded in the vote?
-                    var partial = validVoteLines.Skip(i).Take(refPlan.Lines.Count);
+                    var partial = validVoteLines.Skip(i).Take(refPlan.LineCount);
 
                     // If it's a full match, we need to skip past these lines in the next index increment.
                     if (refPlan.Equals(partial))
                     {
-                        i += refPlan.Lines.Count - 1; // compensate for the i++ increment
+                        i += refPlan.LineCount - 1; // compensate for the i++ increment
                     }
                     else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Prefix.Depth > 0)
                     {
@@ -411,7 +411,7 @@ public static partial class VoteConstructor
             return [block];
 
         // Single line blocks don't need extra handling.
-        if (block.Lines.Count == 1)
+        if (block.LineCount == 1)
             return [block];
 
         // A content block is the same as an explicit plan.
@@ -591,7 +591,7 @@ public static partial class VoteConstructor
 
         static IEnumerable<VoteLineType> Retask(VoteBlockType block, int arg2)
         {
-            if (block.Lines.Count == 0)
+            if (block.LineCount == 0)
                 return [];
 
             var task = block.Lines[0].Task;

@@ -168,7 +168,7 @@ public class VoteCounterF(
             if (updateOrigin.Source != Origin.None &&
                 OriginComparer.Instance.Equals(updateOrigin.Source, currentOrigin.Source) &&
                 PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
-                plan.Lines.Count > 1 &&
+                plan.LineCount > 1 &&
                 ReferencePlans.TryGetValue(currentOrigin, out VoteBlockType? currentPlan) &&
                 !VoteBlockComparer.Instance.Equals(plan, currentPlan))
             {
@@ -1083,7 +1083,7 @@ public class VoteCounterF(
     public (string Name, VoteBlockType Contents)?
         NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock)
     {
-        if (originalVoteBlock.Lines.Count == 0 || string.IsNullOrEmpty(originalPlanName))
+        if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;
 
         VoteLineType firstLine = originalVoteBlock.Lines[0];

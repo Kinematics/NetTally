@@ -363,7 +363,7 @@ namespace NetTally.Avalonia.Views
 
         private static bool HasChildLines(VoteBlockType vote)
         {
-            return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
+            return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
         #endregion
 

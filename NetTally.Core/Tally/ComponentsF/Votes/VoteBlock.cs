@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NetTally.Enums;
@@ -12,9 +13,11 @@ namespace NetTally.Tally.ComponentsF.Votes;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
-public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTaskType Task)
+public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marker, VoteTaskType Task)
     : IEnumerable<VoteLineType>
 {
+    public int LineCount => Lines.Length;
+
     /// <summary>
     /// A mutable category (<see cref="MarkerType"/>) that this vote block can belong to.
     /// </summary>
@@ -22,7 +25,7 @@ public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTas
 
     public IEnumerator<VoteLineType> GetEnumerator()
     {
-        if (Lines.Count == 0)
+        if (Lines.Length == 0)
             yield break;
 
         var firstLine = Lines[0];
@@ -78,7 +81,9 @@ public static class VoteBlock
             return null;
         }
 
-        return new VoteBlockType(listOfLines, listOfLines[0].Marker, listOfLines[0].Task);
+        return new VoteBlockType([.. listOfLines],
+                                 listOfLines[0].Marker,
+                                 listOfLines[0].Task);
     }
 
     /// <summary>
@@ -174,14 +179,14 @@ public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<Vot
 
         if (matches.All(m => m == 0))
         {
-            if (x.Lines.Count == y.Lines.Count)
+            if (x.LineCount == y.LineCount)
             {
                 //return MarkerComparer.Instance.Compare(x.Marker, y.Marker);
                 return 0;
             }
             else
             {
-                return x.Lines.Count.CompareTo(y.Lines.Count);
+                return x.LineCount.CompareTo(y.LineCount);
             }
         }
 
