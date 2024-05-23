@@ -10,7 +10,7 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
 using NetTally.Collections;
-using NetTally.Tally.Components;
+using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility;
 using NetTally.ViewModels;
 
@@ -18,12 +18,12 @@ namespace NetTally.Avalonia.Views
 {
     public partial class ManageVotes : Window, INotifyPropertyChanged
     {
-        private readonly ManageVotesViewModel manageVotesViewModel;
+        private readonly ManageVotesViewModelF manageVotesViewModel;
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         public ManageVotes(
-            ManageVotesViewModel manageVotesViewModel,
+            ManageVotesViewModelF manageVotesViewModel,
             AvaloniaNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {

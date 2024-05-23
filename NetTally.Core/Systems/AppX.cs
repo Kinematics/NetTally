@@ -162,6 +162,7 @@ public static class AppX
         services.AddTransient<GlobalOptionsViewModel>();
 
         services.AddSingleton<MainViewModelF>();
+        services.AddTransient<ManageVotesViewModelF>();
 
         services.AddSingleton<QuestsInfo>();
 
