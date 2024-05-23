@@ -44,6 +44,14 @@ public record VoteBlockType(List<VoteLineType> Lines, MarkerData Marker, VoteTas
     {
         return $"{{[{Marker.MarkerSymbol}][{Task.Name}]||{Lines[0]}}}";
     }
+
+    public string ManageVotesDisplay
+    {
+        get
+        {
+            return VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
+        }
+    }
 }
 
 /// <summary>
