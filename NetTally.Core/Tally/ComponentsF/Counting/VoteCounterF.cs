@@ -512,7 +512,7 @@ public class VoteCounterF(
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVotes">The destination votes.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Split(VoteBlockType fromVote, List<VoteBlockType> toVotes)
+    public bool Split(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes)
     {
         UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest.PartitionMode);
@@ -531,7 +531,7 @@ public class VoteCounterF(
         return merged;
     }
 
-    private bool SplitImplWrapper(VoteBlockType fromVote, List<VoteBlockType> toVotes)
+    private bool SplitImplWrapper(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes)
     {
         if (!VoteStorage.TryGetValue(fromVote, out var fromSupport))
         {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Votes;
 
@@ -19,11 +20,11 @@ public class MergeData
         UndoActionType = actionType;
     }
 
-    public MergeData(VoteBlockType fromVote, List<VoteBlockType> toVotes, UndoActionType actionType)
+    public MergeData(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes, UndoActionType actionType)
     {
         FromVote = fromVote;
         ToVote = fromVote;
-        ToVotes = toVotes;
+        ToVotes = toVotes.ToList();
         UndoActionType = actionType;
     }
 }
@@ -75,12 +76,12 @@ public class MergeRecords
     /// <param name="fromRecord">The original vote string.</param>
     /// <param name="toRecord">The revised vote string.</param>
     /// <param name="partitionMode">The partition mode.</param>
-    public void AddMergeRecord(VoteBlockType fromRecord, List<VoteBlockType> toRecords,
+    public void AddMergeRecord(VoteBlockType fromRecord, IEnumerable<VoteBlockType> toRecords,
         UndoActionType actionType, PartitionMode partitionMode)
     {
         var merges = GetMergesFor(partitionMode);
 
-        MergeData data = new MergeData(fromRecord, toRecords, actionType);
+        MergeData data = new(fromRecord, toRecords, actionType);
 
         merges.Add(data);
     }

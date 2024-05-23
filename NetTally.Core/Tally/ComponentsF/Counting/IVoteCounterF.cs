@@ -191,7 +191,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVotes">The destination votes.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    bool Split(VoteBlockType fromVote, List<VoteBlockType> toVotes);
+    bool Split(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes);
     /// <summary>
     /// Shift support by various voters from their original vote to any votes
     /// supported by a specified target voter.
