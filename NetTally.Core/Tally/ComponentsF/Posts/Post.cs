@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.ComponentsF.Posts;
-public record PostType(OriginType Origin, string Text, List<VoteLineType> VoteLines)
+public record PostType(OriginType Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
 {
-    public bool HasVote => VoteLines.Count > 0;
+    public bool HasVote => VoteLines.Length > 0;
+
+    public int VoteLineCount => VoteLines.Length;
 }
 
 public static class Post
@@ -18,7 +21,7 @@ public static class Post
 
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        return new PostType(origin, text, voteLines);
+        return new PostType(origin, text, [.. voteLines]);
     }
 
     public static PostToProcess? CreateToProcess(OriginType origin, string text)

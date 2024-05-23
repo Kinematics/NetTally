@@ -54,7 +54,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -81,7 +81,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -109,7 +109,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -138,7 +138,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -165,7 +165,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLines.Count);
+        Assert.AreEqual(1, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -194,7 +194,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLines.Count);
+        Assert.AreEqual(3, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -226,7 +226,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLines.Count);
+        Assert.AreEqual(4, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -258,7 +258,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -286,7 +286,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -315,7 +315,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -342,7 +342,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLines.Count);
+        Assert.AreEqual(1, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -371,7 +371,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLines.Count);
+        Assert.AreEqual(3, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -403,7 +403,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLines.Count);
+        Assert.AreEqual(4, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
 
@@ -435,7 +435,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -463,7 +463,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -491,7 +491,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLines.Count);
+        Assert.AreEqual(2, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -518,7 +518,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLines.Count);
+        Assert.AreEqual(1, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -547,7 +547,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLines.Count);
+        Assert.AreEqual(3, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -576,7 +576,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLines.Count);
+        Assert.AreEqual(3, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 
@@ -608,7 +608,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLines.Count);
+        Assert.AreEqual(4, post.VoteLineCount);
 
         var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
 

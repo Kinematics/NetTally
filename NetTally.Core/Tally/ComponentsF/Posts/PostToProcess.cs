@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using NetTally.Tally.ComponentsF.Votes;
 
 namespace NetTally.Tally.ComponentsF.Posts;
@@ -8,9 +9,11 @@ public class PostToProcess(PostType post)
 
     public OriginType Origin => post.Origin;
 
-    public List<VoteLineType> VoteLines => post.VoteLines;
+    public ImmutableArray<VoteLineType> VoteLines => post.VoteLines;
 
     public bool HasVote => post.HasVote;
+
+    public int VoteLineCount => post.VoteLineCount;
 
     /// <summary>
     /// Vote lines after processing to expand plans within the original vote, and remove proposed plans.
