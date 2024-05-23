@@ -7,7 +7,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
-using NetTally.Tally.Components;
+using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility;
 using NetTally.ViewModels;
 
@@ -19,12 +19,12 @@ namespace NetTally.Views
     [ObservableObject]
     public partial class ManageVotes : Window
     {
-        private readonly ManageVotesViewModel manageVotesViewModel;
+        private readonly ManageVotesViewModelF manageVotesViewModel;
         private readonly WPFNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         public ManageVotes(
-            ManageVotesViewModel manageVotesViewModel,
+            ManageVotesViewModelF manageVotesViewModel,
             WPFNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {
@@ -68,7 +68,7 @@ namespace NetTally.Views
         MenuItem partitionChildren = default!;
         private readonly Separator separator = new();
         private readonly List<MenuItem> ContextMenuTasks = [];
-        VoteLineBlock? selectedVoteForNewTask;
+        VoteBlockType? selectedVoteForNewTask;
 
         /// <summary>
         /// Create the command menu items for the context menu.
@@ -120,10 +120,10 @@ namespace NetTally.Views
         /// </summary>
         private void InitKnownTasks()
         {
-            var sortedTasks = manageVotesViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase);
+            var sortedTasks = manageVotesViewModel.TaskList.OrderBy(t => t, VoteTaskComparer.Instance);
 
             foreach (var task in sortedTasks)
-                ContextMenuTasks.Add(CreateContextMenuItem(task));
+                ContextMenuTasks.Add(CreateContextMenuItem(task.Name));
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace NetTally.Views
                 return;
             }
 
-            if (listBox.SelectedItem is not VoteLineBlock selectedVote)
+            if (listBox.SelectedItem is not VoteBlockType selectedVote)
             {
                 e.Handled = true;
                 return;
@@ -209,7 +209,7 @@ namespace NetTally.Views
             partitionChildren.IsEnabled = HasChildLines(selectedVote);
 
             // Only clear a task if the vote has one.
-            clearTask.IsEnabled = !string.IsNullOrEmpty(selectedVote.Task);
+            clearTask.IsEnabled = (selectedVote.Task != VoteTask.Empty);
 
             // Only enable Reorder Tasks if we have tasks to reorder
             reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;
@@ -261,17 +261,17 @@ namespace NetTally.Views
                 manageVotesViewModel.PartitionChildren(selectedVote);
         }
 
-        private void ModifyTask(VoteLineBlock selectedVote, string newTask)
+        private void ModifyTask(VoteBlockType selectedVote, string newTask)
         {
             manageVotesViewModel.ReplaceTask(selectedVote, newTask);
         }
 
-        private static bool HasChildLines(VoteLineBlock vote)
+        private static bool HasChildLines(VoteBlockType vote)
         {
             return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
 
-        private static VoteLineBlock? GetSelectedVoteInContext(object? sender)
+        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
         {
             if (sender is MenuItem mi)
             {
@@ -279,7 +279,7 @@ namespace NetTally.Views
                 {
                     if (cm.PlacementTarget is ListBox listBox)
                     {
-                        if (listBox.SelectedItem is VoteLineBlock selectedVote)
+                        if (listBox.SelectedItem is VoteBlockType selectedVote)
                         {
                             return selectedVote;
                         }

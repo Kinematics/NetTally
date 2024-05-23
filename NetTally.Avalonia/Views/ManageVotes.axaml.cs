@@ -77,9 +77,9 @@ namespace NetTally.Avalonia.Views
             // to examine.
             if (cm.Parent?.Parent is ListBox listBox)
             {
-                if (listBox.SelectedItem is VoteLineBlock selectedVote)
+                if (listBox.SelectedItem is VoteBlockType selectedVote)
                 {
-                    string selectedVoteTask = selectedVote.Task;
+                    var selectedVoteTask = selectedVote.Task;
 
                     // Enable/Disable commands based on whether it's valid for the selected vote.
 
@@ -93,7 +93,7 @@ namespace NetTally.Avalonia.Views
                                 cmd.IsEnabled = HasChildLines(selectedVote);
                                 break;
                             case clearTaskString:
-                                cmd.IsEnabled = !string.IsNullOrEmpty(selectedVoteTask);
+                                cmd.IsEnabled = (selectedVoteTask != VoteTask.Empty);
                                 break;
                             case reorderTasksString:
                                 cmd.IsEnabled = ContextMenuTasks.Count > 1;
@@ -104,7 +104,7 @@ namespace NetTally.Avalonia.Views
                     foreach (var task in ContextMenuTasks)
                     {
                         string? menuTask = task.Header as string;
-                        task.IsEnabled = menuTask != selectedVoteTask;
+                        task.IsEnabled = menuTask != selectedVoteTask.Name;
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace NetTally.Avalonia.Views
                 // to examine.
                 if (cm.Parent?.Parent is ListBox listBox)
                 {
-                    if (listBox.SelectedItem is VoteLineBlock selectedVote)
+                    if (listBox.SelectedItem is VoteBlockType selectedVote)
                     {
                         string newTask = mi.Header?.ToString() ?? "";
 
@@ -196,7 +196,7 @@ namespace NetTally.Avalonia.Views
                 {
                     if (cm.PlacementTarget is ListBox box)
                     {
-                        if (box.SelectedItem is VoteLineBlock selectedVote)
+                        if (box.SelectedItem is VoteBlockType selectedVote)
                         {
                             manageVotesViewModel.PartitionChildren(selectedVote);
                         }
@@ -262,8 +262,11 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void InitKnownTasks()
         {
-            foreach (var task in manageVotesViewModel.TaskList.OrderBy(t => t, StringComparer.OrdinalIgnoreCase))
-                ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
+            var orderedTasks = manageVotesViewModel.TaskList
+                .OrderBy(t => t, VoteTaskComparer.Instance);
+
+            foreach (var task in orderedTasks)
+                ContextMenuTasks.Add(CreateContextMenuTaskItem(task.Name));
         }
 
         /// <summary>
@@ -336,7 +339,7 @@ namespace NetTally.Avalonia.Views
             manageVotesViewModel.AddUserDefinedTask(newTask);
 
             // Update the selected item of the list box
-            if (newTaskBox?.SelectedItem is VoteLineBlock selectedVote)
+            if (newTaskBox?.SelectedItem is VoteBlockType selectedVote)
             {
                 manageVotesViewModel.ReplaceTask(selectedVote, newTask);
             }
@@ -358,7 +361,7 @@ namespace NetTally.Avalonia.Views
             newTaskBox = null;
         }
 
-        private static bool HasChildLines(VoteLineBlock vote)
+        private static bool HasChildLines(VoteBlockType vote)
         {
             return (vote.Lines.Count > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
@@ -368,7 +371,7 @@ namespace NetTally.Avalonia.Views
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
-        public ManageVotes() { throw new InvalidOperationException("The default constructor should not be called"); }
+        private ManageVotes() { throw new InvalidOperationException("The default constructor should not be called"); }
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }
