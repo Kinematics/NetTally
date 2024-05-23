@@ -182,10 +182,11 @@ public static partial class VoteConstructor
                     }
 
                     // Is the plan reference a single line, or is the entire plan embedded in the vote?
-                    var partial = validVoteLines.Skip(i).Take(refPlan.LineCount);
+                    var partialLines = validVoteLines.Skip(i).Take(refPlan.LineCount);
+                    var partialVote = VoteBlock.Create(partialLines);
 
                     // If it's a full match, we need to skip past these lines in the next index increment.
-                    if (refPlan.Equals(partial))
+                    if (VoteBlockComparer.Instance.Equals(refPlan, partialVote))
                     {
                         i += refPlan.LineCount - 1; // compensate for the i++ increment
                     }
