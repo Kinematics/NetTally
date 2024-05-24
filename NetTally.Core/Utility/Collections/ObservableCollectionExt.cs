@@ -171,7 +171,7 @@ namespace NetTally.Collections
         /// <summary>
         /// Sorts the current collection.
         /// </summary>
-        public void Sort()
+        public void Sort(IComparer<T>? comparer = null)
         {
             CheckReentrancy();
 
@@ -179,12 +179,45 @@ namespace NetTally.Collections
 
             if (Items is List<T> itemsList)
             {
-                itemsList.Sort();
+                itemsList.Sort(comparer);
             }
             else if (Items != null)
             {
                 List<T> list = new(Items);
-                list.Sort();
+                list.Sort(comparer);
+
+                Items.Clear();
+                foreach (T item in list)
+                {
+                    Items.Add(item);
+                }
+            }
+
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+            //    Items.ToList(), originalItems));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        /// <summary>
+        /// Sorts the current collection.
+        /// </summary>
+        public void SortDescending(IComparer<T>? comparer = null)
+        {
+            CheckReentrancy();
+
+            //var originalItems = Items.ToList();
+
+            if (Items is List<T> itemsList)
+            {
+                itemsList.Sort(comparer);
+            }
+            else if (Items != null)
+            {
+                List<T> list = new(Items);
+                list.Sort(comparer);
+                list.Reverse();
 
                 Items.Clear();
                 foreach (T item in list)
