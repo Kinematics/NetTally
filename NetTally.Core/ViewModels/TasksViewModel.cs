@@ -89,7 +89,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void AlphbetizeDown()
         {
-            Tasks.Sort(descending: true);
+            Tasks.SortDescending();
         }
 
         [RelayCommand]
