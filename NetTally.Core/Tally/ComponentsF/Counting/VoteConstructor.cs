@@ -263,8 +263,6 @@ public static partial class VoteConstructor
         post.WorkingVote.AddRange(workingVote);
         post.WorkingVoteComplete = true;
 
-        return;
-
         //////////////////////////////////////////
 
         // Local function to handle determining if the block is part of a Proposed Plan or not.
@@ -276,10 +274,8 @@ public static partial class VoteConstructor
             {
                 OriginType? planOrigin = quest.VoteCounterF.GetPlanOriginByName(proposedPlanName);
 
-                if (planOrigin == null)
-                    return false;
-
-                return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
+                if (planOrigin != null)
+                    return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
             }
 
             return false;
