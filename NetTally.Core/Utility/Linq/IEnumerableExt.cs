@@ -402,7 +402,8 @@ namespace NetTally.Extensions
         }
 
 
-        public static bool SequenceEquals<T, U>(this IEnumerable<T> list1, IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)
+        public static bool SequenceEquals<T, U>(this IEnumerable<T> list1,
+            IEnumerable<T> list2, Func<T, U> selector, IComparer<U> comparer)
         {
             if (!list1.Any() && !list2.Any())
                 return true;
@@ -429,6 +430,32 @@ namespace NetTally.Extensions
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Process a list of items recursively until all items have been processed.
+        /// If it ever reaches a point where no items are being processed, fall back
+        /// to using the <c>unprocessedAction</c>
+        /// </summary>
+        /// <typeparam name="T">The type of item in the enumeration.</typeparam>
+        /// <param name="values">The items to process.</param>
+        /// <param name="tryProcess">Function that processes an item. Returns true if successful.</param>
+        /// <param name="unprocessedAction">Function to process an item that cannot be
+        /// successfully processed.</param>
+        public static void TryProcess<T>(this IEnumerable<T> values,
+            Func<T, bool> tryProcess,
+            Action<T> unprocessedAction)
+        {
+            int count = values.Count();
+
+            if (count == 0) return;
+
+            List<T> unprocessed = [.. values.Where(v => !tryProcess(v))];
+
+            if (unprocessed.Count == count)
+                unprocessed.ForEach(v => unprocessedAction(v));
+            else
+                unprocessed.TryProcess(tryProcess, unprocessedAction);
         }
     }
 }
