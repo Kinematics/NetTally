@@ -152,7 +152,7 @@ public static partial class VoteConstructor
         if (post.WorkingVoteComplete)
             return;
 
-        List<VoteBlockType> workingVote = [];
+        List<VoteBlockRef> workingVote = [];
 
         // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
         // Keep everything else, flattening the blocks back into a simple list of vote lines.
@@ -280,14 +280,15 @@ public static partial class VoteConstructor
         void JustAddDirectly(VoteLineType currentLine)
         {
             var block = VoteBlock.Create(TrimLine(currentLine, quest.TrimExtendedText));
-            workingVote.Add(block);
+            var blockRef = new VoteBlockRef(block, false);
+            workingVote.Add(blockRef);
         }
 
         void AddReference(VoteBlockType block, MarkerData marker)
         {
             var replacementBlock = block with { Marker = marker };
-            replacementBlock.IsReference = true;
-            workingVote.Add(replacementBlock);
+            var blockRef = new VoteBlockRef(replacementBlock, true);
+            workingVote.Add(blockRef);
         }
 
         static VoteLineType TrimLine(VoteLineType currentLine, bool trimExtendedText)
@@ -525,7 +526,7 @@ public static partial class VoteConstructor
     /// <returns>Returns the partitions that are to be counted.</returns>
     private static List<VoteBlockType> PartitionPostByNone(PostToProcess post)
     {
-        var collated = post.WorkingVote.SelectMany(v => v);
+        var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
         var block = VoteBlock.Create(collated);
 
         if (block == null)
@@ -543,7 +544,7 @@ public static partial class VoteConstructor
     private static List<VoteBlockType> PartitionPostByLine(PostToProcess post)
     {
         var partitionedLines = post.WorkingVote
-            .SelectMany(v => v)
+            .SelectMany(v => v.VoteBlock)
             .Select(VoteBlock.Create)
             .Where(v => v != null)
             .Select(v => v!);
@@ -562,8 +563,8 @@ public static partial class VoteConstructor
         var grouped = post.WorkingVote.GroupAdjacentBySimilarKey(b => b.IsReference);
 
         var partitioned = grouped.SelectMany(g => g.Key
-            ? g
-            : VoteBlocks.GetBlocks(g.SelectMany(v => v)));
+            ? g.Select(v => v.VoteBlock)
+            : VoteBlocks.GetBlocks(g.SelectMany(v => v.VoteBlock)));
 
         return partitioned.ToList();
     }
@@ -575,7 +576,7 @@ public static partial class VoteConstructor
     /// <returns></returns>
     private static List<VoteBlockType> PartitionPostByLineTask2(PostToProcess post)
     {
-        var collated = post.WorkingVote.SelectMany(v => v);
+        var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
 
         var blocks = VoteBlocks.GetBlocks(collated);
 
@@ -607,7 +608,7 @@ public static partial class VoteConstructor
     private static List<VoteBlockType> PartitionPostByLineTask3(PostToProcess post)
     {
         var voteLines = post.WorkingVote
-            .SelectMany(v => v);
+            .SelectMany(v => v.VoteBlock);
 
         var r = VoteBlocks.GetBlocks(voteLines);
 

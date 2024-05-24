@@ -38,10 +38,8 @@ public class PostToProcess(PostType post)
 
     /// <summary>
     /// Vote lines after processing to expand plans within the original vote, and remove proposed plans.
-    /// The <see cref="VoteLineType"/> is a normal line, while the <see cref="VoteBlockType"/> represents a complete plan.
-    /// The WorkingVote is a sequence of one or the other.
     /// </summary>
-    public List<VoteBlockType> WorkingVote { get; } = [];
+    public List<VoteBlockRef> WorkingVote { get; } = [];
 
     /// <summary>
     /// Flag whether the WorkingVote has been completely filled in.

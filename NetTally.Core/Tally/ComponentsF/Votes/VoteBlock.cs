@@ -23,8 +23,6 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marke
     /// </summary>
     public MarkerType Category { get; set; } = MarkerType.None;
 
-    public bool IsReference { get; set; }
-
     public IEnumerator<VoteLineType> GetEnumerator()
     {
         if (Lines.Length == 0)
