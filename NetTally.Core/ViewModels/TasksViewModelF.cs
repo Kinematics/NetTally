@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -84,15 +83,13 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void Alphabetize()
         {
-            var asc = Tasks.Order(VoteTaskComparer.Instance);
-            Tasks.Replace(asc);
+            Tasks.Sort(VoteTaskComparer.Instance);
         }
 
         [RelayCommand]
         private void AlphbetizeDown()
         {
-            var desc = Tasks.OrderDescending(VoteTaskComparer.Instance);
-            Tasks.Replace(desc);
+            Tasks.SortDescending(VoteTaskComparer.Instance);
         }
 
         [RelayCommand]
