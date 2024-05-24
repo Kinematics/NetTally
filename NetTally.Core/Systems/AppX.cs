@@ -163,6 +163,7 @@ public static class AppX
 
         services.AddSingleton<MainViewModelF>();
         services.AddTransient<ManageVotesViewModelF>();
+        services.AddTransient<TasksViewModelF>();
 
         services.AddSingleton<QuestsInfo>();
 

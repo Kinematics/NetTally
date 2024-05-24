@@ -1,0 +1,112 @@
+﻿using System;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+using NetTally.Collections;
+using NetTally.Configure;
+using NetTally.Enums;
+using NetTally.Tally.ComponentsF.Votes;
+
+namespace NetTally.ViewModels
+{
+    /// <summary>
+    /// A view model for managing and rearranging tasks.
+    /// </summary>
+    public partial class TasksViewModelF : ObservableObject
+    {
+        private readonly Quest quest;
+        private readonly ILogger<TasksViewModelF> logger;
+
+        public ObservableCollectionExt<VoteTaskType> Tasks { get; } = [];
+
+        public TasksViewModelF(
+            IQuestsInfo questsInfo,
+            ILogger<TasksViewModelF> logger)
+        {
+            ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest);
+
+            this.logger = logger;
+            this.quest = questsInfo.SelectedQuest;
+
+            LoadTasks();
+        }
+
+        private void LoadTasks()
+        {
+            Tasks.Replace(quest.VoteCounterF.TaskList);
+            logger.LogInformation("{count} tasks loaded.", Tasks.Count);
+        }
+
+        private void SaveTasks()
+        {
+            quest.VoteCounterF.ReplaceTasks(Tasks);
+            logger.LogInformation("{count} tasks saved.", Tasks.Count);
+        }
+
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(MoveTaskUpCommand))]
+        [NotifyCanExecuteChangedFor(nameof(MoveTaskDownCommand))]
+        private int selectedTaskIndex;
+
+        private bool CanMoveTaskUp()
+        {
+            return (Tasks.Count > 1 && SelectedTaskIndex > 0);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanMoveTaskUp))]
+        private void MoveTaskUp()
+        {
+            if (Tasks.Count > 1 && SelectedTaskIndex > 0)
+            {
+                int newIndex = SelectedTaskIndex - 1;
+                Tasks.Move(SelectedTaskIndex, newIndex);
+                SelectedTaskIndex = newIndex;
+            }
+        }
+
+        private bool CanMoveTaskDown()
+        {
+            return (Tasks.Count > 1 && SelectedTaskIndex >= 0 && SelectedTaskIndex < Tasks.Count - 1);
+        }
+
+        [RelayCommand(CanExecute = nameof(CanMoveTaskDown))]
+        private void MoveTaskDown()
+        {
+            if (Tasks.Count > 1 && SelectedTaskIndex >= 0 && SelectedTaskIndex < Tasks.Count - 1)
+            {
+                int newIndex = SelectedTaskIndex + 1;
+                Tasks.Move(SelectedTaskIndex, newIndex);
+                SelectedTaskIndex = newIndex;
+            }
+        }
+
+        [RelayCommand]
+        private void Alphabetize()
+        {
+            var asc = Tasks.Order(VoteTaskComparer.Instance);
+            Tasks.Replace(asc);
+        }
+
+        [RelayCommand]
+        private void AlphbetizeDown()
+        {
+            var desc = Tasks.OrderDescending(VoteTaskComparer.Instance);
+            Tasks.Replace(desc);
+        }
+
+        [RelayCommand]
+        private void PutInTallyOrder()
+        {
+            quest.VoteCounterF.ResetTasksOrder(TasksOrdering.AsTallied);
+            LoadTasks();
+        }
+
+        [RelayCommand]
+        private void Save()
+        {
+            SaveTasks();
+            OnPropertyChanged(nameof(SaveCommand));
+        }
+    }
+}

@@ -11,11 +11,11 @@ namespace NetTally.Avalonia.Views
     /// </summary>
     public partial class ReorderTasks : Window
     {
-        private readonly TasksViewModel tasksViewModel;
+        private readonly TasksViewModelF tasksViewModel;
         private readonly ILogger<ReorderTasks> logger;
 
         public ReorderTasks(
-            TasksViewModel tasksViewModel,
+            TasksViewModelF tasksViewModel,
             ILogger<ReorderTasks> logger)
         {
             this.tasksViewModel = tasksViewModel;
@@ -24,12 +24,16 @@ namespace NetTally.Avalonia.Views
             InitializeComponent();
             DataContext = this.tasksViewModel;
 
-            tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
+            this.tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            tasksViewModel.PropertyChanged -= TasksViewModel_PropertyChanged;
+            if (tasksViewModel != null)
+            {
+                tasksViewModel.PropertyChanged -= TasksViewModel_PropertyChanged;
+            }
+
             base.OnClosed(e);
         }
 
