@@ -289,19 +289,15 @@ public static partial class VoteConstructor
         // not a reference, or we can't find the reference.
         void JustAddDirectly(VoteLineType currentLine)
         {
-            // Handle trimming extended text.
-            if (quest.TrimExtendedText)
-            {
-                var trimmedContent = VoteContent.Trim(currentLine.Content);
-                var replacementLine = currentLine with { Content = trimmedContent };
-                var block = VoteBlock.Create(replacementLine);
-                workingVote.Add(block);
-            }
-            else
-            {
-                var block = VoteBlock.Create(currentLine);
-                workingVote.Add(block);
-            }
+            var block = VoteBlock.Create(TrimLine(currentLine, quest.TrimExtendedText));
+            workingVote.Add(block);
+        }
+
+        static VoteLineType TrimLine(VoteLineType currentLine, bool trimExtendedText)
+        {
+            return trimExtendedText
+                ? currentLine with { Content = VoteContent.Trim(currentLine.Content) }
+                : currentLine;
         }
     }
 
