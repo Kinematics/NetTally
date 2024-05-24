@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NetTally.Enums;
+using NetTally.Extensions;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility.Comparers;
@@ -167,96 +167,90 @@ public static partial class VoteConstructor
 
             var (isReference, isPlan, isPinnedUser, refName) = GetReference(currentLine, quest);
 
-            if (isReference)
-            {
-                if (isPlan)
-                {
-                    // We can rely on GetReference returning a valid plan name.
-                    var refPlan = quest.VoteCounterF.GetReferencePlan(refName);
-
-                    // If there is no available reference plan, just add the line and continue.
-                    if (refPlan == null)
-                    {
-                        JustAddDirectly(currentLine);
-                        continue;
-                    }
-
-                    // Is the plan reference a single line, or is the entire plan embedded in the vote?
-                    var partialLines = validVoteLines.Skip(i).Take(refPlan.LineCount);
-                    var partialVote = VoteBlock.Create(partialLines);
-
-                    // If it's a full match, we need to skip past these lines in the next index increment.
-                    if (VoteBlockComparer.Instance.Equals(refPlan, partialVote))
-                    {
-                        i += refPlan.LineCount - 1; // compensate for the i++ increment
-                    }
-                    else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Prefix.Depth > 0)
-                    {
-                        // If a block references a plan, but does not match the original plan in full (eg: missing lines),
-                        // don't treat the initial line as a plan reference and then leave junk lines, but just add the
-                        // line as normal text.
-
-                        JustAddDirectly(currentLine);
-                        continue;
-                    }
-
-                    // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
-
-                    var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
-
-                    foreach (var voteBlock in voteBlocks)
-                    {
-                        var replacementBlock = voteBlock with { Marker = currentLine.Marker };
-                        workingVote.Add(replacementBlock);
-                    }
-                }
-                // Users
-                else
-                {
-                    PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
-
-                    PostToProcess? refUserPost = quest.VoteCounterF.GetLastPostByAuthor(refName, postSearchLimit);
-
-                    // If we can't find the reference post, just treat this as a normal line.
-                    if (refUserPost == null)
-                    {
-                        var block = VoteBlock.Create(currentLine);
-                        workingVote.Add(block);
-                    }
-                    // If the reference post hasn't been processed yet, bail out entirely,
-                    // because we're in a future reference position.
-                    else if (!refUserPost.Processed && !post.ForceProcess)
-                    {
-                        return;
-                    }
-                    // Otherwise save the reference vote.
-                    else
-                    {
-                        var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
-
-                        if (voteBlocks.Any())
-                        {
-                            foreach (var voteBlock in voteBlocks)
-                            {
-                                var replacementBlock = voteBlock with { Marker = currentLine.Marker };
-                                workingVote.Add(replacementBlock);
-                            }
-                        }
-                        else
-                        {
-                            // If the user being referenced doesn't actually have any vote,
-                            // just add the line directly.  This is most likely due to the
-                            // referenced user just proposing a plan, but not making a vote.
-                            var block = VoteBlock.Create(currentLine);
-                            workingVote.Add(block);
-                        }
-                    }
-                }
-            }
-            // Non-references just get added directly.
-            else
+            if (!isReference)
             {
                 JustAddDirectly(currentLine);
+                continue;
+            }
+
+            if (isPlan)
+            {
+                // We can rely on GetReference returning a valid plan name.
+                var refPlan = quest.VoteCounterF.GetReferencePlan(refName);
+
+                // If there is no available reference plan, just add the line and continue.
+                if (refPlan == null)
+                {
+                    JustAddDirectly(currentLine);
+                    continue;
+                }
+
+                // Is the plan reference a single line, or is the entire plan embedded in the vote?
+                var partialLines = validVoteLines.Skip(i).Take(refPlan.LineCount);
+                var partialVote = VoteBlock.Create(partialLines);
+
+                // If it's a full match, we need to skip past these lines in the next index increment.
+                if (VoteBlockComparer.Instance.Equals(refPlan, partialVote))
+                {
+                    i += refPlan.LineCount - 1; // compensate for the i++ increment
+                }
+                else if ((i + 1) < validVoteLines.Count && validVoteLines[i + 1].Prefix.Depth > 0)
+                {
+                    // If a block references a plan, but does not match the original plan in full (eg: missing lines),
+                    // don't treat the initial line as a plan reference and then leave junk lines, but just add the
+                    // line as normal text.
+
+                    JustAddDirectly(currentLine);
+                    continue;
+                }
+
+                // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
+
+                var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
+
+                foreach (var voteBlock in voteBlocks)
+                {
+                    AddReference(voteBlock, currentLine.Marker);
+                }
+            }
+            // Users
+            else
+            {
+                PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
+
+                PostToProcess? refUserPost = quest.VoteCounterF.GetLastPostByAuthor(refName, postSearchLimit);
+
+                // If we can't find the reference post, just treat this as a normal line.
+                if (refUserPost == null)
+                {
+                    JustAddDirectly(currentLine);
+                }
+                // If the reference post hasn't been processed yet, bail out entirely,
+                // because we're in a future reference position.
+                else if (!refUserPost.Processed && !post.ForceProcess)
+                {
+                    return;
+                }
+                // Otherwise save the reference vote.
+                else
+                {
+                    var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
+
+                    if (voteBlocks.Any())
+                    {
+                        foreach (var voteBlock in voteBlocks)
+                        {
+                            AddReference(voteBlock, currentLine.Marker);
+                        }
+                    }
+                    else
+                    {
+                        // If the user being referenced doesn't actually have any vote,
+                        // just add the line directly.  This is most likely due to the
+                        // referenced user just proposing a plan, but not making a vote.
+                        JustAddDirectly(currentLine);
+                    }
+                }
             }
         }
 
@@ -287,6 +281,13 @@ public static partial class VoteConstructor
         {
             var block = VoteBlock.Create(TrimLine(currentLine, quest.TrimExtendedText));
             workingVote.Add(block);
+        }
+
+        void AddReference(VoteBlockType block, MarkerData marker)
+        {
+            var replacementBlock = block with { Marker = marker };
+            replacementBlock.IsReference = true;
+            workingVote.Add(replacementBlock);
         }
 
         static VoteLineType TrimLine(VoteLineType currentLine, bool trimExtendedText)
@@ -456,7 +457,7 @@ public static partial class VoteConstructor
         // Failed partition mode checks.
         throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
     }
-        
+
     private static IEnumerable<VoteBlockType> PartitionBlockForNonContentBlock(
         VoteBlockType block,
         PartitionMode partitionMode,
@@ -557,9 +558,14 @@ public static partial class VoteConstructor
     /// <returns>Returns a list of vote blocks.</returns>
     private static List<VoteBlockType> PartitionPostByBlock(PostToProcess post)
     {
-        var collated = post.WorkingVote.SelectMany(v => v);
-        var blocks = VoteBlocks.GetBlocks(collated);
-        return blocks.ToList();
+        // References don't get partitioned further. Non-references need to be grouped.
+        var grouped = post.WorkingVote.GroupAdjacentBySimilarKey(b => b.IsReference);
+
+        var partitioned = grouped.SelectMany(g => g.Key
+            ? g
+            : VoteBlocks.GetBlocks(g.SelectMany(v => v)));
+
+        return partitioned.ToList();
     }
 
     /// <summary>
@@ -602,7 +608,7 @@ public static partial class VoteConstructor
     {
         var voteLines = post.WorkingVote
             .SelectMany(v => v);
-        
+
         var r = VoteBlocks.GetBlocks(voteLines);
 
         var retaskedLines = r.SelectMany(v => RecursePartitionByLineTask(v, VoteTask.Empty));
@@ -619,7 +625,7 @@ public static partial class VoteConstructor
             if (block.All(a => a.Depth == block.Lines[0].Depth))
             {
                 // If there's no replacement task, we don't have to change anything
-                if (task ==  VoteTask.Empty)
+                if (task == VoteTask.Empty)
                 {
                     return [.. block];
                 }

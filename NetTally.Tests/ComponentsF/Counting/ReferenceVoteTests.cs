@@ -385,7 +385,7 @@ public class ReferenceVoteTests
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
-        Assert.AreEqual(2, votes.Count());
+        Assert.AreEqual(1, votes.Count());
     }
 
     [TestMethod]
@@ -406,7 +406,7 @@ public class ReferenceVoteTests
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
-        Assert.AreEqual(2, votes.Count());
+        Assert.AreEqual(1, votes.Count());
     }
 
     [TestMethod]
