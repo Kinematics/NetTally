@@ -220,7 +220,12 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// </summary>
     void RunMergeActions();
 
-
+    /// <summary>
+    /// Get the index ordering value of the provided task.
+    /// </summary>
+    /// <param name="task">The task to index.</param>
+    /// <returns>The index number for ordering.</returns>
+    int TaskListIndex(VoteTaskType task);
     /// <summary>
     /// Add a user-defined task to the current list of tasks.
     /// </summary>

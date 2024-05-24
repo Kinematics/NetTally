@@ -712,6 +712,24 @@ public class VoteCounterF(
     List<VoteTaskType> OrderedUserTaskList { get; } = [];
     public ObservableCollectionExt<VoteTaskType> TaskList { get; } = [];
 
+    /// <summary>
+    /// Get the index ordering value of the provided task.
+    /// </summary>
+    /// <param name="task">The task to index.</param>
+    /// <returns>The index number for ordering.</returns>
+    public int TaskListIndex(VoteTaskType task)
+    {
+        if (task == VoteTask.Empty)
+            return -99;
+
+        for (int i = 0; i < TaskList.Count; i++)
+        {
+            if (VoteTaskComparer.Instance.Equals(TaskList[i], task))
+                return i;
+        }
+        
+        return -1;
+    }
 
     /// <summary>
     /// Add tasks as we add votes.  If we register a new vote-defined task, add it

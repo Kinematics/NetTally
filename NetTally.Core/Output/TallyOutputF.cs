@@ -280,7 +280,7 @@ namespace NetTally.Output
                 var groupByTask = votes
                     .GroupBy(a => a.Key.Task, VoteTaskComparer.Instance)
                     //.OrderBy(a => a.Key, VoteTaskComparer.Instance)
-                    .OrderBy(a => voteCounter.TaskList.IndexOf(a.Key));
+                    .OrderBy(a => voteCounter.TaskListIndex(a.Key));
 
                 return groupByTask;
             }
@@ -565,9 +565,9 @@ namespace NetTally.Output
         #region Components for handling individual additions to the display.
         private void AddTaskInfo(VotesGroupedByTaskF task)
         {
-            string taskName = VoteTaskComparer.Instance.Equals(task.Key, VoteTask.Empty) ?
-                NoTask :
-                task.Key.Name;
+            string taskName = VoteTaskComparer.Instance.Equals(task.Key, VoteTask.Empty)
+                ? NoTask
+                : task.Key.Name;
 
             AddTaskLabel(taskName);
             AddTaskVoterCount(task);
