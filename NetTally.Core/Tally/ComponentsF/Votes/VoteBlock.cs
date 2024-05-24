@@ -38,23 +38,14 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marke
             yield return line;
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => 
+        GetEnumerator();
 
-    public override string ToString()
-    {
-        return $"{{[{Marker.MarkerSymbol}][{Task.Name}]||{Lines[0]}}}";
-    }
+    public override string ToString() =>
+        $"{{[{Marker.MarkerSymbol}][{Task.Name}]||{Lines[0]}}}";
 
-    public string ManageVotesDisplay
-    {
-        get
-        {
-            return VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
-        }
-    }
+    public string ManageVotesDisplay =>
+        VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
 }
 
 /// <summary>
