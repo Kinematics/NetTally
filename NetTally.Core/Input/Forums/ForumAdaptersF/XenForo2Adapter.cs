@@ -217,12 +217,24 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
         private static string GetPageTitle(HtmlDocument page)
         {
-            return ForumPostTextConverter.CleanupWebString(
+            string mainTitle = ForumPostTextConverter.CleanupWebString(
                 page.DocumentNode
                     .Element("html")
                     .Element("head")
                     ?.Element("title")
                     ?.InnerText);
+
+            string metaTitle = ForumPostTextConverter.CleanupWebString(
+                page.DocumentNode
+                    .Element("html")
+                    .Element("head")
+                    ?.Elements("meta")
+                    .Where(e => e.GetAttributeValue("property", "") == "og:title")
+                    .Select(e => e.GetAttributeValue("content", ""))
+                    .Where(e => !string.IsNullOrEmpty(e))
+                    .FirstOrDefault(""));
+
+            return string.IsNullOrEmpty(metaTitle) ? mainTitle : metaTitle;
         }
 
         private static AuthorType GetPageAuthor(HtmlNode headerNode)
