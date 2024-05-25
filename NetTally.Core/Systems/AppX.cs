@@ -13,8 +13,6 @@ using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
-using NetTally.Input.Forums.Reading;
-using NetTally.Input.Forums.ReadingF;
 using NetTally.Output;
 using NetTally.Systems.Config.Json;
 using NetTally.Systems.Config.Xml;
@@ -73,13 +71,18 @@ public static class AppX
     {
         foreach (var path in JsonConfiguration.GetConfigurationPaths())
         {
-            try
+            if (File.Exists(path))
             {
-                configuration.AddJsonFile(path, optional: true);
-            }
-            catch (InvalidDataException)
-            {
-                // Invalid config file. Ignore and keep processing.
+                try
+                {
+                    // Load the first valid config file.
+                    configuration.AddJsonFile(path, optional: true);
+                    break;
+                }
+                catch (InvalidDataException)
+                {
+                    // Invalid config file. Ignore and keep processing.
+                }
             }
         }
     }

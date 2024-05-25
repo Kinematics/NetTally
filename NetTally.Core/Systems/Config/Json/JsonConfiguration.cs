@@ -32,13 +32,11 @@ internal class JsonConfiguration(
     /// </summary>
     public void SaveJsonConfiguration()
     {
-        bool saved = false;
+        ConfigInfo config = new(questsInfo.Quests, questsInfo.SelectedQuest?.ThreadName, globalSettings);
 
-        try
+        foreach (var path in GetConfigurationPaths())
         {
-            ConfigInfo config = new(questsInfo.Quests, questsInfo.SelectedQuest?.ThreadName, globalSettings);
-
-            foreach (var path in GetConfigurationPaths())
+            try
             {
                 using var stream = File.Create(path);
 
@@ -47,13 +45,10 @@ internal class JsonConfiguration(
 
                 logger.LogDebug("Configuration saved to {path}", path);
             }
-        }
-        catch (Exception e)
-        {
-            if (saved)
-                logger.LogWarning(e, "Failure saving configuration.");
-            else
-                logger.LogWarning(e, "Unable to save configuration.");
+            catch (Exception)
+            {
+                logger.LogDebug("Failed to save configuration to {path}", path);
+            }
         }
     }
 
