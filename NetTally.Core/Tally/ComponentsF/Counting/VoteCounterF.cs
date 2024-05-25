@@ -953,20 +953,16 @@ public class VoteCounterF(
     /// </summary>
     private void PreprocessPosts()
     {
-        foreach (var post in Posts)
-        {
-            // Reset the processed state of all the posts.
-            post.Reset();
-
-            // Record all origins
-            AddReferenceVoter(post.Origin);
-        }
+        Posts.WithEach(p => p.Reset())
+             .WithEach(p => AddReferenceVoter(p.Origin));
 
         // Run the above series of preprocessing functions to extract plans from the post list.
         PreprocessPlans();
     }
 
-
+    /// <summary>
+    /// Run the logic for the sequence of preprocessing phases for plan examination and extraction.
+    /// </summary>
     private void PreprocessPlans()
     {
         planProcesses.ForEach(pp =>
@@ -986,7 +982,7 @@ public class VoteCounterF(
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))
-                .ForEach(a => AddVotes(a.Partitions, a.Origin));
+                .WithEach(a => AddVotes(a.Partitions, a.Origin));
             });
         });
     }

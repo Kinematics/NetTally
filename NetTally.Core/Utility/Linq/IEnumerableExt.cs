@@ -453,7 +453,7 @@ namespace NetTally.Extensions
             List<T> unprocessed = [.. values.Where(v => !tryProcess(v))];
 
             if (unprocessed.Count == count)
-                unprocessed.ForEach(v => unprocessedAction(v));
+                unprocessed.WithEach(v => unprocessedAction(v));
             else
                 unprocessed.TryProcess(tryProcess, unprocessedAction);
         }
@@ -464,10 +464,12 @@ namespace NetTally.Extensions
         /// <typeparam name="T">The type elements being enumerated.</typeparam>
         /// <param name="values">The elements being enumerated.</param>
         /// <param name="action">The action to apply to each element.</param>
-        public static void ForEach<T>(this IEnumerable<T> values, Action<T> action)
+        public static IEnumerable<T> WithEach<T>(this IEnumerable<T> values, Action<T> action)
         {
             foreach (var value in values)
                 action(value);
+
+            return values;
         }
     }
 }
