@@ -93,7 +93,7 @@ namespace NetTally.Output
         {
             var voteGroupings = GetVoteGroupings();
 
-            if (voteGroupings.All(g => g.Value.Count == 0))
+            if (voteCounter.Titles.Count == 0)
                 return;
 
             using (new Spoiler(sb, "Tally Results", displayMode == DisplayMode.SpoilerAll || globalSettings.GlobalSpoilers))
