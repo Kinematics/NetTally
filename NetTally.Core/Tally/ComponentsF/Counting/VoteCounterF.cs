@@ -991,51 +991,6 @@ public class VoteCounterF(
         });
     }
 
-    /// <summary>
-    /// Run the logic for the sequence of preprocessing phases for plan examination and extraction.
-    /// </summary>
-    private void PreprocessPlans0()
-    {
-        Dictionary<string, VoteBlockType> allPlans = new(StringComparer.Ordinal);
-
-        foreach (var (postToBlocksFunction, isPlanFunction) in planProcesses)
-        {
-            foreach (var post in Posts)
-            {
-                var blocks = postToBlocksFunction(post);
-                var plans = VoteConstructor.PreprocessPostGetPlans(Quest, post.Origin.Author, isPlanFunction, blocks);
-
-                foreach (var (planName, planContent) in plans)
-                {
-                    // Convert "Base/Proposed Plan" to "Plan" before saving.
-                    // Set to an undefined marker.
-                    var normalized = NormalizePlan(planName, planContent);
-
-                    if (normalized == null)
-                        continue;
-
-                    (string normalPlanName, VoteBlockType normalPlanContents) = normalized.Value;
-
-                    var planOrigin = Origin.CreatePlanOrigin(post.Origin, normalPlanName);
-
-                    if (planOrigin != null)
-                    {
-                        if (AddReferencePlan(planOrigin, normalPlanContents))
-                        {
-                            // Each new plan that gets added also needs to be run through partitioning,
-                            // and have those results added as votes.
-                            var planPartitions = VoteConstructor.PartitionPlan(normalPlanContents, Quest.PartitionMode);
-
-                            AddVotes(planPartitions, planOrigin);
-
-                            allPlans[normalPlanName] = normalPlanContents;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private void ProcessPosts()
     {
         Posts.TryProcess(p => VP(p, Quest), p => ForceVP(p, Quest));
