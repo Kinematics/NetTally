@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
@@ -35,8 +36,6 @@ namespace NetTally.Avalonia.Views
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
-            InitKnownTasks();
-            UpdateContextMenu();
 
             DataContext = manageVotesViewModel;
 
@@ -112,13 +111,7 @@ namespace NetTally.Avalonia.Views
 
         private void NewTask_Click(object? sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    newTaskBox = cm.PlacementTarget as ListBox;
-                }
-            }
+            selectedVoteForNewTask = GetSelectedVoteInContext(sender);
 
             // Show the custom input box, and put focus on the text box.
             InputBox.IsVisible = true;
@@ -205,6 +198,27 @@ namespace NetTally.Avalonia.Views
             }
         }
 
+        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
+        {
+            if (sender is MenuItem mi)
+            {
+                if (mi.Parent is ContextMenu cm)
+                {
+                    if (cm.Parent is Popup popup)
+                    {
+                        if (popup.Parent is ListBox listBox)
+                        {
+                            if (listBox.SelectedItem is VoteBlockType selectedVote)
+                            {
+                                return selectedVote;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
         #endregion Context Menu Events
 
         #region Context Menu Utility
@@ -212,10 +226,10 @@ namespace NetTally.Avalonia.Views
         readonly List<MenuItem> ContextMenuCommands = [];
         readonly List<MenuItem> ContextMenuTasks = [];
         readonly MenuItem separator = new() { Header = "-" };
-        ListBox? newTaskBox = null;
         const string partitionChildrenString = "Partition Children";
         const string clearTaskString = "Clear Task";
         const string reorderTasksString = "Re-Order Tasks";
+        VoteBlockType? selectedVoteForNewTask;
 
 
         /// <summary>
@@ -255,6 +269,9 @@ namespace NetTally.Avalonia.Views
             ContextMenuCommands.Add(clearTask);
             ContextMenuCommands.Add(reorderTasks);
             ContextMenuCommands.Add(partitionChildren);
+
+            InitKnownTasks();
+            UpdateContextMenu();
         }
 
         /// <summary>
@@ -262,28 +279,10 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         private void InitKnownTasks()
         {
-            var orderedTasks = manageVotesViewModel.TaskList
-                .OrderBy(t => t, VoteTaskComparer.Instance);
+            var orderedTasks = manageVotesViewModel.TaskList.Order(VoteTaskComparer.Instance);
 
             foreach (var task in orderedTasks)
                 ContextMenuTasks.Add(CreateContextMenuTaskItem(task.Name));
-        }
-
-        /// <summary>
-        /// Given a new task name, create a new menu item and refresh the context menu.
-        /// </summary>
-        /// <param name="task">The name of a new task.</param>
-        private void AddTaskToContextMenu(string task)
-        {
-            if (string.IsNullOrEmpty(task))
-                return;
-
-            if (ContextMenuTasks.Any(t => string.Equals(t.Header?.ToString(), task, StringComparison.Ordinal)))
-                return;
-
-            ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
-
-            UpdateContextMenu();
         }
 
         /// <summary>
@@ -302,6 +301,23 @@ namespace NetTally.Avalonia.Views
             mi.Tag = "NamedTask";
 
             return mi;
+        }
+
+        /// <summary>
+        /// Given a new task name, create a new menu item and refresh the context menu.
+        /// </summary>
+        /// <param name="task">The name of a new task.</param>
+        private void AddTaskToContextMenu(string task)
+        {
+            if (string.IsNullOrEmpty(task))
+                return;
+
+            if (ContextMenuTasks.Any(t => string.Equals(t.Header?.ToString(), task, StringComparison.Ordinal)))
+                return;
+
+            ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
+
+            UpdateContextMenu();
         }
 
         /// <summary>
@@ -339,12 +355,8 @@ namespace NetTally.Avalonia.Views
             manageVotesViewModel.AddUserDefinedTask(newTask);
 
             // Update the selected item of the list box
-            if (newTaskBox?.SelectedItem is VoteBlockType selectedVote)
-            {
-                manageVotesViewModel.ReplaceTask(selectedVote, newTask);
-            }
-
-            newTaskBox = null;
+            if (selectedVoteForNewTask is not null)
+                manageVotesViewModel.ReplaceTask(selectedVoteForNewTask, newTask);
         }
 
         /// <summary>
@@ -357,8 +369,6 @@ namespace NetTally.Avalonia.Views
 
             // Clear InputBox.
             InputTextBox.Text = string.Empty;
-
-            newTaskBox = null;
         }
 
         private static bool HasChildLines(VoteBlockType vote)

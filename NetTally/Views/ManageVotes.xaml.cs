@@ -36,8 +36,6 @@ namespace NetTally.Views
 
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
-            InitKnownTasks();
-            UpdateContextMenu();
 
             DataContext = manageVotesViewModel;
         }
@@ -120,7 +118,7 @@ namespace NetTally.Views
         /// </summary>
         private void InitKnownTasks()
         {
-            var sortedTasks = manageVotesViewModel.TaskList.OrderBy(t => t, VoteTaskComparer.Instance);
+            var sortedTasks = manageVotesViewModel.TaskList.Order(VoteTaskComparer.Instance);
 
             foreach (var task in sortedTasks)
                 ContextMenuTasks.Add(CreateContextMenuItem(task.Name));
