@@ -1083,7 +1083,7 @@ public class VoteCounterF(
         if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;
 
-        VoteLineType firstLine = originalVoteBlock.Lines[0];
+        VoteLineType firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.Empty };
 
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
@@ -1104,6 +1104,7 @@ public class VoteCounterF(
         var remainingLines = originalVoteBlock.Skip(1)
             .Select(v => v with { Marker = Marker.Empty });
 
+        // Stack stuff back together
         List<VoteLineType> voteLines = [firstLine, .. remainingLines];
 
         var returnPlan = VoteBlock.Create(voteLines);
