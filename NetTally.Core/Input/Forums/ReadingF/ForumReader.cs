@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -65,7 +66,7 @@ public class ForumReader(
 
         // Load all posts from the base quest and all linked quests.
         var results = await Task.WhenAll(
-                questsToRead.Select(q => GetPostsFromQuestAsync(q, cancellationToken)))
+                questsToRead.Select(q => GetPostsWithVotesFromQuestAsync(q, cancellationToken)))
             .ConfigureAwait(false);
 
         var allTitles = results.Select(q => q.Title);
@@ -86,7 +87,7 @@ public class ForumReader(
     /// <param name="token">Cancellation token.</param>
     /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
     private async Task<(string Title, List<PostType> Posts)>
-        GetPostsFromQuestAsync(Quest quest, CancellationToken token)
+        GetPostsWithVotesFromQuestAsync(Quest quest, CancellationToken token)
     {
         logger.LogDebug("Reading posts from quest {questDisplayName} with ForumReader.",
             quest.DisplayName);
@@ -100,7 +101,7 @@ public class ForumReader(
             IForumAdapter adapter = await GetForumAdapter(quest, token)
                 .ConfigureAwait(false);
 
-            return await GetPostsAsync(quest, pageProvider, adapter, token)
+            return await GetPostsWithVotesAsync(quest, pageProvider, adapter, token)
                 .ConfigureAwait(false);
         }
         catch (Exception e)
@@ -120,7 +121,7 @@ public class ForumReader(
     /// that forum's needs.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)> GetPostsAsync(
+    private async Task<(string Title, List<PostType> Posts)> GetPostsWithVotesAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
@@ -138,7 +139,7 @@ public class ForumReader(
 
             if (pages.All(p => p != null))
             {
-                var posts = GetPostsFromPages(quest, pages, threadData, adapter);
+                var posts = GetPostsWithVotesFromPages(quest, pages, threadData, adapter);
 
                 return (threadData.Title, posts);
             }
@@ -156,7 +157,7 @@ public class ForumReader(
     /// HTML into posts we can understand.</param>
     /// <param name="quest">The quest being read.</param>
     /// <returns>A list of valid posts found.</returns>
-    private List<PostType> GetPostsFromPages(
+    private List<PostType> GetPostsWithVotesFromPages(
         Quest quest,
         IEnumerable<HtmlDocument?> pages,
         ThreadInformationType threadInfo,
