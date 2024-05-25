@@ -69,7 +69,7 @@ public class ForumReader(
                 questsToRead.Select(q => GetPostsWithVotesFromQuestAsync(q, cancellationToken)))
             .ConfigureAwait(false);
 
-        var allTitles = results.Select(q => q.Title);
+        var allTitles = results.Select(q => AddPostCountToTitle(q.Title, q.Posts));
         var allPosts = results.SelectMany(q => q.Posts);
 
         if (allTitles.Any(t => t == Strings.Error))
@@ -78,6 +78,19 @@ public class ForumReader(
         }
 
         return (allTitles, allPosts);
+    }
+
+    private static string AddPostCountToTitle(string title, List<PostType> posts)
+    {
+        StringBuilder sb = new();
+
+        sb.Append(title)
+          .Append(' ')
+          .Append(posts.Count > 0
+                ? $"[Posts: {posts.Min(p => p.Origin.ThreadPostNumber)}-{posts.Max(p => p.Origin.ThreadPostNumber)}]"
+                : "[No votes]");
+
+        return sb.ToString();
     }
 
     /// <summary>
