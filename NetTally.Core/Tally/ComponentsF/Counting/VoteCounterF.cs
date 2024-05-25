@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Extensions;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Storage;
 using NetTally.Tally.ComponentsF.Votes;
@@ -1045,50 +1046,28 @@ public class VoteCounterF(
 
     private void ProcessPosts()
     {
-        RunProcessing(Quest, Posts);
-
+        Posts.TryProcess(p => VP(p, Quest), p => ForceVP(p, Quest));
         AddUserDefinedTasksToTaskList();
-
         RunMergeActions();
-
-
-        void RunProcessing(Quest quest, List<PostToProcess> postsToProcess)
+        
+        // Handle processing each post and adding votes if successful.
+        bool VP(PostToProcess post, Quest quest)
         {
-            // Loop as long as there are any more to process.
-            while (postsToProcess.Count != 0)
+            if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes))
             {
-                if (TryProcessPosts(quest, postsToProcess, out var unprocessed))
-                {
-                    // If any posts were processed, replace the list with any
-                    // remaining posts that are unprocessed.
-                    postsToProcess = unprocessed;
-                }
-                else
-                {
-                    // If none got processed, set the ForceProcess flag on them
-                    // to avoid pending FutureReference waits.
-                    postsToProcess.ForEach(p => p.ForceProcess = true);
-                }
+                AddVotes(votes, post.Origin);
+                return true;
             }
+
+            return false;
         }
 
-        bool TryProcessPosts(Quest quest, List<PostToProcess> postsToProcess, out List<PostToProcess> unprocessed)
+        // Handle processing votes if the processing loop failed.
+        void ForceVP(PostToProcess post, Quest quest)
         {
-            unprocessed = [];
-
-            foreach (var post in postsToProcess)
-            {
-                if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes))
-                {
-                    AddVotes(votes, post.Origin);
-                }
-                else
-                {
-                    unprocessed.Add(post);
-                }
-            }
-
-            return unprocessed.Count < postsToProcess.Count;
+            post.ForceProcess = true;
+            VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes);
+            AddVotes(votes, post.Origin);
         }
     }
 
