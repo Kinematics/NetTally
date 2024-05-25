@@ -29,7 +29,7 @@ public static class AppX
     public static IHost Host { get; private set; } = null!;
     public static IServiceProvider Services => Host.Services;
 
-    public static void Initialize(Action<IServiceCollection> servicesCallback)
+    public static void Initialize(Action<IServiceCollection>? servicesCallback)
     {
         Host = CreateHost(servicesCallback);
 
@@ -47,7 +47,7 @@ public static class AppX
     /// Creates and configures the IHost for the application using the default builder.
     /// </summary>
     /// <returns>Returns an IHost that can run the application.</returns>
-    private static IHost CreateHost(Action<IServiceCollection> servicesCallback)
+    private static IHost CreateHost(Action<IServiceCollection>? servicesCallback)
     {
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
 
@@ -57,7 +57,10 @@ public static class AppX
         ConfigureConfiguration(builder.Configuration);
         ConfigureOptions(builder.Services);
         ConfigureLogging(builder.Logging);
-        ConfigureServices(builder.Services, servicesCallback);
+        ConfigureServices(builder.Services);
+
+        // Call callback to allow calling library to add its own services.
+        servicesCallback?.Invoke(builder.Services);
 
         return builder.Build();
     }
@@ -120,7 +123,7 @@ public static class AppX
     /// Add all the services that the Host will manage while running the application.
     /// </summary>
     /// <param name="services">The service collection of the Host.</param>
-    private static void ConfigureServices(IServiceCollection services, Action<IServiceCollection> servicesCallback)
+    private static void ConfigureServices(IServiceCollection services)
     {
         // Get the services provided by the core library.
         services.AddSingleton<PageCache>();
@@ -176,9 +179,6 @@ public static class AppX
         services.Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Debug);
 
         services.AddTransient<JsonConfiguration>();
-
-        // Call callback to allow calling library to add its own services.
-        servicesCallback(services);
     }
 
     /// <summary>
