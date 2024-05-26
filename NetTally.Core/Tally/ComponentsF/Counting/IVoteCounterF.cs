@@ -134,6 +134,7 @@ public interface IVoteCounterF : INotifyPropertyChanged
     /// <param name="planName">The name of the plan to get.</param>
     /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
     VoteBlockType? GetReferencePlan(OriginType planOrigin);
+    IEnumerable<VoteBlockType> GetReferencePlans();
     /// <summary>
     /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
     /// </summary>

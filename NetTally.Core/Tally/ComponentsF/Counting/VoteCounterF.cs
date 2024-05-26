@@ -362,6 +362,11 @@ public class VoteCounterF(
         return ReferencePlans.GetValueOrDefault(planOrigin);
     }
 
+    public IEnumerable<VoteBlockType> GetReferencePlans()
+    {
+        return ReferencePlans.Select(p => p.Value);
+    }
+
     /// <summary>
     /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
     /// </summary>
