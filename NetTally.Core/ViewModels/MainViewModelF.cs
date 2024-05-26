@@ -228,11 +228,11 @@ namespace NetTally.ViewModels
 
         private void Tally_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(Tallyer.TallyResults))
+            if (e.PropertyName == nameof(TallyerF.TallyResults))
             {
                 OnPropertyChanged(nameof(Output));
             }
-            else if (e.PropertyName == nameof(Tallyer.HasTallyResults))
+            else if (e.PropertyName == nameof(TallyerF.HasTallyResults))
             {
                 OnPropertyChanged(nameof(HasOutput));
             }
