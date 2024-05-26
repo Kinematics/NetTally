@@ -134,15 +134,12 @@ public static class AppX
 
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
-        services.AddSingleton<Tallyer>();
         services.AddSingleton<TallyerF>();
         services.AddTransient<IVoteCounter, VoteCounter>();
         services.AddTransient<IVoteCounterF, VoteCounterF>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<Input.Forums.ReadingF.IForumReader, Input.Forums.ReadingF.ForumReader>();
-        services.AddTransient<Input.Forums.Reading.IForumReader, Input.Forums.Reading.ForumReader>();
-        services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
         services.AddSingleton<Input.Forums.ForumAdaptersF.ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
 
@@ -158,18 +155,14 @@ public static class AppX
         services.AddTransient<Input.Forums.ForumAdaptersF.UnknownForumAdapter>();
 
         services.AddSingleton<RankVoteCounterFactory>();
-        services.AddSingleton<ITextResultsProvider, TallyOutput>();
         services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
 
-        services.AddSingleton<MainViewModel>();
-        services.AddTransient<ManageVotesViewModel>();
-        services.AddTransient<QuestOptionsViewModel>();
-        services.AddTransient<TasksViewModel>();
-        services.AddTransient<GlobalOptionsViewModel>();
-
         services.AddSingleton<MainViewModelF>();
+        services.AddTransient<QuestOptionsViewModel>();
+        services.AddTransient<GlobalOptionsViewModel>();
         services.AddTransient<ManageVotesViewModelF>();
         services.AddTransient<TasksViewModelF>();
+
 
         services.AddSingleton<QuestsInfo>();
 
