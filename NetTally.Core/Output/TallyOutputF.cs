@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Input.Forums.ForumAdapters;
+using NetTally.Input.Forums.ForumAdaptersF;
 using NetTally.Systems;
 using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Tally.ComponentsF.Posts;
