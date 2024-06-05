@@ -17,6 +17,54 @@ public record CompactVoteType(
 }
 
 
+//public static class CompactVote2
+//{
+//    public static CompactVoteType None { get; } = new CompactVoteType(VoteLine.Empty, null!, [], []);
+
+
+//    public static CompactVoteType Create(
+//        VoteLineType line,
+//        CompactVoteType? parent,
+//        IEnumerable<CompactVoteType> children,
+//        IEnumerable<VoteStorageEntryF> voters)
+//    {
+//        parent ??= None;
+
+//    }
+
+//    public static CompactVoteType Create(VoteStorageEntryF voteEntry)
+//    {
+
+//    }
+
+//    public static List<CompactVoteType> CreateAll(VoteStorageType votes, CompactVoteType? parent = null)
+//    {
+//        IEnumerable<IGrouping<VoteLineType, VoteStorageEntryF>> r = votes
+//            .GroupBy(v => v.Key.Lines[0], VoteLineComparer.Instance);
+//    }
+
+//    public static IEnumerable<VoteLineType> GetChildLines(VoteLineType parent, VoteStorageType votes)
+//    {
+//        var result = votes
+//            .Select(v => v.Key.Lines)
+//            .SelectMany(a =>
+//            {
+//                return a
+//                    .SkipWhile(v => !VoteLineComparer.Instance.Equals(v, parent))
+//                    .Skip(1)
+//                    .TakeWhile(a => a.Depth > parent.Depth)
+//                    .WithMin(a => a.Depth);
+//            })
+//            .Distinct(VoteLineComparer.Instance);
+
+//        return result;
+//    }
+
+
+
+//}
+
+
 public static class CompactVote
 {
     public static CompactVoteType None { get; } = new CompactVoteType(VoteLine.Empty, null!, [], []);
