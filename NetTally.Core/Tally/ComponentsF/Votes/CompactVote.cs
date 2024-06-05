@@ -107,7 +107,7 @@ public static class CompactVote
 
             if (index >= 0)
             {
-                for (int i = index + 1; i < vote.Lines.Count; i++)
+                for (int i = index + 1; i < vote.LineCount; i++)
                 {
                     if (vote.Lines[i].Depth > key.Depth || (topLevel && vote.Lines[i].Depth == 0))
                     {
