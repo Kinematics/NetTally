@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using NetTally.Configure;
+using NetTally.Systems;
 
 namespace NetTally.Utility.Comparers
 {
@@ -14,7 +16,10 @@ namespace NetTally.Utility.Comparers
         {
             questsInfo = info;
             InitDependencies(hash);
+            self = this;
         }
+
+        static Agnostic self = AppX.Services.GetRequiredService<Agnostic>();
 
         /// <summary>
         /// Enum for the different combinations of comparison patterns.
@@ -28,13 +33,13 @@ namespace NetTally.Utility.Comparers
             CaseNoSymbol
         }
 
-        static AgnosticStringComparer stringComparerNoCaseSymbol = null!;
+        public AgnosticStringComparer StringComparerNoCaseSymbol { get; private set; } = null!;
 
-        static AgnosticStringComparer stringComparerNoCaseNoSymbol = null!;
+        public AgnosticStringComparer StringComparerNoCaseNoSymbol { get; private set; } = null!;
 
-        static AgnosticStringComparer stringComparerCaseSymbol = null!;
+        public AgnosticStringComparer StringComparerCaseSymbol { get; private set; } = null!;
 
-        static AgnosticStringComparer stringComparerCaseNoSymbol = null!;
+        public AgnosticStringComparer StringComparerCaseNoSymbol { get; private set; } = null!;
 
         static QuestsInfo questsInfo = null!;
 
@@ -49,11 +54,11 @@ namespace NetTally.Utility.Comparers
 
                 return agnosticPattern switch
                 {
-                    AgnosticPattern.Unknown => stringComparerNoCaseNoSymbol,
-                    AgnosticPattern.NoCaseSymbol => stringComparerNoCaseSymbol,
-                    AgnosticPattern.NoCaseNoSymbol => stringComparerNoCaseNoSymbol,
-                    AgnosticPattern.CaseSymbol => stringComparerCaseSymbol,
-                    AgnosticPattern.CaseNoSymbol => stringComparerCaseNoSymbol,
+                    AgnosticPattern.Unknown => self.StringComparerNoCaseNoSymbol,
+                    AgnosticPattern.NoCaseSymbol => self.StringComparerNoCaseSymbol,
+                    AgnosticPattern.NoCaseNoSymbol => self.StringComparerNoCaseNoSymbol,
+                    AgnosticPattern.CaseSymbol => self.StringComparerCaseSymbol,
+                    AgnosticPattern.CaseNoSymbol => self.StringComparerCaseNoSymbol,
                     _ => throw new NotImplementedException()
                 };
             }
@@ -62,12 +67,12 @@ namespace NetTally.Utility.Comparers
         /// <summary>
         /// Get a case-insensitive string comparer.
         /// </summary>
-        public static AgnosticStringComparer CaseInsensitiveComparer => stringComparerNoCaseSymbol;
+        public static AgnosticStringComparer CaseInsensitiveComparer => self.StringComparerNoCaseSymbol;
 
         /// <summary>
         /// Get a string comparer that ignores both case and symbols.
         /// </summary>
-        public static AgnosticStringComparer InsensitiveComparer => stringComparerNoCaseNoSymbol;
+        public static AgnosticStringComparer InsensitiveComparer => self.StringComparerNoCaseNoSymbol;
 
         /// <summary>
         /// Get the agnostic pattern for the given quest, based on
@@ -102,24 +107,24 @@ namespace NetTally.Utility.Comparers
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NullReferenceException"></exception>
-        private static void InitDependencies(IHash hashFunction)
+        private void InitDependencies(IHash hashFunction)
         {
-            stringComparerNoCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparerNoCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
                 hashFunction.HashFunction);
 
             // Case insensitive, whitespace/symbol insensitive
-            stringComparerNoCaseNoSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparerNoCaseNoSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
                 hashFunction.HashFunction);
 
             // Case sensitive, whitespace/symbol sensitive.
-            stringComparerCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparerCaseSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
                 hashFunction.HashFunction);
 
             // Case sensitive, whitespace/symbol insensitive.
-            stringComparerCaseNoSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
+            StringComparerCaseNoSymbol = new AgnosticStringComparer(CultureInfo.InvariantCulture.CompareInfo,
                 CompareOptions.IgnoreSymbols | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreWidth,
                 hashFunction.HashFunction);
         }

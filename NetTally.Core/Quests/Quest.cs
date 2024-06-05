@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
 using NetTally.Input.Utility;
 using NetTally.Quests;
+using NetTally.Systems;
 using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.VoteCounting;
 
 namespace NetTally
@@ -294,6 +298,34 @@ namespace NetTally
         [ObservableProperty]
         bool trimExtendedText = false;
         #endregion Quest configuration properties: Tally processing
+
+        #region Quest configuration properties: String Comparison
+        Agnostic? agnostic = null;
+
+        [JsonIgnore]
+        public AgnosticStringComparer CurrentComparer
+        {
+            get
+            {
+                agnostic ??= AppX.Services.GetRequiredService<Agnostic>();
+
+                return CaseIsSignificant switch
+                {
+                    true => WhitespaceAndPunctuationIsSignificant switch
+                    {
+                        true => agnostic.StringComparerCaseSymbol,
+                        false => agnostic.StringComparerCaseNoSymbol
+                    },
+                    false => WhitespaceAndPunctuationIsSignificant switch
+                    {
+                        true => agnostic.StringComparerNoCaseSymbol,
+                        false => agnostic.StringComparerNoCaseNoSymbol
+                    }
+                };
+
+            }
+        }
+        #endregion Quest configuration properties: String Comparison
 
         #endregion Quest Configuration Properties
 
