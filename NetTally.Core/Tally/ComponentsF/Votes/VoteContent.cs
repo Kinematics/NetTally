@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.DependencyInjection;
+using NetTally.Configure;
+using NetTally.Systems;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 using NetTally.Votes;
@@ -155,13 +158,18 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
 {
     public static VoteContentComparer Instance { get; } = new();
 
+    private readonly QuestsInfo questsInfo = AppX.Services.GetRequiredService<QuestsInfo>();
+
     public int Compare(VoteContentType? x, VoteContentType? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
         if (y is null) return 1;
 
-        return Agnostic.CurrentStringComparer.Compare(x.CleanContent, y.CleanContent);
+        var contentComparer = questsInfo?.SelectedQuest?.CurrentComparer ??
+            Agnostic.InsensitiveComparer;
+
+        return contentComparer.Compare(x.CleanContent, y.CleanContent);
     }
 
     public bool Equals(VoteContentType? x, VoteContentType? y)
