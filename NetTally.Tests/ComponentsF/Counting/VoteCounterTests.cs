@@ -17,13 +17,21 @@ public class VoteCounterTests
     #region Setup
     static Quest quest = null!;
     static QuestsInfo questsInfo = null!;
+    static IServiceProvider serviceProvider = null!;
 
     [ClassInitialize]
     public static void ClassInit(TestContext _)
     {
-        var serviceProvider = TestStartup.ConfigureServices();
-        quest = TestStartup.GetExampleQuest(serviceProvider);
+        serviceProvider = TestStartup.ConfigureServices();
         questsInfo = serviceProvider.GetRequiredService<QuestsInfo>();
+    }
+
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        quest = TestStartup.GetExampleQuest(serviceProvider);
+        quest.CaseIsSignificant = false;
+        quest.WhitespaceAndPunctuationIsSignificant = false;
         questsInfo.SelectedQuest = quest;
     }
 
