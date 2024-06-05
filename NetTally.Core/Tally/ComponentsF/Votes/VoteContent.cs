@@ -156,9 +156,16 @@ public static partial class VoteContent
 /// </summary>
 public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer<VoteContentType>
 {
-    public static VoteContentComparer Instance { get; } = new();
+    private VoteContentComparer() { }
 
-    private readonly QuestsInfo questsInfo = AppX.Services.GetRequiredService<QuestsInfo>();
+    public VoteContentComparer(Quest quest)
+    {
+        this.quest = quest;
+    }
+
+    private readonly Quest? quest;
+
+    public static VoteContentComparer Instance { get; } = new();
 
     public int Compare(VoteContentType? x, VoteContentType? y)
     {
@@ -166,8 +173,8 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
         if (x is null) return -1;
         if (y is null) return 1;
 
-        var contentComparer = questsInfo?.SelectedQuest?.CurrentComparer ??
-            Agnostic.InsensitiveComparer;
+        var contentComparer = quest?.CurrentComparer
+            ?? Agnostic.CurrentStringComparer;
 
         return contentComparer.Compare(x.CleanContent, y.CleanContent);
     }
