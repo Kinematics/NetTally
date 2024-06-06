@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Votes;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;

@@ -14,8 +14,8 @@ using NetTally.Configure;
 using NetTally.Input.Utility;
 using NetTally.Web;
 using NetTally.Enums;
-using NetTally.Tally.ComponentsF.Threads;
-using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.Components.Threads;
+using NetTally.Tally.Components.Posts;
 
 namespace NetTally.Input.Forums.ForumAdaptersF
 {

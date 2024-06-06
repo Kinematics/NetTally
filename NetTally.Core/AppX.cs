@@ -17,7 +17,7 @@ using NetTally.Output;
 using NetTally.Systems;
 using NetTally.Systems.Config.Json;
 using NetTally.Systems.Config.Xml;
-using NetTally.Tally.ComponentsF.Counting;
+using NetTally.Tally.Components.Counting;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.Components.Posts;
 
 namespace NetTally.Tests.Components.Posts;
 [TestClass]

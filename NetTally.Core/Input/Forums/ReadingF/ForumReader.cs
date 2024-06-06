@@ -11,8 +11,8 @@ using NetTally.Configure;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdaptersF;
-using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Threads;
 using NetTally.Utility;
 using NetTally.Web;
 

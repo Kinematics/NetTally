@@ -11,8 +11,8 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Extensions;
-using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Threads;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdaptersF

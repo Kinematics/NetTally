@@ -2,10 +2,10 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Tally.ComponentsF.Counting;
-using NetTally.Tally.ComponentsF.Posts;
-using NetTally.Tally.ComponentsF.Storage;
-using NetTally.Tally.ComponentsF.Votes;
+using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Storage;

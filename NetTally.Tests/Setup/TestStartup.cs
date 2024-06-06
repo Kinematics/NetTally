@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Time.Testing;
-using NetTally.Tally.ComponentsF.Counting;
+using NetTally.Tally.Components.Counting;
 
 namespace NetTally.Tests
 {

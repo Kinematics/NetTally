@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTally.CustomEventArgs;
-using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.Components.Posts;
 
 namespace NetTally.Input.Forums.ReadingF;
 public interface IForumReader
