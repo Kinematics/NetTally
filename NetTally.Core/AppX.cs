@@ -135,7 +135,7 @@ public static class AppX
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
         services.AddSingleton<Tallyer>();
-        services.AddTransient<IVoteCounterF, VoteCounterF>();
+        services.AddTransient<IVoteCounter, VoteCounter>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<Input.Forums.Reading.IForumReader, Input.Forums.Reading.ForumReader>();
@@ -153,7 +153,7 @@ public static class AppX
         services.AddTransient<Input.Forums.ForumAdapters.XenForo2Adapter>();
         services.AddTransient<Input.Forums.ForumAdapters.UnknownForumAdapter>();
 
-        services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
+        services.AddSingleton<ITextResultsProviderF, TallyOutput>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<QuestOptionsViewModel>();

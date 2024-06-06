@@ -27,7 +27,7 @@ namespace NetTally
 
         #region Vote Counter
         [JsonIgnore]
-        public IVoteCounterF VoteCounterF { get; set; } = null!;
+        public IVoteCounter VoteCounterF { get; set; } = null!;
         #endregion Vote Counter
 
         #region Static class data

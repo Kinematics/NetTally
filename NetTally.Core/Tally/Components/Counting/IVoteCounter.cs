@@ -5,11 +5,10 @@ using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
-using NetTally.VoteCounting;
 
 namespace NetTally.Tally.Components.Counting;
 
-public interface IVoteCounterF : INotifyPropertyChanged
+public interface IVoteCounter : INotifyPropertyChanged
 {
     /// <summary>
     /// The quest the vote counter is set to track.

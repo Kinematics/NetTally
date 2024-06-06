@@ -20,13 +20,13 @@ namespace NetTally.Tally.Components.Counting;
 /// </summary>
 /// <param name="globalOptions">Global program options.</param>
 /// <param name="logger">Class logger.</param>
-public class VoteCounterF(
+public class VoteCounter(
     IOptions<GlobalSettings> globalOptions,
-    ILogger<VoteCounterF> logger,
-    Quest quest) : IVoteCounterF
+    ILogger<VoteCounter> logger,
+    Quest quest) : IVoteCounter
 {
     private readonly GlobalSettings globalSettings = globalOptions.Value;
-    private readonly ILogger<VoteCounterF> logger = logger;
+    private readonly ILogger<VoteCounter> logger = logger;
 
     #region Data Collections
     /// <summary>

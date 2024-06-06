@@ -28,7 +28,7 @@ public class VoteConstructorVoteTests
     {
         quest = new Quest
         {
-            VoteCounterF = serviceProvider.GetRequiredService<IVoteCounterF>()
+            VoteCounterF = serviceProvider.GetRequiredService<IVoteCounter>()
         };
     }
     #endregion
@@ -429,7 +429,7 @@ public class VoteConstructorVoteTests
         quest.PartitionMode = PartitionMode.ByBlock;
         var post = GetPlan01();
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,
@@ -458,7 +458,7 @@ public class VoteConstructorVoteTests
         quest.PartitionMode = PartitionMode.ByBlock;
         var post = GetPlan02();
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,
@@ -487,7 +487,7 @@ public class VoteConstructorVoteTests
         quest.PartitionMode = PartitionMode.ByBlock;
         var post = GetPlan03();
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,

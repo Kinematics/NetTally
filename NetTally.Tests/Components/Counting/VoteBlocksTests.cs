@@ -106,7 +106,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsThisAContentBlock(blocks[0]));
@@ -124,7 +124,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsThisAContentBlock(blocks[0]));
@@ -142,7 +142,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsThisAContentBlock(blocks[0]));
@@ -160,7 +160,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -179,7 +179,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -198,7 +198,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -217,7 +217,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -236,7 +236,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -253,7 +253,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAProposedPlan(blocks[0]).IsPlan);
@@ -272,7 +272,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnExplicitPlan(blocks[0]).IsPlan);
@@ -291,7 +291,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsBlockAnExplicitPlan(blocks[0]).IsPlan);
@@ -310,7 +310,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnExplicitPlan(blocks[0]).IsPlan);
@@ -327,7 +327,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnExplicitPlan(blocks[0]).IsPlan);
@@ -346,7 +346,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
@@ -365,7 +365,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
@@ -384,7 +384,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
@@ -402,7 +402,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
@@ -419,7 +419,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockAnImplicitPlan(blocks[0]).IsPlan);
@@ -438,7 +438,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockASingleLinePlan(blocks[0]).IsPlan);
@@ -455,7 +455,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockASingleLinePlan(blocks[0]).IsPlan);
@@ -474,7 +474,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockASingleLinePlan(blocks[0]).IsPlan);
@@ -493,7 +493,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsFalse(VoteBlocks.IsBlockASingleLinePlan(blocks[0]).IsPlan);
@@ -510,7 +510,7 @@ public class VoteBlocksTests
         var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
-        var blocks = VoteCounterF.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
         Assert.IsNotNull(blocks);
 
         Assert.IsTrue(VoteBlocks.IsBlockASingleLinePlan(blocks[0]).IsPlan);

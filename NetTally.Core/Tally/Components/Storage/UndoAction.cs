@@ -37,7 +37,7 @@ public class UndoAction
         }
     }
 
-    public bool Undo(IVoteCounterF voteCounter)
+    public bool Undo(IVoteCounter voteCounter)
     {
         if (undone)
             return false;

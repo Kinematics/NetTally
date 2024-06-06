@@ -6,8 +6,8 @@ public class VoteCounterFactory(IServiceProvider serviceProvider)
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;
 
-    public IVoteCounterF GetVoteCounter(Quest quest)
+    public IVoteCounter GetVoteCounter(Quest quest)
     {
-        return ActivatorUtilities.CreateInstance<VoteCounterF>(serviceProvider, quest);
+        return ActivatorUtilities.CreateInstance<VoteCounter>(serviceProvider, quest);
     }
 }

@@ -17,7 +17,7 @@ using NetTally.Utility;
 
 namespace NetTally.Output
 {
-    public class TallyOutputF(
+    public class TallyOutput(
         ForumAdapterFactory forumAdapterFactory,
         IOptions<GlobalSettings> globalSettings) : ITextResultsProviderF
     {
@@ -27,7 +27,7 @@ namespace NetTally.Output
 
         private Quest quest = null!;
         private DisplayMode displayMode;
-        private IVoteCounterF voteCounter = null!;
+        private IVoteCounter voteCounter = null!;
         private IRankVoteCounter rankVoteCounter = null!;
 
         private readonly StringBuilder sb = new();
