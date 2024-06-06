@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Input.Forums;
+using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Utility;
-using NetTally.VoteCounting;
 
 namespace NetTally.Tests.Tallying
 {
@@ -40,11 +40,7 @@ namespace NetTally.Tests.Tallying
         [TestInitialize]
         public void Initialize()
         {
-            Quest = new Quest()
-            {
-                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
-            };
-
+            Quest = TestStartup.GetExampleQuest(serviceProvider);
             Quest.PropertyChanged += Quest_PropertyChanged;
         }
 

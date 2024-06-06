@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
-using NetTally.Tally.Components;
+using NetTally.Tally.ComponentsF.Votes;
 
 namespace NetTally.Avalonia.Converters
 {
@@ -46,13 +46,14 @@ namespace NetTally.Avalonia.Converters
 
         private static bool CompareVoteLineBlockValues(IList<object?> values, bool inverted)
         {
-            if (values.Count == 0)
+            if (!values.All(v => v is VoteBlockType))
                 return false;
 
-            if (!values.All(v => v is VoteLineBlock))
-                return false;
-
-            return inverted ^ (values[0] is VoteLineBlock first && values.All(v => v is VoteLineBlock value && value == first));
+            return inverted ^
+                (values[0] is VoteBlockType first &&
+                 values.All(v =>
+                    v is VoteBlockType value &&
+                    VoteBlockComparer.Instance.Equals(value, first)));
         }
 
         public IList<object?> ConvertBack(object? value, Type[] targetTypes, object? parameter, CultureInfo culture)
