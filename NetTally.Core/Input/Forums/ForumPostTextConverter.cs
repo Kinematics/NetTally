@@ -28,7 +28,6 @@ namespace NetTally.Input.Forums
         private static partial Regex SpanSpoilerRegex();
         #endregion Regex
 
-
         #region Public Functions
         /// <summary>
         /// Clean up problematic bits of text in the extracted HTML string.
@@ -55,7 +54,7 @@ namespace NetTally.Input.Forums
         /// sub-nodes from the end result.  A default is used if none is provided.</param>
         /// <returns>Returns a cleaned version of the text of the post.</returns>
         /// <exception cref="ArgumentNullException">If node is null.</exception>
-        public static string ExtractPostText(HtmlNode? node, Predicate<HtmlNode>? exclude, Uri host)
+        public static string ExtractPostText(HtmlNode? node, Func<HtmlNode, bool>? exclude, Uri host)
         {
             ArgumentNullException.ThrowIfNull(node);
 
@@ -74,7 +73,7 @@ namespace NetTally.Input.Forums
         /// </summary>
         /// <param name="className">The class name to exclude.</param>
         /// <returns>Returns a predicate.</returns>
-        public static Predicate<HtmlNode> GetClassExclusionPredicate(string className)
+        public static Func<HtmlNode, bool> GetClassExclusionPredicate(string className)
         {
             return (HtmlNode n) =>
             {
@@ -88,7 +87,7 @@ namespace NetTally.Input.Forums
         /// </summary>
         /// <param name="classNames">The class names to exclude.</param>
         /// <returns>Returns a predicate.</returns>
-        public static Predicate<HtmlNode> GetClassesExclusionPredicate(List<string> classNames)
+        public static Func<HtmlNode, bool> GetClassesExclusionPredicate(List<string> classNames)
         {
             return (HtmlNode n) =>
             {
@@ -113,7 +112,7 @@ namespace NetTally.Input.Forums
         /// <param name="node">The starting HTML node.</param>
         /// <param name="exclude">A predicate to exclude processing of further nodes.</param>
         /// <returns>Returns the text contents of the post.</returns>
-        private static string ExtractPostTextString(HtmlNode node, Predicate<HtmlNode> exclude, Uri host) =>
+        private static string ExtractPostTextString(HtmlNode node, Func<HtmlNode, bool> exclude, Uri host) =>
             ExtractPostTextString(node, exclude, new StringBuilder(), host);
 
         /// <summary>
@@ -125,7 +124,7 @@ namespace NetTally.Input.Forums
         /// <param name="sb">The stringbuilder where all results are concatenated.</param>
         /// <returns>Returns a StringBuilder containing the results of converting the HTML to text (with possible BBCode).</returns>
         private static string ExtractPostTextString(HtmlNode node,
-                                                    Predicate<HtmlNode> exclude,
+                                                    Func<HtmlNode, bool> exclude,
                                                     StringBuilder sb,
                                                     Uri host)
         {

@@ -12,7 +12,6 @@ namespace NetTally.Configure
     /// </summary>
     public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     {
-        private readonly IServiceProvider serviceProvider;
         private readonly VoteCounterFactory voteCounterFactory;
         private readonly ILogger<QuestsInfo> logger;
 
@@ -20,11 +19,9 @@ namespace NetTally.Configure
             IOptions<GlobalSettings> globalSettings,
             IOptions<UserQuests> userQuests,
             ConfigInfo legacyConfig,
-            IServiceProvider serviceProvider,
             VoteCounterFactory voteCounterFactory,
             ILogger<QuestsInfo> logger)
         {
-            this.serviceProvider = serviceProvider;
             this.voteCounterFactory = voteCounterFactory;
             this.logger = logger;
 
@@ -55,7 +52,8 @@ namespace NetTally.Configure
 
             if (!string.IsNullOrEmpty(legacyConfig.UserQuests.CurrentQuest))
             {
-                SelectedQuest = legacyConfig.UserQuests.Quests.FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
+                SelectedQuest = legacyConfig.UserQuests.Quests
+                    .FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
             }
 
             globalSettings.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
@@ -73,7 +71,8 @@ namespace NetTally.Configure
 
             if (Quests.Count > 0 && !string.IsNullOrEmpty(userQuests.CurrentQuest))
             {
-                SelectedQuest = userQuests.Quests.FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
+                SelectedQuest = userQuests.Quests
+                    .FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
             }
 
             logger.LogDebug("Loaded {count} user quests", Quests.Count);
@@ -180,6 +179,9 @@ namespace NetTally.Configure
         /// <returns>Returns a list of any linked quests.</returns>
         public List<Quest> GetLinkedQuests(Quest quest)
         {
+            if (quest.LinkedQuestIds.Count == 0)
+                return [];
+
             return Quests.Where(quest.HasLinkedQuest).ToList();
         }
     }

@@ -1,17 +1,16 @@
-﻿namespace NetTally.Configure
+﻿namespace NetTally.Configure;
+
+public class UserQuests
 {
-    public class UserQuests
+    public UserQuests() { }
+
+    public UserQuests(IEnumerable<Quest> quests, string? currentQuest)
     {
-        public UserQuests() { }
-
-        public UserQuests(IEnumerable<Quest> quests, string? currentQuest)
-        {
-            Quests.AddRange(quests);
-            CurrentQuest = currentQuest ?? "";
-        }
-
-        public string CurrentQuest { get; set; } = string.Empty;
-
-        public List<Quest> Quests { get; set; } = [];
+        Quests.AddRange(quests);
+        CurrentQuest = currentQuest ?? "";
     }
+
+    public string CurrentQuest { get; set; } = string.Empty;
+
+    public List<Quest> Quests { get; set; } = [];
 }

@@ -175,7 +175,7 @@ public class ForumReader(
 
         var posts = pages
             .Where(p => p != null)
-            .SelectMany((p, i) => adapter.GetPosts(p, quest, startPage + i))
+            .SelectMany((p, i) => adapter.GetPosts(p!, quest, startPage + i))
             .Where(p => KeepPost(p, quest, threadInfo))
             .DistinctBy(p => p.Origin, OriginComparer.Instance) // remove sticky posts
             .OrderBy(p => p.Origin.ThreadPostNumber)
