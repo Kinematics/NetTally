@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
 
-namespace NetTally.Input.Forums.ForumAdaptersF
+namespace NetTally.Input.Forums.ForumAdapters
 {
     /// <summary>
     /// Class which allows getting an appropriate forum adapter for a given forum type.

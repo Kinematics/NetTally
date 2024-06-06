@@ -138,20 +138,20 @@ public static class AppX
         services.AddTransient<IVoteCounterF, VoteCounterF>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
-        services.AddTransient<Input.Forums.ReadingF.IForumReader, Input.Forums.ReadingF.ForumReader>();
-        services.AddSingleton<Input.Forums.ForumAdaptersF.ForumAdapterFactory>();
+        services.AddTransient<Input.Forums.Reading.IForumReader, Input.Forums.Reading.ForumReader>();
+        services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
 
         // Fake service so that Avalonia doesn't crash on startup.
         services.AddTransient<Quest>();
 
-        services.AddTransient<Input.Forums.ForumAdaptersF.PhpBBAdapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin3Adapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin4Adapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.VBulletin5Adapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.XenForo1Adapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.XenForo2Adapter>();
-        services.AddTransient<Input.Forums.ForumAdaptersF.UnknownForumAdapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.PhpBBAdapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.VBulletin3Adapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.VBulletin4Adapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.VBulletin5Adapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.XenForo1Adapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.XenForo2Adapter>();
+        services.AddTransient<Input.Forums.ForumAdapters.UnknownForumAdapter>();
 
         services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
 

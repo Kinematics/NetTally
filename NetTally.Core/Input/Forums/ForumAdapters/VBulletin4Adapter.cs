@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,18 +15,16 @@ using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
-namespace NetTally.Input.Forums.ForumAdaptersF
+namespace NetTally.Input.Forums.ForumAdapters
 {
-    public partial class PhpBBAdapter(
+    public partial class VBulletin4Adapter(
         IOptions<GlobalSettings> options,
-        ILogger<PhpBBAdapter> logger) : IForumAdapter
+        ILogger<VBulletin4Adapter> logger) : IForumAdapter
     {
-        #region Constructor
         readonly GlobalSettings inputOptions = options.Value;
-        readonly ILogger<PhpBBAdapter> logger = logger;
-        #endregion
+        readonly ILogger<VBulletin4Adapter> logger = logger;
 
-        #region IForumAdapter2 interface
+        #region IForumAdapter interface
         /// <summary>
         /// String to use for a line break between tasks.
         /// </summary>
@@ -43,7 +42,7 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// <returns>Returns a default number of posts per page for the given site.</returns>
         public int GetDefaultPostsPerPage(Uri uri)
         {
-            return 25;
+            return 20;
         }
 
         /// <summary>
@@ -67,9 +66,10 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             if (page < 1)
                 throw new ArgumentException($"Invalid page number: {page}", nameof(page));
 
-            int skipPosts = quest.PostsPerPage * (page - 1);
+            // http://forums.militarytimes.com/showthread.php/9961-Furlough
+            // http://forums.militarytimes.com/showthread.php/9961-Furlough/page2
 
-            string append = skipPosts > 0 ? $"&start={skipPosts}" : "";
+            string append = page > 1 ? $"/page{page}" : "";
 
             return $"{GetBaseThreadUrl(quest.ThreadUri)}{append}";
         }
@@ -85,20 +85,27 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
 
-            int postNumber = (pageNumber - 1) * quest.PostsPerPage + 1;
-
             var posts = from p in GetPostList(page)
                         where p != null
-                        let post = GetPost(p, quest, postNumber++)
+                        let post = GetPost(page, p, quest)
                         where post != null
                         select post;
 
             return posts;
         }
 
-
-        public async Task<ThreadInformationType?>
-            GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        /// <summary>
+        /// Get information about the thread.
+        /// This includes title, author, and starting range.
+        /// </summary>
+        /// <param name="quest">The quest being queried.</param>
+        /// <param name="pageProvider">A page provider for loading pages.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
+        public async Task<ThreadInformationType?> GetThreadInformationAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
         {
             var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
@@ -114,12 +121,11 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         /// Get thread info from the provided page.
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <param name="quest">The quest we're getting info for.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
         private ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
-            var author = Author.Unknown; // PhpBB doesn't show thread authors
+            var author = Author.Unknown; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
             var info = ThreadInformation.CreateByPostNumber(title, author, quest.StartPost, pages);
@@ -146,9 +152,6 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         #endregion IForumAdapter support
 
         #region Get Page Information
-        [GeneratedRegex(@"Page\s*\d+\s*of\s*(?<pages>\d+)")]
-        private static partial Regex PageOfRegex();
-
         private static string GetPageTitle(HtmlDocument page)
         {
             return ForumPostTextConverter.CleanupWebString(
@@ -161,36 +164,25 @@ namespace NetTally.Input.Forums.ForumAdaptersF
 
         private static int GetMaxPageNumberOfThread(HtmlDocument page)
         {
-            // Find the number of pages
-            var pagebody = page.GetElementbyId("page-body");
+            // Get the number of pages from the navigation elements
+            var paginationTop = page.GetElementbyId("pagination_top");
 
-            if (pagebody != null)
+            var paginationForm = paginationTop.Element("form");
+
+            // If there is no form, that means there's only one page in the thread.
+            if (paginationForm != null)
             {
-                // Different versions of the forum have different methods of showing page numbers
+                var firstSpan = paginationForm.Element("span");
+                var firstSpanA = firstSpan?.Element("a");
+                var pagesText = firstSpanA?.InnerText;
 
-                var topicactions = pagebody.GetChildWithClass("topic-actions");
-                if (topicactions != null)
+                if (pagesText != null)
                 {
-                    HtmlNode? pagination = topicactions.GetChildWithClass("pagination");
-                    string? paginationText = pagination?.InnerText;
-                    if (paginationText != null)
+                    Regex pageNumsRegex = PageNumsRegex();
+                    Match m = pageNumsRegex.Match(pagesText);
+                    if (m.Success)
                     {
-                        Match m = PageOfRegex().Match(paginationText);
-                        if (m.Success)
-                            return int.Parse(m.Groups["pages"].Value);
-                    }
-                }
-                else
-                {
-                    var actionbar = pagebody.GetChildWithClass("action-bar");
-                    var pagination = actionbar?.GetChildWithClass("pagination");
-
-                    var ul = pagination?.Element("ul");
-                    var lastPageLink = ul?.Elements("li")?.LastOrDefault(n => !n.GetAttributeValue("class", "").Split(' ').Contains("next"));
-
-                    if (lastPageLink != null)
-                    {
-                        return int.Parse(lastPageLink.InnerText);
+                        return int.Parse(m.Groups["pages"].Value);
                     }
                 }
             }
@@ -202,23 +194,23 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         #region Get Posts
         private static IEnumerable<HtmlNode> GetPostList(HtmlDocument page)
         {
-            var pagebody = page?.GetElementbyId("page-body");
+            var postList = page?.GetElementbyId("posts");
 
-            if (pagebody == null)
+            if (postList == null)
                 return [];
 
-            return pagebody.Elements("div").Where(p => p.HasClass("post"));
+            return postList.Elements("li");
         }
 
-        private PostType? GetPost(HtmlNode div, Quest quest, int postNumber)
+        private PostType? GetPost(HtmlDocument page, HtmlNode li, Quest quest)
         {
-            if (div == null)
+            if (li == null)
                 return null;
 
-            var id = GetPostId(div);
-            var author = GetPostAuthor(div);
-            int number = postNumber;
-            string text = GetPostText(div, quest);
+            var id = GetPostId(li);
+            var author = GetPostAuthor(li);
+            int number = GetPostNumber(page, id);
+            string text = GetPostText(li, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
                 author = author with { Name = $"{author.Name}_{id.Id}" };
@@ -229,38 +221,57 @@ namespace NetTally.Input.Forums.ForumAdaptersF
             return post;
         }
 
-        private static PostIdType GetPostId(HtmlNode div)
+        private static PostIdType GetPostId(HtmlNode li)
         {
-            var idString = div.Id["p".Length..];
-            var id = PostId.Create(idString);
-
-            return id ?? PostId.Zero;
+            string id = li.Id["post_".Length..];
+            return PostId.Create(id) ?? PostId.Zero;
         }
 
-        private static AuthorType GetPostAuthor(HtmlNode div)
+        private static AuthorType GetPostAuthor(HtmlNode li)
         {
-            HtmlNode? inner = div.GetChildWithClass("div", "inner");
-            HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
-            HtmlNode? authorNode = postbody?.GetChildWithClass("p", "author");
-            HtmlNode? authorStrong = authorNode?.Descendants("strong").FirstOrDefault();
-            HtmlNode? authorAnchor = authorStrong?.Element("a");
+            string author = "";
 
-            string authorName = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
+            HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
-            return Author.Create(authorName);
-        }
-
-        private static string GetPostText(HtmlNode div, Quest quest)
-        {
-            // Get the full post text.  Two different layout variants.
-            HtmlNode? inner = div.GetChildWithClass("div", "inner");
-            HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
-            var content = postbody?.GetChildWithClass("div", "content");
-            content ??= postbody?.Elements("div").FirstOrDefault(n => n.Id.StartsWith("post_content", StringComparison.Ordinal));
-
-            if (content != null)
+            if (postDetails != null)
             {
-                return ForumPostTextConverter.ExtractPostText(content, n => false, quest.ThreadUri);
+                // Author
+                HtmlNode? userinfo = postDetails.GetChildWithClass("div", "userinfo");
+                HtmlNode? username = userinfo?.GetChildWithClass("a", "username");
+                author = ForumPostTextConverter.CleanupWebString(username?.InnerText);
+            }
+
+            return Author.Create(author);
+        }
+
+        private static int GetPostNumber(HtmlDocument page, PostIdType id)
+        {
+            var postCount = page.GetElementbyId($"postcount{id.Id}");
+
+            if (postCount != null)
+                return int.Parse(postCount.GetAttributeValue("name", "0"));
+
+            return 0;
+        }
+
+        private static string GetPostText(HtmlNode li, PostIdType id, Quest quest)
+        {
+            HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
+
+            if (postDetails != null)
+            {
+                // Text
+                string postMessageId = $"post_message_{id.Id}";
+
+                var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
+
+                // Predicate filtering out elements that we don't want to include
+                var exclusion = ForumPostTextConverter.GetClassExclusionPredicate("bbcode_quote");
+
+                Uri host = new(quest.ThreadUri.GetLeftPart(UriPartial.Authority) + "/"); ;
+
+                // Get the full post text.
+                return ForumPostTextConverter.ExtractPostText(message, exclusion, host);
             }
 
             return "";
@@ -268,9 +279,6 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         #endregion Get Posts
 
         #region URL Manipulation
-        [GeneratedRegex(@"[\?&]t=(?<thread>\d+)")]
-        private static partial Regex ThreadNumberRegex();
-
         /// <summary>
         /// Get the URL string up to the end of any directory paths.
         /// </summary>
@@ -280,43 +288,43 @@ namespace NetTally.Input.Forums.ForumAdaptersF
         {
             ArgumentNullException.ThrowIfNull(uri);
 
-            // http://www.ilovephilosophy.com/viewtopic.php?t=175054
-            // http://www.ilovephilosophy.com/viewtopic.php?f=1&t=175054
+            // http://forums.militarytimes.com/showthread.php/9961-Furlough
 
-            string auth = uri.GetLeftPart(UriPartial.Authority);
-            string page = uri.AbsolutePath;
+            StringBuilder sb = new();
 
-            Match m = ThreadNumberRegex().Match(uri.Query);
-            if (m.Success)
+            sb.Append(uri.GetLeftPart(UriPartial.Authority));
+
+            bool found = false;
+
+            foreach (var segment in uri.Segments)
             {
-                return $"{auth}{page}?t={m.Groups["thread"].Value}";
+                if (found)
+                {
+                    sb.Append(segment.TrimEnd('/'));
+                    break;
+                }
+                else
+                {
+                    sb.Append(segment);
+                }
+
+                if (segment.StartsWith("showthread.php"))
+                    found = true;
             }
 
-            throw new ArgumentException("URI has no thread number.", nameof(uri));
-        }
-
-        /// <summary>
-        /// Gets the URL string up to start of the query for posts.
-        /// </summary>
-        /// <param name="uri">The URI to derive the URL from.</param>
-        /// <returns>Returns a string containing the URL up to the posts query.</returns>
-        private static string GetHostBasePostsUrl(Uri uri)
-        {
-            ArgumentNullException.ThrowIfNull(uri);
-
-            // http://www.ilovephilosophy.com/viewtopic.php?p=2216430#p2216430
-
-            string auth = uri.GetLeftPart(UriPartial.Authority);
-            string page = uri.AbsolutePath;
-
-            return $"{auth}{page}?p=";
+            return sb.ToString();
         }
 
         private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
         {
-            string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}#p{postId.Id}";
+            // http://forums.militarytimes.com/showthread.php/9961-Furlough?p=371392&viewfull=1#post371392
+
+            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Id}&viewfull=1#post{postId.Id}";
             return new Uri(url);
         }
+
+        [GeneratedRegex(@"Page \d+ of (?<pages>\d+)")]
+        private static partial Regex PageNumsRegex();
         #endregion URL Manipulation
     }
 }

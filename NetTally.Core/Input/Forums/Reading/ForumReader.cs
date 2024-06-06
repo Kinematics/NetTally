@@ -10,13 +10,13 @@ using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;
-using NetTally.Input.Forums.ForumAdaptersF;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Utility;
 using NetTally.Web;
 
-namespace NetTally.Input.Forums.ReadingF;
+namespace NetTally.Input.Forums.Reading;
 public class ForumReader(
     IServiceProvider serviceProvider,
     ForumAdapterFactory forumAdapterFactory,

@@ -5,7 +5,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Input.Forums;
-using NetTally.Input.Forums.ForumAdaptersF;
+using NetTally.Input.Forums.ForumAdapters;
 
 namespace NetTally.Tests.Forums
 {

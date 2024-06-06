@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.CustomEventArgs;
-using NetTally.Input.Forums.ReadingF;
+using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 
 namespace NetTally.VoteCounting

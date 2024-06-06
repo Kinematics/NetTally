@@ -11,7 +11,7 @@ using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
-namespace NetTally.Input.Forums.ForumAdaptersF
+namespace NetTally.Input.Forums.ForumAdapters
 {
     class UnknownForumAdapter(
         IOptions<GlobalSettings> options,
