@@ -5,11 +5,20 @@ using NetTally.Votes;
 namespace NetTally.Tally.Components.Votes;
 public static partial class VoteParser
 {
+    #region Regex
     // A post with ##### at the start of one of the lines is a posting of tally results.
     readonly static Regex tallyPostRegex = TallyPostRegex();
     // A line solely composed of a callout to a given user is used for nomination tallying.
     readonly static Regex nominationLineRegex = NominationLineRegex();
 
+    [GeneratedRegex(@"^#####", RegexOptions.Multiline)]
+    private static partial Regex TallyPostRegex();
+
+    [GeneratedRegex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$")]
+    private static partial Regex NominationLineRegex();
+    #endregion Regex
+
+    #region Public Methods
     public static List<VoteLineType> ExtractVoteLines(string text)
     {
         if (string.IsNullOrWhiteSpace(text) || IsTallyPost(text))
@@ -24,7 +33,9 @@ public static partial class VoteParser
 
         return voteLines;
     }
+    #endregion Public Methods
 
+    #region Support Methods
     private static bool IsTallyPost(string text)
     {
         string cleanText = VoteLineParser.StripBBCode(text);
@@ -86,10 +97,5 @@ public static partial class VoteParser
 
         return [];
     }
-
-    [GeneratedRegex(@"^#####", RegexOptions.Multiline)]
-    private static partial Regex TallyPostRegex();
-
-    [GeneratedRegex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$")]
-    private static partial Regex NominationLineRegex();
+    #endregion Support Methods
 }
