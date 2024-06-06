@@ -17,20 +17,20 @@ using NetTally.VoteCounting;
 
 namespace NetTally.ViewModels
 {
-    public partial class MainViewModelF : ObservableObject
+    public partial class MainViewModel : ObservableObject
     {
         private readonly IQuestsInfoMod questsInfo;
         private readonly TallyerF tally;
         private readonly PageCache pageCache;
         private readonly CheckForNewRelease checkForNewRelease;
-        private readonly ILogger<MainViewModelF> logger;
+        private readonly ILogger<MainViewModel> logger;
 
-        public MainViewModelF(
+        public MainViewModel(
             IQuestsInfoMod questsInfo,
             TallyerF tally,
             PageCache cache,
             CheckForNewRelease checkForNewRelease,
-            ILogger<MainViewModelF> logger)
+            ILogger<MainViewModel> logger)
         {
             this.logger = logger;
             this.questsInfo = questsInfo;

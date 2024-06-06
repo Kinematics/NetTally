@@ -19,12 +19,12 @@ namespace NetTally.Avalonia.Views
 {
     public partial class ManageVotes : Window, INotifyPropertyChanged
     {
-        private readonly ManageVotesViewModelF manageVotesViewModel;
+        private readonly ManageVotesViewModel manageVotesViewModel;
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         public ManageVotes(
-            ManageVotesViewModelF manageVotesViewModel,
+            ManageVotesViewModel manageVotesViewModel,
             AvaloniaNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {

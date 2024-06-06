@@ -12,16 +12,16 @@ namespace NetTally.ViewModels
     /// <summary>
     /// A view model for managing and rearranging tasks.
     /// </summary>
-    public partial class TasksViewModelF : ObservableObject
+    public partial class TasksViewModel : ObservableObject
     {
         private readonly Quest quest;
-        private readonly ILogger<TasksViewModelF> logger;
+        private readonly ILogger<TasksViewModel> logger;
 
         public ObservableCollectionExt<VoteTaskType> Tasks { get; } = [];
 
-        public TasksViewModelF(
+        public TasksViewModel(
             IQuestsInfo questsInfo,
-            ILogger<TasksViewModelF> logger)
+            ILogger<TasksViewModel> logger)
         {
             ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest);
 

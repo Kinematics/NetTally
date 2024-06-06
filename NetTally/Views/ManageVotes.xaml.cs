@@ -19,12 +19,12 @@ namespace NetTally.Views
     [ObservableObject]
     public partial class ManageVotes : Window
     {
-        private readonly ManageVotesViewModelF manageVotesViewModel;
+        private readonly ManageVotesViewModel manageVotesViewModel;
         private readonly WPFNavigationService navigationService;
         private readonly ILogger<ManageVotes> logger;
 
         public ManageVotes(
-            ManageVotesViewModelF manageVotesViewModel,
+            ManageVotesViewModel manageVotesViewModel,
             WPFNavigationService navigationService,
             ILogger<ManageVotes> logger)
         {

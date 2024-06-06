@@ -158,11 +158,11 @@ public static class AppX
         services.AddSingleton<RankVoteCounterFactory>();
         services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
 
-        services.AddSingleton<MainViewModelF>();
+        services.AddSingleton<MainViewModel>();
         services.AddTransient<QuestOptionsViewModel>();
         services.AddTransient<GlobalOptionsViewModel>();
-        services.AddTransient<ManageVotesViewModelF>();
-        services.AddTransient<TasksViewModelF>();
+        services.AddTransient<ManageVotesViewModel>();
+        services.AddTransient<TasksViewModel>();
 
 
         services.AddSingleton<QuestsInfo>();

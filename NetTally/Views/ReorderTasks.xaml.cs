@@ -11,11 +11,11 @@ namespace NetTally.Views
     /// </summary>
     public partial class ReorderTasks : Window
     {
-        private readonly TasksViewModelF tasksViewModel;
+        private readonly TasksViewModel tasksViewModel;
         private readonly ILogger<ReorderTasks> logger;
 
         public ReorderTasks(
-            TasksViewModelF tasksViewModel,
+            TasksViewModel tasksViewModel,
             ILogger<ReorderTasks> logger)
         {
             this.tasksViewModel = tasksViewModel;

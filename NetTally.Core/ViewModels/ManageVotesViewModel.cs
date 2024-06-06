@@ -14,14 +14,14 @@ using NetTally.Utility;
 
 namespace NetTally.ViewModels
 {
-    public partial class ManageVotesViewModelF : ObservableObject
+    public partial class ManageVotesViewModel : ObservableObject
     {
-        private readonly ILogger<ManageVotesViewModelF> logger;
+        private readonly ILogger<ManageVotesViewModel> logger;
         private readonly Quest quest;
 
-        public ManageVotesViewModelF(
+        public ManageVotesViewModel(
             IQuestsInfo questsInfo,
-            ILogger<ManageVotesViewModelF> logger)
+            ILogger<ManageVotesViewModel> logger)
         {
             ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
 
