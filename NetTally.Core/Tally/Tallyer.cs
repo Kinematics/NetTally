@@ -13,16 +13,16 @@ namespace NetTally.VoteCounting
     /// Class that links together the various pieces of the tally system.
     /// Call this to run a tally.
     /// </summary>
-    public partial class TallyerF : ObservableObject
+    public partial class Tallyer : ObservableObject
     {
         #region Construction
         private readonly IForumReader forumReader;
         private readonly ITextResultsProviderF textResultsProvider;
-        private readonly ILogger<TallyerF> logger;
+        private readonly ILogger<Tallyer> logger;
 
-        public TallyerF(IForumReader forumReader,
+        public Tallyer(IForumReader forumReader,
                      ITextResultsProviderF textResultsProvider,
-                     ILogger<TallyerF> logger)
+                     ILogger<Tallyer> logger)
         {
             this.forumReader = forumReader;
             this.textResultsProvider = textResultsProvider;

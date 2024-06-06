@@ -134,7 +134,7 @@ public static class AppX
 
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
-        services.AddSingleton<TallyerF>();
+        services.AddSingleton<Tallyer>();
         services.AddTransient<IVoteCounterF, VoteCounterF>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
