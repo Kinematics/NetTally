@@ -2,10 +2,10 @@
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Configure;
 using NetTally.Quests;
+using NetTally.Systems;
 
-namespace NetTally.Systems.Config.Json;
+namespace NetTally.Configure.Json;
 
 internal class JsonConfiguration(
     ILogger<JsonConfiguration> logger,

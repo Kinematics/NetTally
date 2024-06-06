@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
+using NetTally.Systems;
 
-namespace NetTally.Systems.Config.Xml
+namespace NetTally.Configure.Xml
 {
     /// <summary>
     /// Helper class to get the configs to use for loading and saving configuration information.

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Systems.Config.Xml;
+﻿namespace NetTally.Configure.Xml;
 
 internal static class ConfigPrefs
 {

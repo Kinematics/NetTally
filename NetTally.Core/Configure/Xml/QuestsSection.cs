@@ -3,7 +3,7 @@ using NetTally.Collections;
 using NetTally.Configure.Legacy;
 using NetTally.Enums;
 
-namespace NetTally.Systems.Config.Xml
+namespace NetTally.Configure.Xml
 {
     /// <summary>
     /// Class to handle the section for storing quests in the user config file.

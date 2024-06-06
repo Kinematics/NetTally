@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using NetTally.Collections;
 using NetTally.Configure.Legacy;
 
-namespace NetTally.Systems.Config.Xml
+namespace NetTally.Configure.Xml
 {
     /// <summary>
     /// Class for loading and saving program configuration information.

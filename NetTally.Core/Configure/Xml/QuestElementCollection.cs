@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace NetTally.Systems.Config.Xml
+namespace NetTally.Configure.Xml
 {
     /// <summary>
     /// Wrapper class for a collection of quest elements to be added to the user config file.

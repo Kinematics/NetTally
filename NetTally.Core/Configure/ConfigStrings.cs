@@ -1,4 +1,4 @@
-﻿namespace NetTally.Systems.Config
+﻿namespace NetTally.Configure
 {
     internal static class ConfigStrings
     {

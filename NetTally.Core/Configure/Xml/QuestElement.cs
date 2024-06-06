@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using NetTally.Enums;
 
-namespace NetTally.Systems.Config.Xml
+namespace NetTally.Configure.Xml
 {
     /// <summary>
     /// Class for individual quest entries to be added to the user config file.
