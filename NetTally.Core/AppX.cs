@@ -14,6 +14,7 @@ using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
 using NetTally.Output;
+using NetTally.Systems;
 using NetTally.Systems.Config.Json;
 using NetTally.Systems.Config.Xml;
 using NetTally.Tally.ComponentsF.Counting;
@@ -23,7 +24,7 @@ using NetTally.VoteCounting;
 using NetTally.VoteCounting.RankVotes;
 using NetTally.Web;
 
-namespace NetTally.Systems;
+namespace NetTally;
 public static class AppX
 {
     public static IHost Host { get; private set; } = null!;

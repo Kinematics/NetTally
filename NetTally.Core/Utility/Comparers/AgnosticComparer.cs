@@ -2,7 +2,6 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Configure;
-using NetTally.Systems;
 
 namespace NetTally.Utility.Comparers
 {
