@@ -21,7 +21,6 @@ using NetTally.Tally.ComponentsF.Counting;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.VoteCounting;
-using NetTally.VoteCounting.RankVotes;
 using NetTally.Web;
 
 namespace NetTally;
@@ -136,7 +135,6 @@ public static class AppX
         services.AddTransient<HttpClientHandler, HttpClientHandler>();
 
         services.AddSingleton<TallyerF>();
-        services.AddTransient<IVoteCounter, VoteCounter>();
         services.AddTransient<IVoteCounterF, VoteCounterF>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
@@ -155,7 +153,6 @@ public static class AppX
         services.AddTransient<Input.Forums.ForumAdaptersF.XenForo2Adapter>();
         services.AddTransient<Input.Forums.ForumAdaptersF.UnknownForumAdapter>();
 
-        services.AddSingleton<RankVoteCounterFactory>();
         services.AddSingleton<ITextResultsProviderF, TallyOutputF>();
 
         services.AddSingleton<MainViewModel>();

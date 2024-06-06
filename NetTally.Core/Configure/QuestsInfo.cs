@@ -91,7 +91,6 @@ namespace NetTally.Configure
         {
             foreach (var quest in Quests)
             {
-                quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
                 quest.VoteCounterF = voteCounterFactory.GetVoteCounter(quest);
             }
         }
@@ -118,7 +117,6 @@ namespace NetTally.Configure
             {
                 quest = new Quest
                 {
-                    VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
                     CheckForLastThreadmark = true
                 };
 

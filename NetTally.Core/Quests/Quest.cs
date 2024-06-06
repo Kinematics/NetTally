@@ -26,23 +26,6 @@ namespace NetTally
         public Quest() { }
 
         #region Vote Counter
-        private IVoteCounter voteCounter = null!;
-
-        [JsonIgnore]
-        public IVoteCounter VoteCounter
-        {
-            get { return voteCounter; }
-            set
-            {
-                if (voteCounter == null &&
-                    value != null)
-                {
-                    voteCounter = value;
-                    voteCounter.Quest = this;
-                }
-            }
-        }
-
         [JsonIgnore]
         public IVoteCounterF VoteCounterF { get; set; } = null!;
         #endregion Vote Counter

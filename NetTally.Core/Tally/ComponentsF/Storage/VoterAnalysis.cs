@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
+using NetTally.Tally.ComponentsF.RankCounting.Reference;
 using NetTally.Tally.ComponentsF.Votes;
 
 namespace NetTally.Tally.ComponentsF.Storage;
@@ -51,8 +52,7 @@ public static class VoterAnalysis
         int count = 0;
         int accum = 0;
 
-        var (rating, lowerBound) = VoteCounting.RankVotes.Reference
-            .RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.MarkerValue);
+        var (rating, lowerBound) = RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.MarkerValue);
 
         foreach (var (userOrigin, userVote) in users)
         {
