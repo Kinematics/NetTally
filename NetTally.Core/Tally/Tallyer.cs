@@ -4,7 +4,7 @@ using NetTally.CustomEventArgs;
 using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 
-namespace NetTally.VoteCounting
+namespace NetTally.Tally
 {
     /// <summary>
     /// Class that links together the various pieces of the tally system.

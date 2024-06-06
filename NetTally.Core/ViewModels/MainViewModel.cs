@@ -8,7 +8,7 @@ using NetTally.Configure;
 using NetTally.Data;
 using NetTally.Enums;
 using NetTally.Extensions;
-using NetTally.VoteCounting;
+using NetTally.Tally;
 
 namespace NetTally.ViewModels
 {

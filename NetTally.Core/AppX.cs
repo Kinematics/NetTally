@@ -16,10 +16,10 @@ using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Systems;
+using NetTally.Tally;
 using NetTally.Tally.Components.Counting;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
-using NetTally.VoteCounting;
 using NetTally.Web;
 
 namespace NetTally;
