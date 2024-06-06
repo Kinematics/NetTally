@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 
-namespace NetTally.Tests.ComponentsF.Posts;
+namespace NetTally.Tests.Components.Posts;
 [TestClass]
 public class OriginTests
 {

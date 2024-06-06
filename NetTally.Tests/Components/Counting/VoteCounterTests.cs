@@ -9,7 +9,7 @@ using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility;
 
-namespace NetTally.Tests.ComponentsF.Counting;
+namespace NetTally.Tests.Components.Counting;
 
 [TestClass]
 public class VoteCounterTests

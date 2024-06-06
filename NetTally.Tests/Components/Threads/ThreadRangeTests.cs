@@ -2,7 +2,7 @@
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Tally.ComponentsF.Threads;
 
-namespace NetTally.Tests.ComponentsF.Threads;
+namespace NetTally.Tests.Components.Threads;
 [TestClass]
 public class ThreadRangeTests
 {

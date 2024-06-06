@@ -6,7 +6,7 @@ using NetTally.Enums;
 using NetTally.Tally.ComponentsF.Posts;
 using NetTally.Utility;
 
-namespace NetTally.Tests.ComponentsF.Counting;
+namespace NetTally.Tests.Components.Counting;
 [TestClass]
 public class ReferenceVoteTests
 {

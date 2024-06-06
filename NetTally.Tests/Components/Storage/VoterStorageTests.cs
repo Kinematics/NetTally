@@ -8,7 +8,7 @@ using NetTally.Tally.ComponentsF.Storage;
 using NetTally.Tally.ComponentsF.Votes;
 using NetTally.Utility;
 
-namespace NetTally.Tests.ComponentsF.Storage;
+namespace NetTally.Tests.Components.Storage;
 
 [TestClass]
 public class VoterStorageTests
