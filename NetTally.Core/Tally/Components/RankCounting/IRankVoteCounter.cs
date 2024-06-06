@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using NetTally.Tally.Components.Storage;
+﻿using NetTally.Tally.Components.Storage;
 
 namespace NetTally.Tally.Components.RankCounting;
 

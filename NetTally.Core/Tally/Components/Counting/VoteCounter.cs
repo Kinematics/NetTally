@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -733,7 +730,7 @@ public class VoteCounter(
             if (VoteTaskComparer.Instance.Equals(TaskList[i], task))
                 return i;
         }
-        
+
         return -1;
     }
 
@@ -864,7 +861,7 @@ public class VoteCounter(
         // If there's a conflict with the newly-tasked vote, we need to merge with the existing vote.
         if (VoteStorage.TryGetValue(replacementVote, out var toSupport))
         {
-            var updatedSupporters = 
+            var updatedSupporters =
                 supporters.Select(s => new VoterStorageEntryF(s.Key, s.Value with { Task = task }));
 
             foreach (var sup in updatedSupporters)
@@ -997,7 +994,7 @@ public class VoteCounter(
         Posts.TryProcess(p => VP(p, Quest), p => ForceVP(p, Quest));
         AddUserDefinedTasksToTaskList();
         RunMergeActions();
-        
+
         // Handle processing each post and adding votes if successful.
         bool VP(PostToProcess post, Quest quest)
         {

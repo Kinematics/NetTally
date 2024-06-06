@@ -1,5 +1,4 @@
-﻿using System;
-using NetTally.Enums;
+﻿using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 
 namespace NetTally.Tally.Components.Threads;

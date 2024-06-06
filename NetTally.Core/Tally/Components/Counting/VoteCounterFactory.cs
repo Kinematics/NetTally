@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace NetTally.Tally.Components.Counting;
 public class VoteCounterFactory(IServiceProvider serviceProvider)

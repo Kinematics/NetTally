@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using NetTally.Utility;
+﻿using System.Diagnostics.CodeAnalysis;
 using NetTally.Enums;
+using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Posts;
 public sealed record OriginType(
@@ -195,7 +193,7 @@ public class OriginComparer : IEqualityComparer<OriginType>, IComparer<OriginTyp
             if (result != 0) return result;
 
             result = PostIdComparer.Instance.Compare(x.PostId, y.PostId);
-            
+
             if (result != 0) return result;
         }
 

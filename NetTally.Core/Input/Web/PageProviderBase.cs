@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 using NetTally.Cache;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;

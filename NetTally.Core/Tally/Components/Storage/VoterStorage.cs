@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using NetTally.Enums;
+﻿using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
 

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using NetTally.Enums;
 using NetTally.Utility;
@@ -166,12 +165,12 @@ public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerDat
         if (y is null) return 1;
 
         // MarkerType.None matches anything.
-        if (x.MarkerType == MarkerType.None ||  y.MarkerType == MarkerType.None) return 0;
+        if (x.MarkerType == MarkerType.None || y.MarkerType == MarkerType.None) return 0;
 
         // MarkerType.Plan should be ignored.
-        if (x.MarkerType == MarkerType.Plan ||  y.MarkerType == MarkerType.Plan) return 0;
+        if (x.MarkerType == MarkerType.Plan || y.MarkerType == MarkerType.Plan) return 0;
 
-        if (x.MarkerType == y.MarkerType) 
+        if (x.MarkerType == y.MarkerType)
             return x.MarkerValue.CompareTo(y.MarkerValue);
 
         if (x.MarkerType == MarkerType.Rank) return -1;

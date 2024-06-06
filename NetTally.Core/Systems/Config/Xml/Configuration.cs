@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Collections;
 using NetTally.Configure.Legacy;

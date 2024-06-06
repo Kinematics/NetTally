@@ -1,5 +1,4 @@
-﻿using System;
-using NetTally.Enums;
+﻿using NetTally.Enums;
 
 namespace NetTally.Tally.Components.RankCounting;
 

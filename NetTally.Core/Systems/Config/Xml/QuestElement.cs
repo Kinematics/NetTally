@@ -1,5 +1,4 @@
 ﻿using System.Configuration;
-using System.Linq;
 using NetTally.Enums;
 
 namespace NetTally.Systems.Config.Xml

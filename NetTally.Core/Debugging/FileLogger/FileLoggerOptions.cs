@@ -1,5 +1,4 @@
-﻿using System;
-using NetTally.Debugging.FileLogger.Internal;
+﻿using NetTally.Debugging.FileLogger.Internal;
 
 namespace NetTally.Debugging.FileLogger
 {

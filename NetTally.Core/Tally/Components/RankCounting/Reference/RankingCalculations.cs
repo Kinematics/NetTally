@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetTally.Enums;
+﻿using NetTally.Enums;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 

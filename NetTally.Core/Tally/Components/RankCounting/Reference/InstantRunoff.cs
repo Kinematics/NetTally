@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using NetTally.Tally.Components.Votes;
+﻿using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 

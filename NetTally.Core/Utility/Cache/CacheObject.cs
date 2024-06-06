@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally.Cache
+﻿namespace NetTally.Cache
 {
     /// <summary>
     /// Class to save an object with an associated timestamp and expiration.

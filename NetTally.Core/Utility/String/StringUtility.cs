@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
@@ -315,7 +312,7 @@ namespace NetTally.Utility
             try
             {
                 UInt16 cb = Convert.ToUInt16(c);
-                
+
                 // Latin characters get returned as-is.
                 if (cb < 128)
                     return c.ToString();

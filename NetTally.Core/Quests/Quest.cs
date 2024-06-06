@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -13,7 +11,6 @@ using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
-using NetTally.VoteCounting;
 
 namespace NetTally
 {

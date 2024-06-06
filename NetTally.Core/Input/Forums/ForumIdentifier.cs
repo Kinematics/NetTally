@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
-using NetTally.Web;
+﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums
 {

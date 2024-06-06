@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NetTally.Extensions
+﻿namespace NetTally.Extensions
 {
     /// <summary>
     /// Class for generic LINQ extension methods.

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally.Cache
+﻿namespace NetTally.Cache
 {
     /// <summary>
     /// Interaface for a class that handles caching data of arbitrary type.

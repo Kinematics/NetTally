@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NetTally.Configure
+﻿namespace NetTally.Configure
 {
     public class ConfigInfo
     {

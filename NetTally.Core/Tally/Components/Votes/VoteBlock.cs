@@ -1,8 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using NetTally.Enums;
 
 namespace NetTally.Tally.Components.Votes;
@@ -38,7 +36,7 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marke
             yield return line;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => 
+    IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
 
     public override string ToString() =>

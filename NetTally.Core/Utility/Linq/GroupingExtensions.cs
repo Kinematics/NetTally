@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NetTally.Extensions
+﻿namespace NetTally.Extensions
 {
     /// <summary>
     /// Extension methods to allow grouping collections in various ways.

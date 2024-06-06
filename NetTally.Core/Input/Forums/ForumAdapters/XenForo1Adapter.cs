@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Input.Utility;
-using NetTally.Web;
 using NetTally.Enums;
-using NetTally.Tally.Components.Threads;
+using NetTally.Extensions;
+using NetTally.Input.Utility;
 using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Threads;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters
 {

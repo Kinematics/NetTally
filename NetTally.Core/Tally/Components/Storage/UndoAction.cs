@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using NetTally.Enums;
+﻿using NetTally.Enums;
+using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
-using NetTally.Tally.Components.Counting;
 
 namespace NetTally.Tally.Components.Storage;
 

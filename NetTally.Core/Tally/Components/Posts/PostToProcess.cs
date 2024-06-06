@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.Posts;

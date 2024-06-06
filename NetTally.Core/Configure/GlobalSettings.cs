@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using NetTally.Enums;
 
 namespace NetTally.Configure
@@ -31,8 +29,8 @@ namespace NetTally.Configure
         public void UpdateFromLegacySettings(GlobalSettings legacySettings)
         {
             DisplayMode = legacySettings.DisplayMode;
-            DisplayPlansWithNoVotes= legacySettings.DisplayPlansWithNoVotes;
-            GlobalSpoilers= legacySettings.GlobalSpoilers;
+            DisplayPlansWithNoVotes = legacySettings.DisplayPlansWithNoVotes;
+            GlobalSpoilers = legacySettings.GlobalSpoilers;
             RankVoteCounterMethod = legacySettings.RankVoteCounterMethod;
             AllowUsersToUpdatePlans = legacySettings.AllowUsersToUpdatePlans;
             TrackPostAuthorsUniquely = legacySettings.TrackPostAuthorsUniquely;

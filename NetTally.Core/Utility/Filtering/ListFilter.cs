@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace NetTally.Utility.Filtering
+﻿namespace NetTally.Utility.Filtering
 {
     /// <summary>
     /// An item filter that determines whether an object is allowed by

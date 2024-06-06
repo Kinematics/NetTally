@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Utility;
 using NetTally.Tally.Components.Counting;
-using NetTally.VoteCounting;
+using NetTally.Utility;
 
 namespace NetTally.Configure
 {

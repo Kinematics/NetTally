@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetTally.Tally.Components.Storage;
+﻿using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
@@ -109,7 +106,7 @@ public class InstantRunoffBase : IRankVoteCounter
         if (mostPreferred == null)
         {
             return (VoteBlock.Empty, 0);
-        }    
+        }
 
         return (mostPreferred.Key, mostPreferred.Count());
     }

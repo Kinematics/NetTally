@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace NetTally.Utility.Filtering
 {
@@ -48,7 +46,7 @@ namespace NetTally.Utility.Filtering
         static readonly Regex postWord = new(@"\w$",
             RegexOptions.ExplicitCapture,
             TimeSpan.FromMilliseconds(100));
-        
+
         private static readonly char[] separator = [','];
 
         private static (Regex, bool) CreateRegexFromPattern(string pattern)
