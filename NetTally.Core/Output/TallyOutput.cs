@@ -19,7 +19,7 @@ namespace NetTally.Output
 {
     public class TallyOutput(
         ForumAdapterFactory forumAdapterFactory,
-        IOptions<GlobalSettings> globalSettings) : ITextResultsProviderF
+        IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
     {
         #region Private fields
         private readonly GlobalSettings globalSettings = globalSettings.Value;

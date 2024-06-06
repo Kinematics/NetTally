@@ -1,6 +1,6 @@
 ﻿namespace NetTally.Output
 {
-    public interface ITextResultsProviderF
+    public interface ITextResultsProvider
     {
         /// <summary>
         /// Public function to generate the full output for the tally.

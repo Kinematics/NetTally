@@ -17,11 +17,11 @@ namespace NetTally.VoteCounting
     {
         #region Construction
         private readonly IForumReader forumReader;
-        private readonly ITextResultsProviderF textResultsProvider;
+        private readonly ITextResultsProvider textResultsProvider;
         private readonly ILogger<Tallyer> logger;
 
         public Tallyer(IForumReader forumReader,
-                     ITextResultsProviderF textResultsProvider,
+                     ITextResultsProvider textResultsProvider,
                      ILogger<Tallyer> logger)
         {
             this.forumReader = forumReader;

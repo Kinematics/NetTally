@@ -13,6 +13,8 @@ using NetTally.Configure.Legacy;
 using NetTally.Data;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
+using NetTally.Input.Forums.ForumAdapters;
+using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Systems;
 using NetTally.Systems.Config.Json;
@@ -138,22 +140,22 @@ public static class AppX
         services.AddTransient<IVoteCounter, VoteCounter>();
         services.AddTransient<VoteCounterFactory>();
         services.AddTransient<IPageProvider, WebPageProvider>();
-        services.AddTransient<Input.Forums.Reading.IForumReader, Input.Forums.Reading.ForumReader>();
-        services.AddSingleton<Input.Forums.ForumAdapters.ForumAdapterFactory>();
+        services.AddTransient<IForumReader, ForumReader>();
+        services.AddSingleton<ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
 
         // Fake service so that Avalonia doesn't crash on startup.
         services.AddTransient<Quest>();
 
-        services.AddTransient<Input.Forums.ForumAdapters.PhpBBAdapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.VBulletin3Adapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.VBulletin4Adapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.VBulletin5Adapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.XenForo1Adapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.XenForo2Adapter>();
-        services.AddTransient<Input.Forums.ForumAdapters.UnknownForumAdapter>();
+        services.AddTransient<PhpBBAdapter>();
+        services.AddTransient<VBulletin3Adapter>();
+        services.AddTransient<VBulletin4Adapter>();
+        services.AddTransient<VBulletin5Adapter>();
+        services.AddTransient<XenForo1Adapter>();
+        services.AddTransient<XenForo2Adapter>();
+        services.AddTransient<UnknownForumAdapter>();
 
-        services.AddSingleton<ITextResultsProviderF, TallyOutput>();
+        services.AddSingleton<ITextResultsProvider, TallyOutput>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<QuestOptionsViewModel>();
