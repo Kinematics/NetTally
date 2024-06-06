@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using NetTally.Utility;
 
-namespace NetTally.Input.Forums
+namespace NetTally.Input.Forums.ForumAdapters
 {
     /// <summary>
     /// Class used for extracting usable text out of the raw HTML of a web post.
