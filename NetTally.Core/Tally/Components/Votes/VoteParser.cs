@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Utility;
-using NetTally.Votes;
 
 namespace NetTally.Tally.Components.Votes;
 public static partial class VoteParser

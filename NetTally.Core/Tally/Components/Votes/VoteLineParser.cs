@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace NetTally.Votes
+namespace NetTally.Tally.Components.Votes
 {
     public static class VoteLineParser
     {
