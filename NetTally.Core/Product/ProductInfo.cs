@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace NetTally.Product;
 
@@ -11,74 +9,44 @@ public class ProductInfo
 {
     /// <summary>
     /// Static constructor.  Runs only once, to initialize static fields.
+    /// Defines the name and version information based on attributes
+    /// pulled from the assembly file.
     /// </summary>
     static ProductInfo()
     {
-        DefineNameAndVersion();
+        var assembly = typeof(ProductInfo).GetTypeInfo().Assembly;
+        var assemName = assembly.GetName();
+        AssemblyVersion = assemName?.Version ?? new Version();
+
+        var prod = assembly.GetCustomAttribute<AssemblyProductAttribute>();
+        var ver = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        var fVer = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
+
+        Name = prod?.Product ?? "NetTally";
+        Version = ver?.InformationalVersion ?? defaultVersion;
+        FileVersion = new Version(fVer?.Version ?? defaultVersion);
     }
+
+    const string defaultVersion = "0.0.0.1";
 
     /// <summary>
     /// Gets the name of the product.
     /// </summary>
-    public static string Name { get; private set; } = "NetTally";
+    public static string Name { get; }
 
     /// <summary>
     /// Gets the informational version of the product as a string.
     /// This is the string that is expected to be publicly displayed to the user.
     /// </summary>
-    public static string Version { get; private set; } = "0.0.0.1";
+    public static string Version { get; }
 
     /// <summary>
     /// Gets the file version of the product.
     /// </summary>
-    public static Version FileVersion { get; private set; } = new Version();
+    public static Version FileVersion { get; }
 
     /// <summary>
     /// Gets the assembly version of the product.
     /// </summary>
-    public static Version AssemblyVersion { get; private set; } = new Version();
-
-    /// <summary>
-    /// Defines the name and version information based on attributes pulled from the assembly file.
-    /// </summary>
-    private static void DefineNameAndVersion()
-    {
-        try
-        {
-            var assembly = typeof(ProductInfo).GetTypeInfo().Assembly;
-
-            var prod = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyProductAttribute));
-            var ver = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyInformationalVersionAttribute));
-            var fVer = assembly.CustomAttributes.FirstOrDefault(a => a.AttributeType == typeof(AssemblyFileVersionAttribute));
-
-            var assemblyName = assembly.GetName();
-
-            if (assemblyName?.Version != null)
-            {
-                AssemblyVersion = assemblyName.Version;
-
-                if (prod != null && prod.ConstructorArguments.Count > 0)
-                {
-                    Name = prod.ConstructorArguments[0].Value as string ?? Name;
-                }
-
-                if (ver != null && ver.ConstructorArguments.Count > 0)
-                {
-                    Version = ver.ConstructorArguments[0].Value as string ?? Version;
-                }
-
-                if (fVer != null && fVer.ConstructorArguments.Count > 0)
-                {
-                    string fileVersionString = fVer.ConstructorArguments[0].Value as string ?? "0.0.0.1";
-                    FileVersion = new Version(fileVersionString);
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
-            var logger = loggerFactory?.CreateLogger<ProductInfo>();
-            logger?.LogError(e, "Attempt to define the name and version of the program failed.");
-        }
-    }
+    public static Version AssemblyVersion { get; }
 }
