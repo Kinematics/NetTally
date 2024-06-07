@@ -61,4 +61,7 @@ public sealed class RegexFilter : IItemFilter<string>
         FilterType.Block => patterns.Any(a => a.IsMatch(item)),
         _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
     };
+
+    public static IItemFilter<string> DefaultThreadmarkFilter { get; } =
+        Block(RegexPattern.Create(Strings.OmakeFilter));
 }
