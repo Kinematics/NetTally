@@ -42,6 +42,10 @@ public sealed class RegexFilter : IItemFilter<string>
 
         return new RegexFilter(FilterType.Block, patterns);
     }
+
+    public static IItemFilter<string> AlwaysAllow { get; } = AlwaysFilter.AllowAll<string>();
+    public static IItemFilter<string> AlwaysBlock { get; } = AlwaysFilter.BlockAll<string>();
+
     #endregion
 
     public bool Allows(string item) => filterType switch

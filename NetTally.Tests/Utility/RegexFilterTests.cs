@@ -9,7 +9,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Allow_All()
         {
-            var filter = AlwaysFilter<string>.Allow();
+            var filter = RegexFilter.AlwaysAllow;
 
             Assert.IsTrue(filter.Allows(""));
             Assert.IsTrue(filter.Allows("stuff"));
@@ -20,7 +20,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void Block_All()
         {
-            var filter = AlwaysFilter<string>.Block();
+            var filter = RegexFilter.AlwaysBlock;
 
             Assert.IsFalse(filter.Allows(""));
             Assert.IsFalse(filter.Allows("stuff"));

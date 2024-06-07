@@ -1,29 +1,24 @@
 ﻿namespace NetTally.Utility.Filtering;
 /// <summary>
-/// A filter that always allows or always blocks all items.
+/// Get a filter that always allows or always blocks all items.
 /// </summary>
-/// <typeparam name="T">The type of items to be filtered.</typeparam>
-public sealed class AlwaysFilter<T> : IItemFilter<T>
+public class AlwaysFilter
 {
-    private readonly FilterType _filterType;
+    public static IItemFilter<T> AllowAll<T>() => new AlwaysFilterInternal<T>(FilterType.Allow);
+    public static IItemFilter<T> BlockAll<T>() => new AlwaysFilterInternal<T>(FilterType.Block);
 
-    private AlwaysFilter(FilterType filterType)
+    private sealed class AlwaysFilterInternal<T>(FilterType filterType) : IItemFilter<T>
     {
-        _filterType = filterType;
+        public bool Allows(T item) => filterType switch
+        {
+            FilterType.Allow => true,
+            _ => false
+        };
+
+        public bool Blocks(T item) => filterType switch
+        {
+            FilterType.Block => true,
+            _ => false
+        };
     }
-
-    public static IItemFilter<T> Allow() => new AlwaysFilter<T>(FilterType.Allow);
-    public static IItemFilter<T> Block() => new AlwaysFilter<T>(FilterType.Block);
-
-    public bool Allows(T item) => _filterType switch
-    {
-        FilterType.Allow => true,
-        _ => false
-    };
-
-    public bool Blocks(T item) => _filterType switch
-    {
-        FilterType.Block => true,
-        _ => false
-    };
 }
