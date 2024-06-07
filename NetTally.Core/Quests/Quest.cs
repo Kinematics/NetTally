@@ -173,7 +173,7 @@ namespace NetTally
         {
             TaskFilter = string.IsNullOrEmpty(value)
                 ? RegexFilter.AlwaysAllow
-                : RegexFilter.Allow(null, value);
+                : RegexFilter.Allow(value);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ namespace NetTally
         {
             UsernameFilter = string.IsNullOrEmpty(value)
                 ? RegexFilter.AlwaysAllow
-                : RegexFilter.Block(null, value);
+                : RegexFilter.Block(value);
         }
 
         /// <summary>
