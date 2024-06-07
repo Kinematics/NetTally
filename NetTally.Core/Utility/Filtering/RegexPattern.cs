@@ -160,10 +160,5 @@ public partial class RegexPattern
     public bool IsMatch(string item) => Regex.IsMatch(item) ^ Invert;
 
     public bool IsInverted => Invert;
-
-    public bool IsEmpty => Regex == emptyRegex;
-
-    public bool IsAlwaysFalse => Regex == falseRegex;
-
     #endregion Public Methods
 }

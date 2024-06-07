@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Text.RegularExpressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Input.Utility;
+using NetTally.Utility;
 using NetTally.Utility.Filtering;
 
 namespace NetTally.Tests.Utility
@@ -63,7 +66,7 @@ namespace NetTally.Tests.Utility
         }
 
         [TestMethod]
-        public void Block_Pattern_1()
+        public void Block_JSRegex_1()
         {
             RegexPattern pattern = RegexPattern.Create(@"/\w+\d+/");
 
@@ -78,7 +81,7 @@ namespace NetTally.Tests.Utility
         }
 
         [TestMethod]
-        public void Block_Pattern_2()
+        public void Block_JSRegex_2()
         {
             RegexPattern pattern = RegexPattern.Create(@"/\w+\d+|goo/");
 
@@ -220,6 +223,138 @@ namespace NetTally.Tests.Utility
             Assert.IsTrue(filter.Allows("lots of chocolate (goomake)"));
             Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
             Assert.IsTrue(filter.Allows("[x][Task] Some123 vote"));
+        }
+
+        [TestMethod]
+        public void Block_Explicit_Regex()
+        {
+            Regex r = new(@"stuff|omake");
+
+            var filter = RegexFilter.Block(r);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Blocks("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void OmakeStuffFilter_Simple()
+        {
+            var filter = RegexFilter.Block("stuff", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Blocks("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Allows("lots of toys (goomake)"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void OmakeStuffFilter_JS()
+        {
+            var filter = RegexFilter.Block("/stuff/", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Blocks("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Allows("lots of toys (goomake)"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void MultiValueFilter_Simple()
+        {
+            var filter = RegexFilter.Block("fluff, stuffing", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Allows("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of toys (omake)"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void GlobFilter_Simple()
+        {
+            var filter = RegexFilter.Block("stuff*", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Blocks("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Allows("lots of stufing day"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing2 day"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void GlobFilter_Simple_2()
+        {
+            var filter = RegexFilter.Block("stuff* day", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Allows("stuff"));
+            Assert.IsTrue(filter.Allows("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing day"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing2 day"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing days"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing2 days"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void ParenFilter_Simple()
+        {
+            var filter = RegexFilter.Block("(info)", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Allows("stuff"));
+            Assert.IsTrue(filter.Allows("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing day (info)"));
+            Assert.IsTrue(filter.Allows("lots of stuffing info"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void JSFilter_Full()
+        {
+            var filter = RegexFilter.Block("/stuff(ing)?/", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Allows(""));
+            Assert.IsTrue(filter.Blocks("stuff"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Allows("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void MultiValueFilter_Simple_inverted()
+        {
+            var filter = RegexFilter.Block("!stuff, stuffing", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Blocks(""));
+            Assert.IsTrue(filter.Allows("stuff"));
+            Assert.IsTrue(filter.Allows("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of (omake)"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Blocks("[x][Task] Some vote"));
+        }
+
+        [TestMethod]
+        public void MultiValueFilter_Full_inverted()
+        {
+            var filter = RegexFilter.Block("!/stuff|stuffing/", Strings.OmakeFilter);
+
+            Assert.IsTrue(filter.Blocks(""));
+            Assert.IsTrue(filter.Allows("stuff"));
+            Assert.IsTrue(filter.Allows("lots of stuffing"));
+            Assert.IsTrue(filter.Blocks("lots of (omake)"));
+            Assert.IsTrue(filter.Blocks("lots of stuffing (omake)"));
+            Assert.IsTrue(filter.Blocks("[x][Task] Some vote"));
         }
 
     }
