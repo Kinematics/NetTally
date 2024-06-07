@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.Input.Utility;
 
 namespace NetTally.Systems
 {
     /// <summary>
     /// Class to access program name and version attribute information.
     /// </summary>
-    public static class ProductInfo
+    public class ProductInfo
     {
         /// <summary>
         /// Static constructor.  Runs only once, to initialize static fields.
@@ -78,7 +77,7 @@ namespace NetTally.Systems
             catch (Exception e)
             {
                 var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
-                var logger = loggerFactory?.CreateLogger<Filter>();
+                var logger = loggerFactory?.CreateLogger<ProductInfo>();
                 logger?.LogError(e, "Attempt to define the name and version of the program failed.");
             }
         }
