@@ -31,14 +31,14 @@ public sealed class RegexFilter : IItemFilter<string>
     public static IItemFilter<string> Allow(params Regex[] regexes)
     {
         var patterns = regexes
-            .Select(r => new RegexPattern(r));
+            .Select(r => RegexPattern.Create(r));
 
         return new RegexFilter(FilterType.Allow, patterns);
     }
     public static IItemFilter<string> Block(params Regex[] regexes)
     {
         var patterns = regexes
-            .Select(r => new RegexPattern(r));
+            .Select(r => RegexPattern.Create(r));
 
         return new RegexFilter(FilterType.Block, patterns);
     }

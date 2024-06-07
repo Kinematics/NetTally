@@ -15,84 +15,141 @@ namespace NetTally.Utility.Filtering;
 /// /something|other/
 /// !/something|other/
 /// </summary>
-public class RegexPattern
+public partial class RegexPattern
 {
     private Regex Regex { get; }
     private bool Invert { get; }
 
-    public RegexPattern(Regex regex)
+    private RegexPattern(Regex regex, bool invert)
     {
-        Regex = regex ?? throw new ArgumentNullException(nameof(regex));
+        Regex = regex;
+        Invert = invert;
     }
 
-    public RegexPattern(string pattern)
+    #region Factory
+    public static RegexPattern Create(Regex regex, bool invert = false)
     {
-        pattern ??= string.Empty;
-        (Regex, Invert) = CreateRegexFromPattern(pattern);
+        ArgumentNullException.ThrowIfNull(regex);
+        return new RegexPattern(regex, invert);
     }
+
+    public static RegexPattern Create(string pattern, string? inject = null)
+    {
+        var (regex, inverted) = CreateRegexFrom(pattern, inject);
+        return new RegexPattern(regex, inverted);
+    }
+    #endregion Factory
 
     #region Construction of a regex pattern
-    static readonly Regex jsRegex = new(@"^(?<invert>!)?/(?<regex>.+)/(?<options>[ugi]{0,3})$",
-        RegexOptions.Compiled, TimeSpan.FromMilliseconds(150));
-    static readonly Regex escapeChars = new(@"([.?(){}^$\[\]])",
-        RegexOptions.ExplicitCapture,
-        TimeSpan.FromMilliseconds(100));
-    static readonly Regex splat = new(@"\*",
-        RegexOptions.ExplicitCapture,
-        TimeSpan.FromMilliseconds(100));
-    static readonly Regex preWord = new(@"^\w",
-        RegexOptions.ExplicitCapture,
-        TimeSpan.FromMilliseconds(100));
-    static readonly Regex postWord = new(@"\w$",
-        RegexOptions.ExplicitCapture,
-        TimeSpan.FromMilliseconds(100));
+    /// <summary>
+    /// A regex that contains nothing.
+    /// </summary>
+    [GeneratedRegex("^$")]
+    private static partial Regex EmptyRegex();
 
-    private static readonly char[] separator = [','];
+    [GeneratedRegex(@"\w$", RegexOptions.None, 100)]
+    private static partial Regex PostWordRegex();
 
-    private static (Regex, bool) CreateRegexFromPattern(string pattern)
+    [GeneratedRegex(@"^\w", RegexOptions.None, 100)]
+    private static partial Regex PreWordRegex();
+
+    [GeneratedRegex(@"[*]", RegexOptions.None, 100)]
+    private static partial Regex SplatRegex();
+
+    [GeneratedRegex(@"([.?(){}^$\[\]])", RegexOptions.None, 100)]
+    private static partial Regex EscapeCharsRegex();
+
+    [GeneratedRegex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$",
+        RegexOptions.None, 100)]
+    private static partial Regex JSRegex();
+
+    /// <summary>
+    /// A pure false regex, in as simple a form as possible.  From the start of the line,
+    /// require a negative lookahead for a value that is followed by that value.
+    /// </summary>
+    [GeneratedRegex(@"^(?!x)x")]
+    private static partial Regex AlwaysFalseRegex();
+
+
+    static readonly Regex emptyRegex = EmptyRegex();
+    static readonly Regex postWord = PostWordRegex();
+    static readonly Regex preWord = PreWordRegex();
+    static readonly Regex splat = SplatRegex();
+    static readonly Regex escapeChars = EscapeCharsRegex();
+    static readonly Regex jsRegex = JSRegex();
+    static readonly Regex falseRegex = AlwaysFalseRegex();
+    static readonly char[] separator = [','];
+
+
+    private static (Regex regex, bool inverted) CreateRegexFrom(string pattern, string? inject = null)
     {
         pattern = pattern.RemoveUnsafeCharacters().Trim();
 
-        Regex regex;
+        bool invert = CheckForInversion(ref pattern);
+
+        return (CheckIfJs(ref pattern) 
+                ? CreateJsRegex(pattern, inject)
+                : CreateSimpleRegex(pattern, inject),
+                invert);
+    }
+
+    private static bool CheckForInversion(ref string pattern)
+    {
         bool invert = false;
 
-        // Check for javascript formatting first.
+        if (pattern.Length > 0)
+        {
+            invert = pattern[0] == '!';
+            if (invert)
+                pattern = pattern[1..].TrimStart();
+        }
+
+        return invert;
+    }
+
+    private static bool CheckIfJs(ref string pattern)
+    {
+        if (string.IsNullOrEmpty(pattern)) return false;
+
         Match m = jsRegex.Match(pattern);
         if (m.Success)
         {
-            invert = m.Groups["invert"].Success;
-
-            regex = new Regex(m.Groups["regex"].Value,
-                RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase,
-                TimeSpan.FromMilliseconds(100));
+            pattern = m.Groups["regex"].Value;
         }
-        else
+
+        return m.Success;
+    }
+
+    private static Regex CreateJsRegex(string pattern, string? inject)
+    {
+        if (!string.IsNullOrEmpty(inject))
         {
-            // Otherwise check generic comma-delimited formatting.
-
-            if (pattern.StartsWith('!'))
-            {
-                invert = true;
-                pattern = pattern[1..];
-            }
-
-            string[] patterns = pattern.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-
-            string correctedPatterns = patterns
-                                      .Select(p => p.Trim())
-                                      .Select(p => escapeChars.Replace(p, "\\$1"))
-                                      .Select(p => splat.Replace(p, @".*?"))
-                                      .Select(p => preWord.IsMatch(p) ? @$"\b{p}" : p)
-                                      .Select(p => postWord.IsMatch(p) ? @$"{p}\b" : p)
-                                      .DefaultIfEmpty("")
-                                      .Aggregate((a, b) => $"{a}|{b}");
-
-            regex = new Regex(correctedPatterns,
-                RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture,
-                TimeSpan.FromMilliseconds(100));
+            pattern = $"{pattern}|{inject}";
         }
 
-        return (regex, invert);
+        return new Regex(pattern,
+            RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase,
+            TimeSpan.FromMilliseconds(100));
+    }
+
+    private static Regex CreateSimpleRegex(string pattern, string? inject)
+    {
+        string correctedPattern = pattern
+                                  .Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                                  .Concat(string.IsNullOrEmpty(inject) ? [] : [inject])
+                                  .Select(p => p.Trim())
+                                  .Select(p => escapeChars.Replace(p, "\\$1"))
+                                  .Select(p => splat.Replace(p, @".*?"))
+                                  .Select(p => preWord.IsMatch(p) ? @$"\b{p}" : p)
+                                  .Select(p => postWord.IsMatch(p) ? @$"{p}\b" : p)
+                                  .DefaultIfEmpty("")
+                                  .Aggregate((a, b) => $"{a}|{b}");
+
+        Regex regex = new(correctedPattern,
+            RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture,
+            TimeSpan.FromMilliseconds(100));
+
+        return regex;
     }
     #endregion Construction of a regex pattern
 
@@ -102,12 +159,13 @@ public class RegexPattern
     /// </summary>
     /// <param name="item">The string to check.</param>
     /// <returns>Returns true if the item matches, or false if not.</returns>
-    public bool IsMatch(string item)
-    {
-        if (item is null)
-            return false;
+    public bool IsMatch(string item) => Regex.IsMatch(item) ^ Invert;
 
-        return Regex.IsMatch(item) ^ Invert;
-    }
+    public bool IsInverted => Invert;
+
+    public bool IsEmpty => Regex == emptyRegex;
+
+    public bool IsAlwaysFalse => Regex == falseRegex;
+
     #endregion Public Methods
 }
