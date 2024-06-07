@@ -32,13 +32,13 @@ namespace NetTally.ViewModels
 
         private void LoadTasks()
         {
-            Tasks.Replace(quest.VoteCounterF.TaskList);
+            Tasks.Replace(quest.VoteCounter.TaskList);
             logger.LogInformation("{count} tasks loaded.", Tasks.Count);
         }
 
         private void SaveTasks()
         {
-            quest.VoteCounterF.ReplaceTasks(Tasks);
+            quest.VoteCounter.ReplaceTasks(Tasks);
             logger.LogInformation("{count} tasks saved.", Tasks.Count);
         }
 
@@ -94,7 +94,7 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void PutInTallyOrder()
         {
-            quest.VoteCounterF.ResetTasksOrder(TasksOrdering.AsTallied);
+            quest.VoteCounter.ResetTasksOrder(TasksOrdering.AsTallied);
             LoadTasks();
         }
 

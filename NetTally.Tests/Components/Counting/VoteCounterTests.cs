@@ -189,14 +189,14 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
 
@@ -219,15 +219,15 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        quest.VoteCounterF.Reset();
+        quest.VoteCounter.Reset();
 
-        allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(0, allVotes.Count);
     }
@@ -250,21 +250,21 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasPlan("Experiment"));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
-        var vote1 = quest.VoteCounterF.GetVotesBy(origin1).ToList();
+        var vote1 = quest.VoteCounter.GetVotesBy(origin1).ToList();
 
         Assert.AreEqual(1, vote1.Count);
 
-        var voters1 = quest.VoteCounterF.GetVotersFor(vote1[0]);
+        var voters1 = quest.VoteCounter.GetVotersFor(vote1[0]);
 
         Assert.AreEqual(2, voters1.Count());
     }
@@ -290,7 +290,7 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
@@ -300,7 +300,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(4, allVotes.Count);
         Assert.AreEqual(1, allVotes[0].LineCount);
@@ -312,7 +312,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
@@ -340,13 +340,13 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
 
@@ -373,14 +373,14 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
     [TestMethod]
@@ -404,16 +404,16 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
 
-        Assert.AreEqual(0, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
-        Assert.AreEqual(1, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[1]));
+        Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasPlan("Experiment"));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
     }
 
     [TestMethod]
@@ -445,29 +445,29 @@ public class VoteCounterTests
 
         quest.ConstructVotes(titles, posts);
 
-        var plans = quest.VoteCounterF.GetReferencePlans().ToList();
+        var plans = quest.VoteCounter.GetReferencePlans().ToList();
 
         Assert.AreEqual(1, plans.Count);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
-        quest.VoteCounterF.Reset();
+        quest.VoteCounter.Reset();
         posts = [post1, post2, post3];
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounterF.GetReferencePlans().ToList();
+        plans = quest.VoteCounter.GetReferencePlans().ToList();
 
         Assert.AreEqual(1, plans.Count);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
-        quest.VoteCounterF.Reset();
+        quest.VoteCounter.Reset();
         posts = [post1, post2, post3, post4];
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounterF.GetReferencePlans().ToList();
+        plans = quest.VoteCounter.GetReferencePlans().ToList();
 
         Assert.AreEqual(1, plans.Count);
         Assert.AreEqual("Alchemy structure",
@@ -496,14 +496,14 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
     [TestMethod]
@@ -525,14 +525,14 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
     [TestMethod]
@@ -554,14 +554,14 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
     [TestMethod]
@@ -581,14 +581,14 @@ public class VoteCounterTests
         List<PostType> posts = [post1, post2];
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
     #endregion Callouts as proxies
 
@@ -620,16 +620,16 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
 
-        Assert.AreEqual(2, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
 
     [TestMethod]
@@ -664,20 +664,20 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
 
-        Assert.AreEqual(1, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[0]));
-        Assert.AreEqual(1, quest.VoteCounterF.VoteStorage.GetUserSupportCountFor(allVotes[1]));
+        Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
+        Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
 
         Assert.AreEqual("[] Changed my mind",
             VoteBlockDisplay.ToComparableString(allVotes[0]));
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
     }
     #endregion Future references
 
@@ -704,15 +704,15 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(1, allVotes.Count);
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
         var vote1 = allVotes[0];
-        var voters = quest.VoteCounterF.VoteStorage.GetVotersFor(vote1).ToList();
+        var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
 
         Assert.AreEqual(2, voters.Count);
         Assert.IsTrue(voters.Contains(origin1));
@@ -741,17 +741,17 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
 
-        var allVotes = quest.VoteCounterF.GetAllVotes().ToList();
+        var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
         Assert.AreEqual(2, allVotes.Count);
 
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounterF.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
 
         var vote1 = allVotes[0];
-        var voters1 = quest.VoteCounterF.VoteStorage.GetVotersFor(vote1).ToList();
+        var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
         var vote2 = allVotes[1];
-        var voters2 = quest.VoteCounterF.VoteStorage.GetVotersFor(vote2).ToList();
+        var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2).ToList();
 
         Assert.AreEqual(1, voters1.Count);
         Assert.AreEqual(1, voters2.Count);

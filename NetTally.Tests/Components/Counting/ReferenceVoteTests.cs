@@ -161,8 +161,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
         Assert.AreEqual(1, votes.Where(v => v.Category != MarkerType.None).Count());
@@ -255,8 +255,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(2, voters.Count());
         Assert.AreEqual(3, votes.Count());
@@ -276,8 +276,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(2, voters.Count());
         Assert.AreEqual(3, votes.Count());
@@ -296,8 +296,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(2, voters.Count());
         Assert.AreEqual(3, votes.Count());
@@ -316,8 +316,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
@@ -338,8 +338,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
@@ -359,8 +359,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
@@ -380,8 +380,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
@@ -401,8 +401,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(3, voters.Count());
         Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
@@ -422,8 +422,8 @@ public class ReferenceVoteTests
 
         quest.ConstructVotes(titles, posts);
 
-        var voters = quest.VoteCounterF.GetAllVoters();
-        var votes = quest.VoteCounterF.GetAllVotes();
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
 
         Assert.AreEqual(2, voters.Count());
         Assert.AreEqual(1, voters.Where(v => v.IsUser).Count());

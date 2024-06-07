@@ -21,14 +21,10 @@ public partial class Quest : ObservableValidator
 {
     public Quest() { }
 
-    #region Vote Counter
     [JsonIgnore]
-    public IVoteCounter VoteCounterF { get; set; } = null!;
-    #endregion Vote Counter
-
-    #region Static class data
+    public IVoteCounter VoteCounter { get; set; } = null!;
+    
     public static readonly Uri InvalidThreadUri = new(Strings.NewThreadEntry);
-    #endregion
 
     #region Quest Identification
     public QuestId QuestId { get; init; } = QuestId.NewQuestId();
@@ -328,7 +324,7 @@ public partial class Quest : ObservableValidator
     /// <param name="posts">Posts to use to construct the votes.</param>
     public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
     {
-        VoteCounterF.ConstructVotes(titles, posts);
+        VoteCounter.ConstructVotes(titles, posts);
     }
 
     /// <summary>
@@ -336,7 +332,7 @@ public partial class Quest : ObservableValidator
     /// </summary>
     public void ConstructVotes()
     {
-        VoteCounterF.ConstructVotes();
+        VoteCounter.ConstructVotes();
     }
     #endregion Vote Counter Pass-Through
 }

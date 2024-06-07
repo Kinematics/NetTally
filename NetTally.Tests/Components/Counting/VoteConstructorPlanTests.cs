@@ -21,7 +21,7 @@ public class VoteConstructorPlanTests
 
         sampleQuest = new Quest
         {
-            VoteCounterF = serviceProvider.GetRequiredService<IVoteCounter>()
+            VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
         };
     }
 

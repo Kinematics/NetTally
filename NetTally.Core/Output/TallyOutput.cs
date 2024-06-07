@@ -73,7 +73,7 @@ namespace NetTally.Output
         {
             this.quest = quest;
             displayMode = quest.DisplayMode;
-            voteCounter = quest.VoteCounterF;
+            voteCounter = quest.VoteCounter;
             rankVoteCounter = RankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
             var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);

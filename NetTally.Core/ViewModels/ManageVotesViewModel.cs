@@ -31,9 +31,9 @@ namespace NetTally.ViewModels
 
         public ObservableCollectionExt<VoteBlockType> AllVotesCollection { get; } = [];
         public ObservableCollectionExt<OriginType> AllVotersCollection { get; } = [];
-        public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounterF.TaskList;
+        public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounter.TaskList;
 
-        public bool HasUndoActions => quest.VoteCounterF.HasUndoActions;
+        public bool HasUndoActions => quest.VoteCounter.HasUndoActions;
         public bool HasTasks => TaskList.Count > 0;
 
 
@@ -106,7 +106,7 @@ namespace NetTally.ViewModels
         /// <param name="vote">The vote to get voters for.</param>
         /// <returns>A list of voter origins.</returns>
         public IEnumerable<OriginType> GetVotersForVote(VoteBlockType? vote) =>
-            (vote != null) ? quest.VoteCounterF.GetVotersFor(vote) : [];
+            (vote != null) ? quest.VoteCounter.GetVotersFor(vote) : [];
 
         #endregion Observable Vote List Properties
 
@@ -225,7 +225,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotesCollection()
         {
-            AllVotesCollection.Replace(quest.VoteCounterF.GetAllVotes());
+            AllVotesCollection.Replace(quest.VoteCounter.GetAllVotes());
             NotifyVotesChanged();
         }
 
@@ -234,7 +234,7 @@ namespace NetTally.ViewModels
         /// </summary>
         private void UpdateVotersCollection()
         {
-            AllVotersCollection.Replace(quest.VoteCounterF.GetAllVoters());
+            AllVotersCollection.Replace(quest.VoteCounter.GetAllVoters());
             NotifyVotersChanged();
         }
 
@@ -249,20 +249,20 @@ namespace NetTally.ViewModels
         public void ReplaceTask(VoteBlockType selectedVote, string newTask)
         {
             var task = VoteTask.Create(newTask);
-            quest.VoteCounterF.ReplaceTask(selectedVote, task);
+            quest.VoteCounter.ReplaceTask(selectedVote, task);
             UpdateVotesCollection();
         }
 
         public void PartitionChildren(VoteBlockType selectedVote)
         {
-            quest.VoteCounterF.Split(selectedVote, VoteConstructor.PartitionChildren(selectedVote));
+            quest.VoteCounter.Split(selectedVote, VoteConstructor.PartitionChildren(selectedVote));
             UpdateVotesCollection();
         }
 
         public void AddUserDefinedTask(string newTask)
         {
             var task = VoteTask.Create(newTask);
-            quest.VoteCounterF.AddUserDefinedTask(task);
+            quest.VoteCounter.AddUserDefinedTask(task);
         }
 
 
@@ -280,7 +280,7 @@ namespace NetTally.ViewModels
                     SelectedToVote is not null &&
                     SelectedFromVote != SelectedToVote)
             {
-                if (quest.VoteCounterF.Merge(SelectedFromVote, SelectedToVote))
+                if (quest.VoteCounter.Merge(SelectedFromVote, SelectedToVote))
                 {
                     AllVotesCollection.Remove(SelectedFromVote);
                     NotifyVotesChanged();
@@ -303,7 +303,7 @@ namespace NetTally.ViewModels
             if (VotersFrom.Count > 0 &&
                 SelectedToVoter is not null)
             {
-                if (quest.VoteCounterF.Join([.. VotersFrom], SelectedToVoter))
+                if (quest.VoteCounter.Join([.. VotersFrom], SelectedToVoter))
                 {
                     UpdateVotesCollection();
                     OnSelectedToVoteChanged(SelectedToVote);
@@ -327,7 +327,7 @@ namespace NetTally.ViewModels
                 SelectedToVote is not null &&
                 SelectedFromVote == SelectedToVote)
             {
-                if (quest.VoteCounterF.Delete(SelectedFromVote))
+                if (quest.VoteCounter.Delete(SelectedFromVote))
                 {
                     AllVotesCollection.Remove(SelectedFromVote);
                     NotifyVotesChanged();
@@ -344,7 +344,7 @@ namespace NetTally.ViewModels
         [RelayCommand(CanExecute = nameof(CanUndo))]
         private void Undo()
         {
-            if (quest.VoteCounterF.Undo())
+            if (quest.VoteCounter.Undo())
             {
                 UpdateVotesCollection();
                 OnSelectedFromVoteChanged(SelectedFromVote);

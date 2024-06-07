@@ -78,7 +78,7 @@ public static partial class VoteConstructor
                 // that this post was a prior future reference that got overridden later.
                 // If so, don't process it now, but mark the post as processed so that
                 // it doesn't get re-submitted later.
-                if (quest.VoteCounterF.HasNewerVote(post))
+                if (quest.VoteCounter.HasNewerVote(post))
                 {
                     post.Processed = true;
                 }
@@ -110,7 +110,7 @@ public static partial class VoteConstructor
     private static bool IsValidPlanName(string planName, string postAuthor, Quest quest)
     {
         // A named vote that is named after a user is only valid if it matches the post author's name.
-        if (quest.VoteCounterF.HasVoter(planName))
+        if (quest.VoteCounter.HasVoter(planName))
         {
             if (!Agnostic.CaseInsensitiveComparer.Equals(planName, postAuthor))
             {
@@ -171,7 +171,7 @@ public static partial class VoteConstructor
             if (isPlan)
             {
                 // We can rely on GetReference returning a valid plan name.
-                var refPlan = quest.VoteCounterF.GetReferencePlan(refName);
+                var refPlan = quest.VoteCounter.GetReferencePlan(refName);
 
                 // If there is no available reference plan, just add the line and continue.
                 if (refPlan == null)
@@ -201,7 +201,7 @@ public static partial class VoteConstructor
 
                 // Meanwhile, we need to pull copies of all vote blocks and store them in our working set.
 
-                var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
+                var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                 foreach (var voteBlock in voteBlocks)
                 {
@@ -213,7 +213,7 @@ public static partial class VoteConstructor
             {
                 PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
 
-                PostToProcess? refUserPost = quest.VoteCounterF.GetLastPostByAuthor(refName, postSearchLimit);
+                PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
                 // If we can't find the reference post, just treat this as a normal line.
                 if (refUserPost == null)
@@ -229,7 +229,7 @@ public static partial class VoteConstructor
                 // Otherwise save the reference vote.
                 else
                 {
-                    var voteBlocks = quest.VoteCounterF.GetVotesBy(refName);
+                    var voteBlocks = quest.VoteCounter.GetVotesBy(refName);
 
                     if (voteBlocks.Any())
                     {
@@ -261,7 +261,7 @@ public static partial class VoteConstructor
 
             if (isProposedPlan)
             {
-                OriginType? planOrigin = quest.VoteCounterF.GetPlanOriginByName(proposedPlanName);
+                OriginType? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                 if (planOrigin != null)
                     return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
@@ -316,7 +316,7 @@ public static partial class VoteConstructor
 
             if (label == "^" || label == "↑")
             {
-                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
@@ -325,20 +325,20 @@ public static partial class VoteConstructor
             else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                   || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
             {
-                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
             {
-                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                 // Check user names second
-                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 // Force pinning if requested.
@@ -348,13 +348,13 @@ public static partial class VoteConstructor
             else // Any unlabeled lines
             {
                 // Check user names first
-                OriginType? refUser = quest.VoteCounterF.GetVoterOriginByName(refName);
+                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
                     return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
-                OriginType? refPlan = quest.VoteCounterF.GetPlanOriginByName(refName);
+                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 // Check to make sure the quest doesn't forbid non-labeled plan references.
                 if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)

@@ -211,7 +211,7 @@ namespace NetTally.ViewModels
         private void ClearTallyCache()
         {
             pageCache.Clear();
-            SelectedQuest?.VoteCounterF.ResetUserMerges();
+            SelectedQuest?.VoteCounter.ResetUserMerges();
         }
         #endregion View Model Commands
 

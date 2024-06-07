@@ -28,7 +28,7 @@ public class VoteConstructorVoteTests
     {
         quest = new Quest
         {
-            VoteCounterF = serviceProvider.GetRequiredService<IVoteCounter>()
+            VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
         };
     }
     #endregion
@@ -439,7 +439,7 @@ public class VoteConstructorVoteTests
 
         var (name, content) = processed.First();
         
-        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
+        var normalized = quest.VoteCounter.NormalizePlan(name, content);
 
         Assert.IsNotNull(normalized);
         
@@ -468,7 +468,7 @@ public class VoteConstructorVoteTests
 
         var (name, content) = processed.First();
 
-        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
+        var normalized = quest.VoteCounter.NormalizePlan(name, content);
 
         Assert.IsNotNull(normalized);
 
@@ -497,7 +497,7 @@ public class VoteConstructorVoteTests
 
         var (name, content) = processed.First();
 
-        var normalized = quest.VoteCounterF.NormalizePlan(name, content);
+        var normalized = quest.VoteCounter.NormalizePlan(name, content);
 
         Assert.IsNotNull(normalized);
 

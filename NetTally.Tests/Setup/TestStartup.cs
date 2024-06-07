@@ -47,7 +47,7 @@ namespace NetTally.Tests
             var voteCounterFactory = serviceProvider.GetRequiredService<VoteCounterFactory>();
 
             Quest quest = new();
-            quest.VoteCounterF = voteCounterFactory.GetVoteCounter(quest);
+            quest.VoteCounter = voteCounterFactory.GetVoteCounter(quest);
 
             return quest;
         }
