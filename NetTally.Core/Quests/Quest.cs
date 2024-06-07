@@ -5,12 +5,12 @@ using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
-using NetTally.Input.Utility;
 using NetTally.Quests;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
+using NetTally.Utility.Filtering;
 
 namespace NetTally
 {
@@ -30,8 +30,11 @@ namespace NetTally
         #region Static class data
         public static readonly Uri InvalidThreadUri = new(Strings.NewThreadEntry);
 
-        [GeneratedRegex("(?<range>(?<r1>\\d+)\\s*-\\s*(?<r2>\\d+))|(?<num>\\d+)", RegexOptions.None, 50)]
-        private static partial Regex postFilterRegex();
+        private static readonly Regex postFilterRegex = PostFilterRegex();
+
+        [GeneratedRegex(@"(?<range>(?<r1>\d+)\s*-\s*(?<r2>\d+))|(?<num>\d+)",
+            RegexOptions.None, 50)]
+        private static partial Regex PostFilterRegex();
         #endregion
 
         #region Quest Identification
@@ -146,11 +149,13 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the threadmark filter, based on current threadmark filter settings.
         /// </summary>
-        public Filter ThreadmarkFilter { get; private set; } = new Filter("", Strings.OmakeFilter);
+        public TextFilter ThreadmarkFilter { get; private set; } = RegexFilter.DefaultThreadmarkFilter;
 
         partial void OnCustomThreadmarkFiltersChanged(string value)
         {
-            ThreadmarkFilter = new Filter(value, Strings.OmakeFilter);
+            ThreadmarkFilter = string.IsNullOrEmpty(value)
+                ? RegexFilter.DefaultThreadmarkFilter
+                : RegexFilter.Block(Strings.OmakeFilter, value);
         }
 
         /// <summary>
@@ -168,11 +173,13 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the task filter, based on current task filter settings.
         /// </summary>
-        public Filter TaskFilter { get; private set; } = Filter.Empty;
+        public TextFilter TaskFilter { get; private set; } = RegexFilter.AlwaysAllow;
 
         partial void OnCustomTaskFiltersChanged(string value)
         {
-            TaskFilter = new Filter(value, null);
+            TaskFilter = string.IsNullOrEmpty(value)
+                ? RegexFilter.AlwaysAllow
+                : RegexFilter.Allow(null, value);
         }
 
         /// <summary>
@@ -188,11 +195,13 @@ namespace NetTally
         /// <summary>
         /// Gets or sets the user filter, based on current user filter settings.
         /// </summary>
-        public Filter UsernameFilter { get; private set; } = Filter.Empty;
+        public TextFilter UsernameFilter { get; private set; } = RegexFilter.AlwaysAllow;
 
         partial void OnCustomUsernameFiltersChanged(string value)
         {
-            UsernameFilter = new Filter(value, null);
+            UsernameFilter = string.IsNullOrEmpty(value)
+                ? RegexFilter.AlwaysAllow
+                : RegexFilter.Block(null, value);
         }
 
         /// <summary>
@@ -204,50 +213,64 @@ namespace NetTally
         /// List of custom posts to filter.
         /// </summary>
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(PostsToFilter))]
+        [NotifyPropertyChangedFor(nameof(PostsFilter))]
         string customPostFilters = string.Empty;
         /// <summary>
-        /// Collection of post numbers to filter from the tally.
+        /// Gets or sets the posts filter.
         /// </summary>
         [JsonIgnore]
-        public HashSet<long> PostsToFilter { get; } = [];
+        public IItemFilter<Range> PostsFilter { get; private set; } = ListFilter<Range>.AlwaysAllow;
 
-        /// <summary>
-        /// Convert the CustomPostFilters string to a hashset of post
-        /// numbers to filter.
-        /// </summary>
         partial void OnCustomPostFiltersChanged(string value)
         {
-            PostsToFilter.Clear();
+            value = value.RemoveUnsafeCharacters().Trim();
 
-            if (!string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
-                MatchCollection ms = postFilterRegex().Matches(value);
+                PostsFilter = ListFilter<Range>.AlwaysAllow;
+                return;
+            }
 
-                for (int i = 0; i < ms.Count; i++)
+            bool invert = value[0] == '!';
+            if (invert)
+            {
+                value = value[1..].TrimStart();
+
+                if (string.IsNullOrEmpty(value))
                 {
-                    Match m = ms[i];
+                    PostsFilter = ListFilter<Range>.AlwaysBlock;
+                    return;
+                }
+            }
 
-                    if (m.Groups[1].Success)
+            List<Range> ranges = [];
+
+            MatchCollection ms = postFilterRegex.Matches(value);
+
+            foreach (Match mm in ms)
+            {
+                if (mm.Groups["range"].Success)
+                {
+                    if (int.TryParse(mm.Groups["r1"].Value, out int startRange) &&
+                        int.TryParse(mm.Groups["r2"].Value, out int endRange))
                     {
-                        if (int.TryParse(m.Groups[2].Value, out int startRange) &&
-                            int.TryParse(m.Groups[3].Value, out int endRange))
-                        {
-                            for (int j = startRange; j <= endRange; j++)
-                            {
-                                PostsToFilter.Add(j);
-                            }
-                        }
+                        Range range = new(startRange, endRange);
+                        ranges.Add(range);
                     }
-                    else if (m.Groups[4].Success)
+                }
+                else if (mm.Groups["num"].Success)
+                {
+                    if (int.TryParse(mm.Groups["num"].Value, out int num))
                     {
-                        if (int.TryParse(m.Groups[4].Value, out int parseResult))
-                        {
-                            PostsToFilter.Add(parseResult);
-                        }
+                        Range range = new(num, num);
+                        ranges.Add(range);
                     }
                 }
             }
+
+            PostsFilter = invert
+                ? ListFilter<Range>.Whitelist(ranges, RangeComparer.Instance)
+                : ListFilter<Range>.Blacklist(ranges, RangeComparer.Instance);
         }
 
         #endregion Quest configuration properties: Filtering

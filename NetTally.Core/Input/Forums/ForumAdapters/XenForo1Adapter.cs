@@ -10,6 +10,7 @@ using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Utility.Filtering;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters
@@ -359,8 +360,8 @@ namespace NetTally.Input.Forums.ForumAdapters
             // Use threadmark filters to filter out unwanted threadmark titles.
             var filteredItems = from item in items
                                 let title = item.Element(titleName)?.Value
-                                where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
-                                        (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(title)))
+                                where (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Allows(title)) ||
+                                      (!quest.UseCustomThreadmarkFilters && RegexFilter.DefaultThreadmarkFilter.Allows(title))
                                 let pub = item.Element(pubDate)?.Value
                                 where string.IsNullOrEmpty(pub) == false
                                 let pubStamp = DateTime.Parse(pub)
@@ -458,8 +459,8 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             // Local functions
             bool filterLambda(HtmlNode n) => n != null &&
-                ((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(n.InnerText) ?? false)) ||
-                (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(n.InnerText)));
+                ((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Allows(n.InnerText)) ||
+                (!quest.UseCustomThreadmarkFilters && RegexFilter.DefaultThreadmarkFilter.Allows(n.InnerText)));
 
             static IEnumerable<HtmlNode> childSelector(HtmlNode i) => i.Element("ul")?.Elements("li") ?? [];
 
@@ -474,7 +475,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             var messageList = page?.GetElementbyId("messageList");
 
             // Return all found list items in the message list, or an empty list.
-            return messageList?.Elements("li") ?? Enumerable.Empty<HtmlNode>();
+            return messageList?.Elements("li") ?? [];
         }
 
         private PostType? GetPost(HtmlNode li, Quest quest)

@@ -9,6 +9,7 @@ using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Utility;
+using NetTally.Utility.Comparers;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
@@ -256,14 +257,14 @@ public class ForumReader(
 
     private static bool PostMatchesUsernameFilter(PostType post, Quest quest)
     {
-        return quest.UseCustomUsernameFilters && quest.UsernameFilter.Match(post.Origin.Author.Name);
+        return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
     }
 
     private static bool PostMatchesPostNumberFilter(PostType post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
-            (quest.PostsToFilter.Contains(post.Origin.ThreadPostNumber) ||
-            quest.PostsToFilter.Contains(post.Origin.PostId.Id));
+            (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber.AsRange()) ||
+             quest.PostsFilter.Blocks(post.Origin.PostId.AsRange()));
     }
     #endregion Keep Post Filtering
 

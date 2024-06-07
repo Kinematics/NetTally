@@ -11,6 +11,7 @@ using NetTally.Extensions;
 using NetTally.Input.Utility;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Utility.Filtering;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters
@@ -392,8 +393,8 @@ namespace NetTally.Input.Forums.ForumAdapters
             var filteredItems = from item in items
                                 let title1 = item.Element(titleName)?.Value
                                 let title = title1.StartsWith("Threadmark:") ? title1["Threadmark:".Length..].Trim() : title1
-                                where !((quest.UseCustomThreadmarkFilters && (quest.ThreadmarkFilter?.Match(title) ?? false)) ||
-                                        (!quest.UseCustomThreadmarkFilters && Filter.DefaultThreadmarkFilter.Match(title)))
+                                where (quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Allows(title)) ||
+                                      (!quest.UseCustomThreadmarkFilters && RegexFilter.DefaultThreadmarkFilter.Allows(title))
                                 let pub = item.Element(pubDate)?.Value
                                 where string.IsNullOrEmpty(pub) == false
                                 let pubStamp = DateTime.Parse(pub)
@@ -493,19 +494,9 @@ namespace NetTally.Input.Forums.ForumAdapters
                 if (n == null)
                     return true;
 
-                if (quest.UseCustomThreadmarkFilters)
-                {
-                    if (quest.ThreadmarkFilter != null)
-                    {
-                        return quest.ThreadmarkFilter.Match(n.InnerText);
-                    }
-                }
-                else
-                {
-                    return Filter.DefaultThreadmarkFilter.Match(n.InnerText);
-                }
-
-                return true;
+                return quest.UseCustomThreadmarkFilters
+                    ? quest.ThreadmarkFilter.Blocks(n.InnerText)
+                    : RegexFilter.DefaultThreadmarkFilter.Blocks(n.InnerText);
             }
         }
         #endregion Get ThreadInfoRange information
