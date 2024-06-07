@@ -14,7 +14,12 @@ public static partial class PostNumberFilter
         RegexOptions.ExplicitCapture, 50)]
     private static partial Regex PostFilterRegex();
 
-    public static IAdaptingFilter<Range, long> Create(string value)
+    public static PostNumFilter AlwaysAllow = 
+        AdaptingListFilter<Range, long>.AlwaysAllow;
+    public static PostNumFilter AlwaysBlock = 
+        AdaptingListFilter<Range, long>.AlwaysBlock;
+
+    public static PostNumFilter Create(string value)
     {
         value = value.RemoveUnsafeCharacters().Trim();
 

@@ -213,8 +213,8 @@ namespace NetTally
         /// Gets or sets the posts filter.
         /// </summary>
         [JsonIgnore]
-        public IAdaptingFilter<Range, long> PostsFilter { get; private set; } =
-            AdaptingListFilter<Range, long>.AlwaysAllow;
+        public PostNumFilter PostsFilter { get; private set; } =
+            PostNumberFilter.AlwaysAllow;
 
         partial void OnCustomPostFiltersChanged(string value)
         {

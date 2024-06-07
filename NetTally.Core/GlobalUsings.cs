@@ -36,4 +36,5 @@ global using VoteStorageType = System.Collections.Generic.IEnumerable<
         NetTally.Tally.Components.Storage.VoterStorage>>;
 
 global using TextFilter = NetTally.Utility.Filtering.IItemFilter<string>;
+global using PostNumFilter = NetTally.Utility.Filtering.IAdaptingFilter<System.Range, long>;
 
