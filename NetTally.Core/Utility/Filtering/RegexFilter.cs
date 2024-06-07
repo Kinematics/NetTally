@@ -43,8 +43,23 @@ public sealed class RegexFilter : TextFilter
         return new RegexFilter(FilterType.Block, patterns);
     }
 
-    public static IItemFilter<string> AlwaysAllow { get; } = AlwaysFilter.AllowAll<string>();
-    public static IItemFilter<string> AlwaysBlock { get; } = AlwaysFilter.BlockAll<string>();
+    public static TextFilter Allow(string? inject, params string[] patterns)
+    {
+        var p = patterns
+            .Select(r => RegexPattern.Create(r, inject));
+
+        return new RegexFilter(FilterType.Allow, p);
+    }
+    public static TextFilter Block(string? inject, params string[] patterns)
+    {
+        var p = patterns
+            .Select(r => RegexPattern.Create(r, inject));
+
+        return new RegexFilter(FilterType.Block, p);
+    }
+
+    public static TextFilter AlwaysAllow { get; } = AlwaysFilter.AllowAll<string>();
+    public static TextFilter AlwaysBlock { get; } = AlwaysFilter.BlockAll<string>();
 
     #endregion
 
