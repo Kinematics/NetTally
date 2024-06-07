@@ -47,16 +47,19 @@ public partial class RegexPattern
     [GeneratedRegex("^$")]
     private static partial Regex EmptyRegex();
 
-    [GeneratedRegex(@"\w$", RegexOptions.None, 100)]
+    [GeneratedRegex(@"(\w)\]", RegexOptions.None, 100)]
     private static partial Regex PostWordRegex();
 
-    [GeneratedRegex(@"^\w", RegexOptions.None, 100)]
+    [GeneratedRegex(@"\[(\w)", RegexOptions.None, 100)]
     private static partial Regex PreWordRegex();
 
     [GeneratedRegex(@"[*]", RegexOptions.None, 100)]
     private static partial Regex SplatRegex();
 
-    [GeneratedRegex(@"([.?(){}^$\[\]])", RegexOptions.None, 100)]
+    [GeneratedRegex(@"[?]", RegexOptions.None, 100)]
+    private static partial Regex LetterRegex();
+
+    [GeneratedRegex(@"([.(){}^$])", RegexOptions.None, 100)]
     private static partial Regex EscapeCharsRegex();
 
     [GeneratedRegex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$",
@@ -75,6 +78,7 @@ public partial class RegexPattern
     static readonly Regex postWord = PostWordRegex();
     static readonly Regex preWord = PreWordRegex();
     static readonly Regex splat = SplatRegex();
+    static readonly Regex letter = LetterRegex();
     static readonly Regex escapeChars = EscapeCharsRegex();
     static readonly Regex jsRegex = JSRegex();
     static readonly Regex falseRegex = AlwaysFalseRegex();
@@ -135,13 +139,13 @@ public partial class RegexPattern
     private static Regex CreateSimpleRegex(string pattern, string? inject)
     {
         string correctedPattern = pattern
-                                  .Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                                  .Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                                   .Concat(string.IsNullOrEmpty(inject) ? [] : [inject])
-                                  .Select(p => p.Trim())
                                   .Select(p => escapeChars.Replace(p, "\\$1"))
+                                  .Select(p => letter.Replace(p, @"."))
                                   .Select(p => splat.Replace(p, @".*?"))
-                                  .Select(p => preWord.IsMatch(p) ? @$"\b{p}" : p)
-                                  .Select(p => postWord.IsMatch(p) ? @$"{p}\b" : p)
+                                  .Select(p => preWord.Replace(p, "\\b$1"))
+                                  .Select(p => postWord.Replace(p, "$1\\b"))
                                   .DefaultIfEmpty("")
                                   .Aggregate((a, b) => $"{a}|{b}");
 
