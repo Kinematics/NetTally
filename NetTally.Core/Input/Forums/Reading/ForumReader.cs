@@ -263,8 +263,8 @@ public class ForumReader(
     private static bool PostMatchesPostNumberFilter(PostType post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
-            (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber.AsRange()) ||
-             quest.PostsFilter.Blocks(post.Origin.PostId.AsRange()));
+            (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||
+             quest.PostsFilter.Blocks(post.Origin.PostId.Id));
     }
     #endregion Keep Post Filtering
 

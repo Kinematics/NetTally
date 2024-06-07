@@ -219,7 +219,8 @@ namespace NetTally
         /// Gets or sets the posts filter.
         /// </summary>
         [JsonIgnore]
-        public IItemFilter<Range> PostsFilter { get; private set; } = ListFilter<Range>.AlwaysAllow;
+        public IAdaptingFilter<Range, long> PostsFilter { get; private set; } =
+            AdaptingListFilter<Range, long>.AlwaysAllow;
 
         partial void OnCustomPostFiltersChanged(string value)
         {
@@ -227,7 +228,7 @@ namespace NetTally
 
             if (string.IsNullOrEmpty(value))
             {
-                PostsFilter = ListFilter<Range>.AlwaysAllow;
+                PostsFilter = AdaptingListFilter<Range, long>.AlwaysAllow;
                 return;
             }
 
@@ -238,7 +239,7 @@ namespace NetTally
 
                 if (string.IsNullOrEmpty(value))
                 {
-                    PostsFilter = ListFilter<Range>.AlwaysBlock;
+                    PostsFilter = AdaptingListFilter<Range, long>.AlwaysBlock;
                     return;
                 }
             }
@@ -269,8 +270,15 @@ namespace NetTally
             }
 
             PostsFilter = invert
-                ? ListFilter<Range>.Whitelist(ranges, RangeComparer.Instance)
-                : ListFilter<Range>.Blacklist(ranges, RangeComparer.Instance);
+                ? AdaptingListFilter<Range, long>.Whitelist(ranges, IsValueInRange)
+                : AdaptingListFilter<Range, long>.Blacklist(ranges, IsValueInRange);
+        }
+
+        private static bool IsValueInRange(Range range, long item)
+        {
+            int value = (int)item;
+
+            return value >= range.Start.Value && value <= range.End.Value;
         }
 
         #endregion Quest configuration properties: Filtering

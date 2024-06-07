@@ -1,7 +1,7 @@
 ﻿namespace NetTally.Utility.Filtering;
 
 /// <summary>
-/// Interface for a generic item filter.
+/// A generic item filter to allow or block items.
 /// </summary>
 /// <typeparam name="T">The type of item being filtered.</typeparam>
 public interface IItemFilter<T>
