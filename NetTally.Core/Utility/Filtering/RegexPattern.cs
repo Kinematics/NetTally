@@ -33,9 +33,9 @@ public partial class RegexPattern
         return new RegexPattern(regex, invert);
     }
 
-    public static RegexPattern Create(string pattern, string? inject = null)
+    public static RegexPattern Create(string pattern)
     {
-        var (regex, inverted) = CreateRegexFrom(pattern, inject);
+        var (regex, inverted) = CreateRegexFrom(pattern);
         return new RegexPattern(regex, inverted);
     }
     #endregion Factory
@@ -85,15 +85,15 @@ public partial class RegexPattern
     static readonly char[] separator = [','];
 
 
-    private static (Regex regex, bool inverted) CreateRegexFrom(string pattern, string? inject = null)
+    private static (Regex regex, bool inverted) CreateRegexFrom(string pattern)
     {
         pattern = pattern.RemoveUnsafeCharacters().Trim();
 
         bool invert = CheckForInversion(ref pattern);
 
         return (CheckIfJs(ref pattern) 
-                ? CreateJsRegex(pattern, inject)
-                : CreateSimpleRegex(pattern, inject),
+                ? CreateJsRegex(pattern)
+                : CreateSimpleRegex(pattern),
                 invert);
     }
 
@@ -124,23 +124,17 @@ public partial class RegexPattern
         return m.Success;
     }
 
-    private static Regex CreateJsRegex(string pattern, string? inject)
+    private static Regex CreateJsRegex(string pattern)
     {
-        if (!string.IsNullOrEmpty(inject))
-        {
-            pattern = $"{pattern}|{inject}";
-        }
-
         return new Regex(pattern,
             RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase,
             TimeSpan.FromMilliseconds(100));
     }
 
-    private static Regex CreateSimpleRegex(string pattern, string? inject)
+    private static Regex CreateSimpleRegex(string pattern)
     {
         string correctedPattern = pattern
                                   .Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                                  .Concat(string.IsNullOrEmpty(inject) ? [] : [inject])
                                   .Select(p => escapeChars.Replace(p, "\\$1"))
                                   .Select(p => letter.Replace(p, @"."))
                                   .Select(p => splat.Replace(p, @".*?"))

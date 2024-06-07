@@ -43,17 +43,17 @@ public sealed class RegexFilter : TextFilter
         return new RegexFilter(FilterType.Block, patterns);
     }
 
-    public static TextFilter Allow(string? inject, params string[] patterns)
+    public static TextFilter Allow(params string[] patterns)
     {
         var p = patterns
-            .Select(r => RegexPattern.Create(r, inject));
+            .Select(r => RegexPattern.Create(r));
 
         return new RegexFilter(FilterType.Allow, p);
     }
-    public static TextFilter Block(string? inject, params string[] patterns)
+    public static TextFilter Block(params string[] patterns)
     {
         var p = patterns
-            .Select(r => RegexPattern.Create(r, inject));
+            .Select(r => RegexPattern.Create(r));
 
         return new RegexFilter(FilterType.Block, p);
     }
