@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.ViewModels;
 
 namespace NetTally.Views

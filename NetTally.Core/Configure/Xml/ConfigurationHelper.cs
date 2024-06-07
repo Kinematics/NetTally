@@ -1,5 +1,5 @@
 ﻿using System.Configuration;
-using NetTally.Systems;
+using NetTally.Product;
 
 namespace NetTally.Configure.Xml
 {

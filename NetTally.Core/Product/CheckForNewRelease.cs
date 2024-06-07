@@ -4,7 +4,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
 using NetTally.Extensions;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.Web;
 
 namespace NetTally.Data

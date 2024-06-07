@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Quests;
-using NetTally.Systems;
+using NetTally.Product;
 
 namespace NetTally.Configure.Json;
 

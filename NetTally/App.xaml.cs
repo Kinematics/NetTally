@@ -23,7 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.Views;
 
 namespace NetTally

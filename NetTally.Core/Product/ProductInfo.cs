@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace NetTally.Systems
+namespace NetTally.Product
 {
     /// <summary>
     /// Class to access program name and version attribute information.

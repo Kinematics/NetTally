@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.RankCounting;

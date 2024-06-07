@@ -7,7 +7,7 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
