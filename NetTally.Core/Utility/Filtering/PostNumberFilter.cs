@@ -14,9 +14,9 @@ public static partial class PostNumberFilter
         RegexOptions.ExplicitCapture, 50)]
     private static partial Regex PostFilterRegex();
 
-    public static PostNumFilter AlwaysAllow = 
+    public static PostNumFilter AlwaysAllow =>
         AdaptingListFilter<Range, long>.AlwaysAllow;
-    public static PostNumFilter AlwaysBlock = 
+    public static PostNumFilter AlwaysBlock =>
         AdaptingListFilter<Range, long>.AlwaysBlock;
 
     public static PostNumFilter Create(string value)
