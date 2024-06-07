@@ -12,15 +12,22 @@ public sealed class PredicateFilter<T> : IItemFilter<T>
 
     private PredicateFilter(FilterType filterType, Func<T, bool> predicate)
     {
-        this.predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
+        this.predicate = predicate;
         this.filterType = filterType;
     }
 
-    #region Factories used to construct varying types of list filters.
-    public static IItemFilter<T> Allow(Func<T, bool> predicate) =>
-        new PredicateFilter<T>(FilterType.Allow, predicate);
-    public static IItemFilter<T> Block(Func<T, bool> predicate) =>
-        new PredicateFilter<T>(FilterType.Block, predicate);
+    #region Factories used to construct varying types of filters.
+    public static IItemFilter<T> Allow(Func<T, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        return new PredicateFilter<T>(FilterType.Allow, predicate);
+    }
+
+    public static IItemFilter<T> Block(Func<T, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+        return new PredicateFilter<T>(FilterType.Block, predicate);
+    }
     #endregion
 
     /// <summary>
@@ -28,28 +35,22 @@ public sealed class PredicateFilter<T> : IItemFilter<T>
     /// </summary>
     /// <param name="item">The item to be checked.</param>
     /// <returns>True if the filter allows the item, or false if not.</returns>
-    public bool Allows(T item)
+    public bool Allows(T item) => filterType switch
     {
-        return filterType switch
-        {
-            FilterType.Allow => predicate(item),
-            FilterType.Block => !predicate(item),
-            _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
-        };
-    }
+        FilterType.Allow => predicate(item),
+        FilterType.Block => !predicate(item),
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
+    };
 
     /// <summary>
     /// Determines whether the filter blocks the item provided.
     /// </summary>
     /// <param name="item">The item to be checked.</param>
     /// <returns>True if the filter blocks the item, or false if not.</returns>
-    public bool Blocks(T item)
+    public bool Blocks(T item) => filterType switch
     {
-        return filterType switch
-        {
-            FilterType.Allow => !predicate(item),
-            FilterType.Block => predicate(item),
-            _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
-        };
-    }
+        FilterType.Allow => !predicate(item),
+        FilterType.Block => predicate(item),
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
+    };
 }

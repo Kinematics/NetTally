@@ -9,15 +9,11 @@ namespace NetTally.Utility.Filtering;
 public sealed class RegexFilter : IItemFilter<string>
 {
     private readonly FilterType filterType;
-    private readonly List<RegexPattern> patterns = [];
+    private readonly List<RegexPattern> patterns;
 
-    /// <summary>
-    /// Construct a new regex filter using the provided regex patterns.
-    /// </summary>
-    /// <param name="patterns"></param>
     private RegexFilter(FilterType filterType, IEnumerable<RegexPattern> patterns)
     {
-        this.patterns.AddRange(patterns);
+        this.patterns = patterns.ToList();
         this.filterType = filterType;
     }
 
@@ -48,23 +44,17 @@ public sealed class RegexFilter : IItemFilter<string>
     }
     #endregion
 
-
-    /// <summary>
-    /// Determines whether the filter allows the item provided to pass through the filter.
-    /// </summary>
-    /// <param name="item">The item to be checked.</param>
-    /// <returns>True if the filter allows the item, or false if not.</returns>
     public bool Allows(string item) => filterType switch
     {
         FilterType.Allow => patterns.Any(a => a.IsMatch(item)),
         FilterType.Block => !patterns.Any(a => a.IsMatch(item)),
-        _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
     };
 
     public bool Blocks(string item) => filterType switch
     {
         FilterType.Allow => !patterns.Any(a => a.IsMatch(item)),
         FilterType.Block => patterns.Any(a => a.IsMatch(item)),
-        _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
     };
 }
