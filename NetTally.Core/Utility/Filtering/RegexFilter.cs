@@ -6,7 +6,7 @@ namespace NetTally.Utility.Filtering;
 /// An item filter that determines whether an object is allowed by
 /// running a regex test against a string extraction of the object.
 /// </summary>
-public sealed class RegexFilter : IItemFilter<string>
+public sealed class RegexFilter : TextFilter
 {
     private readonly FilterType filterType;
     private readonly List<RegexPattern> patterns;
@@ -18,24 +18,24 @@ public sealed class RegexFilter : IItemFilter<string>
     }
 
     #region Factories used to construct varying types of filters.
-    public static IItemFilter<string> Allow(params RegexPattern[] patterns)
+    public static TextFilter Allow(params RegexPattern[] patterns)
     {
         return new RegexFilter(FilterType.Allow, patterns);
     }
 
-    public static IItemFilter<string> Block(params RegexPattern[] patterns)
+    public static TextFilter Block(params RegexPattern[] patterns)
     {
         return new RegexFilter(FilterType.Block, patterns);
     }
 
-    public static IItemFilter<string> Allow(params Regex[] regexes)
+    public static TextFilter Allow(params Regex[] regexes)
     {
         var patterns = regexes
             .Select(r => RegexPattern.Create(r));
 
         return new RegexFilter(FilterType.Allow, patterns);
     }
-    public static IItemFilter<string> Block(params Regex[] regexes)
+    public static TextFilter Block(params Regex[] regexes)
     {
         var patterns = regexes
             .Select(r => RegexPattern.Create(r));
@@ -62,6 +62,6 @@ public sealed class RegexFilter : IItemFilter<string>
         _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
     };
 
-    public static IItemFilter<string> DefaultThreadmarkFilter { get; } =
+    public static TextFilter DefaultThreadmarkFilter { get; } =
         Block(RegexPattern.Create(Strings.OmakeFilter));
 }

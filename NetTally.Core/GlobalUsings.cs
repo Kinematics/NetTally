@@ -35,3 +35,5 @@ global using VoteStorageType = System.Collections.Generic.IEnumerable<
         NetTally.Tally.Components.Votes.VoteBlockType,
         NetTally.Tally.Components.Storage.VoterStorage>>;
 
+global using TextFilter = NetTally.Utility.Filtering.IItemFilter<string>;
+
