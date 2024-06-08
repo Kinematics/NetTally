@@ -56,7 +56,8 @@
                IsHitTestVisible="False" />
 
         <ListBox Grid.Column="0" Grid.Row="0" x:Name="VotesFromListBox" Margin="10,36,10,10"
-                 ItemsSource="{Binding VotesFrom}" SelectedItem="{Binding SelectedFromVote}"
+                 ItemsSource="{Binding VotesFrom, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedFromVote}"
                  ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -105,7 +106,8 @@
                IsHitTestVisible="False" />
 
         <ListBox Grid.Column="2" Grid.Row="0" x:Name="VotesToListBox" Margin="10,36,10,10"
-                 ItemsSource="{Binding VotesTo}" SelectedItem="{Binding SelectedToVote}"
+                 ItemsSource="{Binding VotesTo, Mode=OneWay}"
+                 SelectedItem="{Binding SelectedToVote}"
                  ContextMenu="{StaticResource TaskContextMenu}">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">

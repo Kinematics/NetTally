@@ -23,7 +23,7 @@ public partial class Quest : ObservableValidator
 
     [JsonIgnore]
     public IVoteCounter VoteCounter { get; set; } = null!;
-    
+
     public static readonly Uri InvalidThreadUri = new(Strings.NewThreadEntry);
 
     #region Quest Identification
