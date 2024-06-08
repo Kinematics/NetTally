@@ -75,7 +75,7 @@ namespace NetTally.ViewModels
                 return;
             }
 
-            VotersFrom.Replace(GetVotersForVote(value).Order());
+            VotersFrom.Replace(GetVotersForVote(value).Order(OriginComparer.Instance));
             JoinCommand.NotifyCanExecuteChanged();
         }
 
@@ -92,7 +92,7 @@ namespace NetTally.ViewModels
                 return;
             }
 
-            VotersTo.Replace(GetVotersForVote(value).Order());
+            VotersTo.Replace(GetVotersForVote(value).Order(OriginComparer.Instance));
             JoinCommand.NotifyCanExecuteChanged();
         }
 
