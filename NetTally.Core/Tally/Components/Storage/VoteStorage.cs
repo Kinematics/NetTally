@@ -205,6 +205,23 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     }
 
     /// <summary>
+    /// Request a list of all voter origins currently supporting a given vote.
+    /// Does filter for plans.
+    /// </summary>
+    /// <param name="vote">The vote being checked on.</param>
+    /// <returns>Returns an IEnumerable of the <see cref="OriginType"> of
+    /// the supporters of the vote, if any.</returns>
+    public IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote)
+    {
+        if (TryGetValue(vote, out var supporters))
+        {
+            return supporters.Keys.Where(v => v.IsUser);
+        }
+
+        return [];
+    }
+
+    /// <summary>
     /// Request the <seealso cref="VoterStorage"/> collection of voters and votes
     /// for a given vote.
     /// </summary>

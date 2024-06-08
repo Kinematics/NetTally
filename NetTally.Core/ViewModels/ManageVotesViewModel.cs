@@ -106,7 +106,7 @@ namespace NetTally.ViewModels
         /// <param name="vote">The vote to get voters for.</param>
         /// <returns>A list of voter origins.</returns>
         public IEnumerable<OriginType> GetVotersForVote(VoteBlockType? vote) =>
-            (vote != null) ? quest.VoteCounter.GetVotersFor(vote) : [];
+            (vote != null) ? quest.VoteCounter.GetUserVotersFor(vote) : [];
 
         #endregion Observable Vote List Properties
 

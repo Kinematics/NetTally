@@ -156,6 +156,12 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
     IEnumerable<OriginType> GetVotersFor(VoteBlockType vote);
     /// <summary>
+    /// Gets all user voters that are supporting the specified vote.
+    /// </summary>
+    /// <param name="vote">The vote to check on.</param>
+    /// <returns>Returns an IEnumerable of the user voter names that are supporting the given vote.</returns>
+    IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote);
+    /// <summary>
     /// Gets a count of the known voters.
     /// </summary>
     /// <returns>Returns a count of the registered reference voters.</returns>

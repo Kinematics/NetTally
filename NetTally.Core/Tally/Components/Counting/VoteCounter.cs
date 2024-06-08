@@ -397,7 +397,16 @@ public class VoteCounter(
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    public IEnumerable<OriginType> GetVotersFor(VoteBlockType vote) => VoteStorage.GetVotersFor(vote);
+    public IEnumerable<OriginType> GetVotersFor(VoteBlockType vote) =>
+        VoteStorage.GetVotersFor(vote);
+
+    /// <summary>
+    /// Gets all voters that are supporting the specified vote.
+    /// </summary>
+    /// <param name="vote">The vote to check on.</param>
+    /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
+    public IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote) =>
+        VoteStorage.GetUserVotersFor(vote);
     #endregion
 
     #region Adding / Modifying / Deleting Votes
