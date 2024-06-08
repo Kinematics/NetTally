@@ -85,7 +85,7 @@
                  ItemsSource="{Binding VotersFrom}">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<TextBlock Text="{Binding Author.Name}" Margin="0, 0, 0, 10" FontSize="13.333" />
+					<TextBlock Text="{Binding Author.Name}" Margin="0, 0, 0, 0" FontSize="13.333" />
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
@@ -99,7 +99,7 @@
                  ItemsSource="{Binding VotersTo}" SelectedItem="{Binding SelectedToVoter}">
 			<ListBox.ItemTemplate>
 				<DataTemplate>
-					<TextBlock Text="{Binding Author.Name}" Margin="0, 0, 0, 10" FontSize="13.333" />
+					<TextBlock Text="{Binding Author.Name}" Margin="0, 0, 0, 0" FontSize="13.333" />
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
