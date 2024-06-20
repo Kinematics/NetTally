@@ -68,51 +68,88 @@ namespace NetTally.Avalonia.Views
         #region Context Menu Events
         private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
         {
-            if (sender is not ContextMenu cm)
-                return;
+            selectedVote = GetSelectedVoteInContext(sender);
 
-            // The context menu parent should be a Popup. The parent of that
-            // should be the placement target listbox. That's what we need
-            // to examine.
-            if (cm.Parent?.Parent is ListBox listBox)
+            // Enable/Disable commands based on whether it's valid for the selected vote.
+            foreach (var cmd in ContextMenuCommands)
             {
-                if (listBox.SelectedItem is VoteBlockType selectedVote)
+                string? cmdHeader = cmd.Header as string;
+
+                switch (cmdHeader)
                 {
-                    var selectedVoteTask = selectedVote.Task;
+                    case partitionChildrenString:
+                        cmd.IsEnabled = selectedVote != null && HasChildLines(selectedVote);
+                        break;
+                    case clearTaskString:
+                        cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.Empty;
+                        break;
+                    case reorderTasksString:
+                        cmd.IsEnabled = ContextMenuTasks.Count > 1;
+                        break;
+                }
+            }
 
-                    // Enable/Disable commands based on whether it's valid for the selected vote.
+            foreach (var task in ContextMenuTasks)
+            {
+                string menuTask = task.Header as string ?? "";
+                task.IsEnabled = selectedVote != null && menuTask != selectedVote.Task.Name;
+            }
+        }
 
-                    foreach (var cmd in ContextMenuCommands)
-                    {
-                        string? cmdHeader = cmd.Header as string;
+        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
+        {
+            ContextMenu? cm =
+                (sender as ContextMenu) ??
+                (sender as MenuItem)?.Parent as ContextMenu;
 
-                        switch (cmdHeader)
-                        {
-                            case partitionChildrenString:
-                                cmd.IsEnabled = HasChildLines(selectedVote);
-                                break;
-                            case clearTaskString:
-                                cmd.IsEnabled = (selectedVoteTask != VoteTask.Empty);
-                                break;
-                            case reorderTasksString:
-                                cmd.IsEnabled = ContextMenuTasks.Count > 1;
-                                break;
-                        }
-                    }
+            if (cm != null &&
+                cm.Parent is Popup popup &&
+                popup.Parent is ListBox listBox &&
+                listBox.SelectedItem is VoteBlockType selectedVote)
+            {
+                return selectedVote;
+            }
 
-                    foreach (var task in ContextMenuTasks)
-                    {
-                        string? menuTask = task.Header as string;
-                        task.IsEnabled = menuTask != selectedVoteTask.Name;
-                    }
+            return null;
+        }
+
+        private void PartitionChildren_Click(object? sender, RoutedEventArgs e)
+        {
+            if (selectedVote != null)
+            {
+                manageVotesViewModel.PartitionChildren(selectedVote);
+            }
+        }
+
+        private void ModifyTask_Click(object? sender, RoutedEventArgs e)
+        {
+            if (sender is MenuItem mi && selectedVote != null)
+            {
+                string? header = mi.Header?.ToString();
+
+                if (!string.IsNullOrEmpty(header))
+                {
+                    string newTask = header == "Clear Task" ? "" : header;
+                    manageVotesViewModel.ReplaceTask(selectedVote, newTask);
                 }
             }
         }
 
+        private async void ReorderTasks_Click(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await navigationService.ShowDialogAsync<ReorderTasks>(this);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error reordering tasks.");
+            }
+        }
+
+
         private void NewTask_Click(object? sender, RoutedEventArgs e)
         {
-            selectedVoteForNewTask = GetSelectedVoteInContext(sender);
-
             // Show the custom input box, and put focus on the text box.
             InputBox.IsVisible = true;
             InputTextBox.Focus();
@@ -142,83 +179,6 @@ namespace NetTally.Avalonia.Views
                     break;
             }
         }
-
-        private void ModifyTask_Click(object? sender, RoutedEventArgs e)
-        {
-            // Get the context menu for the menu item.
-            if (sender is MenuItem mi && mi.Parent is ContextMenu cm)
-            {
-                // The context menu parent should be a Popup. The parent of that
-                // should be the placement target listbox. That's what we need
-                // to examine.
-                if (cm.Parent?.Parent is ListBox listBox)
-                {
-                    if (listBox.SelectedItem is VoteBlockType selectedVote)
-                    {
-                        string newTask = mi.Header?.ToString() ?? "";
-
-                        if (!string.IsNullOrEmpty(newTask))
-                        {
-                            if (string.Equals(newTask, "Clear Task", StringComparison.Ordinal))
-                                manageVotesViewModel.ReplaceTask(selectedVote, "");
-                            else
-                                manageVotesViewModel.ReplaceTask(selectedVote, newTask);
-                        }
-                    }
-                }
-            }
-        }
-
-        private async void ReorderTasks_Click(object? sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await navigationService.ShowDialogAsync<ReorderTasks>(this);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error reordering tasks.");
-            }
-        }
-
-        private void PartitionChildren_Click(object? sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    if (cm.PlacementTarget is ListBox box)
-                    {
-                        if (box.SelectedItem is VoteBlockType selectedVote)
-                        {
-                            manageVotesViewModel.PartitionChildren(selectedVote);
-                        }
-                    }
-                }
-            }
-        }
-
-        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
-        {
-            if (sender is MenuItem mi)
-            {
-                if (mi.Parent is ContextMenu cm)
-                {
-                    if (cm.Parent is Popup popup)
-                    {
-                        if (popup.Parent is ListBox listBox)
-                        {
-                            if (listBox.SelectedItem is VoteBlockType selectedVote)
-                            {
-                                return selectedVote;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
         #endregion Context Menu Events
 
         #region Context Menu Utility
@@ -229,7 +189,7 @@ namespace NetTally.Avalonia.Views
         const string partitionChildrenString = "Partition Children";
         const string clearTaskString = "Clear Task";
         const string reorderTasksString = "Re-Order Tasks";
-        VoteBlockType? selectedVoteForNewTask;
+        VoteBlockType? selectedVote;
 
 
         /// <summary>
@@ -355,8 +315,8 @@ namespace NetTally.Avalonia.Views
             manageVotesViewModel.AddUserDefinedTask(newTask);
 
             // Update the selected item of the list box
-            if (selectedVoteForNewTask is not null)
-                manageVotesViewModel.ReplaceTask(selectedVoteForNewTask, newTask);
+            if (selectedVote != null)
+                manageVotesViewModel.ReplaceTask(selectedVote, newTask);
         }
 
         /// <summary>
