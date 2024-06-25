@@ -552,6 +552,9 @@ public class VoteCounter(
 
         foreach (var toVote in toVotes)
         {
+            toVote.Category = fromVote.Category;
+            AddPotentialVoteTask(toVote.Task);
+
             if (!VoteStorage.TryGetValue(toVote, out var toSupport))
             {
                 toSupport = [];
@@ -753,6 +756,11 @@ public class VoteCounter(
     /// <param name="task">The new task to add to the knowledge base.</param>
     private void AddPotentialVoteTask(VoteTaskType task)
     {
+        if (task == VoteTask.Empty)
+        {
+            return;
+        }
+
         if (!UserDefinedTasks.Contains(task))
         {
             if (VoteDefinedTasks.Add(task))
