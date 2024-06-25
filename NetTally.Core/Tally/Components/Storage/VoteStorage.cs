@@ -67,6 +67,31 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     }
 
     /// <summary>
+    /// Add the supplied voters to the specified vote.
+    /// </summary>
+    /// <param name="vote">The vote being updated.</param>
+    /// <param name="supporter">The voter being added.</param>
+    internal void AddSupportersToVote(VoteBlockType vote, IEnumerable<OriginType> supporters)
+    {
+        // If the vote isn't already in storage, create a new instance.
+        if (!TryGetValue(vote, out var localVoters))
+        {
+            var referenceVote = vote with { Marker = Marker.Empty };
+
+            localVoters = [];
+
+            Add(referenceVote, localVoters);
+        }
+
+        foreach (var supporter in supporters)
+        {
+            localVoters[supporter] = vote;
+        }
+
+        dirty = true;
+    }
+
+    /// <summary>
     /// Remove the specified supporter from the given vote.
     /// </summary>
     /// <param name="vote">The vote being updated.</param>
