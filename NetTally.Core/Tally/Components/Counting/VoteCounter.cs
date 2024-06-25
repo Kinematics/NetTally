@@ -554,10 +554,13 @@ public class VoteCounter(
         {
             if (!VoteStorage.TryGetValue(toVote, out var toSupport))
             {
-                return false;
+                toSupport = [];
             }
 
-            MergeImpl(toVote, fromSupport, toSupport);
+            if (MergeImpl(toVote, fromSupport, toSupport))
+            {
+                VoteStorage.Add(toVote, toSupport);
+            }
         }
 
         // But we still want to remove the from vote.
