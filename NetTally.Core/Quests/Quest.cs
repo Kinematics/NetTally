@@ -277,7 +277,8 @@ public partial class Quest : ObservableValidator
     /// A collection of the IDs of any quests that should be tallied together
     /// with this one.
     /// </summary>
-    public ObservableCollection<QuestId> LinkedQuestIds = [];
+    [ObservableProperty]
+    public ObservableCollection<QuestId> linkedQuestIds = [];
 
     /// <summary>
     /// Determine whether this quest is linked to the provided quest.
