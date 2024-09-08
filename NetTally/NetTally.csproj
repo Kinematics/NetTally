@@ -31,7 +31,7 @@
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.64" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.65" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
