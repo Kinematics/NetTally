@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally.Debugging.FileLogger.Internal
+﻿namespace NetTally.Debugging.FileLogger.Internal
 {
     public struct LogMessage
     {

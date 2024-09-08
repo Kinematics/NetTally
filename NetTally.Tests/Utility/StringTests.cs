@@ -98,7 +98,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void PlanName_make_null()
         {
-            string planName = Strings.MakePlanName(null!);
+            string planName = StringUtility.MakePlanName(null!);
 
             Assert.AreEqual("", planName);
         }
@@ -150,7 +150,7 @@ namespace NetTally.Tests.Utility
         [TestMethod]
         public void PlanName_test_null()
         {
-            Assert.IsFalse(Strings.IsPlanName(null!));
+            Assert.IsFalse(StringUtility.IsPlanName(null!));
         }
         #endregion
 
@@ -224,7 +224,7 @@ and then another";
         [TestMethod]
         public void Split_null_2()
         {
-            var lines = Strings.GetStringLines(null!);
+            var lines = StringUtility.GetStringLines(null!);
 
             Assert.IsNotNull(lines);
             Assert.AreEqual(0, lines.Count);

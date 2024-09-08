@@ -12,7 +12,7 @@ namespace NetTally.Tests.Input
         static IServiceProvider? serviceProvider;
 
         [ClassInitialize]
-        public static void ClassInit(TestContext context)
+        public static void ClassInit(TestContext _)
         {
             serviceProvider = TestStartup.ConfigureServices();
 
@@ -24,7 +24,6 @@ namespace NetTally.Tests.Input
         public void LoadPagesTest()
         {
         }
-
 
     }
 }

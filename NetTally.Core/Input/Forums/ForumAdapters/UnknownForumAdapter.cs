@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     class UnknownForumAdapter(
         IOptions<GlobalSettings> options,
@@ -24,10 +21,14 @@ namespace NetTally.Forums.ForumAdapters
         public string GetDefaultLineBreak(Uri uri) => "";
         public int GetDefaultPostsPerPage(Uri uri) => 25;
         public BoolEx HasRssThreadmarksFeed(Uri uri) => BoolEx.False;
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
-            => Task.FromResult(new ThreadRangeInfo(false, 0));
-        public ThreadInfo GetThreadInfo(HtmlDocument page) => new("Unknown", "Unknown", 1);
+        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
         public string GetUrlForPage(Quest quest, int page) => "";
+
+        public Task<ThreadInformationType?> GetThreadInformationAsync(
+            Quest _0, IPageProvider _1, CancellationToken _2)
+        {
+            ThreadInformationType? value = ThreadInformation.None;
+            return Task.FromResult(value)!;
+        }
     }
 }

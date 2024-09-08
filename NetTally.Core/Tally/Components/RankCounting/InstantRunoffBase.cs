@@ -1,0 +1,138 @@
+﻿using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Components.Votes;
+
+namespace NetTally.Tally.Components.RankCounting;
+
+/// <summary>
+/// Implement ranking votes using any instant runoff method.
+/// Each round, the least preferred choice is removed, until
+/// one option has the majority of top-ranked votes.
+/// </summary>
+public class InstantRunoffBase : IRankVoteCounter
+{
+    protected virtual bool LeastPreferredChecksFullVotes { get; } = false;
+
+    /// <summary>
+    /// Rank the votes provided, returning a list of each vote's
+    /// rank and score.
+    /// </summary>
+    /// <param name="taskVotes">The votes for a given task.</param>
+    /// <returns>Returns a list of each vote's ranking.</returns>
+    public List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
+        CountVotesForTask(VoteStorage taskVotes)
+    {
+        int r = 1;
+
+        List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)> resultList
+            = [];
+
+        var workingVotes = VoteStorage.CopyFrom(taskVotes);
+
+        while (workingVotes.Count > 0)
+        {
+            var (vote, score) = GetWinningVote(workingVotes);
+
+            resultList.Add(((r++, score), vote));
+
+            workingVotes.Remove(vote.Key);
+        }
+
+        return resultList;
+    }
+
+    /// <summary>
+    /// Gets the winning vote.
+    /// Excludes any already chosen votes from the process.
+    /// </summary>
+    /// <param name="voterRankings">The voter rankings.</param>
+    /// <param name="chosenChoices">The already chosen choices.</param>
+    /// <returns>Returns the winning vote.</returns>
+    private (VoteStorageEntryF vote, double score) GetWinningVote(VoteStorage votes)
+    {
+        var workingVotes = VoteStorage.CopyFrom(votes);
+
+        int voterCount = workingVotes.SelectMany(a => a.Value).Distinct().Count();
+        int winCount = voterCount / 2 + 1;
+
+        while (workingVotes.Count > 1)
+        {
+            // Invert the votes so that we can look at preferences per user.
+            var voterPreferences = workingVotes
+                .SelectMany(v => v.Value)
+                .GroupBy(u => u.Key)
+                .ToDictionary(t => t.Key, s => s.Select(q => q.Value)
+                .OrderBy(r => r.Marker.MarkerValue)
+                .ToList());
+
+            // Check to see if we have a winner.
+            var (vote, count) = GetMostPreferredVote(voterPreferences);
+
+            if (count >= winCount)
+            {
+                var fullVote = workingVotes.First(a => a.Key == vote);
+                return (fullVote, count);
+            }
+
+            VoteBlockType leastPreferredChoice;
+
+            // If not, eliminate the least preferred option and try again.
+            if (LeastPreferredChecksFullVotes)
+            {
+                leastPreferredChoice = GetLeastPreferredChoice(workingVotes);
+            }
+            else
+            {
+                leastPreferredChoice = GetLeastPreferredChoice(voterPreferences);
+            }
+
+            workingVotes.Remove(leastPreferredChoice);
+        }
+
+        // If we get to here, the only option left has to win.
+        return (workingVotes.First(), 1);
+    }
+
+    /// <summary>
+    /// Gets the count of the number of times a given vote is the most preferred option
+    /// among the provided voters.
+    /// </summary>
+    /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
+    /// <returns>Returns a collection of Choice/Count objects.</returns>
+    private static (VoteBlockType vote, int count) GetMostPreferredVote(
+        VotesByVoterF voterPreferences)
+    {
+        var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
+
+        var mostPreferred = highestRankings.MaxBy(r => r.Count());
+
+        if (mostPreferred == null)
+        {
+            return (VoteBlock.Empty, 0);
+        }
+
+        return (mostPreferred.Key, mostPreferred.Count());
+    }
+
+    /// <summary>
+    /// Get the least preferred choice to determine which vote to eliminate.
+    /// Implemented by derived classes.
+    /// </summary>
+    /// <param name="voterPreferences">This version takes the voter preferences collection.</param>
+    /// <returns>Returns the vote that is least preferred.</returns>
+    protected virtual VoteBlockType GetLeastPreferredChoice(
+        VotesByVoterF voterPreferences)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Get the least preferred choice to determine which vote to eliminate.
+    /// Implemented by derived classes.
+    /// </summary>
+    /// <param name="voterPreferences">This version takes the vote storage collection.</param>
+    /// <returns>Returns the vote that is least preferred.</returns>
+    protected virtual VoteBlockType GetLeastPreferredChoice(VoteStorage votes)
+    {
+        throw new NotImplementedException();
+    }
+}

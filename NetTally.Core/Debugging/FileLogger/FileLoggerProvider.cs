@@ -2,11 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in https://github.com/aspnet/Logging for license information.
 // https://github.com/aspnet/Logging/blob/2d2f31968229eddb57b6ba3d34696ef366a6c71b/src/Microsoft.Extensions.Logging.AzureAppServices/Internal/FileLoggerProvider.cs
 
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Debugging.FileLogger.Internal;

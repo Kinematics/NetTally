@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 	<PropertyGroup>
-		<VersionPrefix>5.0.6</VersionPrefix>
+		<VersionPrefix>5.1.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup Label="Configuration">
 		<RootNamespace>NetTally</RootNamespace>
 		<TargetFramework>net8.0</TargetFramework>
 		<RollForward>LatestMajor</RollForward>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>true</ImplicitUsings>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>
@@ -22,8 +23,8 @@
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.0" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.64" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />

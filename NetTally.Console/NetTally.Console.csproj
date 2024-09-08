@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 	<PropertyGroup>
-		<VersionPrefix>5.0.6</VersionPrefix>
+		<VersionPrefix>5.1.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup Label="Configuration">
 		<AssemblyName>nettally</AssemblyName>
@@ -35,6 +35,7 @@
 		<ProjectReference Include="..\NetTally.Core\NetTally.Core.csproj" />
 	</ItemGroup>
 
+	<!--
 	<Target Name="CreateBuildBin" AfterTargets="Build">
 		<MakeDir Directories="$(TargetDir)bin" Condition="!Exists('$(TargetDir)bin')" />
 	</Target>
@@ -55,7 +56,7 @@
 		<Move SourceFiles="$(TargetDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(TargetDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
 		<Move SourceFiles="$(TargetDir)Nito.Collections.Deque.dll" DestinationFolder="$(TargetDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
 		<Move SourceFiles="$(TargetDir)Nito.Disposables.dll" DestinationFolder="$(TargetDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-		<!-- <Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
+		//<Move SourceFiles="$(TargetDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(TargetDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> 
 	</Target>
 
 
@@ -79,6 +80,11 @@
 		<Move SourceFiles="$(PublishDir)Nito.AsyncEx.Tasks.dll" DestinationFolder="$(PublishDir)bin/Nito.AsyncEx.Tasks/5.1.2/lib/netstandard2.0" />
 		<Move SourceFiles="$(PublishDir)Nito.Collections.Deque.dll" DestinationFolder="$(PublishDir)bin/Nito.Collections.Deque/1.1.1/lib/netstandard2.0" />
 		<Move SourceFiles="$(PublishDir)Nito.Disposables.dll" DestinationFolder="$(PublishDir)bin/Nito.Disposables/2.2.1/lib/netstandard2.1" />
-		<!-- <Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" /> -->
+		//<Move SourceFiles="$(PublishDir)System.Xml.XPath.XmlDocument.dll" DestinationFolder="$(PublishDir)bin/System.Xml.XPath.XmlDocument/4.3.0/lib/netstandard1.3" />
+	</Target>
+	-->
+
+	<Target Name="CopyLicense" AfterTargets="Publish">
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
 	</Target>
 </Project>

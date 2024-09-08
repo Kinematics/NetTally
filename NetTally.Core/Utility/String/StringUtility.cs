@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NetTally.Utility
@@ -11,15 +8,34 @@ namespace NetTally.Utility
     /// </summary>
     public static partial class Strings
     {
-        #region Plan names
-        /// <summary>
-        /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
-        /// </summary>
         public const string PlanNameMarker = "◈";
         public const char PlanNameMarkerChar = '◈';
         public const string NoRankMarker = "⊘";
         public const string NonVotingMarker = "-";
         public const string UnknownMarker = "?";
+        public const string VoteMarker = "X";
+        public const string ApprovalMarker = "±";
+        public const string ScoreMarker = "%";
+        public const string RankMarker = "#";
+
+        public const string OmakeFilter = @"\bomake\b";
+        public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
+        public const string NewThreadDisplayName = "~Placeholder~";
+
+        public const string ExampleHostUrl = "http://www.example.com/";
+
+        public const string Error = "Error";
+
+        public const string UntitledThread = "~Untitled~";
+        public const string UnknownAuthor = "#Unknown#";
+    }
+
+    public static partial class StringUtility
+    {
+        #region Plan names
+        /// <summary>
+        /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
+        /// </summary>
 
         /// <summary>
         /// Check if the provided name starts with the plan name marker.
@@ -34,7 +50,7 @@ namespace NetTally.Utility
             if (name.IsPlanName())
                 return name;
 
-            return $"{PlanNameMarker}{name}";
+            return $"{Strings.PlanNameMarker}{name}";
         }
 
         /// <summary>
@@ -47,7 +63,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(name))
                 return false;
 
-            return (name[0] == PlanNameMarkerChar);
+            return (name[0] == Strings.PlanNameMarkerChar);
         }
         #endregion
 
@@ -296,7 +312,7 @@ namespace NetTally.Utility
             try
             {
                 UInt16 cb = Convert.ToUInt16(c);
-                
+
                 // Latin characters get returned as-is.
                 if (cb < 128)
                     return c.ToString();

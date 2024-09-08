@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Cache;
 using NetTally.Configure;
-using NetTally.Data;
+using NetTally.Product;
 using NetTally.Enums;
 using NetTally.Extensions;
-using NetTally.VoteCounting;
+using NetTally.Tally;
 
 namespace NetTally.ViewModels
 {
@@ -62,7 +57,6 @@ namespace NetTally.ViewModels
         public bool HasQuests => Quests.Count > 0;
         public bool IsQuestSelected => SelectedQuest != null;
         public bool TallyIsRunning => RunTallyCommand.IsRunning;
-        public bool TallyIsNotRunning => !RunTallyCommand.IsRunning;
         public bool HasOutput => tally.HasTallyResults;
         public string Output => tally.TallyResults;
         #endregion State Properties
@@ -130,7 +124,7 @@ namespace NetTally.ViewModels
         #endregion Update Functions
 
         #region View Model Commands
-        private bool CanAddQuest => TallyIsNotRunning;
+        private bool CanAddQuest => !TallyIsRunning;
 
         [RelayCommand(CanExecute = nameof(CanAddQuest))]
         private void AddQuest()
@@ -147,7 +141,7 @@ namespace NetTally.ViewModels
             logger.LogInformation("Added new quest");
         }
 
-        private bool CanRemoveQuest() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanRemoveQuest() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRemoveQuest))]
         private void RemoveQuest()
@@ -179,7 +173,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanRunTally() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanRunTally() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRunTally),
             IncludeCancelCommand = true)]
@@ -206,11 +200,12 @@ namespace NetTally.ViewModels
             catch (Exception e)
             {
                 tally.TallyResults += e.Message;
+                logger.LogError(e, "Failure while tallying.");
                 RunTallyCommand.Cancel();
             }
         }
 
-        private bool CanClearTallyCache() => TallyIsNotRunning && IsQuestSelected;
+        private bool CanClearTallyCache() => !TallyIsRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
         private void ClearTallyCache()
@@ -242,11 +237,11 @@ namespace NetTally.ViewModels
         {
             // If the display mode is changed, we just have to update the output.
             // Any other change to the quest preferences needs a full re-tally.
-            if (sender is Quest quest)
+            if (sender is Quest)
             {
                 switch (e.PropertyName)
                 {
-                    case nameof(quest.DisplayMode):
+                    case nameof(Quest.DisplayMode):
                         UpdateOutput();
                         break;
                     default:
@@ -264,7 +259,6 @@ namespace NetTally.ViewModels
                 RemoveQuestCommand.NotifyCanExecuteChanged();
                 ClearTallyCacheCommand.NotifyCanExecuteChanged();
                 OnPropertyChanged(nameof(TallyIsRunning));
-                OnPropertyChanged(nameof(TallyIsNotRunning));
 
                 if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
                 {

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Data;
 using NetTally.Configure;
-using NetTally.Utility;
 using NetTally.Enums;
+using NetTally.Utility;
 
 namespace NetTally.ViewModels
 {
@@ -37,7 +33,7 @@ namespace NetTally.ViewModels
 
         public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 
-        public List<ForumType> ValidForums { get; } = Enum.GetValues<ForumType>().ToList();
+        public List<ForumType> ValidForums { get; } = [.. Enum.GetValues<ForumType>()];
 
         public ObservableCollection<Quest> AvailableQuests { get; }
 
@@ -299,7 +295,7 @@ namespace NetTally.ViewModels
             if (string.IsNullOrWhiteSpace(url))
                 return;
 
-            if (ThreadName != StringData.NewThreadEntry)
+            if (ThreadName != Strings.NewThreadEntry)
                 return;
 
             if (Uri.IsWellFormedUriString(url, UriKind.Absolute))

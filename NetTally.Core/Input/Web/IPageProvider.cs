@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using HtmlAgilityPack;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;
@@ -21,8 +18,8 @@ namespace NetTally.Web
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, 
-            CachingMode caching, ShouldCache shouldCache, 
+        Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip,
+            CachingMode caching, ShouldCache shouldCache,
             SuppressNotifications suppressNotifications, CancellationToken token);
 
         /// <summary>

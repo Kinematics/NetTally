@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Data;
-using NetTally.VoteCounting;
 using NetTally.Enums;
 
 namespace NetTally.Converters

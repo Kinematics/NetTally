@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
 
 namespace NetTally.Extensions
@@ -46,7 +43,7 @@ namespace NetTally.Extensions
                 if (fieldAttribute?.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
                 {
                     var v = fieldInfo.GetValue(null);
-                 
+
                     if (v != null)
                         return (T)v;
 

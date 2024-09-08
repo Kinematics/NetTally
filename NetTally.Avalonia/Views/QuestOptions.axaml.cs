@@ -83,13 +83,15 @@ namespace NetTally.Avalonia.Views
         }
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#if DEBUG
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
         public QuestOptions()
         {
-            //throw new InvalidOperationException("The default constructor should not be called");
+            InitializeComponent();
         }
+#endif
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

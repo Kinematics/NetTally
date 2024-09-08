@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
-using NetTally.Web;
+﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
+using NetTally.Web;
 
-namespace NetTally.Forums
+namespace NetTally.Input.Forums
 {
     /// <summary>
     /// Class used to scan a Uri and HTML document to determine which forum type was used to generate it.

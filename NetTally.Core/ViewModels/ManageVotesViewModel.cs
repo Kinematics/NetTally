@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
-using NetTally.Comparers;
 using NetTally.Configure;
-using NetTally.Tally.Components;
+using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
-using NetTally.Votes;
 
 namespace NetTally.ViewModels
 {
@@ -32,9 +29,9 @@ namespace NetTally.ViewModels
             UpdateVotersCollection();
         }
 
-        public ObservableCollectionExt<VoteLineBlock> AllVotesCollection { get; } = [];
-        public ObservableCollectionExt<Origin> AllVotersCollection { get; } = [];
-        public ObservableCollectionExt<string> TaskList => quest.VoteCounter.TaskList;
+        public ObservableCollectionExt<VoteBlockType> AllVotesCollection { get; } = [];
+        public ObservableCollectionExt<OriginType> AllVotersCollection { get; } = [];
+        public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounter.TaskList;
 
         public bool HasUndoActions => quest.VoteCounter.HasUndoActions;
         public bool HasTasks => TaskList.Count > 0;
@@ -44,33 +41,33 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Get the votes for the From side of the window.
         /// </summary>
-        public IEnumerable<VoteLineBlock> VotesFrom => AllVotesCollection
+        public IEnumerable<VoteBlockType> VotesFrom => AllVotesCollection
             .Where(FilterFromVote)
             .OrderBy(v => v, new VoteBlockComparer());
 
         /// <summary>
         /// Get the votes for the To side of the window.
         /// </summary>
-        public IEnumerable<VoteLineBlock> VotesTo => AllVotesCollection
+        public IEnumerable<VoteBlockType> VotesTo => AllVotesCollection
             .Where(FilterToVote)
             .OrderBy(v => v, new VoteBlockComparer());
 
         /// <summary>
         /// Get the voters associated with the currently selected From vote (if any).
         /// </summary>
-        public ObservableCollectionExt<Origin> VotersFrom { get; } = [];
+        public ObservableCollectionExt<OriginType> VotersFrom { get; } = [];
 
         /// <summary>
         /// Get the voters associated with the currently selected To vote (if any).
         /// </summary>
-        public ObservableCollectionExt<Origin> VotersTo { get; } = [];
+        public ObservableCollectionExt<OriginType> VotersTo { get; } = [];
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteLineBlock? selectedFromVote;
+        private VoteBlockType? selectedFromVote;
 
-        partial void OnSelectedFromVoteChanged(VoteLineBlock? value)
+        partial void OnSelectedFromVoteChanged(VoteBlockType? value)
         {
             if (value is null)
             {
@@ -78,16 +75,16 @@ namespace NetTally.ViewModels
                 return;
             }
 
-            VotersFrom.Replace(GetVotersForVote(value).Order());
+            VotersFrom.Replace(GetVotersForVote(value).Order(OriginComparer.Instance));
             JoinCommand.NotifyCanExecuteChanged();
         }
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteLineBlock? selectedToVote;
+        private VoteBlockType? selectedToVote;
 
-        partial void OnSelectedToVoteChanged(VoteLineBlock? value)
+        partial void OnSelectedToVoteChanged(VoteBlockType? value)
         {
             if (value is null)
             {
@@ -95,21 +92,21 @@ namespace NetTally.ViewModels
                 return;
             }
 
-            VotersTo.Replace(GetVotersForVote(value).Order());
+            VotersTo.Replace(GetVotersForVote(value).Order(OriginComparer.Instance));
             JoinCommand.NotifyCanExecuteChanged();
         }
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        private Origin? selectedToVoter;
+        private OriginType? selectedToVoter;
 
         /// <summary>
         /// Get the voters for a given vote.
         /// </summary>
         /// <param name="vote">The vote to get voters for.</param>
         /// <returns>A list of voter origins.</returns>
-        public IEnumerable<Origin> GetVotersForVote(VoteLineBlock? vote) =>
-            (vote != null) ? quest.VoteCounter.GetVotersFor(vote) : [];
+        public IEnumerable<OriginType> GetVotersForVote(VoteBlockType? vote) =>
+            (vote != null) ? quest.VoteCounter.GetUserVotersFor(vote) : [];
 
         #endregion Observable Vote List Properties
 
@@ -169,7 +166,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="vote">The vote being tested.</param>
         /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterFromVote(VoteLineBlock vote)
+        private bool FilterFromVote(VoteBlockType vote)
         {
             return FilterVotes(VoteFromFilter, vote);
         }
@@ -179,7 +176,7 @@ namespace NetTally.ViewModels
         /// </summary>
         /// <param name="vote">The vote being tested.</param>
         /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterToVote(VoteLineBlock vote)
+        private bool FilterToVote(VoteBlockType vote)
         {
             return FilterVotes(VoteToFilter, vote);
         }
@@ -192,13 +189,13 @@ namespace NetTally.ViewModels
         /// <param name="filter">The filter to apply.</param>
         /// <param name="vote">The vote to test.</param>
         /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-        private bool FilterVotes(string filter, VoteLineBlock vote)
+        private bool FilterVotes(string filter, VoteBlockType vote)
         {
             if (string.IsNullOrEmpty(filter))
                 return true;
 
             bool matchVote = CultureInfo.InvariantCulture.CompareInfo
-                .IndexOf(vote.ToComparableString(), filter, CompareOptions.IgnoreCase) >= 0;
+                .IndexOf(VoteBlockDisplay.ToComparableString(vote), filter, CompareOptions.IgnoreCase) >= 0;
 
             bool matchAnyVoter = GetVotersForVote(vote)
                         .Any(v => CultureInfo.InvariantCulture.CompareInfo
@@ -249,13 +246,14 @@ namespace NetTally.ViewModels
         #endregion Collection Updates
 
         #region Commands
-        public void ReplaceTask(VoteLineBlock selectedVote, string newTask)
+        public void ReplaceTask(VoteBlockType selectedVote, string newTask)
         {
-            quest.VoteCounter.ReplaceTask(selectedVote, newTask);
+            var task = VoteTask.Create(newTask);
+            quest.VoteCounter.ReplaceTask(selectedVote, task);
             UpdateVotesCollection();
         }
 
-        public void PartitionChildren(VoteLineBlock selectedVote)
+        public void PartitionChildren(VoteBlockType selectedVote)
         {
             quest.VoteCounter.Split(selectedVote, VoteConstructor.PartitionChildren(selectedVote));
             UpdateVotesCollection();
@@ -263,7 +261,8 @@ namespace NetTally.ViewModels
 
         public void AddUserDefinedTask(string newTask)
         {
-            quest.VoteCounter.AddUserDefinedTask(newTask);
+            var task = VoteTask.Create(newTask);
+            quest.VoteCounter.AddUserDefinedTask(task);
         }
 
 
@@ -356,7 +355,7 @@ namespace NetTally.ViewModels
         }
 
         [RelayCommand]
-        private void RunTest(VoteLineBlock? voteLines)
+        private static void RunTest(VoteBlockType? voteLines)
         {
             // context menu experiment.
             if (voteLines is not null)

@@ -1,11 +1,10 @@
-﻿using System;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Collections;
-using NetTally.Extensions;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.ViewModels
 {
@@ -17,7 +16,7 @@ namespace NetTally.ViewModels
         private readonly Quest quest;
         private readonly ILogger<TasksViewModel> logger;
 
-        public ObservableCollectionExt<string> Tasks { get; } = [];
+        public ObservableCollectionExt<VoteTaskType> Tasks { get; } = [];
 
         public TasksViewModel(
             IQuestsInfo questsInfo,
@@ -83,13 +82,13 @@ namespace NetTally.ViewModels
         [RelayCommand]
         private void Alphabetize()
         {
-            Tasks.Sort();
+            Tasks.Sort(VoteTaskComparer.Instance);
         }
 
         [RelayCommand]
         private void AlphbetizeDown()
         {
-            Tasks.Sort(descending: true);
+            Tasks.SortDescending(VoteTaskComparer.Instance);
         }
 
         [RelayCommand]

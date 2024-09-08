@@ -1,6 +1,4 @@
-﻿using NetTally.Output;
-using NetTally.Votes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
 using NetTally.Enums;
@@ -90,7 +88,8 @@ namespace NetTally.CLI
         [Usage(ApplicationAlias = "dotnet nettally.dll")]
         public static IEnumerable<Example> Examples
         {
-            get {
+            get
+            {
                 yield return new Example("Basic use", UnParserSettings.WithGroupSwitchesOnly(), new Options
                 {
                     Thread = "https://forums.sufficientvelocity.com/threads/threadname.13528/"

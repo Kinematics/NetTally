@@ -1,102 +1,82 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace NetTally.Utility.Filtering
+namespace NetTally.Utility.Filtering;
+
+/// <summary>
+/// An item filter that determines whether an object is allowed by
+/// running a regex test against a string extraction of the object.
+/// </summary>
+public sealed class RegexFilter : TextFilter
 {
-    /// <summary>
-    /// An item filter that determines whether an object is allowed by
-    /// running a regex test against a string extraction of the object.
-    /// </summary>
-    public class RegexFilter : IItemFilter<string>
+    private readonly FilterType filterType;
+    private readonly List<RegexPattern> patterns;
+
+    private RegexFilter(FilterType filterType, IEnumerable<RegexPattern> patterns)
     {
-        protected readonly FilterType filterType;
-        protected readonly List<RegexPattern> patterns = [];
-
-        /// <summary>
-        /// Construct a new regex filter using the provided regex objects.
-        /// </summary>
-        /// <param name="regexes"></param>
-        //public RegexFilter(FilterType filterType, params Regex[] regexes)
-        //    : this(filterType, regexes.Select(r => new RegexPattern(r)).ToArray())
-        //{
-        //}
-
-        /// <summary>
-        /// Construct a new regex filter using the provided regex patterns.
-        /// </summary>
-        /// <param name="patterns"></param>
-        protected RegexFilter(FilterType filterType, IEnumerable<RegexPattern> patterns)
-        {
-            this.patterns.AddRange(patterns);
-            this.filterType = filterType;
-        }
-
-        #region Factories used to construct varying types of list filters.
-        public static RegexFilter Allow(RegexPattern pattern, params RegexPattern[] patterns)
-        {
-            var all = new List<RegexPattern> { pattern };
-            all.AddRange(patterns);
-
-            return new RegexFilter(FilterType.Allow, all);
-        }
-
-        public static RegexFilter Block(RegexPattern pattern, params RegexPattern[] patterns)
-        {
-            var all = new List<RegexPattern> { pattern };
-            all.AddRange(patterns);
-
-            return new RegexFilter(FilterType.Block, all);
-        }
-
-        public static RegexFilter Allow(Regex regex, params Regex[] regexes)
-        {
-            var all = new List<Regex> { regex };
-            all.AddRange(regexes);
-
-
-            return new RegexFilter(FilterType.Allow, all.Select(p => new RegexPattern(p)));
-        }
-        public static RegexFilter Block(Regex regex, params Regex[] regexes)
-        {
-            var all = new List<Regex> { regex };
-            all.AddRange(regexes);
-
-
-            return new RegexFilter(FilterType.Block, all.Select(p => new RegexPattern(p)));
-        }
-
-        public static readonly RegexFilter AllowAll = new(FilterType.Block, []);
-        public static readonly RegexFilter BlockAll = new(FilterType.Allow, []);
-        #endregion
-
-
-        /// <summary>
-        /// Determines whether the filter allows the item provided to pass through the filter.
-        /// </summary>
-        /// <param name="item">The item to be checked.</param>
-        /// <returns>True if the filter allows the item, or false if not.</returns>
-        public bool Allows(string item)
-        {
-            return filterType switch
-            {
-                FilterType.Allow => patterns.Any(a => a.IsMatch(item)),
-                FilterType.Block => !patterns.Any(a => a.IsMatch(item)),
-                FilterType.Unset => true,
-                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
-            };
-        }
-
-        public bool Blocks(string item)
-        {
-            return filterType switch
-            {
-                FilterType.Allow => !patterns.Any(a => a.IsMatch(item)),
-                FilterType.Block => patterns.Any(a => a.IsMatch(item)),
-                FilterType.Unset => false,
-                _ => throw new InvalidOperationException($"Invalid filter type: {filterType}")
-            };
-        }
+        this.patterns = patterns.ToList();
+        this.filterType = filterType;
     }
+
+    #region Factories used to construct varying types of filters.
+    public static TextFilter Allow(params RegexPattern[] patterns)
+    {
+        return new RegexFilter(FilterType.Allow, patterns);
+    }
+
+    public static TextFilter Block(params RegexPattern[] patterns)
+    {
+        return new RegexFilter(FilterType.Block, patterns);
+    }
+
+    public static TextFilter Allow(params Regex[] regexes)
+    {
+        var patterns = regexes
+            .Select(r => RegexPattern.Create(r));
+
+        return new RegexFilter(FilterType.Allow, patterns);
+    }
+    public static TextFilter Block(params Regex[] regexes)
+    {
+        var patterns = regexes
+            .Select(r => RegexPattern.Create(r));
+
+        return new RegexFilter(FilterType.Block, patterns);
+    }
+
+    public static TextFilter Allow(params string[] patterns)
+    {
+        var p = patterns
+            .Select(r => RegexPattern.Create(r));
+
+        return new RegexFilter(FilterType.Allow, p);
+    }
+    public static TextFilter Block(params string[] patterns)
+    {
+        var p = patterns
+            .Select(r => RegexPattern.Create(r));
+
+        return new RegexFilter(FilterType.Block, p);
+    }
+
+    public static TextFilter AlwaysAllow { get; } = AlwaysFilter.AllowAll<string>();
+    public static TextFilter AlwaysBlock { get; } = AlwaysFilter.BlockAll<string>();
+
+    #endregion
+
+    public bool Allows(string item) => filterType switch
+    {
+        FilterType.Allow => patterns.Any(a => a.IsMatch(item)),
+        FilterType.Block => !patterns.Any(a => a.IsMatch(item)),
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
+    };
+
+    public bool Blocks(string item) => filterType switch
+    {
+        FilterType.Allow => !patterns.Any(a => a.IsMatch(item)),
+        FilterType.Block => patterns.Any(a => a.IsMatch(item)),
+        _ => throw new InvalidOperationException($"Unknown filter type: {filterType}")
+    };
+
+    public static TextFilter DefaultThreadmarkFilter { get; } =
+        Block(RegexPattern.Create(Strings.OmakeFilter));
 }

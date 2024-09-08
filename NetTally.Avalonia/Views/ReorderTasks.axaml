@@ -10,7 +10,13 @@
 
 		<ListBox Grid.Column="0" Grid.Row="0" x:Name="TasksListBox" Margin="10,10,2,10" FontSize="16"
 				 SelectionMode="Single" ItemsSource="{Binding Tasks}"
-				 SelectedIndex="{Binding SelectedTaskIndex}" />
+				 SelectedIndex="{Binding SelectedTaskIndex}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Path=Name}" Margin="0, 0, 0, 10" FontSize="13.333" />
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
 
 		<Button Grid.Column="1" Grid.Row="0" x:Name="up" Content="⇑" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="10,82,0,0" FontSize="24" Padding="0,-5,0,0" Width="30" Height="30"

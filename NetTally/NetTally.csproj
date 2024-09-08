@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>5.0.6</VersionPrefix>
+		<VersionPrefix>5.1.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -31,7 +31,7 @@
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.64" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
@@ -47,4 +47,8 @@
 		<TrimmerRootAssembly Include="System" />
 		<TrimmerRootAssembly Include="PresentationFramework-SystemXmlLinq" />
 	</ItemGroup>
+
+	<Target Name="CopyLicense" AfterTargets="Publish">
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
+	</Target>
 </Project>

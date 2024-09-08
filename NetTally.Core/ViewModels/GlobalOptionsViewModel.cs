@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Extensions;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Extensions;
 
 namespace NetTally.ViewModels
 {

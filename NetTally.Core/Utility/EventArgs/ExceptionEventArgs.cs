@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally.CustomEventArgs
+﻿namespace NetTally.CustomEventArgs
 {
     /// <summary>
     /// Custom EventArgs class to pass an exception, and mark whether it was handled.

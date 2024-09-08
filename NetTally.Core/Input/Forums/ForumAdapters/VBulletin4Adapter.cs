@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Extensions;
 using NetTally.Configure;
-using NetTally.Tally.Components;
-using NetTally.Web;
 using NetTally.Enums;
+using NetTally.Extensions;
+using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Components.Threads;
+using NetTally.Web;
 
-namespace NetTally.Forums.ForumAdapters
+namespace NetTally.Input.Forums.ForumAdapters
 {
     public partial class VBulletin4Adapter(
         IOptions<GlobalSettings> options,
@@ -23,7 +19,7 @@ namespace NetTally.Forums.ForumAdapters
         readonly GlobalSettings inputOptions = options.Value;
         readonly ILogger<VBulletin4Adapter> logger = logger;
 
-        #region IForumAdapter2 interface
+        #region IForumAdapter interface
         /// <summary>
         /// String to use for a line break between tasks.
         /// </summary>
@@ -74,46 +70,12 @@ namespace NetTally.Forums.ForumAdapters
         }
 
         /// <summary>
-        /// Get thread info from the provided page.
-        /// </summary>
-        /// <param name="page">A web page from a forum that this adapter can handle.</param>
-        /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        public ThreadInfo GetThreadInfo(HtmlDocument page)
-        {
-            ArgumentNullException.ThrowIfNull(page);
-
-            string title = GetPageTitle(page);
-            string author = string.Empty; // vBulletin doesn't show thread authors
-            int pages = GetMaxPageNumberOfThread(page);
-
-            ThreadInfo info = new(title, author, pages);
-
-            return info;
-        }
-
-        /// <summary>
-        /// Gets the range of post numbers to tally, for the given quest.
-        /// This may require loading information from the site.
-        /// </summary>
-        /// <param name="quest">The quest being tallied.</param>
-        /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
-        /// <param name="token">The cancellation token to check for cancellation requests.</param>
-        /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        public Task<ThreadRangeInfo> GetQuestRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
-        {
-            ArgumentNullException.ThrowIfNull(quest);
-            ArgumentNullException.ThrowIfNull(pageProvider);
-
-            return Task.FromResult(new ThreadRangeInfo(true, quest.StartPost));
-        }
-
-        /// <summary>
         /// Get a list of posts from the provided page.
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
+        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
@@ -126,7 +88,63 @@ namespace NetTally.Forums.ForumAdapters
 
             return posts;
         }
-        #endregion IForumAdapter2 interface
+
+        /// <summary>
+        /// Get information about the thread.
+        /// This includes title, author, and starting range.
+        /// </summary>
+        /// <param name="quest">The quest being queried.</param>
+        /// <param name="pageProvider">A page provider for loading pages.</param>
+        /// <param name="token">A cancellation token.</param>
+        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
+        public async Task<ThreadInformationType?> GetThreadInformationAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
+        {
+            var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
+
+            if (infoPage == null) return null;
+
+            return GetThreadInfo(infoPage, quest);
+        }
+
+        #endregion IForumAdapter interface
+
+        #region IForumAdapter support
+        /// <summary>
+        /// Get thread info from the provided page.
+        /// </summary>
+        /// <param name="page">A web page from a forum that this adapter can handle.</param>
+        /// <returns>Returns thread information that can be gleaned from that page.</returns>
+        private ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
+        {
+            string title = GetPageTitle(page);
+            var author = Author.Unknown; // vBulletin doesn't show thread authors
+            int pages = GetMaxPageNumberOfThread(page);
+
+            var info = ThreadInformation.CreateByPostNumber(title, author, quest.StartPost, pages);
+
+            return info;
+        }
+
+        private async Task<HtmlDocument?> GetInfoPageAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            CancellationToken token)
+        {
+            string infoPageUrl = GetUrlForPage(quest, 1);
+
+            // Make sure to bypass the cache, since it may have changed since the last load.
+            HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
+                infoPageUrl, "Info Page",
+                CachingMode.BypassCache, ShouldCache.Yes,
+                SuppressNotifications.Yes, token)
+                .ConfigureAwait(false);
+
+            return page;
+        }
+        #endregion IForumAdapter support
 
         #region Get Page Information
         private static string GetPageTitle(HtmlDocument page)
@@ -179,40 +197,32 @@ namespace NetTally.Forums.ForumAdapters
             return postList.Elements("li");
         }
 
-        private Post? GetPost(HtmlDocument page, HtmlNode li, Quest quest)
+        private PostType? GetPost(HtmlDocument page, HtmlNode li, Quest quest)
         {
             if (li == null)
                 return null;
 
-            string id = GetPostId(li);
-            string author = GetPostAuthor(li);
+            var id = GetPostId(li);
+            var author = GetPostAuthor(li);
             int number = GetPostNumber(page, id);
             string text = GetPostText(li, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = $"{author}_{id}";
+                author = author with { Name = $"{author.Name}_{id.Id}" };
 
-            try
-            {
-                Origin origin = new(author, id, number, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id));
-                return new Post(origin, text);
-            }
-            catch (Exception e)
-            {
-                logger.LogError(e,
-                    "Attempt to create new post failed. (Author:{author}, ID:{id}, Number:{number}, Quest:{DisplayName})",
-                    author, id, number, quest.DisplayName);
-            }
+            var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+            var post = Post.Create(origin, text);
 
-            return null;
+            return post;
         }
 
-        private static string GetPostId(HtmlNode li)
+        private static PostIdType GetPostId(HtmlNode li)
         {
-            return li.Id["post_".Length..];
+            string id = li.Id["post_".Length..];
+            return PostId.Create(id) ?? PostId.Zero;
         }
 
-        private static string GetPostAuthor(HtmlNode li)
+        private static AuthorType GetPostAuthor(HtmlNode li)
         {
             string author = "";
 
@@ -226,12 +236,12 @@ namespace NetTally.Forums.ForumAdapters
                 author = ForumPostTextConverter.CleanupWebString(username?.InnerText);
             }
 
-            return author;
+            return Author.Create(author);
         }
 
-        private static int GetPostNumber(HtmlDocument page, string id)
+        private static int GetPostNumber(HtmlDocument page, PostIdType id)
         {
-            var postCount = page.GetElementbyId($"postcount{id}");
+            var postCount = page.GetElementbyId($"postcount{id.Id}");
 
             if (postCount != null)
                 return int.Parse(postCount.GetAttributeValue("name", "0"));
@@ -239,14 +249,14 @@ namespace NetTally.Forums.ForumAdapters
             return 0;
         }
 
-        private static string GetPostText(HtmlNode li, string id, Quest quest)
+        private static string GetPostText(HtmlNode li, PostIdType id, Quest quest)
         {
             HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
             if (postDetails != null)
             {
                 // Text
-                string postMessageId = "post_message_" + id;
+                string postMessageId = $"post_message_{id.Id}";
 
                 var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
 
@@ -300,11 +310,12 @@ namespace NetTally.Forums.ForumAdapters
             return sb.ToString();
         }
 
-        private static string GetPermalinkForId(Uri uri, string postId)
+        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
         {
             // http://forums.militarytimes.com/showthread.php/9961-Furlough?p=371392&viewfull=1#post371392
 
-            return $"{GetBaseThreadUrl(uri)}?p={postId}&viewfull=1#post{postId}";
+            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Id}&viewfull=1#post{postId.Id}";
+            return new Uri(url);
         }
 
         [GeneratedRegex(@"Page \d+ of (?<pages>\d+)")]

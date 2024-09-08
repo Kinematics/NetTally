@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally
+﻿namespace NetTally
 {
     /// <summary>
     /// Implement <see cref="IComparable"/> for <see cref="NetTally.Quest"/> class.

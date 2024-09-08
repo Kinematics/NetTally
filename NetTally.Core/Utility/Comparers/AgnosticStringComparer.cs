@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Globalization;
 
 namespace NetTally.Utility.Comparers
@@ -47,7 +45,7 @@ namespace NetTally.Utility.Comparers
                 return -1;
             if (y is not string ys)
                 return 1;
-            
+
             return Compare(xs, ys);
         }
 

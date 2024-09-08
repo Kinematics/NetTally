@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 
 namespace NetTally.Extensions
 {
@@ -55,7 +52,7 @@ namespace NetTally.Extensions
         /// <param name="list">The list being scanned.</param>
         /// <param name="obj">The object being searched for.</param>
         /// <returns>Returns the index the object was found at, or -1 if not found.</returns>
-        public static int IndexOf<T>(this IReadOnlyList<T> list, T obj) where T: IEquatable<T>
+        public static int IndexOf<T>(this IReadOnlyList<T> list, T obj) where T : IEquatable<T>
         {
             for (int i = 0; i < list.Count; i++)
             {
@@ -66,7 +63,8 @@ namespace NetTally.Extensions
             return -1;
         }
 
-        public static TValue? GetValueOrDefault1<TKey, TValue> (this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class
+        public static TValue? GetValueOrDefault1<TKey, TValue>(
+            this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class
         {
             return dictionary.TryGetValue(key, out TValue? value) ? value : default;
         }

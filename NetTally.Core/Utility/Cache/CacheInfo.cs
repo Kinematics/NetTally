@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetTally.Cache
+﻿namespace NetTally.Cache
 {
     /// <summary>
     /// Global static values for cache classes.

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Data;
-using NetTally.VoteCounting;
+using NetTally.Tally.Components.Counting;
+using NetTally.Utility;
 
 namespace NetTally.Configure
 {
@@ -16,17 +12,17 @@ namespace NetTally.Configure
     /// </summary>
     public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     {
-        private readonly IServiceProvider serviceProvider;
+        private readonly VoteCounterFactory voteCounterFactory;
         private readonly ILogger<QuestsInfo> logger;
 
         public QuestsInfo(
             IOptions<GlobalSettings> globalSettings,
             IOptions<UserQuests> userQuests,
             ConfigInfo legacyConfig,
-            IServiceProvider serviceProvider,
+            VoteCounterFactory voteCounterFactory,
             ILogger<QuestsInfo> logger)
         {
-            this.serviceProvider = serviceProvider;
+            this.voteCounterFactory = voteCounterFactory;
             this.logger = logger;
 
             // If there are no user quests, but there are legacy quests,
@@ -56,7 +52,8 @@ namespace NetTally.Configure
 
             if (!string.IsNullOrEmpty(legacyConfig.UserQuests.CurrentQuest))
             {
-                SelectedQuest = legacyConfig.UserQuests.Quests.FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
+                SelectedQuest = legacyConfig.UserQuests.Quests
+                    .FirstOrDefault(q => q.ThreadName == legacyConfig.UserQuests.CurrentQuest);
             }
 
             globalSettings.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
@@ -74,7 +71,8 @@ namespace NetTally.Configure
 
             if (Quests.Count > 0 && !string.IsNullOrEmpty(userQuests.CurrentQuest))
             {
-                SelectedQuest = userQuests.Quests.FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
+                SelectedQuest = userQuests.Quests
+                    .FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
             }
 
             logger.LogDebug("Loaded {count} user quests", Quests.Count);
@@ -87,7 +85,7 @@ namespace NetTally.Configure
         {
             foreach (var quest in Quests)
             {
-                quest.VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>();
+                quest.VoteCounter = voteCounterFactory.GetVoteCounter(quest);
             }
         }
 
@@ -109,13 +107,14 @@ namespace NetTally.Configure
         /// <returns>Returns a new quest.</returns>
         public Quest CreateQuest()
         {
-            if (Quests.FirstOrDefault(q => q.ThreadName == StringData.NewThreadEntry) is not Quest quest)
+            if (Quests.FirstOrDefault(q => q.ThreadName == Strings.NewThreadEntry) is not Quest quest)
             {
                 quest = new Quest
                 {
-                    VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>(),
                     CheckForLastThreadmark = true
                 };
+
+                quest.VoteCounter = voteCounterFactory.GetVoteCounter(quest);
 
                 Quests.Add(quest);
             }
@@ -180,6 +179,9 @@ namespace NetTally.Configure
         /// <returns>Returns a list of any linked quests.</returns>
         public List<Quest> GetLinkedQuests(Quest quest)
         {
+            if (quest.LinkedQuestIds.Count == 0)
+                return [];
+
             return Quests.Where(quest.HasLinkedQuest).ToList();
         }
     }

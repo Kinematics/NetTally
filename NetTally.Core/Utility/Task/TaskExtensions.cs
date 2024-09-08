@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NetTally.Extensions
+﻿namespace NetTally.Extensions
 {
     /// <summary>
     /// Class for other general extension methods.
@@ -22,7 +18,7 @@ namespace NetTally.Extensions
         {
             using CancellationTokenSource timeoutTokenSource = new(timeout);
             using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token);
-            
+
             var completedTask = await Task.WhenAny(task, Task.Delay(timeout, linkedTokenSource.Token));
 
             if (completedTask == task)

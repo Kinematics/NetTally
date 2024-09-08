@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NetTally.Tally.Components;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Converters
 {
@@ -22,25 +22,15 @@ namespace NetTally.Converters
         /// <returns>Returns true if any bindings are true.</returns>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values == null)
-                return false;
-            if (values.Length == 0)
-                return false;
-            if (values.Any(v => v == null))
+            if (values == null || values.Length == 0 || values.Any(v => v is null))
                 return false;
 
-            if (parameter.ToString() == "VoteLineBlock")
+            return parameter?.ToString() switch
             {
-                return CompareVoteLineBlockValues(values, inverted: false);
-            }
-            else if (parameter.ToString() == "InvertVoteLineBlock")
-            {
-                return CompareVoteLineBlockValues(values, inverted: true);
-            }
-            else
-            {
-                return CompareStringValues(values);
-            }
+                "VoteLineBlock" => CompareVoteLineBlockValues(values, inverted: false),
+                "InvertVoteLineBlock" => CompareVoteLineBlockValues(values, inverted: true),
+                _ => CompareStringValues(values)
+            };
         }
 
         private static object CompareStringValues(object[] values)
@@ -49,12 +39,17 @@ namespace NetTally.Converters
 
             return values.All(v => v is string vv && vv == first);
         }
+
         private static object CompareVoteLineBlockValues(object[] values, bool inverted)
         {
-            if (!values.All(v => v is VoteLineBlock))
+            if (!values.All(v => v is VoteBlockType))
                 return false;
 
-            return inverted ^ (values[0] is VoteLineBlock first && values.All(v => v is VoteLineBlock value && value == first));
+            return inverted ^ 
+                (values[0] is VoteBlockType first &&
+                 values.All(v =>
+                    v is VoteBlockType value &&
+                    VoteBlockComparer.Instance.Equals(value, first)));
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

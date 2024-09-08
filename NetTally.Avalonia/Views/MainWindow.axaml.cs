@@ -7,7 +7,7 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
-using NetTally.Systems;
+using NetTally.Product;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -55,11 +55,16 @@ namespace NetTally.Avalonia.Views
         {
             base.OnLoaded(e);
 
+            if (Design.IsDesignMode)
+                return;
+                
+            if (hostEnvironment is null)
+                return;
+
             if (hostEnvironment.IsDevelopment())
                 return;
 
-            if (!Design.IsDesignMode)
-                mainViewModel.CheckForNewRelease();
+            mainViewModel.CheckForNewRelease();
         }
         #endregion
 
@@ -249,13 +254,15 @@ namespace NetTally.Avalonia.Views
         #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
+#if DEBUG
         /// <summary>
         /// A blank constructor is needed for Avalonia Windows. It should never be called.
         /// </summary>
         public MainWindow()
         {
-            //throw new InvalidOperationException("The default constructor should not be called");
+            InitializeComponent();
         }
+#endif
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     }
 }

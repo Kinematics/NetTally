@@ -5,10 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Data;
 using NetTally.Enums;
-using NetTally.Forums;
-using NetTally.VoteCounting;
+using NetTally.Input.Forums;
+using NetTally.Tally.Components.Counting;
+using NetTally.Utility;
 
 namespace NetTally.Tests.Tallying
 {
@@ -40,11 +40,7 @@ namespace NetTally.Tests.Tallying
         [TestInitialize]
         public void Initialize()
         {
-            Quest = new Quest()
-            {
-                VoteCounter = serviceProvider.GetRequiredService<IVoteCounter>()
-            };
-
+            Quest = TestStartup.GetExampleQuest(serviceProvider);
             Quest.PropertyChanged += Quest_PropertyChanged;
         }
 
@@ -85,9 +81,9 @@ namespace NetTally.Tests.Tallying
         [TestMethod]
         public void IQuest_Construction_State()
         {
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
-            Assert.AreEqual(StringData.NewThreadDisplayName, Quest.DisplayName);
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(Strings.NewThreadDisplayName, Quest.DisplayName);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadUri?.AbsoluteUri);
 
             Assert.AreEqual(0, Quest.PostsPerPage);
             Assert.AreEqual(1, Quest.StartPost);
@@ -131,7 +127,7 @@ namespace NetTally.Tests.Tallying
                 Assert.Fail("Unexpected exception caught:\n" + e.Message);
             }
 
-            Assert.AreEqual(StringData.NewThreadEntry, Quest.ThreadName);
+            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadName);
             VerifyNoNotification();
         }
 

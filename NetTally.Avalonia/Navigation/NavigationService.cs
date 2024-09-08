@@ -56,17 +56,18 @@ namespace NetTally.Avalonia.Navigation
             // parameter that isn't (or at least, shouldn't be) a dependency we can resolve, then we pass
             // that along as well.
 
+            // ActivatorUtilities seems to (sometimes) call the default constructor if we call it with no
+            // extra parameters instead of resolving our dependencies. I'm not sure if this is a bug or
+            // intended behavior, but we avoid this with this.
+            // Note: Most likely this is due to a service that was never properly registered. Check that.
+
+            //T window = (parameters.Length > 0)
+            //    ? ActivatorUtilities.CreateInstance<T>(serviceProvider, parameters)
+            //    : serviceProvider.GetRequiredService<T>();
+
             T window = ActivatorUtilities.CreateInstance<T>(serviceProvider, parameters);
             var result = await window.ShowDialog<bool?>(parentWindow);
             return result;
-
-            // ActivatorUtilities seems to call the default constructor if we call it with no extera parameters
-            // instead of resolving our dependencies. I'm not sure if this is a bug or intended behavior, but
-            // we avoid this with this.
-
-            //return (parameters.Length > 0)
-            //    ? await ActivatorUtilities.CreateInstance<T>(this.serviceProvider, parameters).ShowDialog<bool?>(parentWindow)
-            //    : await this.serviceProvider.GetRequiredService<T>().ShowDialog<bool?>(parentWindow);
         }
     }
 }

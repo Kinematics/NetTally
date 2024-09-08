@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 
 namespace NetTally.Extensions
 {
