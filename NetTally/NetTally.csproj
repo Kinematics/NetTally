@@ -47,4 +47,8 @@
 		<TrimmerRootAssembly Include="System" />
 		<TrimmerRootAssembly Include="PresentationFramework-SystemXmlLinq" />
 	</ItemGroup>
+
+	<Target Name="CopyLicense" AfterTargets="Publish">
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
+	</Target>
 </Project>

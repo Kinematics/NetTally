@@ -48,4 +48,8 @@
 	<ItemGroup>
 	  <UpToDateCheckInput Remove="Views\ReorderTasks.axaml" />
 	</ItemGroup>
+
+	<Target Name="CopyLicense" AfterTargets="Publish">
+		<Copy SourceFiles="$(SolutionDir)LICENSE.txt" DestinationFolder="$(PublishDir)" />
+	</Target>
 </Project>
