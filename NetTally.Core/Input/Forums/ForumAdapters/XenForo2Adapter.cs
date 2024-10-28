@@ -168,7 +168,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 }
             }
 
-            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 0);
+            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 1);
         }
 
         private async Task<HtmlDocument?> GetInfoPageAsync(
