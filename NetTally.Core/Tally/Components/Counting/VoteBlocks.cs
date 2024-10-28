@@ -12,15 +12,18 @@ public static partial class VoteBlocks
 {
     #region Plan Name Regexes
     // Check for a vote line that marks a portion of the user's post as a proposed/base plan.
-    [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)", RegexOptions.IgnoreCase, "en-US")]
+    [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)",
+        RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
     private static partial Regex ProposedPlanRegex();
 
     // Check for a plan reference. "Plan: Dwarf Raid"
-    [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$", RegexOptions.IgnoreCase, "en-US")]
+    [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$",
+        RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
     private static partial Regex AnyPlanRegex();
 
     // Check for a plan reference, alternate format. "Arkatekt's Plan"
-    [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$", RegexOptions.IgnoreCase, "en-US")]
+    [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$",
+        RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
     private static partial Regex AltPlanRegex();
     #endregion Plan Name Regexes
 
@@ -31,7 +34,10 @@ public static partial class VoteBlocks
     /// <returns>The lines are grouped together and turned into blocks.</returns>
     public static IEnumerable<VoteBlockType> GetBlocks(IEnumerable<VoteLineType> lines)
     {
-        var blocks = lines.GroupAdjacentToPreviousKey(a => a.Prefix.Depth == 0, a => a.Content, a => a.Content);
+        var blocks = lines.GroupAdjacentToPreviousKey(
+            a => a.Prefix.Depth == 0,
+            a => a.Content,
+            a => a.Content);
 
         var blocksOfLines = blocks.Select(VoteBlock.Create)
             .Where(v => v != null)
