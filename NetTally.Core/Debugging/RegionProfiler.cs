@@ -15,9 +15,9 @@ namespace NetTally
     ///     [Code to be profiled]
     /// }
     /// </summary>
-    public sealed class RegionProfiler : IDisposable
+    public readonly struct RegionProfiler : IDisposable
     {
-        readonly Stopwatch stopwatch = new();
+        readonly long startTime;
 
         readonly TimeSpan minimumTime;
         readonly string regionName;
@@ -61,16 +61,7 @@ namespace NetTally
                 logger.LogInformation("Profiling started.");
             }
 
-            stopwatch.Start();
-        }
-
-        /// <summary>
-        /// Releases unmanaged resources and performs other cleanup operations before the
-        /// <see cref="RegionProfiler"/> is reclaimed by garbage collection.
-        /// </summary>
-        ~RegionProfiler()
-        {
-            Dispose(false);
+            startTime = Stopwatch.GetTimestamp();
         }
 
         /// <summary>
@@ -78,43 +69,26 @@ namespace NetTally
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            var delta = Stopwatch.GetElapsedTime(startTime);
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposed"><c>true</c> to release both managed and unmanaged resources;
-        /// <c>false</c> to release only unmanaged resources.</param>
-        public void Dispose(bool disposed)
-        {
-            if (disposed)
+            if (delta > minimumTime)
             {
-                stopwatch.Stop();
-
-                if (stopwatch.Elapsed > minimumTime)
+                if (accumulate)
                 {
-                    if (accumulate)
-                    {
-                        counter[regionName]++;
-                        accumulator[regionName] = accumulator[regionName] + stopwatch.Elapsed.TotalMilliseconds;
+                    counter[regionName]++;
+                    accumulator[regionName] = accumulator[regionName] + delta.TotalMilliseconds;
 
-                        logger.LogInformation("Accumulated time: Hit {counter} times for {accumulator} total ms (+{elapsed:F6} ms). Average: {average} ms",
-                            counter[regionName], accumulator[regionName], stopwatch.Elapsed.TotalMilliseconds, accumulator[regionName] / counter[regionName]);
-                    }
-                    else
-                    {
-                        logger.LogInformation("Profiling ended: {elapsed:F6} ms.",
-                            stopwatch.Elapsed.TotalMilliseconds);
-                    }
+                    logger.LogInformation("Accumulated time: Hit {counter} times for {accumulator} total ms (+{elapsed:F6} ms). Average: {average} ms",
+                        counter[regionName], accumulator[regionName], delta.TotalMilliseconds, accumulator[regionName] / counter[regionName]);
+                }
+                else
+                {
+                    logger.LogInformation("Profiling ended: {elapsed:F6} ms.",
+                        delta.TotalMilliseconds);
                 }
             }
-            else
-            {
-                logger.LogWarning("Region profiler was not finalized by Dispose() call!");
-            }
         }
+
 
         /// <summary>
         /// Resets this instance.
@@ -127,4 +101,5 @@ namespace NetTally
                 accumulator[item] = 0.0;
         }
     }
+
 }
