@@ -23,7 +23,7 @@ namespace NetTally.Tests
                 {
                     buffer = new byte[reader.Length];
 
-                    await reader.ReadAsync(buffer, 0, (int)reader.Length);
+                    int amountRead = await reader.ReadAsync(buffer.AsMemory(0, (int)reader.Length));
                 }
 
                 if (buffer != null)
