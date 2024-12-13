@@ -34,10 +34,6 @@ namespace NetTally.ViewModels
             this.checkForNewRelease = checkForNewRelease;
             SelectedQuest = questsInfo.SelectedQuest;
 
-            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
-            System.Net.ServicePointManager.Expect100Continue = true;
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.SystemDefault;
-
             RunTallyCommand.PropertyChanged += RunTallyCommand_PropertyChanged;
             tally.PropertyChanged += Tally_PropertyChanged;
             checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
