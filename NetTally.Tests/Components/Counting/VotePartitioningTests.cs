@@ -140,6 +140,86 @@ public class VotePartitioningTests
         Assert.AreEqual(1, votes.Count);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
+        
+    [TestMethod]
+    public void SingleLineTask_Partitioning_None()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.None;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void SingleLineTask_Partitioning_ByLine()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByLine;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void SingleLineTask_Partitioning_ByBlock()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByBlock;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void SingleLineTask_Partitioning_ByLineTask()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByLineTask;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void SingleLineTask_Partitioning_ByBlockAll()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByBlockAll;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
 
     [TestMethod]
     public void TwoLine_Partitioning_None()
@@ -222,6 +302,89 @@ public class VotePartitioningTests
         Assert.IsNotNull(votes);
         Assert.AreEqual(2, votes.Count);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+        
+    [TestMethod]
+    public void TwoLineTask_Partitioning_None()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.None;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(1, votes.Count);
+        Assert.AreEqual("""
+            [][Movie] Run Lola Run!
+            [] National Geographic
+            """, VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void TwoLineTask_Partitioning_ByLine()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByLine;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(2, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void TwoLineTask_Partitioning_ByBlock()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByBlock;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(2, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void TwoLineTask_Partitioning_ByLineTask()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByLineTask;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(2, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
+    }
+
+    [TestMethod]
+    public void TwoLineTask_Partitioning_ByBlockAll()
+    {
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        Assert.IsNotNull(post);
+
+        quest.PartitionMode = PartitionMode.ByBlockAll;
+
+        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+
+        Assert.IsTrue(processed);
+        Assert.IsNotNull(votes);
+        Assert.AreEqual(2, votes.Count);
+        Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
