@@ -5,6 +5,7 @@
 	<PropertyGroup Label="Configuration">
 		<RootNamespace>NetTally</RootNamespace>
 		<TargetFramework>net9.0</TargetFramework>
+		<LangVersion>preview</LangVersion>
 		<RollForward>LatestMajor</RollForward>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>true</ImplicitUsings>

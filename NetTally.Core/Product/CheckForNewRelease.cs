@@ -23,12 +23,10 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     const int frameworkVersion = 2;
 
     [ObservableProperty]
-    bool hasNewRelease = false;
-
-    readonly Regex TagVersionRegex = ReleasesTagRegex();
+    public partial bool HasNewRelease { get; set; } = false;
 
     [GeneratedRegex(@"releases/tag/v?(?<tag>.+)$")]
-    private static partial Regex ReleasesTagRegex();
+    private static partial Regex ReleasesTagRegex { get; }
 
 
     public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
@@ -152,7 +150,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
         // Example redirect: https://github.com/Kinematics/NetTally/releases/tag/4.0.2
 
-        Match m = TagVersionRegex.Match(redirectURL);
+        Match m = ReleasesTagRegex.Match(redirectURL);
         if (m.Success)
         {
             string tag = m.Groups["tag"].Value;

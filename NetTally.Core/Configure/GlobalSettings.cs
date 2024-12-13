@@ -7,25 +7,30 @@ namespace NetTally.Configure
     public partial class GlobalSettings : ObservableObject
     {
         [ObservableProperty]
-        DisplayMode displayMode = DisplayMode.Normal;
-        [ObservableProperty]
-        bool displayPlansWithNoVotes = false;
-        [ObservableProperty]
-        bool globalSpoilers = false;
-        [ObservableProperty]
-        RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
+        public partial DisplayMode DisplayMode { get; set; }
 
         [ObservableProperty]
-        BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
-        [ObservableProperty]
-        [property: JsonIgnore]
-        bool trackPostAuthorsUniquely = false;
+        public partial bool DisplayPlansWithNoVotes { get; set; } = false;
 
         [ObservableProperty]
-        bool disableWebProxy = false;
+        public partial bool GlobalSpoilers { get; set; } = false;
+
         [ObservableProperty]
-        [property: JsonIgnore]
-        bool debugMode = false;
+        public partial RankVoteCounterMethod RankVoteCounterMethod { get; set; } = RankVoteCounterMethod.Default;
+
+        [ObservableProperty]
+        public partial BoolEx AllowUsersToUpdatePlans { get; set; } = BoolEx.Unknown;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        public partial bool TrackPostAuthorsUniquely { get; set; } = false;
+
+        [ObservableProperty]
+        public partial bool DisableWebProxy { get; set; } = false;
+
+        [ObservableProperty]
+        [JsonIgnore]
+        public partial bool DebugMode { get; set; } = false;
 
         public void UpdateFromLegacySettings(GlobalSettings legacySettings)
         {

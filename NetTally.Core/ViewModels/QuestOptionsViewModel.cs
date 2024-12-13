@@ -171,7 +171,7 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(AddLinkedQuestCommand))]
-        private Quest? selectedAvailableQuest;
+        public partial Quest? SelectedAvailableQuest { get; set; }
 
         [RelayCommand(CanExecute = nameof(CanAddLinkedQuest))]
         private void AddLinkedQuest(Quest? quest)
@@ -190,7 +190,7 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RemoveLinkedQuestCommand))]
-        private Quest? selectedLinkedQuest;
+        public partial Quest? SelectedLinkedQuest { get; set; }
 
         [RelayCommand(CanExecute = nameof(CanRemoveLinkedQuest))]
         private void RemoveLinkedQuest(Quest? quest)
@@ -207,88 +207,85 @@ namespace NetTally.ViewModels
         }
 
         [ObservableProperty]
-        private Uri threadUri = Quest.InvalidThreadUri;
+        public partial Uri ThreadUri { get; set; } = Quest.InvalidThreadUri;
 
         [ObservableProperty]
-        private string threadName = string.Empty;
+        public partial string ThreadName { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string displayName = string.Empty;
+        public partial string DisplayName { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private ForumType forumType;
+        public partial ForumType ForumType { get; set; }
 
         [ObservableProperty]
-        private int postsPerPage;
+        public partial int PostsPerPage { get; set; }
 
         [ObservableProperty]
-        private int startPost;
+        public partial int StartPost { get; set; }
 
         [ObservableProperty]
-        private int endPost;
+        public partial int EndPost { get; set; }
 
         [ObservableProperty]
-        private bool checkForLastThreadmark;
+        public partial bool CheckForLastThreadmark { get; set; }
 
         [ObservableProperty]
-        private BoolEx useRSSThreadmarks = BoolEx.Unknown;
+        public partial BoolEx UseRSSThreadmarks { get; set; } = BoolEx.Unknown;
 
         [ObservableProperty]
-        private PartitionMode partitionMode;
+        public partial PartitionMode PartitionMode { get; set; }
 
         [ObservableProperty]
-        private bool useCustomThreadmarkFilters;
+        public partial bool UseCustomThreadmarkFilters { get; set; }
 
         [ObservableProperty]
-        private string customThreadmarkFilters = string.Empty;
+        public partial string CustomThreadmarkFilters { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private bool useCustomTaskFilters;
+        public partial bool UseCustomTaskFilters { get; set; }
 
         [ObservableProperty]
-        private string customTaskFilters = string.Empty;
+        public partial string CustomTaskFilters { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private bool useCustomUsernameFilters;
+        public partial bool UseCustomUsernameFilters { get; set; }
 
         [ObservableProperty]
-        private string customUsernameFilters = string.Empty;
+        public partial string CustomUsernameFilters { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private bool useCustomPostFilters;
+        public partial bool UseCustomPostFilters { get; set; }
 
         [ObservableProperty]
-        private string customPostFilters = string.Empty;
+        public partial string CustomPostFilters { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private bool whitespaceAndPunctuationIsSignificant;
+        public partial bool WhitespaceAndPunctuationIsSignificant { get; set; }
 
         [ObservableProperty]
-        private bool caseIsSignificant;
+        public partial bool CaseIsSignificant { get; set; }
 
         [ObservableProperty]
-        private bool forcePlanReferencesToBeLabeled;
+        public partial bool ForcePlanReferencesToBeLabeled { get; set; }
 
         [ObservableProperty]
-        private bool forbidVoteLabelPlanNames;
+        public partial bool ForbidVoteLabelPlanNames { get; set; }
 
         [ObservableProperty]
-        private bool allowUsersToUpdatePlans;
+        public partial bool AllowUsersToUpdatePlans { get; set; }
 
         [ObservableProperty]
-        private bool disableProxyVotes;
+        public partial bool DisableProxyVotes { get; set; }
 
         [ObservableProperty]
-        private bool forcePinnedProxyVotes;
+        public partial bool ForcePinnedProxyVotes { get; set; }
 
         [ObservableProperty]
-        private bool ignoreSpoilers;
+        public partial bool IgnoreSpoilers { get; set; }
 
         [ObservableProperty]
-        private bool trimExtendedText;
-
-
-
+        public partial bool TrimExtendedText { get; set; }
 
         public void SetQuestThreadFromClipboard(string? url)
         {
@@ -303,15 +300,12 @@ namespace NetTally.ViewModels
         }
 
 
-        partial void OnThreadNameChanged(string? oldValue, string newValue)
+        partial void OnThreadNameChanged(string oldValue, string newValue)
         {
             // cleanup newValue
             string cleanValue = CleanupThreadName(newValue);
             cleanValue = Uri.UnescapeDataString(cleanValue);
-
-            // set thread name to cleaned up value
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-            threadName = cleanValue;
+            ThreadName = cleanValue;
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
 
             Uri newUri = new(cleanValue);

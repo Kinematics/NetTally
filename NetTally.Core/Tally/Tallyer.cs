@@ -36,9 +36,9 @@ namespace NetTally.Tally
         /// If it changes to or from an empty string, the HasTallyResults property also changes.
         /// </summary>
         [ObservableProperty]
-        private string tallyResults = string.Empty;
+        public partial string TallyResults { get; set; } = string.Empty;
 
-        partial void OnTallyResultsChanged(string? oldValue, string newValue)
+        partial void OnTallyResultsChanged(string oldValue, string newValue)
         {
             if (string.IsNullOrEmpty(oldValue) || string.IsNullOrEmpty(newValue))
             {

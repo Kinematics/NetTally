@@ -78,31 +78,31 @@ namespace NetTally.ViewModels
 
         // Vote options
         [ObservableProperty]
-        RankVoteCounterMethod rankVoteCounterMethod = RankVoteCounterMethod.Default;
+        public partial RankVoteCounterMethod RankVoteCounterMethod { get; set; } = RankVoteCounterMethod.Default;
 
         [ObservableProperty]
-        BoolEx allowUsersToUpdatePlans = BoolEx.Unknown;
+        public partial BoolEx AllowUsersToUpdatePlans { get; set; } = BoolEx.Unknown;
 
         // Output
         [ObservableProperty]
-        bool globalSpoilers = false;
+        public partial bool GlobalSpoilers { get; set; } = false;
 
         [ObservableProperty]
-        bool displayPlansWithNoVotes = false;
+        public partial bool DisplayPlansWithNoVotes { get; set; } = false;
 
         // Networking
         [ObservableProperty]
-        bool disableWebProxy = false;
+        public partial bool DisableWebProxy { get; set; } = false;
 
         // Debugging
         [ObservableProperty]
-        bool trackPostAuthorsUniquely = false;
+        public partial bool TrackPostAuthorsUniquely { get; set; } = false;
 
         [ObservableProperty]
-        bool debugMode = false;
+        public partial bool DebugMode { get; set; } = false;
 
         // Obsolete. Quest option now
         [ObservableProperty]
-        DisplayMode displayMode = DisplayMode.Normal;
+        public partial DisplayMode DisplayMode { get; set; } = DisplayMode.Normal;
     }
 }

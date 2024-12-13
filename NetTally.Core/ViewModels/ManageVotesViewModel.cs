@@ -65,7 +65,7 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteBlockType? selectedFromVote;
+        public partial VoteBlockType? SelectedFromVote { get; set; }
 
         partial void OnSelectedFromVoteChanged(VoteBlockType? value)
         {
@@ -82,7 +82,7 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
         [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-        private VoteBlockType? selectedToVote;
+        public partial VoteBlockType? SelectedToVote { get; set; }
 
         partial void OnSelectedToVoteChanged(VoteBlockType? value)
         {
@@ -98,7 +98,7 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        private OriginType? selectedToVoter;
+        public partial OriginType? SelectedToVoter { get; set; }
 
         /// <summary>
         /// Get the voters for a given vote.
@@ -117,7 +117,7 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(VotesFrom))]
         [NotifyPropertyChangedFor(nameof(VoteFromFilterEmpty))]
-        private string voteFromFilter = string.Empty;
+        public partial string VoteFromFilter { get; set; } = string.Empty;
 
         public bool VoteFromFilterEmpty => VoteFromFilter == string.Empty;
 
@@ -127,7 +127,7 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(VotesTo))]
         [NotifyPropertyChangedFor(nameof(VoteToFilterEmpty))]
-        private string voteToFilter = string.Empty;
+        public partial string VoteToFilter { get; set; } = string.Empty;
 
         public bool VoteToFilterEmpty => VoteToFilter == string.Empty;
 
@@ -139,11 +139,7 @@ namespace NetTally.ViewModels
         /// <param name="value">The new VoteFromFilter value.</param>
         partial void OnVoteFromFilterChanged(string value)
         {
-            // Modify the backing field directly, so that it does not trigger
-            // a new round of modifying the property.
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-            voteFromFilter = voteFromFilter.RemoveUnsafeCharacters();
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+            VoteFromFilter = VoteFromFilter.RemoveUnsafeCharacters();
         }
 
         /// <summary>
@@ -154,11 +150,7 @@ namespace NetTally.ViewModels
         /// <param name="value">The new VoteToFilter value.</param>
         partial void OnVoteToFilterChanged(string value)
         {
-            // Modify the backing field directly, so that it does not trigger
-            // a new round of modifying the property.
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-            voteToFilter = voteToFilter.RemoveUnsafeCharacters();
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
+            VoteToFilter = VoteToFilter.RemoveUnsafeCharacters();
         }
 
         /// <summary>

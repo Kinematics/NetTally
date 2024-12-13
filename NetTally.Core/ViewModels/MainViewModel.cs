@@ -59,14 +59,14 @@ namespace NetTally.ViewModels
 
         #region Generated Properties
         [ObservableProperty]
-        private bool hasNewRelease;
+        public partial bool HasNewRelease { get; set; }
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsQuestSelected))]
         [NotifyCanExecuteChangedFor(nameof(RunTallyCommand))]
         [NotifyCanExecuteChangedFor(nameof(RemoveQuestCommand))]
         [NotifyCanExecuteChangedFor(nameof(ClearTallyCacheCommand))]
-        private Quest? selectedQuest;
+        public partial Quest? SelectedQuest { get; set; }
 
         partial void OnSelectedQuestChanging(Quest? value)
         {

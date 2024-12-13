@@ -45,7 +45,7 @@ namespace NetTally.ViewModels
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MoveTaskUpCommand))]
         [NotifyCanExecuteChangedFor(nameof(MoveTaskDownCommand))]
-        private int selectedTaskIndex;
+        public partial int SelectedTaskIndex { get; set; }
 
         private bool CanMoveTaskUp()
         {
