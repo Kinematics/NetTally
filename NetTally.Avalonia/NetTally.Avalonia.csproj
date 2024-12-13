@@ -4,7 +4,7 @@
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyName>NetTally</AssemblyName>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<RollForward>LatestMajor</RollForward>
 		<OutputType>WinExe</OutputType>
 		<Nullable>enable</Nullable>
