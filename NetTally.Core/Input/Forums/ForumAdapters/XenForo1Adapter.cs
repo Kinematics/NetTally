@@ -86,8 +86,6 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <returns>Returns a URL for the page requested.</returns>
         public string GetUrlForPage(Quest quest, int page)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
-
             string append = page > 1 ? $"page-{page}" : "";
 
             return $"{GetBaseThreadUrl(quest.ThreadUri)}{append}";
@@ -171,7 +169,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 }
             }
 
-            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 0);
+            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 1);
         }
 
         private async Task<HtmlDocument?> GetInfoPageAsync(

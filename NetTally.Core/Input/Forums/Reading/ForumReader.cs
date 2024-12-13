@@ -9,7 +9,6 @@ using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Utility;
-using NetTally.Utility.Comparers;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
