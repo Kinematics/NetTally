@@ -436,7 +436,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                         // If neither matched, it's post 1/page 1
                         // Return a By Post range
-                        if (page == 0 || post == 0)
+                        if (page == 0 && post == 0)
                             return ThreadRange.CreateRangeByPost(1);
 
                         var postId = PostId.Create(post);
