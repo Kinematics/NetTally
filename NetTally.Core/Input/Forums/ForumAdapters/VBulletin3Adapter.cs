@@ -167,7 +167,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 if (vbMenuControl != null)
                 {
-                    Regex pageNumsRegex = PageNumsRegex();
+                    Regex pageNumsRegex = PageNumsRegex;
 
                     Match m = pageNumsRegex.Match(vbMenuControl.InnerText);
                     if (m.Success)
@@ -281,8 +281,6 @@ namespace NetTally.Input.Forums.ForumAdapters
         #endregion Get Posts
 
         #region URL Manipulation
-        static readonly Regex threadNumberRegex = ThreadNumberRegex();
-
         /// <summary>
         /// Get the URL string up to the end of any directory paths.
         /// </summary>
@@ -297,7 +295,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             string auth = uri.GetLeftPart(UriPartial.Authority);
             string page = uri.AbsolutePath;
 
-            Match m = threadNumberRegex.Match(uri.Query);
+            Match m = ThreadNumberRegex.Match(uri.Query);
             if (m.Success)
             {
                 return $"{auth}{page}?t={m.Groups["thread"].Value}";
@@ -330,9 +328,9 @@ namespace NetTally.Input.Forums.ForumAdapters
         }
 
         [GeneratedRegex(@"\?t=(?<thread>\d+)")]
-        private static partial Regex ThreadNumberRegex();
+        private static partial Regex ThreadNumberRegex { get; }
         [GeneratedRegex(@"Page \d+ of (?<pages>\d+)")]
-        private static partial Regex PageNumsRegex();
+        private static partial Regex PageNumsRegex { get; }
         #endregion URL Manipulation
     }
 }

@@ -8,22 +8,15 @@ namespace NetTally.Tally.Components.Votes
         #region BBCode regexes
         // Regex for any opening or closing BBCode tag.
         [GeneratedRegex(@"(『(?:/)?(?:b|i|u|color)(?(?<=『color)=[^』]+)』)")]
-        private static partial Regex AllBBCodeRegex();
+        private static partial Regex AllBBCodeRegex { get; }
 
         // Regex for any opening BBCode tag.
         [GeneratedRegex(@"^『(b|i|u|color)(?(?<=『color)=[^』]+)』")]
-        private static partial Regex OpenBBCodeRegex();
+        private static partial Regex OpenBBCodeRegex { get; }
 
         // Regex for any closing BBCode tag.
         [GeneratedRegex(@"^『/(b|i|u|color)』")]
-        private static partial Regex CloseBBCodeRegex();
-
-        // Regex for any opening or closing BBCode tag.
-        static readonly Regex allBBCodeRegex = AllBBCodeRegex();
-        // Regex for any opening BBCode tag.
-        static readonly Regex openBBCodeRegex = OpenBBCodeRegex();
-        // Regex for any closing BBCode tag.
-        static readonly Regex closeBBCodeRegex = CloseBBCodeRegex();
+        private static partial Regex CloseBBCodeRegex { get;  }
         #endregion
 
         #region Cleanup functions
@@ -41,7 +34,7 @@ namespace NetTally.Tally.Components.Votes
             if (string.IsNullOrEmpty(line))
                 return "";
 
-            var lineSplit = allBBCodeRegex.Split(line);
+            var lineSplit = AllBBCodeRegex.Split(line);
 
             // If there were no BBCode tags, just return the original line.
             if (lineSplit.Length == 1)
@@ -53,8 +46,8 @@ namespace NetTally.Tally.Components.Votes
 
             for (int i = 0; i < lineSplit.Length; i++)
             {
-                openMatches[i] = openBBCodeRegex.Match(lineSplit[i]);
-                closeMatches[i] = closeBBCodeRegex.Match(lineSplit[i]);
+                openMatches[i] = OpenBBCodeRegex.Match(lineSplit[i]);
+                closeMatches[i] = CloseBBCodeRegex.Match(lineSplit[i]);
             }
 
             // Rebuild the result

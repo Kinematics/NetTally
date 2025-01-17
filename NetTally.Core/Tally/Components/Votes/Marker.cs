@@ -46,10 +46,8 @@ public static partial class Marker
     #endregion Public predefined markers
 
     #region Regexes
-    static readonly Regex markerRegex = MarkerRegex();
-
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
-    private static partial Regex MarkerRegex();
+    private static partial Regex MarkerRegex { get; }
     #endregion Regexes
 
     #region Marker creation
@@ -74,7 +72,7 @@ public static partial class Marker
         {
             value = value.Trim();
 
-            Match m = markerRegex.Match(value);
+            Match m = MarkerRegex.Match(value);
 
             if (m.Success)
             {

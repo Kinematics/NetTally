@@ -25,15 +25,15 @@ namespace NetTally.Input.Forums.ForumAdapters
         #region Regex data
         // May possibly end with /page-00#post-00
         [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(?:\?[^#]+)?(#?post-(?<post>\d+))?$")]
-        private static partial Regex LongFragment();
+        private static partial Regex LongFragment { get; }
 
         // The short HREF version gives the post ID
         [GeneratedRegex(@"posts/(?<tmID>\d+)/?$")]
-        private static partial Regex ShortFragment();
+        private static partial Regex ShortFragment { get; }
 
         // RSS permalink does not include the page number.
         [GeneratedRegex(@"threads/[^/]+/(post-(?<post>\d+))?$")]
-        private static partial Regex PermalinkFragment();
+        private static partial Regex PermalinkFragment { get; }
         #endregion
 
         #region IForumAdapter interface
@@ -301,7 +301,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             // or the short version (which only shows the post number).
 
             // If we're given the short version of the URL, just do a HEAD query to get the long version.
-            Match mShort = ShortFragment().Match(lastThreadmarkHref);
+            Match mShort = ShortFragment.Match(lastThreadmarkHref);
             if (mShort.Success)
             {
                 // Get the post ID for the threadmark
@@ -326,7 +326,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             }
 
             // If we have the long URL, we can extract the page number and post number from the URL itself.
-            Match m1 = LongFragment().Match(lastThreadmarkHref);
+            Match m1 = LongFragment.Match(lastThreadmarkHref);
             if (m1.Success)
             {
                 int page = 0;
@@ -409,7 +409,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 {
                     // If we have a permalink fragment, we have no page number, but we can
                     // request a redirect to get the actual href.
-                    Match mr = PermalinkFragment().Match(href);
+                    Match mr = PermalinkFragment.Match(href);
                     if (mr.Success)
                     {
                         string redirect = await pageProvider.GetRedirectUrlAsync(
@@ -423,7 +423,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                     }
 
                     // If we have the long URL, we can extract the page number and post number from the URL itself.
-                    mr = LongFragment().Match(href);
+                    mr = LongFragment.Match(href);
                     if (mr.Success)
                     {
                         int page = 0;

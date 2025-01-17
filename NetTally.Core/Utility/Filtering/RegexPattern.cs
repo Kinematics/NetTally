@@ -45,43 +45,34 @@ public partial class RegexPattern
     /// A regex that contains nothing.
     /// </summary>
     [GeneratedRegex("^$")]
-    private static partial Regex EmptyRegex();
+    private static partial Regex EmptyRegex { get; }
 
     [GeneratedRegex(@"(\w)\]", RegexOptions.None, 100)]
-    private static partial Regex PostWordRegex();
+    private static partial Regex PostWordRegex { get; }
 
     [GeneratedRegex(@"\[(\w)", RegexOptions.None, 100)]
-    private static partial Regex PreWordRegex();
+    private static partial Regex PreWordRegex { get; }
 
     [GeneratedRegex(@"[*]", RegexOptions.None, 100)]
-    private static partial Regex SplatRegex();
+    private static partial Regex SplatRegex { get; }
 
     [GeneratedRegex(@"[?]", RegexOptions.None, 100)]
-    private static partial Regex LetterRegex();
+    private static partial Regex LetterRegex { get; }
 
     [GeneratedRegex(@"([.(){}^$])", RegexOptions.None, 100)]
-    private static partial Regex EscapeCharsRegex();
+    private static partial Regex EscapeCharsRegex { get; }
 
     [GeneratedRegex(@"^/(?<regex>.+)/(?<options>[ugi]{0,3})$",
         RegexOptions.None, 100)]
-    private static partial Regex JSRegex();
+    private static partial Regex JSRegex { get; }
 
     /// <summary>
     /// A pure false regex, in as simple a form as possible.  From the start of the line,
     /// require a negative lookahead for a value that is followed by that value.
     /// </summary>
     [GeneratedRegex(@"^(?!x)x")]
-    private static partial Regex AlwaysFalseRegex();
+    private static partial Regex AlwaysFalseRegex { get; }
 
-
-    static readonly Regex emptyRegex = EmptyRegex();
-    static readonly Regex postWord = PostWordRegex();
-    static readonly Regex preWord = PreWordRegex();
-    static readonly Regex splat = SplatRegex();
-    static readonly Regex letter = LetterRegex();
-    static readonly Regex escapeChars = EscapeCharsRegex();
-    static readonly Regex jsRegex = JSRegex();
-    static readonly Regex falseRegex = AlwaysFalseRegex();
     static readonly char[] separator = [','];
 
 
@@ -115,7 +106,7 @@ public partial class RegexPattern
     {
         if (string.IsNullOrEmpty(pattern)) return false;
 
-        Match m = jsRegex.Match(pattern);
+        Match m = JSRegex.Match(pattern);
         if (m.Success)
         {
             pattern = m.Groups["regex"].Value;
@@ -135,11 +126,11 @@ public partial class RegexPattern
     {
         string correctedPattern = pattern
                                   .Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                                  .Select(p => escapeChars.Replace(p, "\\$1"))
-                                  .Select(p => letter.Replace(p, @"."))
-                                  .Select(p => splat.Replace(p, @".*?"))
-                                  .Select(p => preWord.Replace(p, "\\b$1"))
-                                  .Select(p => postWord.Replace(p, "$1\\b"))
+                                  .Select(p => EscapeCharsRegex.Replace(p, "\\$1"))
+                                  .Select(p => LetterRegex.Replace(p, @"."))
+                                  .Select(p => SplatRegex.Replace(p, @".*?"))
+                                  .Select(p => PreWordRegex.Replace(p, "\\b$1"))
+                                  .Select(p => PostWordRegex.Replace(p, "$1\\b"))
                                   .DefaultIfEmpty("")
                                   .Aggregate((a, b) => $"{a}|{b}");
 

@@ -142,7 +142,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         #region Get Page Information
         [GeneratedRegex(@"Page\s*\d+\s*of\s*(?<pages>\d+)")]
-        private static partial Regex PageOfRegex();
+        private static partial Regex PageOfRegex { get; }
 
         private static string GetPageTitle(HtmlDocument page)
         {
@@ -170,7 +170,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                     string? paginationText = pagination?.InnerText;
                     if (paginationText != null)
                     {
-                        Match m = PageOfRegex().Match(paginationText);
+                        Match m = PageOfRegex.Match(paginationText);
                         if (m.Success)
                             return int.Parse(m.Groups["pages"].Value);
                     }
@@ -264,7 +264,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         #region URL Manipulation
         [GeneratedRegex(@"[\?&]t=(?<thread>\d+)")]
-        private static partial Regex ThreadNumberRegex();
+        private static partial Regex ThreadNumberRegex { get; }
 
         /// <summary>
         /// Get the URL string up to the end of any directory paths.
@@ -281,7 +281,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             string auth = uri.GetLeftPart(UriPartial.Authority);
             string page = uri.AbsolutePath;
 
-            Match m = ThreadNumberRegex().Match(uri.Query);
+            Match m = ThreadNumberRegex.Match(uri.Query);
             if (m.Success)
             {
                 return $"{auth}{page}?t={m.Groups["thread"].Value}";

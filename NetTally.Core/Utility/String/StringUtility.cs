@@ -69,15 +69,13 @@ namespace NetTally.Utility
 
         #region Safe strings
 
-        [GeneratedRegex(@"[\p{C}-[\r\n]]")]
-        private static partial Regex UnsafeCharsRegex();
-
         /// <summary>
         /// Regex for control and formatting characters that we don't want to allow processing of.
         /// EG: \u200B, non-breaking space
         /// Regex is the character set of all control characters {C}, except for CR/LF.
         /// </summary>
-        static readonly Regex unsafeCharsRegex = UnsafeCharsRegex();
+        [GeneratedRegex(@"[\p{C}-[\r\n]]")]
+        private static partial Regex UnsafeCharsRegex { get; }
 
         /// <summary>
         /// Remove unsafe UTF control characters from the provided string.
@@ -90,7 +88,7 @@ namespace NetTally.Utility
             if (string.IsNullOrEmpty(input))
                 return string.Empty;
 
-            return unsafeCharsRegex.Replace(input, "");
+            return UnsafeCharsRegex.Replace(input, "");
         }
         #endregion
 

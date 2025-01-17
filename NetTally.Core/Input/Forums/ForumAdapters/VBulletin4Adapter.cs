@@ -173,8 +173,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 if (pagesText != null)
                 {
-                    Regex pageNumsRegex = PageNumsRegex();
-                    Match m = pageNumsRegex.Match(pagesText);
+                    Match m = PageNumsRegex.Match(pagesText);
                     if (m.Success)
                     {
                         return int.Parse(m.Groups["pages"].Value);
@@ -319,7 +318,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         }
 
         [GeneratedRegex(@"Page \d+ of (?<pages>\d+)")]
-        private static partial Regex PageNumsRegex();
+        private static partial Regex PageNumsRegex { get; }
         #endregion URL Manipulation
     }
 }

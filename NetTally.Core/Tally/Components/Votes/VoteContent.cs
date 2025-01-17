@@ -41,17 +41,12 @@ public static partial class VoteContent
             content with { CleanContent = content.CleanContent[..trimIndex] };
     }
 
-
-    static readonly Regex extendedTextRegex = ExtendedTextRegex();
-    static readonly Regex extendedTextSentenceRegex = ExtendedTextSentenceRegex();
-    static readonly Regex wordCountRegex = WordCountRegex();
-
     [GeneratedRegex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))")]
-    private static partial Regex ExtendedTextRegex();
+    private static partial Regex ExtendedTextRegex { get; }
     [GeneratedRegex(@"(?<!\([^)]*)(?<![pP][lL][aA][nN]\b.+)(((?<=\S{4,})|(?<=\s[\p{Ll}]\S+))([.?!])(?:\s+[^\p{Ll}]))")]
-    private static partial Regex ExtendedTextSentenceRegex();
+    private static partial Regex ExtendedTextSentenceRegex { get; }
     [GeneratedRegex(@"\S+\b")]
-    private static partial Regex WordCountRegex();
+    private static partial Regex WordCountRegex { get; }
 
     /// <summary>
     /// Gets the index to trim from for a given content line.
@@ -87,7 +82,7 @@ public static partial class VoteContent
         // the separator limit.
 
 
-        MatchCollection matches = extendedTextRegex.Matches(content.CleanContent);
+        MatchCollection matches = ExtendedTextRegex.Matches(content.CleanContent);
 
         // If there is only one separator, use it as long as it's within the limit.
         if (matches.Count == 1)
@@ -116,7 +111,7 @@ public static partial class VoteContent
         }
 
         // Alternate trimming that reduces the vote to only the first sentence.
-        matches = extendedTextSentenceRegex.Matches(content.CleanContent);
+        matches = ExtendedTextSentenceRegex.Matches(content.CleanContent);
         // Sentences may be taken up to half the line length.
         separatorLimit = content.CleanContent.Length / 2;
 
@@ -140,7 +135,7 @@ public static partial class VoteContent
     /// <returns>Returns the number of words found in the provided string.</returns>
     private static int CountWords(string partial)
     {
-        var matches = wordCountRegex.Matches(partial);
+        var matches = WordCountRegex.Matches(partial);
         return matches.Count;
     }
 }

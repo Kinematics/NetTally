@@ -265,7 +265,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         #region URL Manipulation
         [GeneratedRegex(@"(?<thread>\d+-[^/?]+)/?")]
-        private static partial Regex ThreadNameRegex();
+        private static partial Regex ThreadNameRegex { get; }
 
         /// <summary>
         /// Get the URL string up to the end of any directory paths.
@@ -286,7 +286,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             foreach (var segment in uri.Segments)
             {
-                Match m = ThreadNameRegex().Match(segment);
+                Match m = ThreadNameRegex.Match(segment);
                 if (m.Success)
                 {
                     sb.Append(m.Groups["thread"].Value);

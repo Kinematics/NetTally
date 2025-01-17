@@ -23,15 +23,12 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         #region Static data
         // May possibly end with /page-00#post-00
-        static readonly Regex longFragment = LongFragmentRegex();
-        // The short HREF version gives the post ID
-        static readonly Regex shortFragment = ShortFragmentRegex();
-
         [GeneratedRegex(@"threads/[^/]+/(page-(?<page>\d+))?(#?post-(?<post>\d+))?$")]
-        private static partial Regex LongFragmentRegex();
+        private static partial Regex LongFragmentRegex { get; }
 
+        // The short HREF version gives the post ID
         [GeneratedRegex(@"posts/(?<tmID>\d+)/?$")]
-        private static partial Regex ShortFragmentRegex();
+        private static partial Regex ShortFragmentRegex { get; }
         #endregion
 
         #region IForumAdapter interface
@@ -269,7 +266,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             // or the short version (which only shows the post number).
 
             // If we're given the short version of the URL, just do a HEAD query to get the long version.
-            Match mShort = shortFragment.Match(lastThreadmarkHref);
+            Match mShort = ShortFragmentRegex.Match(lastThreadmarkHref);
             if (mShort.Success)
             {
                 // Get the post ID for the threadmark
@@ -294,7 +291,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             }
 
             // If we have the long URL, we can extract the page number and post number from the URL itself.
-            Match m1 = longFragment.Match(lastThreadmarkHref);
+            Match m1 = LongFragmentRegex.Match(lastThreadmarkHref);
             if (m1.Success)
             {
                 int page = 0;
@@ -375,7 +372,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 if (!string.IsNullOrEmpty(href))
                 {
                     // If we have the long URL, we can extract the page number and post number from the URL itself.
-                    Match mr = longFragment.Match(href);
+                    Match mr = LongFragmentRegex.Match(href);
                     if (mr.Success)
                     {
                         int page = 0;
