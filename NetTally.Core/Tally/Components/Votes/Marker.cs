@@ -45,12 +45,9 @@ public static partial class Marker
     public static MarkerData RankMarker { get; } = new MarkerData(MarkerType.Rank, 0, Strings.RankMarker);
     #endregion Public predefined markers
 
-    #region Regexes
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex { get; }
-    #endregion Regexes
 
-    #region Marker creation
     /// <summary>
     /// Create a marker using the provided numeric value.
     /// </summary>
@@ -101,7 +98,6 @@ public static partial class Marker
 
         return null;
     }
-    #endregion Marker creation
 }
 
 /// <summary>
@@ -144,8 +140,20 @@ public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerDat
     {
         return obj.MarkerValue.GetHashCode();
     }
+}
 
-    public static bool? IsPositive(MarkerData marker)
+/// <summary>
+/// Extension class for <see cref="MarkerData"/> objects.
+/// </summary>
+public static class MarkerExtensions
+{
+    /// <summary>
+    /// Determine if the marker is considered a positive result or not.
+    /// </summary>
+    /// <param name="marker">The <see cref="MarkerData"/> object to check.</param>
+    /// <returns><c>True</c> if the marker is a positive result, <c>false</c> if it is a negative result,
+    /// or <c>null</c> if it cannot be evaluated.</returns>
+    public static bool? IsPositive(this MarkerData marker)
     {
         return marker.MarkerType switch
         {
