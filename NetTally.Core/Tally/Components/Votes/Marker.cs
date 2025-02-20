@@ -68,80 +68,35 @@ public static partial class Marker
     /// <returns>A new <see cref="MarkerData"/> object for the provided value.</returns>
     public static MarkerData? Create(string value)
     {
-        if (!string.IsNullOrWhiteSpace(value))
+        value = value.Trim();
+
+        Match m = MarkerRegex.Match(value);
+
+        if (m.Success)
         {
-            value = value.Trim();
-
-            Match m = MarkerRegex.Match(value);
-
-            if (m.Success)
+            MarkerType markerType = true switch
             {
-                MarkerType markerType;
-                int markerValue = 0;
+                _ when m.Groups["vote"].Success => MarkerType.Vote,
+                _ when m.Groups["approval"].Success => MarkerType.Approval,
+                _ when m.Groups["score"].Success => MarkerType.Score,
+                _ when m.Groups["rank"].Success => MarkerType.Rank,
+                _ => MarkerType.Rank
+            };
 
-                if (m.Groups["vote"].Success)
-                {
-                    markerType = MarkerType.Vote;
-                }
-                else if (m.Groups["rank"].Success &&
-                         m.Groups["score"].Success)
-                {
-                    // Can't have #19%
-                    return null;
-                }
-                else if (m.Groups["rank"].Success)
-                {
-                    markerType = MarkerType.Rank;
-                }
-                else if (m.Groups["score"].Success)
-                {
-                    markerType = MarkerType.Score;
-                }
-                else if (m.Groups["value"].Success)
-                {
-                    // Default type if we have a value, but no # or % was used.
-                    markerType = MarkerType.Rank;
-                }
-                else if (m.Groups["approval"].Success)
-                {
-                    markerType = MarkerType.Approval;
-                }
-                else
-                {
-                    // Shouldn't be possible to get here, but if we do, it's invalid.
-                    return null;
-                }
+            int markerValue = markerType switch
+            {
+                MarkerType.Vote => 100,
+                MarkerType.Approval => value == "+" ? 80 : 20,
+                MarkerType.Rank => Math.Clamp(
+                    int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture),
+                    1, 99),
+                MarkerType.Score => Math.Clamp(
+                    int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture),
+                    0, 100),
+                _ => 100
+            };
 
-                if (markerType == MarkerType.Vote)
-                {
-                    markerValue = 100;
-                }
-                else if (markerType == MarkerType.Approval)
-                {
-                    markerValue = value == "+" ? 80 : 20;
-                }
-                else if (m.Groups["value"].Success)
-                {
-                    markerValue = int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture);
-
-                    if (markerType == MarkerType.Rank)
-                    {
-                        if (markerValue < 1)
-                            markerValue = 1;
-                        if (markerValue > 99)
-                            markerValue = 99;
-                    }
-                    else if (markerType == MarkerType.Score)
-                    {
-                        if (markerValue < 0)
-                            markerValue = 0;
-                        if (markerValue > 100)
-                            markerValue = 100;
-                    }
-                }
-
-                return new MarkerData(markerType, markerValue, value);
-            }
+            return new MarkerData(markerType, markerValue, value);
         }
 
         return null;
