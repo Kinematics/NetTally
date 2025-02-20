@@ -111,7 +111,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest we're getting info for.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        private ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
+        private static ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
             var author = Author.Unknown; // PhpBB doesn't show thread authors

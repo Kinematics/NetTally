@@ -118,7 +118,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        private ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
+        private static ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
             var author = Author.Unknown; // vBulletin doesn't show thread authors
