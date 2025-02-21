@@ -33,8 +33,7 @@ public static class VoterAnalysis
     /// <returns>The number of users who expressed positive support.</returns>
     public static int GetSupportCount(VoterStorageType storage)
     {
-        return storage.Count(s => s.Key.IsUser &&
-                                  MarkerComparer.IsPositive(s.Value.Marker).GetValueOrDefault());
+        return storage.Count(s => s.Key.IsUser && s.Value.Marker.IsPositive().GetValueOrDefault());
     }
 
     /// <summary>
