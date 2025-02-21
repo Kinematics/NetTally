@@ -26,10 +26,11 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.2" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 		<PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-		<PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.1" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.2" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Update="NetTally.dll.config">
