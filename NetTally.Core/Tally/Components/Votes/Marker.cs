@@ -65,12 +65,19 @@ public static partial class Marker
     /// <returns>A new <see cref="MarkerData"/> object for the provided value.</returns>
     public static MarkerData? Create(string value)
     {
+        if (string.IsNullOrEmpty(value))
+            return null;
+
         value = value.Trim();
 
         Match m = MarkerRegex.Match(value);
 
         if (m.Success)
         {
+            // Can't have rank and score valid at the same time
+            if (m.Groups["rank"].Success && m.Groups["score"].Success)
+                return null;
+
             MarkerType markerType = true switch
             {
                 _ when m.Groups["vote"].Success => MarkerType.Vote,
