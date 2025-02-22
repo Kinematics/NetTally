@@ -140,7 +140,7 @@ public class ForumReader(
         var threadData = await GetThreadInfoAsync(quest, pageProvider, adapter, token)
             .ConfigureAwait(false);
 
-        if (threadData != null)
+        if (threadData != null && threadData != ThreadInformation.None)
         {
             var pages = await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
                                 .ConfigureAwait(false);
