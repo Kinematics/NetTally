@@ -104,13 +104,13 @@ namespace NetTally.Web
         /// <returns>
         /// Returns an HTML document, if it can be loaded.
         /// </returns>
-        public async Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             logger.LogInformation("Requested HTML document \"{shortDescrip}\"", shortDescrip);
             HtmlDocument? htmldoc = null;
 
-            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
@@ -134,13 +134,13 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        public async Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             logger.LogInformation("Requested XML document \"{shortDescrip}\"", shortDescrip);
             XDocument? xmldoc = null;
 
-            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
 
             if (!string.IsNullOrEmpty(content))
             {
@@ -168,7 +168,7 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
         public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
-            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+            CachingMode caching, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             logger.LogInformation("Requested URL redirect for \"{shortDescrip}\"", shortDescrip);
             Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
@@ -214,7 +214,7 @@ namespace NetTally.Web
         /// <returns>Returns a (bool,string) tuple of whether there was cached content found, and what it was if found.</returns>
         private (bool found, string content) GetCachedContent(string url, CachingMode caching)
         {
-            if (caching == CachingMode.UseCache)
+            if (caching is CachingMode.ReadOnly or CachingMode.ReadWrite)
             {
                 return Cache.Get(url);
             }
@@ -232,7 +232,7 @@ namespace NetTally.Web
         /// <param name="suppressNotifications">Whether to suppress notifications.</param>
         /// <param name="token">The cancellation token.</param>
         /// <returns>Returns the loaded resource string.</returns>
-        private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
+        private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching,
             SuppressNotifications suppressNotifications, CancellationToken token)
         {
             var (uri, url2) = GetVerifiedUrl(url);
@@ -245,7 +245,7 @@ namespace NetTally.Web
             }
             else
             {
-                content = await GetUrlContent(uri, url2, shortDescrip, shouldCache, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
+                content = await GetUrlContent(uri, url2, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
             }
 
             return content;
@@ -258,12 +258,12 @@ namespace NetTally.Web
         /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
         /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="cachingMode">Indicates whether the result of this page load should be cached.</param>
         /// <returns>Returns an HTML document, if it can be loaded.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
         private async Task<string?> GetUrlContent(Uri uri, string url, string shortDescrip,
-            ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+            CachingMode cachingMode, SuppressNotifications suppressNotifications, CancellationToken token)
         {
             string? result = null;
             int tries = 0;
@@ -393,7 +393,7 @@ namespace NetTally.Web
                 return null;
             }
 
-            if (shouldCache == ShouldCache.Yes)
+            if (cachingMode is CachingMode.WriteOnly or CachingMode.ReadWrite)
                 Cache.Add(url, result, expires);
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
@@ -532,7 +532,7 @@ namespace NetTally.Web
         {
             string failureDescrip;
 
-            if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
+            if (Enum.IsDefined(response.StatusCode))
             {
                 failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
                 if (inputOptions.DebugMode)

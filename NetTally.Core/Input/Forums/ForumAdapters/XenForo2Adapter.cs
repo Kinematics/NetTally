@@ -179,7 +179,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             // Make sure to bypass the cache, since it may have changed since the last load.
             HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
                 infoPageUrl, "Info Page",
-                CachingMode.BypassCache, ShouldCache.Yes,
+                CachingMode.WriteOnly,
                 SuppressNotifications.Yes, token)
                 .ConfigureAwait(false);
 
@@ -277,7 +277,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
                 GetThreadmarksPageUrl(quest.ThreadUri), "Threadmarks",
-                CachingMode.UseCache, ShouldCache.Yes,
+                CachingMode.ReadWrite,
                 SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarksPage == null)
@@ -318,7 +318,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
                 string fullUrl = await pageProvider.GetRedirectUrlAsync(
                     permalink.AbsoluteUri, null,
-                    CachingMode.BypassCache, ShouldCache.No,
+                    CachingMode.NoCache,
                     SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(fullUrl))
@@ -365,7 +365,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             XDocument? rss = await pageProvider.GetXmlDocumentAsync(
                 GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
-                CachingMode.UseCache, ShouldCache.Yes,
+                CachingMode.ReadWrite,
                 SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (rss == null)
@@ -413,7 +413,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                     if (mr.Success)
                     {
                         string redirect = await pageProvider.GetRedirectUrlAsync(
-                            href, "RSS Link", CachingMode.BypassCache, ShouldCache.Yes,
+                            href, "RSS Link", CachingMode.WriteOnly,
                             SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                         if (!string.IsNullOrEmpty(redirect) && redirect != href)

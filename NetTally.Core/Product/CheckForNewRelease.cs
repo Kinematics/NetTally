@@ -143,8 +143,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         string redirectURL = await pageProvider.GetRedirectUrlAsync(
             githubLatestPage,
             "Latest release page",
-            CachingMode.BypassCache,
-            ShouldCache.No,
+            CachingMode.NoCache,
             SuppressNotifications.Yes,
             default);
 
@@ -208,7 +207,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     private async Task<HtmlDocument?> GetReleasesPageAsync()
     {
         HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
-            "Github Releases", CachingMode.BypassCache, ShouldCache.No,
+            "Github Releases", CachingMode.NoCache,
             SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
 
         return doc;

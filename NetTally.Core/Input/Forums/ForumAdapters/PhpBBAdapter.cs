@@ -132,7 +132,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             // Make sure to bypass the cache, since it may have changed since the last load.
             HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
                 infoPageUrl, "Info Page",
-                CachingMode.BypassCache, ShouldCache.Yes,
+                CachingMode.WriteOnly,
                 SuppressNotifications.Yes, token)
                 .ConfigureAwait(false);
 

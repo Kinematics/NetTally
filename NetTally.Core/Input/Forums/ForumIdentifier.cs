@@ -102,7 +102,7 @@ namespace NetTally.Input.Forums
             try
             {
                 page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
-                    CachingMode.UseCache, ShouldCache.Yes, SuppressNotifications.Yes, token)
+                    CachingMode.ReadWrite, SuppressNotifications.Yes, token)
                     .ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)

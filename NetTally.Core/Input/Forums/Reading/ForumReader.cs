@@ -356,11 +356,11 @@ public class ForumReader(
         for (int pageNum = firstPage; pageNum <= lastPage; pageNum++)
         {
             var pageUrl = adapter.GetUrlForPage(quest, pageNum);
-            var shouldCache = pageNum == lastPage ? ShouldCache.No : ShouldCache.Yes;
+            var caching = pageNum == lastPage ? CachingMode.ReadOnly : CachingMode.ReadWrite;
 
             tasks.Add(pageProvider.GetHtmlDocumentAsync(
                               pageUrl, $"Page {pageNum}",
-                              CachingMode.UseCache, shouldCache,
+                              caching,
                               SuppressNotifications.No, token));
         }
 
