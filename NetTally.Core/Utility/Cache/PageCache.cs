@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO.Compression;
 using System.Text;
 using Nito.AsyncEx;
 
@@ -119,6 +120,26 @@ namespace NetTally.Cache
             }
 
             return (false, string.Empty);
+        }
+
+        public bool TryGet(string key, [NotNullWhen(true)]  out string? content)
+        {
+            using (cacheLock.ReaderLock())
+            {
+                if (GzPageCache.TryGetValue(key, out CacheObject<byte[]>? gzCache))
+                {
+                    if (gzCache.Expires > timeProvider.GetUtcNow())
+                    {
+                        content = Decompress(gzCache.Store);
+
+                        return true;
+                    }
+                }
+            }
+
+            content = default;
+
+            return false;
         }
 
         /// <summary>

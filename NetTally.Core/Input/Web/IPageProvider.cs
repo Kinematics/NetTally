@@ -43,6 +43,13 @@ namespace NetTally.Web
             SuppressNotifications suppressNotifications,
             CancellationToken token);
 
+        Task<string?> GetJsonDocumentAsync(
+            string url,
+            string description,
+            CachingMode caching,
+            SuppressNotifications suppressNotifications,
+            CancellationToken token);
+
         /// <summary>
         /// Loads the HEAD of the requested URL, and returns the response URL value.
         /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
@@ -56,8 +63,7 @@ namespace NetTally.Web
         /// <returns>Returns the URL that the response headers say we requested.</returns>
         Task<string> GetRedirectUrlAsync(
             string url,
-            string? description,
-            CachingMode caching,
+            string description,
             SuppressNotifications suppressNotifications,
             CancellationToken token);
 

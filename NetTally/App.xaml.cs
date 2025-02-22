@@ -71,7 +71,7 @@ namespace NetTally
             try
             {
                 // Start the app
-                await AppX.Host.StartAsync();
+                await AppX.AppHost.StartAsync();
 
                 logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
 
@@ -87,13 +87,13 @@ namespace NetTally
 
         private async void Application_Exit(object sender, ExitEventArgs e)
         {
-            using (AppX.Host)
+            using (AppX.AppHost)
             {
                 // Save user config
                 AppX.SaveConfiguration();
 
                 // Wait up to 5 seconds before forcing a shutdown.
-                await AppX.Host.StopAsync(TimeSpan.FromSeconds(5));
+                await AppX.AppHost.StopAsync(TimeSpan.FromSeconds(5));
             }
         }
         #endregion Startup and Shutdown

@@ -1,0 +1,18 @@
+﻿namespace NetTally.CustomEventArgs;
+
+public class RetryFailedEventArgs(
+    string url,
+    int retryCount,
+    Exception exception,
+    HttpResponseMessage response,
+    bool retryAgain) : EventArgs
+{
+    public string Url { get; } = url;
+    public int RetryCount { get; } = retryCount;
+    public Exception Exception { get; } = exception;
+    public HttpResponseMessage Response { get; } = response;
+    public bool RetryAgain { get; } = retryAgain;
+}
+
+/// Define the event handler delegate
+public delegate void RetryFailedEventHandler(object sender, RetryFailedEventArgs e);

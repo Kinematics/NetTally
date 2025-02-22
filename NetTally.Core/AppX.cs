@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,10 +11,13 @@ using NetTally.Configure;
 using NetTally.Configure.Json;
 using NetTally.Configure.Legacy;
 using NetTally.Configure.Xml;
+using NetTally.CustomEventArgs;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Input.Forums.Reading;
+using NetTally.Input.Web;
+using NetTally.Input.Web.Handlers;
 using NetTally.Output;
 using NetTally.Product;
 using NetTally.Tally;
@@ -20,16 +25,19 @@ using NetTally.Tally.Components.Counting;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.Web;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Retry;
 
 namespace NetTally;
 public static class AppX
 {
-    public static IHost Host { get; private set; } = null!;
-    public static IServiceProvider Services => Host.Services;
+    public static IHost AppHost { get; private set; } = null!;
+    public static IServiceProvider Services => AppHost.Services;
 
     public static void Initialize(Action<IServiceCollection>? servicesCallback)
     {
-        Host = CreateHost(servicesCallback);
+        AppHost = CreateHost(servicesCallback);
 
         _ = Services.GetRequiredService<Agnostic>();
     }
@@ -47,7 +55,7 @@ public static class AppX
     /// <returns>Returns an IHost that can run the application.</returns>
     private static IHost CreateHost(Action<IServiceCollection>? servicesCallback)
     {
-        var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
+        var builder = Host.CreateApplicationBuilder();
 
         // Load legacy config, if available.
         builder.Services.AddSingleton(LoadLegacyConfig() ?? new ConfigInfo());
@@ -56,6 +64,7 @@ public static class AppX
         ConfigureOptions(builder.Services);
         ConfigureLogging(builder.Logging);
         ConfigureServices(builder.Services);
+        ConfigureHttp(builder);
 
         // Call callback to allow calling library to add its own services.
         servicesCallback?.Invoke(builder.Services);
@@ -140,6 +149,8 @@ public static class AppX
         services.AddSingleton<ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
 
+        services.AddTransient<IPageProvider, WebPageProvider2>();
+
         // Fake service so that Avalonia doesn't crash on startup.
         services.AddTransient<Quest>();
 
@@ -195,6 +206,91 @@ public static class AppX
         }
 
         return null;
+    }
+
+    private static void ConfigureHttp(HostApplicationBuilder builder)
+    {
+        string userAgent = $"{ProductInfo.Name} ({ProductInfo.Version})";
+
+        builder.Services
+            .AddHttpClient(ConfigStrings.WithProxy, client =>
+            {
+                client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+                client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip,deflate,br");
+                client.Timeout = TimeSpan.FromSeconds(7);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                new SocketsHttpHandler()
+                {
+                    AllowAutoRedirect = true,
+                    AutomaticDecompression = System.Net.DecompressionMethods.All,
+                    MaxConnectionsPerServer = 4,
+                    UseCookies = false,
+                    UseProxy = true
+                })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            .AddPolicyHandler(GetRetryPolicy());
+
+        builder.Services
+            .AddHttpClient(ConfigStrings.NoProxy, client =>
+            {
+                client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+                client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip,deflate,br");
+                client.Timeout = TimeSpan.FromSeconds(7);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                new SocketsHttpHandler()
+                {
+                    AllowAutoRedirect = true,
+                    AutomaticDecompression = System.Net.DecompressionMethods.All,
+                    MaxConnectionsPerServer = 4,
+                    UseCookies = false,
+                    // In the event of slow response probably caused by
+                    // proxy lookup failures, we can turn it off here.
+                    // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
+                    UseProxy = false
+                })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            .AddPolicyHandler(GetRetryPolicy());
+
+        builder.Services
+            .AddHttpClient(ConfigStrings.Github, client =>
+            {
+                client.BaseAddress = new Uri("https://api.github.com/");
+                client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github.v3+json");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
+                client.DefaultRequestHeaders.AcceptEncoding.ParseAdd("gzip,deflate,br");
+                client.Timeout = TimeSpan.FromSeconds(7);
+            })
+            .ConfigurePrimaryHttpMessageHandler(() =>
+                new SocketsHttpHandler()
+                {
+                    AllowAutoRedirect = true,
+                    AutomaticDecompression = System.Net.DecompressionMethods.All,
+                    MaxConnectionsPerServer = 4,
+                    UseProxy = true
+                })
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            .AddPolicyHandler(GetRetryPolicy());
+    }
+
+    private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
+            .WaitAndRetryAsync(ConfigStrings.MaxRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetry: (result, timespan, retryAttempt, context) =>
+                {
+                    var eventArgs = new RetryFailedEventArgs(
+                        result.Result.RequestMessage?.RequestUri?.AbsoluteUri ?? "Unknown",
+                        retryAttempt, result.Exception, result.Result,
+                        retryAttempt != ConfigStrings.MaxRetries);
+
+                    RetryFailureHandler.OnRetryFailed(context, eventArgs);
+                });
     }
     #endregion Hosting Setup
 

@@ -152,6 +152,21 @@ namespace NetTally.Web
             return xmldoc;
         }
 
+        public async Task<string?> GetJsonDocumentAsync(string url, string shortDescrip, CachingMode caching,
+            SuppressNotifications suppressNotifications, CancellationToken token)
+        {
+            logger.LogInformation("Requested JSON document \"{shortDescrip}\"", shortDescrip);
+
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
+
+            if (!string.IsNullOrEmpty(content))
+            {
+                logger.LogInformation("\"{shortDescrip}\" successfully loaded.", shortDescrip);
+            }
+
+            return content;
+        }
+
         /// <summary>
         /// Loads the HEAD of the requested URL, and returns the response URL value.
         /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
@@ -168,7 +183,7 @@ namespace NetTally.Web
         /// <exception cref="System.ArgumentNullException">url</exception>
         /// <exception cref="System.ArgumentException">url</exception>
         public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
-            CachingMode caching, SuppressNotifications suppressNotifications, CancellationToken token)
+            SuppressNotifications suppressNotifications, CancellationToken token)
         {
             logger.LogInformation("Requested URL redirect for \"{shortDescrip}\"", shortDescrip);
             Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);

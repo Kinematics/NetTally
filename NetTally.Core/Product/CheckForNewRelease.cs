@@ -143,7 +143,6 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         string redirectURL = await pageProvider.GetRedirectUrlAsync(
             githubLatestPage,
             "Latest release page",
-            CachingMode.NoCache,
             SuppressNotifications.Yes,
             default);
 

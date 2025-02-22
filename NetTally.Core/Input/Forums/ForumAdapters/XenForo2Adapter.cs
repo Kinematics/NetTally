@@ -317,8 +317,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
                 string fullUrl = await pageProvider.GetRedirectUrlAsync(
-                    permalink.AbsoluteUri, null,
-                    CachingMode.NoCache,
+                    permalink.AbsoluteUri, "",
                     SuppressNotifications.Yes, token).ConfigureAwait(false);
 
                 if (!string.IsNullOrEmpty(fullUrl))
@@ -413,8 +412,8 @@ namespace NetTally.Input.Forums.ForumAdapters
                     if (mr.Success)
                     {
                         string redirect = await pageProvider.GetRedirectUrlAsync(
-                            href, "RSS Link", CachingMode.WriteOnly,
-                            SuppressNotifications.Yes, token).ConfigureAwait(false);
+                            href, "RSS Link", SuppressNotifications.Yes, token)
+                            .ConfigureAwait(ConfigureAwaitOptions.None);
 
                         if (!string.IsNullOrEmpty(redirect) && redirect != href)
                         {

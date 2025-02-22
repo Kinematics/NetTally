@@ -16,5 +16,11 @@
         /// Defined name of the config section, as saved in the legacy XML config file.
         /// </summary>
         public const string SectionName = "NetTally.Quests";
+
+        public const string NoProxy = "NoProxy";
+        public const string WithProxy = "WithProxy";
+        public const string Github = "Github";
+
+        public const int MaxRetries = 3;
     }
 }
