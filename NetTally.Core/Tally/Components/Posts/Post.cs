@@ -53,7 +53,7 @@ public static class Posting
     /// </summary>
     /// <param name="origin">The post's origin.</param>
     /// <param name="text">The text contents of the post.</param>
-    /// <returns></returns>
+    /// <returns>A <see cref="PostToProcess"/>. Returns <c>null</c> if no post could be created.</returns>
     public static PostToProcess? CreateToProcess(OriginType? origin, string text)
     {
         var post = Create(origin, text);
@@ -72,11 +72,11 @@ public static class PostExtensions
     /// Determine if a post falls before the starting point of the tallied range.
     /// </summary>
     /// <param name="post">The post to check</param>
-    /// <param name="threadInfo">The tally range</param>
+    /// <param name="threadRange">The range of posts examined in the thread.</param>
     /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    public static bool IsBeforeStart(this Post post, ThreadInfo threadInfo)
+    public static bool IsBeforeStart(this Post post, ThreadRange threadRange)
     {
-        return threadInfo.ThreadRange switch
+        return threadRange switch
         {
             ThreadRangeById range => post.Origin.PostId.Id < range.PostId.Id,
             ThreadRangeByPosts range => post.Origin.ThreadPostNumber < range.StartPostNumber,
@@ -89,11 +89,11 @@ public static class PostExtensions
     /// </summary>
     /// <param name="post">The post to check</param>
     /// <param name="quest">The quest being tallied</param>
-    /// <param name="threadInfo">The tally range</param>
+    /// <param name="threadRange">The tally range</param>
     /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    public static bool IsAfterEnd(this Post post, ThreadInfo threadInfo)
+    public static bool IsAfterEnd(this Post post, ThreadRange threadRange)
     {
-        return threadInfo.ThreadRange switch
+        return threadRange switch
         {
             ThreadRangeById => false,
             ThreadRangeByPosts range when range.EndPostNumber == 0 => false,
@@ -102,18 +102,29 @@ public static class PostExtensions
         };
     }
 
+    /// <summary>
+    /// Checks if a post matches a username filter in the given quest.
+    /// </summary>
+    /// <param name="post">The <see cref="Post"/> to examine.</param>
+    /// <param name="quest">The <see cref="Quest"/> with the filter.</param>
+    /// <returns><c>True</c> if the username filter matches. Otherwise <c>false</c>.</returns>
     public static bool MatchesUsernameFilter(this Post post, Quest quest)
     {
         return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
     }
 
+    /// <summary>
+    /// Checks if a post matches a post number filter in the given quest.
+    /// </summary>
+    /// <param name="post">The <see cref="Post"/> to examine.</param>
+    /// <param name="quest">The <see cref="Quest"/> with the filter.</param>
+    /// <returns><c>True</c> if the post number filter matches. Otherwise <c>false</c>.</returns>
     public static bool MatchesPostNumberFilter(this Post post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
             (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||
              quest.PostsFilter.Blocks(post.Origin.PostId.Id));
     }
-
 }
 
 

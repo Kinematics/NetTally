@@ -195,7 +195,7 @@ public class ForumReader(
     /// <param name="quest">The quest being tallied.</param>
     /// <param name="threadInfo">Thread information to identify author posts.</param>
     /// <returns><c>True</c> if the post should be kept, or <c>false</c> if the post should be skipped.</returns>
-    private bool KeepPost(
+    private static bool KeepPost(
         Post post,
         Quest quest,
         ThreadInfo threadInfo)
@@ -203,18 +203,11 @@ public class ForumReader(
         if (!post.HasVote)
             return false;
 
-        if (post.IsBeforeStart(threadInfo) || post.IsAfterEnd(threadInfo))
+        if (post.IsBeforeStart(threadInfo.ThreadRange) || post.IsAfterEnd(threadInfo.ThreadRange))
             return false;
 
         if (post.Origin.Author == threadInfo.Author)
             return false;
-
-        if (AuthorComparer.Instance.Equals(post.Origin.Author, threadInfo.Author))
-        {
-            logger.LogWarning("Author compare failed but AuthorComparer passed for [{postAuthor}] vs [{threadAuthor}]",
-                post.Origin.Author, threadInfo.Author);
-            return false;
-        }
 
         if (post.MatchesUsernameFilter(quest))
             return false;
@@ -223,18 +216,6 @@ public class ForumReader(
             return false;
 
         return true;
-    }
-
-    private static bool PostMatchesUsernameFilter(Post post, Quest quest)
-    {
-        return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
-    }
-
-    private static bool PostMatchesPostNumberFilter(Post post, Quest quest)
-    {
-        return quest.UseCustomPostFilters &&
-            (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||
-             quest.PostsFilter.Blocks(post.Origin.PostId.Id));
     }
     #endregion Keep Post Filtering
 
