@@ -31,7 +31,7 @@ public class PostTests
     [TestMethod]
     public void Compare_Same()
     {
-        var author1 = Author.Create("Kinematics");
+        var author1 = Authors.Create("Kinematics");
         Assert.IsNotNull(author1);
         var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
         Assert.IsNotNull(origin1);
@@ -57,8 +57,8 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentOrigins()
     {
-        var author1 = Author.Create("Kinematics");
-        var author2 = Author.Create("Cammy");
+        var author1 = Authors.Create("Kinematics");
+        var author2 = Authors.Create("Cammy");
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
@@ -78,8 +78,8 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentOrigins2_Same()
     {
-        var author1 = Author.Create("Kinematics");
-        var author2 = Author.Create("Kinematics");
+        var author1 = Authors.Create("Kinematics");
+        var author2 = Authors.Create("Kinematics");
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 

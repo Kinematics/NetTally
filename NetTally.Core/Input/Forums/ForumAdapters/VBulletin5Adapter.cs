@@ -121,7 +121,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
-            var author = Author.Unknown; // vBulletin doesn't show thread authors
+            var author = Authors.Unknown; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
             var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
@@ -211,7 +211,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return PostId.Create(id) ?? PostId.Zero;
         }
 
-        private static AuthorType GetPostAuthor(HtmlNode li)
+        private static Author GetPostAuthor(HtmlNode li)
         {
             string author = "";
 
@@ -221,7 +221,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             if (authorNode != null)
                 author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
-            return Author.Create(author);
+            return Authors.Create(author);
         }
 
         private static int GetPostNumber(HtmlNode li)

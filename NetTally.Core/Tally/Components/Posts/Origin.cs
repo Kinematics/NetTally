@@ -5,7 +5,7 @@ using NetTally.Utility;
 namespace NetTally.Tally.Components.Posts;
 public sealed record OriginType(
     IdentityType Category,
-    AuthorType Author,
+    Author Author,
     Uri Thread,
     Uri Permalink,
     PostIdType PostId,
@@ -31,7 +31,7 @@ public static class Origin
     /// </summary>
     public static OriginType None { get; } = new OriginType(
         IdentityType.User,
-        Author.None,
+        Authors.None,
         ExampleUri,
         ExampleUri,
         PostId.Zero,
@@ -53,7 +53,7 @@ public static class Origin
     /// <returns></returns>
     public static OriginType? Create(
         IdentityType category,
-        AuthorType author,
+        Author author,
         Uri thread,
         Uri permalink,
         PostIdType postId,
@@ -61,7 +61,7 @@ public static class Origin
         DateTimeOffset timestamp,
         OriginType source)
     {
-        if (author == Author.None)
+        if (author == Authors.None)
             return null;
 
         if (postNumber < 1)
@@ -79,7 +79,7 @@ public static class Origin
     /// <returns></returns>
     public static OriginType? CreateOriginForName(
         IdentityType category,
-        AuthorType author)
+        Author author)
     {
         return Create(category, author, ExampleUri, ExampleUri, PostId.Zero,
             0, DateTimeOffset.MinValue, None);
@@ -95,7 +95,7 @@ public static class Origin
     /// <param name="postNumber"></param>
     /// <returns></returns>
     public static OriginType? CreateUser(
-        AuthorType author,
+        Author author,
         Uri thread,
         Uri permalink,
         PostIdType postId,
@@ -116,7 +116,7 @@ public static class Origin
     /// <param name="timestamp"></param>
     /// <returns></returns>
     public static OriginType? CreateUser(
-        AuthorType author,
+        Author author,
         Uri thread,
         Uri permalink,
         PostIdType postId,
@@ -137,7 +137,7 @@ public static class Origin
         if (planName == null)
             return null;
 
-        AuthorType author = Author.Create(planName);
+        Author author = Authors.Create(planName);
 
         return CreatePlanOrigin(origin, author);
     }
@@ -146,16 +146,16 @@ public static class Origin
     /// Create an <see cref="OriginType"/> for a plan, using a user as a base.
     /// </summary>
     /// <param name="origin"></param>
-    /// <param name="plan">The <see cref="AuthorType"/> for the plan.</param>
+    /// <param name="plan">The <see cref="Author"/> for the plan.</param>
     /// <returns></returns>
-    public static OriginType? CreatePlanOrigin(OriginType origin, AuthorType plan)
+    public static OriginType? CreatePlanOrigin(OriginType origin, Author plan)
     {
         if (origin.Category != IdentityType.User)
         {
             return null;
         }
 
-        if (plan == Author.None)
+        if (plan == Authors.None)
         {
             return null;
         }

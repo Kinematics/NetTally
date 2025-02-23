@@ -18,7 +18,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 14;
@@ -38,7 +38,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 0;
@@ -58,7 +58,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         int startPost = 300;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -78,7 +78,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -98,7 +98,7 @@ public class ThreadInfoTests
     {
         string title = "";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -117,7 +117,7 @@ public class ThreadInfoTests
     public void Construct_NoAuthor()
     {
         string title = "";
-        AuthorType? author = null;
+        Author? author = null;
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -144,7 +144,7 @@ public class ThreadInfoTests
 
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         int pagesInThread = 25;
 
         var threadRange = ThreadRanges.CreateByRange(quest.StartPost, endPost, quest.PostsPerPage, pagesInThread);
@@ -164,7 +164,7 @@ public class ThreadInfoTests
 
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Author.Create(authorName);
+        var author = Authors.Create(authorName);
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 25;

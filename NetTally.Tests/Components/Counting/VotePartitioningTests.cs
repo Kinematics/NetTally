@@ -22,7 +22,7 @@ public class VotePartitioningTests
     #region Data
     private static OriginType GetOrigin_Kinematics()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);

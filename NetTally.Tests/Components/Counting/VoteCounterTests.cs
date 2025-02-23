@@ -46,7 +46,7 @@ public class VoteCounterTests
     #region Origins
     private static OriginType GetOrigin_Kinematics()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123426);
@@ -59,7 +59,7 @@ public class VoteCounterTests
 
     private static OriginType GetOrigin_Brogatar1()
     {
-        var author = Author.Create("Brogatar");
+        var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
@@ -72,7 +72,7 @@ public class VoteCounterTests
 
     private static OriginType GetOrigin_Brogatar2()
     {
-        var author = Author.Create("Brogatar");
+        var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123476);
@@ -85,7 +85,7 @@ public class VoteCounterTests
 
     private static OriginType GetOrigin_Madfish1()
     {
-        var author = Author.Create("Madfish");
+        var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123460);
@@ -98,7 +98,7 @@ public class VoteCounterTests
 
     private static OriginType GetOrigin_Madfish2()
     {
-        var author = Author.Create("Madfish");
+        var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123466);

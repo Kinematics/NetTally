@@ -5,22 +5,22 @@ namespace NetTally.Tally.Components.Threads;
 
 public record ThreadInfo(
     string Title,
-    AuthorType Author,
+    Author Author,
     ThreadRange ThreadRange);
 
 public static class ThreadInfos
 {
     public static ThreadInfo None { get; } =
-        new ThreadInfo(string.Empty, Author.None, ThreadRanges.None);
+        new ThreadInfo(string.Empty, Authors.None, ThreadRanges.None);
 
     public static ThreadInfo Create(
-        string? title,
-        AuthorType? author,
+        string title,
+        Author author,
         ThreadRange threadRange)
     {
         if (string.IsNullOrEmpty(title))
             title = Strings.UntitledThread;
-        author ??= Author.Unknown;
+        author ??= Authors.Unknown;
 
         return new ThreadInfo(title, author, threadRange);
     }

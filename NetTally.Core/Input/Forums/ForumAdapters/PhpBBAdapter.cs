@@ -114,7 +114,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
-            var author = Author.Unknown; // PhpBB doesn't show thread authors
+            var author = Authors.Unknown; // PhpBB doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
             var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
@@ -233,7 +233,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return id ?? PostId.Zero;
         }
 
-        private static AuthorType GetPostAuthor(HtmlNode div)
+        private static Author GetPostAuthor(HtmlNode div)
         {
             HtmlNode? inner = div.GetChildWithClass("div", "inner");
             HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
@@ -243,7 +243,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             string authorName = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
 
-            return Author.Create(authorName);
+            return Authors.Create(authorName);
         }
 
         private static string GetPostText(HtmlNode div, Quest quest)

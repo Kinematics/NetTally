@@ -48,7 +48,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the plan name can be found in this lookup.</returns>
     public bool HasPlan(string planName)
     {
-        var author = Author.Create(planName);
+        var author = Authors.Create(planName);
         var origin = Origin.CreateOriginForName(IdentityType.Plan, author);
         return origin != null && ContainsKey(origin);
     }
@@ -60,7 +60,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the voter name can be found in this lookup.</returns>
     public bool HasVoter(string voterName)
     {
-        var author = Author.Create(voterName);
+        var author = Authors.Create(voterName);
         var origin = Origin.CreateOriginForName(IdentityType.User, author);
         return origin != null && ContainsKey(origin);
     }

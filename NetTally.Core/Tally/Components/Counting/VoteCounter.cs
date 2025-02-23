@@ -213,7 +213,7 @@ public class VoteCounter(
         return GetPlanOriginByName(planName) != null;
     }
 
-    public bool HasPlan(AuthorType planAuthor)
+    public bool HasPlan(Author planAuthor)
     {
         return GetOriginByAuthor(planAuthor, IdentityType.Plan) != null;
     }
@@ -228,7 +228,7 @@ public class VoteCounter(
         return GetVoterOriginByName(voterName) != null;
     }
 
-    public bool HasVoter(AuthorType planAuthor)
+    public bool HasVoter(Author planAuthor)
     {
         return GetOriginByAuthor(planAuthor, IdentityType.User) != null;
     }
@@ -243,7 +243,7 @@ public class VoteCounter(
         if (string.IsNullOrEmpty(planName))
             return null;
 
-        var author = Author.Create(planName);
+        var author = Authors.Create(planName);
 
         return GetOriginByAuthor(author, IdentityType.Plan);
     }
@@ -258,7 +258,7 @@ public class VoteCounter(
         if (string.IsNullOrEmpty(voterName))
             return null;
 
-        var author = Author.Create(voterName);
+        var author = Authors.Create(voterName);
 
         return GetOriginByAuthor(author, IdentityType.User);
     }
@@ -269,7 +269,7 @@ public class VoteCounter(
     /// <param name="author">The author to query.</param>
     /// <param name="identityType">The identity type of the author.</param>
     /// <returns>The existing origin, if it exists, or null.</returns>
-    private OriginType? GetOriginByAuthor(AuthorType author, IdentityType identityType)
+    private OriginType? GetOriginByAuthor(Author author, IdentityType identityType)
     {
         var namedOrigin = Origin.CreateOriginForName(identityType, author);
 

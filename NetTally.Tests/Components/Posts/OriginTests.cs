@@ -9,7 +9,7 @@ public class OriginTests
 {
 #nullable disable
     string authorName;
-    AuthorType author;
+    Author author;
     string threadUrl;
     string permalinkUrl;
     Uri thread;
@@ -30,7 +30,7 @@ public class OriginTests
     public void Initialize()
     {
         authorName = "Kinematics";
-        author = Author.Create(authorName);
+        author = Authors.Create(authorName);
         threadUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
         thread = new Uri(threadUrl);
         permalinkUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809";
@@ -60,7 +60,7 @@ public class OriginTests
     [TestMethod]
     public void ConstructUser_NoAuthor_Null()
     {
-        var origin = Origin.CreateUser(Author.None, thread, permalink, postId, postNumber, timestamp);
+        var origin = Origin.CreateUser(Authors.None, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNull(origin);
     }
 
@@ -82,7 +82,7 @@ public class OriginTests
     [TestMethod]
     public void ConstructShort_NoUser_Null()
     {
-        var origin = Origin.CreateOriginForName(IdentityType.User, Author.None);
+        var origin = Origin.CreateOriginForName(IdentityType.User, Authors.None);
         Assert.IsNull(origin);
     }
 
@@ -127,7 +127,7 @@ public class OriginTests
     [TestMethod]
     public void Compare_CapsNames_Equal()
     {
-        AuthorType author2 = Author.Create(authorName.ToUpper());
+        Author author2 = Authors.Create(authorName.ToUpper());
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateUser(author2, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
@@ -139,7 +139,7 @@ public class OriginTests
     [TestMethod]
     public void Compare_DiffNames_NotEqual()
     {
-        AuthorType author2 = Author.Create("Louie");
+        Author author2 = Authors.Create("Louie");
         PostIdType postId2 = PostId.Create(postIdNumber + 1);
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateUser(author2, thread, permalink, postId2, postNumber + 1, timestamp);
@@ -155,7 +155,7 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
 
-        AuthorType plan = Author.Create("Nightlife");
+        Author plan = Authors.Create("Nightlife");
         var origin2 = Origin.CreatePlanOrigin(origin1, plan);
         Assert.IsNotNull(origin2);
 
@@ -169,7 +169,7 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
 
-        AuthorType plan = Author.Create("Nightlife");
+        Author plan = Authors.Create("Nightlife");
         var origin2 = Origin.CreatePlanOrigin(origin1, plan);
         Assert.IsNotNull(origin2);
         var origin3 = Origin.CreatePlanOrigin(origin1, plan);
@@ -184,8 +184,8 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
 
-        AuthorType plan1 = Author.Create("Nightlife");
-        AuthorType plan2 = Author.Create("Beach Trip");
+        Author plan1 = Authors.Create("Nightlife");
+        Author plan2 = Authors.Create("Beach Trip");
         var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
         var origin3 = Origin.CreatePlanOrigin(origin1, plan2);
@@ -208,7 +208,7 @@ public class OriginTests
     [TestMethod]
     public void Compare_Short_Origin_Same_Caps()
     {
-        AuthorType author2 = Author.Create(authorName.ToUpper());
+        Author author2 = Authors.Create(authorName.ToUpper());
 
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
@@ -221,7 +221,7 @@ public class OriginTests
     [TestMethod]
     public void Compare_Short_Origin_Diff_Name()
     {
-        AuthorType author2 = Author.Create(authorName + "Z");
+        Author author2 = Authors.Create(authorName + "Z");
 
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
@@ -248,7 +248,7 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
 
-        AuthorType plan1 = Author.Create("Nightlife");
+        Author plan1 = Authors.Create("Nightlife");
         var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
 
@@ -264,11 +264,11 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         Assert.IsNotNull(origin1);
 
-        AuthorType plan1 = Author.Create("Nightlife");
+        Author plan1 = Authors.Create("Nightlife");
         var origin2 = Origin.CreatePlanOrigin(origin1, plan1);
         Assert.IsNotNull(origin2);
 
-        AuthorType plan2 = Author.Create("Nightlife~!");
+        Author plan2 = Authors.Create("Nightlife~!");
         var origin3 = Origin.CreateOriginForName(IdentityType.Plan, plan2);
         Assert.IsNotNull(origin3);
 

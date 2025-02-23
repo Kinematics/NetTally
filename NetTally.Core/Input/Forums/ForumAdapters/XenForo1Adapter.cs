@@ -204,7 +204,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                     ?.InnerText);
         }
 
-        private static AuthorType GetPageAuthor(HtmlDocument page)
+        private static Author GetPageAuthor(HtmlDocument page)
         {
             // Find a common parent for other data
             HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
@@ -218,7 +218,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             HtmlNode? authorNode = page.GetElementbyId("pageDescription")?.GetChildWithClass("username");
 
             string authorName = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText ?? "");
-            return Author.Create(authorName);
+            return Authors.Create(authorName);
         }
 
         private static int GetMaxPageNumberOfThread(HtmlDocument page)
@@ -488,11 +488,11 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static AuthorType GetPostAuthor(HtmlNode li)
+        private static Author GetPostAuthor(HtmlNode li)
         {
             string authorName = li.GetAttributeValue("data-author", "");
             authorName = ForumPostTextConverter.CleanupWebString(authorName);
-            return Author.Create(authorName);
+            return Authors.Create(authorName);
         }
 
         private static PostIdType GetPostId(HtmlNode li)

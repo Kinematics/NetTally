@@ -33,7 +33,7 @@ public static partial class VoteConstructor
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
     public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(
         Quest quest,
-        AuthorType author,
+        Author author,
         Func<VoteBlockType, PlanDescriptor> isPlanFunction,
         IEnumerable<VoteBlockType> blocks)
     {

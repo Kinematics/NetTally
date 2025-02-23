@@ -7,35 +7,35 @@ namespace NetTally.Tally.Components.Posts;
 /// Data type to store Author information.
 /// </summary>
 /// <param name="Name">The name of the author.</param>
-public record AuthorType(string Name);
+public record Author(string Name);
 
 /// <summary>
-/// Static class to handle creation methods for <see cref="AuthorType"/> objects.
+/// Static class to handle creation methods for <see cref="Author"/> objects.
 /// </summary>
-public static class Author
+public static class Authors
 {
-    public static AuthorType None { get; } = new(string.Empty);
-    public static AuthorType Unknown { get; } = new(Strings.UnknownAuthor);
+    public static Author None { get; } = new(string.Empty);
+    public static Author Unknown { get; } = new(Strings.UnknownAuthor);
 
-    public static AuthorType Create(string name)
+    public static Author Create(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return None;
 
         name = name.RemoveUnsafeCharacters().Trim();
 
-        return new AuthorType(name);
+        return new Author(name);
     }
 }
 
 /// <summary>
-/// Comparer class for <see cref="AuthorType"/> objects.
+/// Comparer class for <see cref="Author"/> objects.
 /// </summary>
-public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorType>
+public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
 {
     public static AuthorComparer Instance { get; } = new();
 
-    public int Compare(AuthorType? x, AuthorType? y)
+    public int Compare(Author? x, Author? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -44,7 +44,7 @@ public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorTyp
         return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name);
     }
 
-    public bool Equals(AuthorType? x, AuthorType? y)
+    public bool Equals(Author? x, Author? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -52,7 +52,7 @@ public class AuthorComparer : IEqualityComparer<AuthorType>, IComparer<AuthorTyp
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] AuthorType obj)
+    public int GetHashCode([DisallowNull] Author obj)
     {
         return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Name);
     }

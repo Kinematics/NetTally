@@ -32,7 +32,7 @@ public class VoterStorageTests
     #region Origins
     private static OriginType GetOrigin_Kinematics()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
@@ -45,7 +45,7 @@ public class VoterStorageTests
 
     private static OriginType GetOrigin_Atreya()
     {
-        var author = Author.Create("Atreya");
+        var author = Authors.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123457);
@@ -58,7 +58,7 @@ public class VoterStorageTests
 
     private static OriginType GetOrigin_Kimberly()
     {
-        var author = Author.Create("Kimberly");
+        var author = Authors.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123458);
@@ -71,7 +71,7 @@ public class VoterStorageTests
 
     private static OriginType GetOrigin_Biigoh()
     {
-        var author = Author.Create("Biigoh");
+        var author = Authors.Create("Biigoh");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123459);
@@ -84,7 +84,7 @@ public class VoterStorageTests
 
     private static OriginType GetOrigin_Muramasa()
     {
-        var author = Author.Create("Muramasa");
+        var author = Authors.Create("Muramasa");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123460);

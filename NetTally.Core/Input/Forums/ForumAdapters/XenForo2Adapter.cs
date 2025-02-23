@@ -237,12 +237,12 @@ namespace NetTally.Input.Forums.ForumAdapters
             return string.IsNullOrEmpty(metaTitle) ? mainTitle : metaTitle;
         }
 
-        private static AuthorType GetPageAuthor(HtmlNode headerNode)
+        private static Author GetPageAuthor(HtmlNode headerNode)
         {
             var descripNode = headerNode.GetChildWithClass("div", "p-description");
             var authorNode = descripNode?.GetDescendantWithClass("a", "username");
             string authorName = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
-            return Author.Create(authorName);
+            return Authors.Create(authorName);
         }
 
         private static int GetMaxPageNumberOfThread(HtmlNode bodyNode)
@@ -527,11 +527,11 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static AuthorType GetPostAuthor(HtmlNode article)
+        private static Author GetPostAuthor(HtmlNode article)
         {
             string authorName = article.GetAttributeValue("data-author", "");
             authorName = ForumPostTextConverter.CleanupWebString(authorName);
-            return Author.Create(authorName);
+            return Authors.Create(authorName);
         }
 
         private static PostIdType GetPostId(HtmlNode article)
