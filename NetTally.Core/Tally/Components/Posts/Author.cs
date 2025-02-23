@@ -19,10 +19,10 @@ public static class Authors
 
     public static Author Create(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return None;
-
         name = name.RemoveUnsafeCharacters().Trim();
+
+        if (string.IsNullOrEmpty(name))
+            return None;
 
         return new Author(name);
     }
