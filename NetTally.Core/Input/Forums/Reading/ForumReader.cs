@@ -171,7 +171,7 @@ public class ForumReader(
         ThreadInformationType threadInfo,
         IForumAdapter adapter)
     {
-        int startPage = ThreadInformation.GetStartPage(threadInfo, quest);
+        int startPage = threadInfo.PostRange.GetStartPage();
 
         var posts = pages
             .Where(p => p != null)
@@ -203,7 +203,7 @@ public class ForumReader(
         if (!post.HasVote)
             return false;
 
-        if (PostIsBeforeStart(post, threadInfo) || PostIsAfterEnd(post, quest, threadInfo))
+        if (post.IsBeforeStart(threadInfo) || post.IsAfterEnd(threadInfo))
             return false;
 
         if (post.Origin.Author == threadInfo.Author)
@@ -216,42 +216,13 @@ public class ForumReader(
             return false;
         }
 
-        if (PostMatchesUsernameFilter(post, quest))
+        if (post.MatchesUsernameFilter(quest))
             return false;
 
-        if (PostMatchesPostNumberFilter(post, quest))
+        if (post.MatchesPostNumberFilter(quest))
             return false;
 
         return true;
-    }
-
-    /// <summary>
-    /// Determine if a post falls before the starting point of the tallied range.
-    /// </summary>
-    /// <param name="post">The post to check</param>
-    /// <param name="threadInfo">The tally range</param>
-    /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    private static bool PostIsBeforeStart(PostType post, ThreadInformationType threadInfo)
-    {
-        if (threadInfo.RangeType == ThreadRangeRangeType.ByPostNumber)
-            return post.Origin.ThreadPostNumber < threadInfo.StartPostNumber;
-
-        return post.Origin.PostId.Id < threadInfo.StartPostId.Id;
-    }
-
-    /// <summary>
-    /// Determine if a post falls after the ending point of the tallied range.
-    /// </summary>
-    /// <param name="post">The post to check</param>
-    /// <param name="quest">The quest being tallied</param>
-    /// <param name="threadInfo">The tally range</param>
-    /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    private static bool PostIsAfterEnd(PostType post, Quest quest, ThreadInformationType threadInfo)
-    {
-        if (quest.ReadToEndOfThread || threadInfo.RangeType == ThreadRangeRangeType.ByPostId)
-            return false;
-
-        return post.Origin.ThreadPostNumber > quest.EndPost;
     }
 
     private static bool PostMatchesUsernameFilter(PostType post, Quest quest)
@@ -344,8 +315,8 @@ public class ForumReader(
         IForumAdapter adapter,
         CancellationToken token)
     {
-        int firstPage = ThreadInformation.GetStartPage(threadInfo, quest);
-        int lastPage = ThreadInformation.GetEndPage(threadInfo, quest);
+        int firstPage = threadInfo.PostRange.GetStartPage();
+        int lastPage = threadInfo.PostRange.GetEndPage();
         int pageCount = lastPage - firstPage + 1;
 
         if (pageCount < 1)

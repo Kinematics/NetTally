@@ -14,7 +14,7 @@ public class ThreadInformationTests
     }
 
     [TestMethod]
-    public void Construct_PostId_Basic()
+    public void Construct_ByPostId_Basic()
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
@@ -23,33 +23,54 @@ public class ThreadInformationTests
         int pageNumberOfStartPost = 5;
         int pagesInThread = 14;
 
-        var threadInfo = ThreadInformation.CreateByPostId(title, author, postId, pageNumberOfStartPost, pagesInThread);
+        var postRange = PostRanges.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
         Assert.AreEqual(authorName, threadInfo.Author.Name);
-        Assert.AreEqual(0, threadInfo.StartPostNumber);
-        Assert.AreEqual(pageNumberOfStartPost, threadInfo.PageNumberOfStartPost);
-        Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);
+        Assert.AreEqual(pageNumberOfStartPost, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(pagesInThread, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
-    public void Construct_PostNumber_Basic()
+    public void Construct_ByPostId_NoPages()
+    {
+        string title = "Jupiter Hop";
+        string authorName = "Jack";
+        var author = Author.Create(authorName);
+        var postId = PostId.Create(123456);
+        int pageNumberOfStartPost = 5;
+        int pagesInThread = 0;
+
+        var postRange = PostRanges.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
+
+        Assert.IsNotNull(threadInfo);
+        Assert.AreEqual(title, threadInfo.Title);
+        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(5, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(1, threadInfo.PostRange.GetEndPage());
+    }
+
+    [TestMethod]
+    public void Construct_ByPostNumber_Basic()
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
         var author = Author.Create(authorName);
         int startPost = 300;
+        int postsPerPage = 30;
         int pagesInThread = 14;
 
-        var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
+        var postRange = PostRanges.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
         Assert.AreEqual(authorName, threadInfo.Author.Name);
-        Assert.AreEqual(startPost, threadInfo.StartPostNumber);
-        Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
-        Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);
+        Assert.AreEqual(10, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(14, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
@@ -59,16 +80,17 @@ public class ThreadInformationTests
         string authorName = "Jack";
         var author = Author.Create(authorName);
         int startPost = 0;
+        int postsPerPage = 30;
         int pagesInThread = 14;
 
-        var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
+        var postRange = PostRanges.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
         Assert.AreEqual(authorName, threadInfo.Author.Name);
-        Assert.AreEqual(1, threadInfo.StartPostNumber);
-        Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
-        Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);
+        Assert.AreEqual(1, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(14, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
@@ -78,16 +100,17 @@ public class ThreadInformationTests
         string authorName = "Jack";
         var author = Author.Create(authorName);
         int startPost = 0;
+        int postsPerPage = 30;
         int pagesInThread = 14;
 
-        var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
+        var postRange = PostRanges.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
         Assert.AreEqual(authorName, threadInfo.Author.Name);
-        Assert.AreEqual(1, threadInfo.StartPostNumber);
-        Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
-        Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);
+        Assert.AreEqual(1, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(14, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
@@ -96,19 +119,21 @@ public class ThreadInformationTests
         string title = "";
         AuthorType? author = null;
         int startPost = 0;
+        int postsPerPage = 30;
         int pagesInThread = 14;
 
-        var threadInfo = ThreadInformation.CreateByPostNumber(title, author, startPost, pagesInThread);
+        var postRange = PostRanges.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
         Assert.AreEqual(Strings.UnknownAuthor, threadInfo.Author.Name);
-        Assert.AreEqual(1, threadInfo.StartPostNumber);
-        Assert.AreEqual(0, threadInfo.PageNumberOfStartPost);
-        Assert.AreEqual(pagesInThread, threadInfo.PagesInThread);
+        Assert.AreEqual(1, threadInfo.PostRange.GetStartPage());
+        Assert.AreEqual(14, threadInfo.PostRange.GetEndPage());
     }
 
-    private static (ThreadInformationType ThreadInfo, Quest Quest) GetStandardInfoByPostNumber()
+    private static (ThreadInformationType ThreadInfo, Quest Quest) GetStandardInfoByPostNumber(
+        int endPost)
     {
         Quest quest = new()
         {
@@ -122,7 +147,8 @@ public class ThreadInformationTests
         var author = Author.Create(authorName);
         int pagesInThread = 25;
 
-        var threadInfo = ThreadInformation.CreateByPostNumber(title, author, quest.StartPost, pagesInThread);
+        var postRange = PostRanges.CreateByRange(quest.StartPost, endPost, quest.PostsPerPage, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         return (threadInfo, quest);
     }
@@ -143,7 +169,8 @@ public class ThreadInformationTests
         int pageNumberOfStartPost = 5;
         int pagesInThread = 25;
 
-        var threadInfo = ThreadInformation.CreateByPostId(title, author, postId, pageNumberOfStartPost, pagesInThread);
+        var postRange = PostRanges.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
+        var threadInfo = ThreadInformation.Create(title, author, postRange);
 
         return (threadInfo, quest);
     }
@@ -151,13 +178,12 @@ public class ThreadInformationTests
     [TestMethod]
     public void Calculate_StartPage_PostNumber()
     {
-        var (threadInfo, quest) = GetStandardInfoByPostNumber();
+        var (threadInfo, quest) = GetStandardInfoByPostNumber(0);
 
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        int startPage = ThreadInformation.GetStartPage(threadInfo, quest);
-        Assert.AreEqual(17, startPage);
+        Assert.AreEqual(17, threadInfo.PostRange.GetStartPage());
     }
 
     [TestMethod]
@@ -168,48 +194,40 @@ public class ThreadInformationTests
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        int startPage = ThreadInformation.GetStartPage(threadInfo, quest);
-        Assert.AreEqual(5, startPage);
+        Assert.AreEqual(5, threadInfo.PostRange.GetStartPage());
     }
 
     [TestMethod]
     public void Calculate_EndPage_PostNumber_EndOfThread_PageLimit()
     {
-        var (threadInfo, quest) = GetStandardInfoByPostNumber();
+        var (threadInfo, quest) = GetStandardInfoByPostNumber(0);
 
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        int endPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        Assert.AreEqual(25, endPage);
+        Assert.AreEqual(25, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
     public void Calculate_EndPage_PostNumber_EndPost()
     {
-        var (threadInfo, quest) = GetStandardInfoByPostNumber();
+        var (threadInfo, quest) = GetStandardInfoByPostNumber(510);
 
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        quest.EndPost = 510;
-
-        int endPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        Assert.AreEqual(21, endPage);
+        Assert.AreEqual(21, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
     public void Calculate_EndPage_PostNumber_EndPost_OverLimit()
     {
-        var (threadInfo, quest) = GetStandardInfoByPostNumber();
+        var (threadInfo, quest) = GetStandardInfoByPostNumber(650);
 
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        quest.EndPost = 650;
-
-        int endPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        Assert.AreEqual(25, endPage);
+        Assert.AreEqual(25, threadInfo.PostRange.GetEndPage());
     }
 
     [TestMethod]
@@ -220,21 +238,6 @@ public class ThreadInformationTests
         Assert.IsNotNull(threadInfo);
         Assert.IsNotNull(quest);
 
-        int endPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        Assert.AreEqual(25, endPage);
-    }
-
-    [TestMethod]
-    public void Calculate_EndPage_PostId_NoPages()
-    {
-        var (threadInfo, quest) = GetStandardInfoByPostId();
-
-        Assert.IsNotNull(threadInfo);
-        Assert.IsNotNull(quest);
-
-        threadInfo = threadInfo with { PagesInThread = 0 };
-
-        int endPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        Assert.AreEqual(1, endPage);
+        Assert.AreEqual(25, threadInfo.PostRange.GetEndPage());
     }
 }

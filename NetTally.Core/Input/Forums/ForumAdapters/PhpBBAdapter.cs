@@ -117,7 +117,8 @@ namespace NetTally.Input.Forums.ForumAdapters
             var author = Author.Unknown; // PhpBB doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
-            var info = ThreadInformation.CreateByPostNumber(title, author, quest.StartPost, pages);
+            var range = PostRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
+            var info = ThreadInformation.Create(title, author, range);
 
             return info;
         }

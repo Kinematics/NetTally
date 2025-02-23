@@ -132,9 +132,9 @@ namespace NetTally.Input.Forums.ForumAdapters
                 var author = GetPageAuthor(headerNode);
                 int pages = GetMaxPageNumberOfThread(bodyNode);
 
-                var (RangeType, ID, StartPost, StartPage) = await GetRangeInfoAsync(quest, pageProvider, token);
+                var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
 
-                return ThreadInformation.Create(title, author, RangeType, ID, StartPost, StartPage, pages);
+                return ThreadInformation.Create(title, author, range);
             }
 
             return ThreadInformation.None;
@@ -151,8 +151,11 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        private async Task<(ThreadRangeRangeType RangeType, PostIdType ID, int StartPost, int StartPage)>
-            GetRangeInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
+        private async Task<PostRange> GetRangeInfoAsync(
+            Quest quest,
+            IPageProvider pageProvider,
+            int numberOfPages,
+            CancellationToken token)
         {
             if (quest.CheckForLastThreadmark)
             {
@@ -162,11 +165,11 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 if (rangeInfo != null)
                 {
-                    return (ThreadRangeRangeType.ByPostId, rangeInfo.PostId, 0, rangeInfo.PageNumber);
+                    return PostRanges.CreateByPostId(rangeInfo.PostId, rangeInfo.PageNumber, numberOfPages);
                 }
             }
 
-            return (ThreadRangeRangeType.ByPostNumber, PostId.Zero, quest.StartPost, 1);
+            return PostRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, numberOfPages);
         }
 
         private async Task<HtmlDocument?> GetInfoPageAsync(
