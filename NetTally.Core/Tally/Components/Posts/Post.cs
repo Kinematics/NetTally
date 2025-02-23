@@ -77,11 +77,11 @@ public static class PostExtensions
     /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
     public static bool IsBeforeStart(this PostType post, ThreadInformationType threadInfo)
     {
-        return threadInfo.PostRange switch
+        return threadInfo.ThreadRange switch
         {
-            PostRangeById range => post.Origin.PostId.Id < range.PostId.Id,
-            PostRangeByPosts range => post.Origin.ThreadPostNumber < range.StartPostNumber,
-            _ => throw new InvalidOperationException("Unknown PostRange type.")
+            ThreadRangeById range => post.Origin.PostId.Id < range.PostId.Id,
+            ThreadRangeByPosts range => post.Origin.ThreadPostNumber < range.StartPostNumber,
+            _ => throw new InvalidOperationException("Unknown ThreadRange type.")
         };
     }
 
@@ -94,12 +94,12 @@ public static class PostExtensions
     /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
     public static bool IsAfterEnd(this PostType post, ThreadInformationType threadInfo)
     {
-        return threadInfo.PostRange switch
+        return threadInfo.ThreadRange switch
         {
-            PostRangeById => false,
-            PostRangeByPosts range when range.EndPostNumber == 0 => false,
-            PostRangeByPosts range => post.Origin.ThreadPostNumber > range.EndPostNumber,
-            _ => throw new InvalidOperationException("Unknown PostRange type.")
+            ThreadRangeById => false,
+            ThreadRangeByPosts range when range.EndPostNumber == 0 => false,
+            ThreadRangeByPosts range => post.Origin.ThreadPostNumber > range.EndPostNumber,
+            _ => throw new InvalidOperationException("Unknown ThreadRange type.")
         };
     }
 

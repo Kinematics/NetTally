@@ -171,7 +171,7 @@ public class ForumReader(
         ThreadInformationType threadInfo,
         IForumAdapter adapter)
     {
-        int startPage = threadInfo.PostRange.GetStartPage();
+        int startPage = threadInfo.ThreadRange.GetStartPage();
 
         var posts = pages
             .Where(p => p != null)
@@ -315,8 +315,8 @@ public class ForumReader(
         IForumAdapter adapter,
         CancellationToken token)
     {
-        int firstPage = threadInfo.PostRange.GetStartPage();
-        int lastPage = threadInfo.PostRange.GetEndPage();
+        int firstPage = threadInfo.ThreadRange.GetStartPage();
+        int lastPage = threadInfo.ThreadRange.GetEndPage();
         int pageCount = lastPage - firstPage + 1;
 
         if (pageCount < 1)
