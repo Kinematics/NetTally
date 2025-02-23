@@ -104,54 +104,38 @@ namespace NetTally.Tests.Tallying
 
         #region Thread Name
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Null()
         {
+            string oldThreadName = Quest.ThreadName;
             Quest.ThreadName = null!;
-        }
-
-        [TestMethod]
-        public void IQuest_ThreadName_Invalid_Null_NoChange()
-        {
-            try
-            {
-                Quest.ThreadName = null!;
-                Assert.Fail("An exception should have been thrown.");
-            }
-            catch (ArgumentException)
-            {
-
-            }
-            catch (Exception e)
-            {
-                Assert.Fail("Unexpected exception caught:\n" + e.Message);
-            }
-
-            Assert.AreEqual(Strings.NewThreadEntry, Quest.ThreadName);
+            Assert.IsNotNull(Quest.ThreadName);
+            Assert.AreEqual(oldThreadName, Quest.ThreadName);
             VerifyNoNotification();
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Blank()
         {
+            string oldThreadName = Quest.ThreadName;
             Quest.ThreadName = "";
+            Assert.AreEqual(oldThreadName, Quest.ThreadName);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Empty()
         {
+            string oldThreadName = Quest.ThreadName;
             Quest.ThreadName = "  ";
+            Assert.AreEqual(oldThreadName, Quest.ThreadName);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void IQuest_ThreadName_Invalid_Host()
         {
+            string oldThreadName = Quest.ThreadName;
             Quest.ThreadName = "/forums.sufficientvelocity.com/";
-            Assert.AreEqual("/forums.sufficientvelocity.com/", Quest.ThreadName);
-            VerifyNotification("ThreadName");
+            Assert.AreEqual(oldThreadName, Quest.ThreadName);
+            VerifyNoNotification();
         }
 
         [TestMethod]

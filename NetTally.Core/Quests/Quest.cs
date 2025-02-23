@@ -29,25 +29,22 @@ public partial class Quest : ObservableValidator
     #region Quest Identification
     public QuestId QuestId { get; init; } = QuestId.NewQuestId();
 
-    [ObservableProperty]
-    private string threadName = Strings.NewThreadEntry;
-
-    partial void OnThreadNameChanged(string? oldValue, string newValue)
+    public string ThreadName
     {
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-        if (string.IsNullOrWhiteSpace(newValue) ||
-            !Uri.IsWellFormedUriString(newValue, UriKind.Absolute))
+        get => field;
+        set
         {
-            ThreadName = oldValue!;
-            throw new ArgumentException(nameof(ThreadName));
+            if (string.IsNullOrWhiteSpace(value) ||
+                string.Compare(field, value) == 0 ||
+                !Uri.IsWellFormedUriString(value, UriKind.Absolute))
+            {
+                return;
+            }
+
+            SetProperty(ref field, value.RemoveUnsafeCharacters(), nameof(ThreadName));
+            ThreadUri = new Uri(ThreadName);
         }
-
-        ThreadName = newValue.RemoveUnsafeCharacters();
-
-        ThreadUri = new Uri(ThreadName);
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-    }
-
+    } = Strings.NewThreadEntry;
 
     [ObservableProperty]
     public partial string DisplayName { get; set; } = Strings.NewThreadDisplayName;
