@@ -92,12 +92,12 @@ namespace NetTally.Input.Forums.ForumAdapters
         }
 
 
-        public async Task<ThreadInformationType?>
+        public async Task<ThreadInformationType>
             GetThreadInformationAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-            if (infoPage == null) return null;
+            if (infoPage == null) return ThreadInformation.None;
 
             return GetThreadInfo(infoPage, quest);
         }

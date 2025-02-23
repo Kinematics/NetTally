@@ -140,7 +140,7 @@ public class ForumReader(
         var threadData = await GetThreadInfoAsync(quest, pageProvider, adapter, token)
             .ConfigureAwait(false);
 
-        if (threadData != null && threadData != ThreadInformation.None)
+        if (threadData != ThreadInformation.None)
         {
             var pages = await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
                                 .ConfigureAwait(false);
@@ -283,7 +283,7 @@ public class ForumReader(
     /// <param name="token">Cancellation token.</param>
     /// <returns>A tuple of range information about the thread, and
     /// title and author information about the thread.</returns>
-    private async Task<ThreadInformationType?> GetThreadInfoAsync(
+    private async Task<ThreadInformationType> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,

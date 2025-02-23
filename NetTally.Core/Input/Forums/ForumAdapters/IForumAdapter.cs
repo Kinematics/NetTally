@@ -53,7 +53,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="pageProvider">A page provider for loading pages.</param>
         /// <param name="token">A cancellation token.</param>
         /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
-        Task<ThreadInformationType?> GetThreadInformationAsync(
+        Task<ThreadInformationType> GetThreadInformationAsync(
             Quest quest,
             IPageProvider pageProvider,
             CancellationToken token);
