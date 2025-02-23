@@ -6,7 +6,7 @@ namespace NetTally.Tally.Components.Threads;
 public record ThreadInformationType(
     string Title,
     AuthorType Author,
-    PostRange PostRange);
+    ThreadRange PostRange);
 
 public static class ThreadInformation
 {
@@ -16,7 +16,7 @@ public static class ThreadInformation
     public static ThreadInformationType Create(
         string? title,
         AuthorType? author,
-        PostRange postRange)
+        ThreadRange postRange)
     {
         if (string.IsNullOrEmpty(title))
             title = Strings.UntitledThread;

@@ -5,7 +5,7 @@ namespace NetTally.Tally.Components.Threads;
 /// <summary>
 /// An abstract post range for use in thread information.
 /// </summary>
-public abstract record PostRange()
+public abstract record ThreadRange()
 {
     public abstract int GetStartPage();
     public abstract int GetEndPage();
@@ -17,7 +17,7 @@ public abstract record PostRange()
 /// <param name="PostId">The starting post in the range.</param>
 /// <param name="StartPage">The starting page to read.</param>
 /// <param name="PagesInThread">The number of pages in the thread.</param>
-public sealed record PostRangeById(PostIdType PostId, int StartPage, int PagesInThread) : PostRange
+public sealed record PostRangeById(PostIdType PostId, int StartPage, int PagesInThread) : ThreadRange
 {
     public override int GetStartPage() => StartPage;
     public override int GetEndPage() => PagesInThread;
@@ -30,7 +30,7 @@ public sealed record PostRangeById(PostIdType PostId, int StartPage, int PagesIn
 /// <param name="EndPostNumber">The last post in the range. 0 means end of thread.</param>
 /// <param name="PostsPerPage">The number of posts on each page of the thread.</param>
 /// <param name="PagesInThread">The number of pages in the thread.</param>
-public sealed record PostRangeByPosts(int StartPostNumber, int EndPostNumber, int PostsPerPage, int PagesInThread) : PostRange
+public sealed record PostRangeByPosts(int StartPostNumber, int EndPostNumber, int PostsPerPage, int PagesInThread) : ThreadRange
 {
     public override int GetStartPage() => 
         GetPageNumberOfPost(StartPostNumber, PostsPerPage);
@@ -45,13 +45,13 @@ public sealed record PostRangeByPosts(int StartPostNumber, int EndPostNumber, in
 }
 
 /// <summary>
-/// Static class that handles creating new <see cref="PostRange"/> objects.
+/// Static class that handles creating new <see cref="ThreadRange"/> objects.
 /// </summary>
 public static class PostRanges
 {
-    public static PostRange None { get; } = new PostRangeByPosts(0, 0, 20, 1);
+    public static ThreadRange None { get; } = new PostRangeByPosts(0, 0, 20, 1);
 
-    public static PostRange CreateByPostId(PostIdType postId, int startPage, int pagesInThread)
+    public static ThreadRange CreateByPostId(PostIdType postId, int startPage, int pagesInThread)
     {
         if (startPage < 1)
             startPage = 1;
@@ -61,7 +61,7 @@ public static class PostRanges
         return new PostRangeById(postId, startPage, pagesInThread);
     }
 
-    public static PostRange CreateByStartOfRange(int startPost, int postsPerPage, int pagesInThread)
+    public static ThreadRange CreateByStartOfRange(int startPost, int postsPerPage, int pagesInThread)
     {
         if (startPost < 1)
             startPost = 1;
@@ -73,7 +73,7 @@ public static class PostRanges
         return new PostRangeByPosts(startPost, 0, postsPerPage, pagesInThread);
     }
 
-    public static PostRange CreateByRange(int startPost, int endPost, int postsPerPage, int pagesInThread)
+    public static ThreadRange CreateByRange(int startPost, int endPost, int postsPerPage, int pagesInThread)
     {
         if (startPost < 1)
             startPost = 1;

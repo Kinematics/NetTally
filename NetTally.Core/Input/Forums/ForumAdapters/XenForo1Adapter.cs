@@ -149,7 +149,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
         /// <param name="token">The cancellation token to check for cancellation requests.</param>
         /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-        private async Task<PostRange> GetRangeInfoAsync(
+        private async Task<ThreadRange> GetRangeInfoAsync(
                 Quest quest,
                 IPageProvider pageProvider,
                 int numberOfPages,
@@ -237,7 +237,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         #endregion Get Page Information
 
         #region Get ThreadInfoRange information
-        private async Task<(bool, PostRange)> TryGetThreadmarksRange(
+        private async Task<(bool, ThreadRange)> TryGetThreadmarksRange(
             Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
         {
             if (quest == null)
@@ -319,7 +319,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return (false, PostRanges.None);
         }
 
-        private static async Task<(bool found, PostRange)> TryGetRSSThreadmarksRange(
+        private static async Task<(bool found, ThreadRange)> TryGetRSSThreadmarksRange(
             Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
