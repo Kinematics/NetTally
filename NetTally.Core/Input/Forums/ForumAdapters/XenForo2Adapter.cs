@@ -11,6 +11,7 @@ using NetTally.Extensions;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Utility.Filtering;
+using NetTally.Utility.Task;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters
@@ -159,13 +160,16 @@ namespace NetTally.Input.Forums.ForumAdapters
         {
             if (quest.CheckForLastThreadmark)
             {
-                var rangeInfo =
-                    await TryGetRSSThreadmarksRange(quest, pageProvider, token) ??
-                    await TryGetThreadmarksRange(quest, pageProvider, token);
-
-                if (rangeInfo != null)
+                if ((await TryGetRSSThreadmarksRange(quest, pageProvider, token))
+                    .TryOut(out var threadRangeType))
                 {
-                    return PostRanges.CreateByPostId(rangeInfo.PostId, rangeInfo.PageNumber, numberOfPages);
+                    return PostRanges.CreateByPostId(threadRangeType.PostId, threadRangeType.PageNumber, numberOfPages);
+                }
+
+                if ((await TryGetThreadmarksRange(quest, pageProvider, token))
+                    .TryOut(out threadRangeType))
+                {
+                    return PostRanges.CreateByPostId(threadRangeType.PostId, threadRangeType.PageNumber, numberOfPages);
                 }
             }
 
@@ -271,11 +275,11 @@ namespace NetTally.Input.Forums.ForumAdapters
         #endregion Get Page Information
 
         #region Get ThreadInfoRange information
-        private async Task<ThreadRangeType?> TryGetThreadmarksRange(
+        private async Task<(bool, ThreadRangeType)> TryGetThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
-                return null;
+                return (false, ThreadRange.Empty);
 
             // Load the threadmarks so that we can find the starting post page or number.
             HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
@@ -284,13 +288,13 @@ namespace NetTally.Input.Forums.ForumAdapters
                 SuppressNotifications.No, token).ConfigureAwait(false);
 
             if (threadmarksPage == null)
-                return null;
+                return (false, ThreadRange.Empty);
 
             var threadmarks = GetThreadmarksListFromPage(threadmarksPage, quest);
 
             // If there aren't any threadmarks, bail.
             if (!threadmarks.Any())
-                return null;
+                return (false, ThreadRange.Empty);
 
             // Threadmarks have already been filtered, so just pick the last one,
             // and get the URL for the threadmark.
@@ -298,7 +302,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             // Make sure we found something.
             if (string.IsNullOrEmpty(lastThreadmarkHref))
-                return null;
+                return (false, ThreadRange.Empty);
 
             // The threadmark list might use the long version of the URL (including thread info),
             // or the short version (which only shows the post number).
@@ -312,7 +316,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 var postId = PostId.Create(tmID);
 
                 if (postId == null)
-                    return null;
+                    return (false, ThreadRange.Empty);
 
                 // The threadmark href might be a relative path, so make sure to
                 // create a proper absolute path to load.
@@ -341,7 +345,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 // If neither matched, it's post 1/page 1
                 if (page == 0 && post == 0)
-                    return ThreadRange.CreateRangeByPost(1);
+                    return (true, ThreadRange.CreateRangeByPost(1));
 
                 var postId = PostId.Create(post);
 
@@ -349,21 +353,21 @@ namespace NetTally.Input.Forums.ForumAdapters
                 if (page == 0)
                     page = 1;
 
-                return ThreadRange.CreateRangeFromPostId(postId, page);
+                return (true, ThreadRange.CreateRangeFromPostId(postId, page));
             }
 
             // Failed to find anything.
-            return null;
+            return (false, ThreadRange.Empty);
         }
 
-        private static async Task<ThreadRangeType?> TryGetRSSThreadmarksRange(
+        private static async Task<(bool, ThreadRangeType)> TryGetRSSThreadmarksRange(
             Quest quest, IPageProvider pageProvider, CancellationToken token)
         {
             if (quest == null || quest.ThreadUri == null)
-                return null;
+                return (false, ThreadRange.Empty);
 
             if (quest.UseRSSThreadmarks == BoolEx.False)
-                return null;
+                return (false, ThreadRange.Empty);
 
             XDocument? rss = await pageProvider.GetXmlDocumentAsync(
                 GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
@@ -375,11 +379,11 @@ namespace NetTally.Input.Forums.ForumAdapters
                 if (quest.UseRSSThreadmarks == BoolEx.Unknown)
                     quest.UseRSSThreadmarks = BoolEx.False;
 
-                return null;
+                return (false, ThreadRange.Empty);
             }
 
             if (rss.Root?.Name != "rss")
-                return null;
+                return (false, ThreadRange.Empty);
 
             XElement? channel = rss.Root.Element(XName.Get("channel", ""));
 
@@ -439,7 +443,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                         // If neither matched, it's post 1/page 1
                         // Return a By Post range
                         if (page == 0 && post == 0)
-                            return ThreadRange.CreateRangeByPost(1);
+                            return (true, ThreadRange.CreateRangeByPost(1));
 
                         var postId = PostId.Create(post);
 
@@ -447,12 +451,12 @@ namespace NetTally.Input.Forums.ForumAdapters
                         if (page == 0)
                             page = 1;
 
-                        return ThreadRange.CreateRangeFromPostId(postId, page);
+                        return (true, ThreadRange.CreateRangeFromPostId(postId, page));
                     }
                 }
             }
 
-            return null;
+            return (false, ThreadRange.Empty);
         }
 
         private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, Quest quest)

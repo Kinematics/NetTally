@@ -26,7 +26,7 @@ Call the async Try-method like this:
 public static class TupleExtensions
 {
     public static bool TryOut<P2>(this ValueTuple<bool, P2> tuple,
-        [MaybeNullWhen(false)] out P2 p2)
+        [NotNullWhen(true)] out P2 p2)
     {
         bool p1;
         (p1, p2) = tuple;

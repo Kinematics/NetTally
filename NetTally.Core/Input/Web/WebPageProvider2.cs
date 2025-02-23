@@ -233,7 +233,7 @@ public class WebPageProvider2 : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        var (uri, url) = GetVerifiedUrl(urlString);
+        var (_, url) = GetVerifiedUrl(urlString);
         var client = GetClient(url);
 
         // Limit to no more than N parallel requests
