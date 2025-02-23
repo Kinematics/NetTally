@@ -97,17 +97,17 @@ public class VoterStorageTests
 
     private static readonly string VoteText = "[X] A line of vote text";
 
-    private static PostType GetPost(OriginType origin)
+    private static Post GetPost(OriginType origin)
     {
-        return Post.Create(origin, VoteText)!;
+        return Posting.Create(origin, VoteText)!;
     }
 
-    private static VoteBlockType GetVote(PostType post)
+    private static VoteBlockType GetVote(Post post)
     {
         return VoteBlocks.GetBlocks(post.VoteLines).First();
     }
 
-    private static PostType GetPost_Kinematics()
+    private static Post GetPost_Kinematics()
     {
         return GetPost(GetOrigin_Kinematics());
     }

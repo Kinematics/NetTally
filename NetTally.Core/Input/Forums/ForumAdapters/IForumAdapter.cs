@@ -43,7 +43,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
+        IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber);
 
         /// <summary>
         /// Get information about the thread.

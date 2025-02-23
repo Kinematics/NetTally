@@ -51,7 +51,7 @@ public class ForumReader(
     /// <param name="quest">The quest to read.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A list of titles (one per quest) and the list of posts to be processed.</returns>
-    public async Task<(IEnumerable<string> Titles, IEnumerable<PostType> Posts)>
+    public async Task<(IEnumerable<string> Titles, IEnumerable<Post> Posts)>
         ReadQuestAsync(Quest quest, CancellationToken cancellationToken)
     {
         List<Quest> questsToRead = [quest, .. questsInfo.GetLinkedQuests(quest)];
@@ -75,7 +75,7 @@ public class ForumReader(
         return (allTitles, allPosts);
     }
 
-    private static string AddPostCountToTitle(string title, List<PostType> posts)
+    private static string AddPostCountToTitle(string title, List<Post> posts)
     {
         StringBuilder sb = new();
 
@@ -94,7 +94,7 @@ public class ForumReader(
     /// <param name="quest">The quest to read.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)>
+    private async Task<(string Title, List<Post> Posts)>
         GetPostsWithVotesFromQuestAsync(Quest quest, CancellationToken token)
     {
         logger.LogDebug("Reading posts from quest {questDisplayName} with ForumReader.",
@@ -129,7 +129,7 @@ public class ForumReader(
     /// that forum's needs.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)> GetPostsWithVotesAsync(
+    private async Task<(string Title, List<Post> Posts)> GetPostsWithVotesAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
@@ -165,7 +165,7 @@ public class ForumReader(
     /// HTML into posts we can understand.</param>
     /// <param name="quest">The quest being read.</param>
     /// <returns>A list of valid posts found.</returns>
-    private List<PostType> GetPostsWithVotesFromPages(
+    private List<Post> GetPostsWithVotesFromPages(
         Quest quest,
         IEnumerable<HtmlDocument?> pages,
         ThreadInfo threadInfo,
@@ -196,7 +196,7 @@ public class ForumReader(
     /// <param name="threadInfo">Thread information to identify author posts.</param>
     /// <returns><c>True</c> if the post should be kept, or <c>false</c> if the post should be skipped.</returns>
     private bool KeepPost(
-        PostType post,
+        Post post,
         Quest quest,
         ThreadInfo threadInfo)
     {
@@ -225,12 +225,12 @@ public class ForumReader(
         return true;
     }
 
-    private static bool PostMatchesUsernameFilter(PostType post, Quest quest)
+    private static bool PostMatchesUsernameFilter(Post post, Quest quest)
     {
         return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
     }
 
-    private static bool PostMatchesPostNumberFilter(PostType post, Quest quest)
+    private static bool PostMatchesPostNumberFilter(Post post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
             (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||

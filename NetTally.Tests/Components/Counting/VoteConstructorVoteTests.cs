@@ -116,7 +116,7 @@ public class VoteConstructorVoteTests
             [x] Loot the boxes
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
         
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -134,7 +134,7 @@ public class VoteConstructorVoteTests
             [x] Loot the boxes
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
         
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -153,7 +153,7 @@ public class VoteConstructorVoteTests
             [x] And catch them in the act.
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
         
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -175,7 +175,7 @@ public class VoteConstructorVoteTests
             -[x] Light conversation. No need for serious precog questions right now.
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
         
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -199,7 +199,7 @@ public class VoteConstructorVoteTests
             -[x] Light conversation. No need for serious precog questions right now.
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
         
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -218,7 +218,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -237,7 +237,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -256,7 +256,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Post.Create(origin, postText)!;
+        var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);

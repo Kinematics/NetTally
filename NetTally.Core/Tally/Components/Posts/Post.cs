@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using NetTally.Enums;
 using NetTally.Tally.Components.Threads;
 using NetTally.Tally.Components.Votes;
 using NetTally.Utility.Comparers;
@@ -13,7 +12,7 @@ namespace NetTally.Tally.Components.Posts;
 /// <param name="Origin">Origin information on the post.</param>
 /// <param name="Text">Text contents of the post.</param>
 /// <param name="VoteLines">Any extracted vote lines from the post.</param>
-public record PostType(OriginType Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
+public record Post(OriginType Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
 {
     /// <summary>
     /// Whether the post has any vote lines.
@@ -27,30 +26,30 @@ public record PostType(OriginType Origin, string Text, ImmutableArray<VoteLineTy
 }
 
 /// <summary>
-/// Class for creating <see cref="PostType"/> objects.
+/// Class for creating <see cref="Post"/> objects.
 /// </summary>
-public static class Post
+public static class Posting
 {
     /// <summary>
-    /// Create a <see cref="PostType"/> object for a provided origin
+    /// Create a <see cref="Post"/> object for a provided origin
     /// and text content.
     /// </summary>
     /// <param name="origin">The origination of the post. Result is null if this is null.</param>
     /// <param name="text">The contents of the post. Result is null if this is null or empty.</param>
-    /// <returns>A <see cref="PostType"/> containing the post information.</returns>
-    public static PostType? Create(OriginType? origin, string text)
+    /// <returns>A <see cref="Post"/> containing the post information.</returns>
+    public static Post? Create(OriginType? origin, string text)
     {
         if (origin == null) return null;
         if (string.IsNullOrEmpty(text)) return null;
 
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        return new PostType(origin, text, [.. voteLines]);
+        return new Post(origin, text, [.. voteLines]);
     }
 
     /// <summary>
     /// Create a <see cref="PostToProcess"/> object which encapsulates
-    /// a <see cref="PostType"/>.
+    /// a <see cref="Post"/>.
     /// </summary>
     /// <param name="origin">The post's origin.</param>
     /// <param name="text">The text contents of the post.</param>
@@ -65,7 +64,7 @@ public static class Post
 }
 
 /// <summary>
-/// Extension methods for <see cref="PostType"/> objects.
+/// Extension methods for <see cref="Post"/> objects.
 /// </summary>
 public static class PostExtensions
 {
@@ -75,7 +74,7 @@ public static class PostExtensions
     /// <param name="post">The post to check</param>
     /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    public static bool IsBeforeStart(this PostType post, ThreadInfo threadInfo)
+    public static bool IsBeforeStart(this Post post, ThreadInfo threadInfo)
     {
         return threadInfo.ThreadRange switch
         {
@@ -92,7 +91,7 @@ public static class PostExtensions
     /// <param name="quest">The quest being tallied</param>
     /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    public static bool IsAfterEnd(this PostType post, ThreadInfo threadInfo)
+    public static bool IsAfterEnd(this Post post, ThreadInfo threadInfo)
     {
         return threadInfo.ThreadRange switch
         {
@@ -103,12 +102,12 @@ public static class PostExtensions
         };
     }
 
-    public static bool MatchesUsernameFilter(this PostType post, Quest quest)
+    public static bool MatchesUsernameFilter(this Post post, Quest quest)
     {
         return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
     }
 
-    public static bool MatchesPostNumberFilter(this PostType post, Quest quest)
+    public static bool MatchesPostNumberFilter(this Post post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
             (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||
@@ -119,16 +118,16 @@ public static class PostExtensions
 
 
 /// <summary>
-/// Comparer handler for <see cref="PostType"/> and <see cref="PostToProcess"/>
+/// Comparer handler for <see cref="Post"/> and <see cref="PostToProcess"/>
 /// </summary>
-public class PostComparer : IEqualityComparer<PostType>, IEqualityComparer<PostToProcess>
+public class PostComparer : IEqualityComparer<Post>, IEqualityComparer<PostToProcess>
 {
     /// <summary>
     /// Static instance of a <see cref="PostComparer"/>
     /// </summary>
     public static PostComparer Instance { get; } = new();
 
-    public bool Equals(PostType? x, PostType? y)
+    public bool Equals(Post? x, Post? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -145,7 +144,7 @@ public class PostComparer : IEqualityComparer<PostType>, IEqualityComparer<PostT
         return Equals(x.Post, y.Post);
     }
 
-    public int GetHashCode([DisallowNull] PostType obj)
+    public int GetHashCode([DisallowNull] Post obj)
     {
         return OriginComparer.Instance.GetHashCode(obj.Origin);
     }

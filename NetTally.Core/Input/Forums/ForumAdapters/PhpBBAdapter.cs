@@ -75,7 +75,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <param name="quest">The quest being tallied, which may have options that we need to consider.</param>
         /// <returns>Returns a list of constructed posts from this page.</returns>
-        public IEnumerable<PostType> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
+        public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber)
         {
             if (quest == null || quest.ThreadUri == null || quest.ThreadUri == Quest.InvalidThreadUri)
                 return [];
@@ -206,7 +206,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return pagebody.Elements("div").Where(p => p.HasClass("post"));
         }
 
-        private PostType? GetPost(HtmlNode div, Quest quest, int postNumber)
+        private Post? GetPost(HtmlNode div, Quest quest, int postNumber)
         {
             if (div == null)
                 return null;
@@ -220,7 +220,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 author = author with { Name = $"{author.Name}_{id.Id}" };
 
             var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-            var post = Post.Create(origin, text);
+            var post = Posting.Create(origin, text);
 
             return post;
         }

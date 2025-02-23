@@ -30,7 +30,7 @@ public class VoteCounter(
     /// The list of posts collected from the quest. Read-only.
     /// </summary>
     public List<PostToProcess> Posts { get; } = [];
-    List<PostType> RawPosts { get; } = [];
+    List<Post> RawPosts { get; } = [];
 
     /// <summary>
     /// The overall collection of voters and supporters.
@@ -116,7 +116,7 @@ public class VoteCounter(
     /// Add a new set of posts for the <see cref="IVoteCounter"/> to use.
     /// </summary>
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
-    private void AddPosts(IEnumerable<PostType> posts)
+    private void AddPosts(IEnumerable<Post> posts)
     {
         RawPosts.Clear();
         RawPosts.AddRange(posts);
@@ -928,7 +928,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="titles">The titles to display during output.</param>
     /// <param name="posts">The posts to be processed.</param>
-    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
+    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<Post> posts)
     {
         SetThreadTitles(titles);
         AddPosts(posts);

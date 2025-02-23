@@ -63,7 +63,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="titles">The titles to display during output.</param>
     /// <param name="posts">The posts to be processed.</param>
-    void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts);
+    void ConstructVotes(IEnumerable<string> titles, IEnumerable<Post> posts);
 
     /// <summary>
     /// Normalize the formatting of a plan name.

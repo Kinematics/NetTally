@@ -341,7 +341,7 @@ public partial class Quest : ObservableValidator
     /// </summary>
     /// <param name="titles">Titles to show for the quest.</param>
     /// <param name="posts">Posts to use to construct the votes.</param>
-    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
+    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<Post> posts)
     {
         VoteCounter.ConstructVotes(titles, posts);
     }
