@@ -5,7 +5,7 @@ using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Threads;
 [TestClass]
-public class ThreadInformationTests
+public class ThreadInfoTests
 {
     [ClassInitialize]
     public static void ClassInit(TestContext _)
