@@ -3,6 +3,7 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Posts;
+
 /// <summary>
 /// Data type to store Author information.
 /// </summary>
@@ -14,9 +15,21 @@ public record Author(string Name);
 /// </summary>
 public static class Authors
 {
+    /// <summary>
+    /// An empty <see cref="Author"/> object.
+    /// </summary>
     public static Author None { get; } = new(string.Empty);
+
+    /// <summary>
+    /// An unknown <see cref="Author"/>.
+    /// </summary>
     public static Author Unknown { get; } = new(Strings.UnknownAuthor);
 
+    /// <summary>
+    /// Create a new <see cref="Author"/> with the given name.
+    /// </summary>
+    /// <param name="name">The name of the author.</param>
+    /// <returns>An <see cref="Author"/>. If no name is provided, returns <see cref="None"/></returns>
     public static Author Create(string name)
     {
         name = name.RemoveUnsafeCharacters().Trim();
@@ -46,10 +59,10 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
 
     public bool Equals(Author? x, Author? y)
     {
-        if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
+        if (x is null || y is null) return false;
 
-        return Compare(x, y) == 0;
+        return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name) == 0;
     }
 
     public int GetHashCode([DisallowNull] Author obj)
