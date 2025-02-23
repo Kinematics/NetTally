@@ -75,7 +75,7 @@ public static class PostExtensions
     /// <param name="post">The post to check</param>
     /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    public static bool IsBeforeStart(this PostType post, ThreadInformationType threadInfo)
+    public static bool IsBeforeStart(this PostType post, ThreadInfo threadInfo)
     {
         return threadInfo.ThreadRange switch
         {
@@ -92,7 +92,7 @@ public static class PostExtensions
     /// <param name="quest">The quest being tallied</param>
     /// <param name="threadInfo">The tally range</param>
     /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    public static bool IsAfterEnd(this PostType post, ThreadInformationType threadInfo)
+    public static bool IsAfterEnd(this PostType post, ThreadInfo threadInfo)
     {
         return threadInfo.ThreadRange switch
         {

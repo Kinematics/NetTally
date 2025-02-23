@@ -116,8 +116,8 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="quest">The quest being queried.</param>
         /// <param name="pageProvider">A page provider for loading pages.</param>
         /// <param name="token">A cancellation token.</param>
-        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
-        public async Task<ThreadInformationType> GetThreadInformationAsync(
+        /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
+        public async Task<ThreadInfo> GetThreadInfoAsync(
             Quest quest,
             IPageProvider pageProvider,
             CancellationToken token)
@@ -132,10 +132,10 @@ namespace NetTally.Input.Forums.ForumAdapters
 
                 var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
 
-                return ThreadInformation.Create(title, author, range);
+                return ThreadInfos.Create(title, author, range);
             }
 
-            return ThreadInformation.None;
+            return ThreadInfos.None;
         }
 
         #endregion IForumAdapter interface

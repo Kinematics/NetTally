@@ -3,17 +3,17 @@ using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Threads;
 
-public record ThreadInformationType(
+public record ThreadInfo(
     string Title,
     AuthorType Author,
     ThreadRange ThreadRange);
 
-public static class ThreadInformation
+public static class ThreadInfos
 {
-    public static ThreadInformationType None { get; } =
-        new ThreadInformationType(string.Empty, Author.None, ThreadRanges.None);
+    public static ThreadInfo None { get; } =
+        new ThreadInfo(string.Empty, Author.None, ThreadRanges.None);
 
-    public static ThreadInformationType Create(
+    public static ThreadInfo Create(
         string? title,
         AuthorType? author,
         ThreadRange threadRange)
@@ -22,6 +22,6 @@ public static class ThreadInformation
             title = Strings.UntitledThread;
         author ??= Author.Unknown;
 
-        return new ThreadInformationType(title, author, threadRange);
+        return new ThreadInfo(title, author, threadRange);
     }
 }

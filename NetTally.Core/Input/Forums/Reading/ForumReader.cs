@@ -140,7 +140,7 @@ public class ForumReader(
         var threadData = await GetThreadInfoAsync(quest, pageProvider, adapter, token)
             .ConfigureAwait(false);
 
-        if (threadData != ThreadInformation.None)
+        if (threadData != ThreadInfos.None)
         {
             var pages = await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
                                 .ConfigureAwait(false);
@@ -168,7 +168,7 @@ public class ForumReader(
     private List<PostType> GetPostsWithVotesFromPages(
         Quest quest,
         IEnumerable<HtmlDocument?> pages,
-        ThreadInformationType threadInfo,
+        ThreadInfo threadInfo,
         IForumAdapter adapter)
     {
         int startPage = threadInfo.ThreadRange.GetStartPage();
@@ -198,7 +198,7 @@ public class ForumReader(
     private bool KeepPost(
         PostType post,
         Quest quest,
-        ThreadInformationType threadInfo)
+        ThreadInfo threadInfo)
     {
         if (!post.HasVote)
             return false;
@@ -283,13 +283,13 @@ public class ForumReader(
     /// <param name="token">Cancellation token.</param>
     /// <returns>A tuple of range information about the thread, and
     /// title and author information about the thread.</returns>
-    private async Task<ThreadInformationType> GetThreadInfoAsync(
+    private async Task<ThreadInfo> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         IForumAdapter adapter,
         CancellationToken token)
     {
-        var infos = await adapter.GetThreadInformationAsync(quest, pageProvider, token)
+        var infos = await adapter.GetThreadInfoAsync(quest, pageProvider, token)
             .ConfigureAwait(false);
 
         logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
@@ -310,7 +310,7 @@ public class ForumReader(
     /// <returns>A list of all loaded documents.</returns>
     private async Task<IEnumerable<HtmlDocument?>> ReadPagesFromQuestAsync(
         Quest quest,
-        ThreadInformationType threadInfo,
+        ThreadInfo threadInfo,
         IPageProvider pageProvider,
         IForumAdapter adapter,
         CancellationToken token)

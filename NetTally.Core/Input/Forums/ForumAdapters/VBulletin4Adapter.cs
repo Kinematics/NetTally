@@ -96,15 +96,15 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// <param name="quest">The quest being queried.</param>
         /// <param name="pageProvider">A page provider for loading pages.</param>
         /// <param name="token">A cancellation token.</param>
-        /// <returns><see cref="ThreadInformationType"/> containing thread information.</returns>
-        public async Task<ThreadInformationType> GetThreadInformationAsync(
+        /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
+        public async Task<ThreadInfo> GetThreadInfoAsync(
             Quest quest,
             IPageProvider pageProvider,
             CancellationToken token)
         {
             var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-            if (infoPage == null) return ThreadInformation.None;
+            if (infoPage == null) return ThreadInfos.None;
 
             return GetThreadInfo(infoPage, quest);
         }
@@ -117,14 +117,14 @@ namespace NetTally.Input.Forums.ForumAdapters
         /// </summary>
         /// <param name="page">A web page from a forum that this adapter can handle.</param>
         /// <returns>Returns thread information that can be gleaned from that page.</returns>
-        private static ThreadInformationType GetThreadInfo(HtmlDocument page, Quest quest)
+        private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
         {
             string title = GetPageTitle(page);
             var author = Author.Unknown; // vBulletin doesn't show thread authors
             int pages = GetMaxPageNumberOfThread(page);
 
             var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
-            var info = ThreadInformation.Create(title, author, range);
+            var info = ThreadInfos.Create(title, author, range);
 
             return info;
         }
