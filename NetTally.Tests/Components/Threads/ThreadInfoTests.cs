@@ -123,7 +123,7 @@ public class ThreadInfoTests
         int pagesInThread = 14;
 
         var threadRange = ThreadRanges.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
-        var threadInfo = ThreadInfos.Create(title, author, threadRange);
+        var threadInfo = ThreadInfos.Create(title, author!, threadRange);
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
