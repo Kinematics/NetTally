@@ -264,7 +264,7 @@ public static partial class VoteConstructor
                 OriginType? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                 if (planOrigin != null)
-                    return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
+                    return planOrigin.PostId == post.Origin.PostId;
             }
 
             return false;

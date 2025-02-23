@@ -1,14 +1,28 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using NetTally.Utility.Comparers;
+﻿using System.Globalization;
 
 namespace NetTally.Tally.Components.Posts;
+
+/// <summary>
+/// A post identifier value.
+/// </summary>
+/// <param name="Id">The unique ID for a post on a forum.</param>
 public record PostId(long Id);
 
+/// <summary>
+/// Class for creating <see cref="PostId"/> objects.
+/// </summary>
 public static class PostIds
 {
+    /// <summary>
+    /// A default <see cref="PostId"/>
+    /// </summary>
     public static PostId Zero { get; } = new PostId(0);
 
+    /// <summary>
+    /// Create a <see cref="PostId"/> using a numeric ID value.
+    /// </summary>
+    /// <param name="id">The numeric ID value.</param>
+    /// <returns>A <see cref="PostId"/> if a positive value was provided. Otherwise returns <see cref="Zero"/></returns>
     public static PostId Create(long id)
     {
         if (id < 1)
@@ -17,6 +31,13 @@ public static class PostIds
         return new PostId(id);
     }
 
+    /// <summary>
+    /// Create a <see cref="PostId"/> using a string of the ID value.
+    /// </summary>
+    /// <param name="id">The string ID value.</param>
+    /// <returns>A <see cref="PostId"/> if a positive numeric value was provided.
+    /// If the provided value was numeric, but not positive, returns <see cref="Zero"/>
+    /// If no numeric value could be extracted, returns <c>null</c>.</returns>
     public static PostId? Create(string id)
     {
         if (string.IsNullOrEmpty(id))
@@ -35,7 +56,7 @@ public static class PostIds
     }
 }
 
-public class PostIdComparer : IEqualityComparer<PostId>, IComparer<PostId>
+public class PostIdComparer : IComparer<PostId>
 {
     public static PostIdComparer Instance { get; } = new();
 
@@ -47,18 +68,4 @@ public class PostIdComparer : IEqualityComparer<PostId>, IComparer<PostId>
 
         return x.Id.CompareTo(y.Id);
     }
-
-    public bool Equals(PostId? x, PostId? y)
-    {
-        if (x is null || y is null) return false;
-        if (ReferenceEquals(x, y)) return true;
-
-        return Compare(x, y) == 0;
-    }
-
-    public int GetHashCode([DisallowNull] PostId obj)
-    {
-        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Id);
-    }
 }
-
