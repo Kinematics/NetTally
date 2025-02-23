@@ -35,7 +35,7 @@ public class VoterStorageTests
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123456);
+        var postId = PostIds.Create(123456);
         int postNumber = 101;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -48,7 +48,7 @@ public class VoterStorageTests
         var author = Authors.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123457);
+        var postId = PostIds.Create(123457);
         int postNumber = 102;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -61,7 +61,7 @@ public class VoterStorageTests
         var author = Authors.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123458);
+        var postId = PostIds.Create(123458);
         int postNumber = 103;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -74,7 +74,7 @@ public class VoterStorageTests
         var author = Authors.Create("Biigoh");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123459);
+        var postId = PostIds.Create(123459);
         int postNumber = 104;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -87,7 +87,7 @@ public class VoterStorageTests
         var author = Authors.Create("Muramasa");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123460);
+        var postId = PostIds.Create(123460);
         int postNumber = 105;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);

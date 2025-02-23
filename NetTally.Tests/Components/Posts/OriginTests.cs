@@ -14,7 +14,7 @@ public class OriginTests
     string permalinkUrl;
     Uri thread;
     Uri permalink;
-    PostIdType postId;
+    PostId postId;
     int postIdNumber;
     int postNumber;
     DateTimeOffset timestamp;
@@ -36,7 +36,7 @@ public class OriginTests
         permalinkUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809";
         permalink = new Uri(permalinkUrl);
         postIdNumber = 2236809;
-        postId = PostId.Create(postIdNumber);
+        postId = PostIds.Create(postIdNumber);
         postNumber = 2490;
         timestamp = DateTimeOffset.Now;
     }
@@ -95,7 +95,7 @@ public class OriginTests
         Assert.AreEqual(author, origin.Author, AuthorComparer.Instance);
         Assert.AreEqual(OriginComparer.ExampleUri, origin.Thread);
         Assert.AreEqual(OriginComparer.ExampleUri, origin.Permalink);
-        Assert.AreEqual(PostId.Zero, origin.PostId);
+        Assert.AreEqual(PostIds.Zero, origin.PostId);
         Assert.AreEqual(0, origin.ThreadPostNumber);
         Assert.AreEqual(Origin.None, origin.Source, OriginComparer.Instance);
     }
@@ -115,7 +115,7 @@ public class OriginTests
     [TestMethod]
     public void Compare_PostsDiffer_NotEqual()
     {
-        PostIdType postId2 = PostId.Create(postIdNumber + 1);
+        PostId postId2 = PostIds.Create(postIdNumber + 1);
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateUser(author, thread, permalink, postId2, postNumber + 1, timestamp);
         Assert.IsNotNull(origin1);
@@ -140,7 +140,7 @@ public class OriginTests
     public void Compare_DiffNames_NotEqual()
     {
         Author author2 = Authors.Create("Louie");
-        PostIdType postId2 = PostId.Create(postIdNumber + 1);
+        PostId postId2 = PostIds.Create(postIdNumber + 1);
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateUser(author2, thread, permalink, postId2, postNumber + 1, timestamp);
         Assert.IsNotNull(origin1);

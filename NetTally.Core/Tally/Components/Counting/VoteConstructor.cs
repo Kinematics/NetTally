@@ -211,7 +211,7 @@ public static partial class VoteConstructor
             // Users
             else
             {
-                PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
+                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostIds.Zero;
 
                 PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 

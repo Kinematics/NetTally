@@ -86,7 +86,7 @@ public class PostTests
         var origin1 = Origin.CreateUser(author1,
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
-            PostId.Create(123456),
+            PostIds.Create(123456),
             150,
             DateTimeOffset.MinValue);
         var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);

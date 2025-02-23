@@ -275,7 +275,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             {
                 // Get the post ID for the threadmark
                 string tmID = mShort.Groups["tmID"].Value;
-                var postId = PostId.Create(tmID);
+                var postId = PostIds.Create(tmID);
 
                 if (postId == null)
                     return (false, ThreadRanges.None);
@@ -309,7 +309,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 if (page == 0 && post == 0)
                     return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-                var postId = PostId.Create(post);
+                var postId = PostIds.Create(post);
 
                 // Otherwise create a range based on the post ID.
                 return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
@@ -388,7 +388,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                         if (page == 0 || post == 0)
                             return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-                        var postId = PostId.Create(post);
+                        var postId = PostIds.Create(post);
 
                         // Otherwise create a range based on the post ID.
                         return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
@@ -495,10 +495,10 @@ namespace NetTally.Input.Forums.ForumAdapters
             return Authors.Create(authorName);
         }
 
-        private static PostIdType GetPostId(HtmlNode li)
+        private static PostId GetPostId(HtmlNode li)
         {
             string id = li.Id["post-".Length..];
-            return PostId.Create(id) ?? PostId.Zero;
+            return PostIds.Create(id) ?? PostIds.Zero;
         }
 
         private static string GetPostText(HtmlNode li, Quest quest)
@@ -624,7 +624,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return $"{GetBaseThreadUrl(uri)}threadmarks.rss?category_id=1";
         }
 
-        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
+        private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
             string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}/";
             return new Uri(url);

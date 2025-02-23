@@ -216,10 +216,10 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static PostIdType GetPostId(HtmlNode li)
+        private static PostId GetPostId(HtmlNode li)
         {
             string id = li.Id["post_".Length..];
-            return PostId.Create(id) ?? PostId.Zero;
+            return PostIds.Create(id) ?? PostIds.Zero;
         }
 
         private static Author GetPostAuthor(HtmlNode li)
@@ -239,7 +239,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return Authors.Create(author);
         }
 
-        private static int GetPostNumber(HtmlDocument page, PostIdType id)
+        private static int GetPostNumber(HtmlDocument page, PostId id)
         {
             var postCount = page.GetElementbyId($"postcount{id.Id}");
 
@@ -249,7 +249,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return 0;
         }
 
-        private static string GetPostText(HtmlNode li, PostIdType id, Quest quest)
+        private static string GetPostText(HtmlNode li, PostId id, Quest quest)
         {
             HtmlNode? postDetails = li.Elements("div").FirstOrDefault(n => n.GetAttributeValue("class", "") == "postdetails");
 
@@ -310,7 +310,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return sb.ToString();
         }
 
-        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
+        private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
             // http://forums.militarytimes.com/showthread.php/9961-Furlough?p=371392&viewfull=1#post371392
 

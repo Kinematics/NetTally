@@ -125,7 +125,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    PostToProcess? GetLastPostByAuthor(OriginType author, PostIdType maxPostId);
+    PostToProcess? GetLastPostByAuthor(OriginType author, PostId maxPostId);
     /// <summary>
     /// Get the reference plan corresponding to the provided plan name.
     /// </summary>

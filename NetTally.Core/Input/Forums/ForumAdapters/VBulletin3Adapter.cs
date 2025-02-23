@@ -217,15 +217,15 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static PostIdType GetPostId(HtmlNode table)
+        private static PostId GetPostId(HtmlNode table)
         {
             var idString = table.Id["post".Length..];
-            var id = PostId.Create(idString);
+            var id = PostIds.Create(idString);
 
-            return id ?? PostId.Zero;
+            return id ?? PostIds.Zero;
         }
 
-        private static Author GetPostAuthor(HtmlDocument page, PostIdType id)
+        private static Author GetPostAuthor(HtmlDocument page, PostId id)
         {
             string authorName = "";
             string postAuthorDivID = $"postmenu_{id.Id}";
@@ -250,7 +250,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return Authors.Create(authorName);
         }
 
-        private static string GetPostText(HtmlDocument page, PostIdType id, Quest quest)
+        private static string GetPostText(HtmlDocument page, PostId id, Quest quest)
         {
             string postMessageId = $"post_message_{id.Id}";
 
@@ -265,7 +265,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return ForumPostTextConverter.ExtractPostText(postContents, exclusion, host);
         }
 
-        private static int GetPostNumber(HtmlDocument page, PostIdType id)
+        private static int GetPostNumber(HtmlDocument page, PostId id)
         {
             string postNumberAnchorID = $"postcount{id.Id}";
 
@@ -322,7 +322,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return $"{auth}{page}?p=";
         }
 
-        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
+        private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
             string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}";
             return new Uri(url);

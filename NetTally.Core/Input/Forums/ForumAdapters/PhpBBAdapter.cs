@@ -225,12 +225,12 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static PostIdType GetPostId(HtmlNode div)
+        private static PostId GetPostId(HtmlNode div)
         {
             var idString = div.Id["p".Length..];
-            var id = PostId.Create(idString);
+            var id = PostIds.Create(idString);
 
-            return id ?? PostId.Zero;
+            return id ?? PostIds.Zero;
         }
 
         private static Author GetPostAuthor(HtmlNode div)
@@ -308,7 +308,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return $"{auth}{page}?p=";
         }
 
-        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
+        private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
             string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}#p{postId.Id}";
             return new Uri(url);

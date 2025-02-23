@@ -39,7 +39,7 @@ public class VoteConstructorVoteTests
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123456);
+        var postId = PostIds.Create(123456);
         int postNumber = 10;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -52,7 +52,7 @@ public class VoteConstructorVoteTests
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(124456);
+        var postId = PostIds.Create(124456);
         int postNumber = 30;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -65,7 +65,7 @@ public class VoteConstructorVoteTests
         var author = Authors.Create("Karma1");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123457);
+        var postId = PostIds.Create(123457);
         int postNumber = 11;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -78,7 +78,7 @@ public class VoteConstructorVoteTests
         var author = Authors.Create("Quincy");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123458);
+        var postId = PostIds.Create(123458);
         int postNumber = 12;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
@@ -91,7 +91,7 @@ public class VoteConstructorVoteTests
         var author = Authors.Create("Muramasa");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(9321568);
+        var postId = PostIds.Create(9321568);
         int postNumber = 8816;
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);

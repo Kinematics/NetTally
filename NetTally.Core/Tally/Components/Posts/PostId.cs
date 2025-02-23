@@ -3,21 +3,21 @@ using System.Globalization;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Posts;
-public record PostIdType(long Id);
+public record PostId(long Id);
 
-public static class PostId
+public static class PostIds
 {
-    public static PostIdType Zero { get; } = new PostIdType(0);
+    public static PostId Zero { get; } = new PostId(0);
 
-    public static PostIdType Create(long id)
+    public static PostId Create(long id)
     {
         if (id < 1)
             return Zero;
 
-        return new PostIdType(id);
+        return new PostId(id);
     }
 
-    public static PostIdType? Create(string id)
+    public static PostId? Create(string id)
     {
         if (string.IsNullOrEmpty(id))
             return null;
@@ -26,7 +26,7 @@ public static class PostId
         {
             return idValue switch
             {
-                > 0 => new PostIdType(idValue),
+                > 0 => new PostId(idValue),
                 _ => Zero
             };
         }
@@ -35,11 +35,11 @@ public static class PostId
     }
 }
 
-public class PostIdComparer : IEqualityComparer<PostIdType>, IComparer<PostIdType>
+public class PostIdComparer : IEqualityComparer<PostId>, IComparer<PostId>
 {
     public static PostIdComparer Instance { get; } = new();
 
-    public int Compare(PostIdType? x, PostIdType? y)
+    public int Compare(PostId? x, PostId? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -48,7 +48,7 @@ public class PostIdComparer : IEqualityComparer<PostIdType>, IComparer<PostIdTyp
         return x.Id.CompareTo(y.Id);
     }
 
-    public bool Equals(PostIdType? x, PostIdType? y)
+    public bool Equals(PostId? x, PostId? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -56,7 +56,7 @@ public class PostIdComparer : IEqualityComparer<PostIdType>, IComparer<PostIdTyp
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] PostIdType obj)
+    public int GetHashCode([DisallowNull] PostId obj)
     {
         return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.Id);
     }

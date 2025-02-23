@@ -302,7 +302,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="voterName">The name of the voter to check for.</param>
     /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-    public PostIdType? GetLatestVoterPostId(OriginType voter)
+    public PostId? GetLatestVoterPostId(OriginType voter)
     {
         if (ReferenceOrigins.TryGetValue(voter, out OriginType? actual))
         {
@@ -319,7 +319,7 @@ public class VoteCounter(
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    public PostToProcess? GetLastPostByAuthor(OriginType author, PostIdType maxPostId)
+    public PostToProcess? GetLastPostByAuthor(OriginType author, PostId maxPostId)
     {
         var actualOrigin = GetReferenceOrigin(author);
 
@@ -327,7 +327,7 @@ public class VoteCounter(
         {
             return Posts
                 .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Author, p.Origin.Author) &&
-                            (maxPostId == PostId.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
+                            (maxPostId == PostIds.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
 
         }

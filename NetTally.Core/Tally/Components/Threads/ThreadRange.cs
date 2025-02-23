@@ -12,12 +12,12 @@ public abstract record ThreadRange()
 }
 
 /// <summary>
-/// A range of posts that start with a <see cref="PostIdType"/>.
+/// A range of posts that start with a <see cref="Posts.PostId"/>.
 /// </summary>
 /// <param name="PostId">The starting post in the range.</param>
 /// <param name="StartPage">The starting page to read.</param>
 /// <param name="PagesInThread">The number of pages in the thread.</param>
-public sealed record ThreadRangeById(PostIdType PostId, int StartPage, int PagesInThread) : ThreadRange
+public sealed record ThreadRangeById(PostId PostId, int StartPage, int PagesInThread) : ThreadRange
 {
     public override int GetStartPage() => StartPage;
     public override int GetEndPage() => PagesInThread;
@@ -51,7 +51,7 @@ public static class ThreadRanges
 {
     public static ThreadRange None { get; } = new ThreadRangeByPosts(0, 0, 20, 1);
 
-    public static ThreadRange CreateByPostId(PostIdType postId, int startPage, int pagesInThread)
+    public static ThreadRange CreateByPostId(PostId postId, int startPage, int pagesInThread)
     {
         if (startPage < 1)
             startPage = 1;

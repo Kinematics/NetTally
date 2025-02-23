@@ -205,10 +205,10 @@ namespace NetTally.Input.Forums.ForumAdapters
             return post;
         }
 
-        private static PostIdType GetPostId(HtmlNode li)
+        private static PostId GetPostId(HtmlNode li)
         {
             string id = li.GetAttributeValue("data-node-id", "");
-            return PostId.Create(id) ?? PostId.Zero;
+            return PostIds.Create(id) ?? PostIds.Zero;
         }
 
         private static Author GetPostAuthor(HtmlNode li)
@@ -300,7 +300,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             return sb.ToString();
         }
 
-        private static Uri GetPermalinkForId(Uri uri, PostIdType postId)
+        private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire?p=735857#post735857
 

@@ -8,7 +8,7 @@ public sealed record OriginType(
     Author Author,
     Uri Thread,
     Uri Permalink,
-    PostIdType PostId,
+    PostId PostId,
     int ThreadPostNumber,
     DateTimeOffset Timestamp,
     OriginType? Source)
@@ -34,7 +34,7 @@ public static class Origin
         Authors.None,
         ExampleUri,
         ExampleUri,
-        PostId.Zero,
+        PostIds.Zero,
         0,
         DateTimeOffset.MinValue,
         null);
@@ -56,7 +56,7 @@ public static class Origin
         Author author,
         Uri thread,
         Uri permalink,
-        PostIdType postId,
+        PostId postId,
         int postNumber,
         DateTimeOffset timestamp,
         OriginType source)
@@ -81,7 +81,7 @@ public static class Origin
         IdentityType category,
         Author author)
     {
-        return Create(category, author, ExampleUri, ExampleUri, PostId.Zero,
+        return Create(category, author, ExampleUri, ExampleUri, PostIds.Zero,
             0, DateTimeOffset.MinValue, None);
     }
 
@@ -98,7 +98,7 @@ public static class Origin
         Author author,
         Uri thread,
         Uri permalink,
-        PostIdType postId,
+        PostId postId,
         int postNumber)
     {
         return Create(IdentityType.User, author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue, None);
@@ -119,7 +119,7 @@ public static class Origin
         Author author,
         Uri thread,
         Uri permalink,
-        PostIdType postId,
+        PostId postId,
         int postNumber,
         DateTimeOffset timestamp)
     {

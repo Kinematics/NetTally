@@ -19,7 +19,7 @@ public class ThreadInfoTests
         string title = "Jupiter Hop";
         string authorName = "Jack";
         var author = Authors.Create(authorName);
-        var postId = PostId.Create(123456);
+        var postId = PostIds.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 14;
 
@@ -39,7 +39,7 @@ public class ThreadInfoTests
         string title = "Jupiter Hop";
         string authorName = "Jack";
         var author = Authors.Create(authorName);
-        var postId = PostId.Create(123456);
+        var postId = PostIds.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 0;
 
@@ -165,7 +165,7 @@ public class ThreadInfoTests
         string title = "Jupiter Hop";
         string authorName = "Jack";
         var author = Authors.Create(authorName);
-        var postId = PostId.Create(123456);
+        var postId = PostIds.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 25;
 
