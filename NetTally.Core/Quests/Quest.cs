@@ -30,7 +30,7 @@ public partial class Quest : ObservableValidator
     public QuestId QuestId { get; init; } = QuestId.NewQuestId();
 
     [ObservableProperty]
-    string threadName = Strings.NewThreadEntry;
+    private string threadName = Strings.NewThreadEntry;
 
     partial void OnThreadNameChanged(string? oldValue, string newValue)
     {
@@ -38,19 +38,19 @@ public partial class Quest : ObservableValidator
         if (string.IsNullOrWhiteSpace(newValue) ||
             !Uri.IsWellFormedUriString(newValue, UriKind.Absolute))
         {
-            this.threadName = oldValue!;
+            ThreadName = oldValue!;
             throw new ArgumentException(nameof(ThreadName));
         }
 
-        this.threadName = newValue.RemoveUnsafeCharacters();
+        ThreadName = newValue.RemoveUnsafeCharacters();
 
-        ThreadUri = new Uri(threadName);
+        ThreadUri = new Uri(ThreadName);
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
     }
 
 
     [ObservableProperty]
-    string displayName = Strings.NewThreadDisplayName;
+    public partial string DisplayName { get; set; } = Strings.NewThreadDisplayName;
 
     /// <summary>
     /// Ensure the display name is not null, nor has unsafe characters.
@@ -61,11 +61,11 @@ public partial class Quest : ObservableValidator
 #pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
         if (value is null)
         {
-            displayName = string.Empty;
+            DisplayName = string.Empty;
             return;
         }
 
-        displayName = value.RemoveUnsafeCharacters().Trim();
+        DisplayName = value.RemoveUnsafeCharacters().Trim();
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
     }
 
@@ -88,11 +88,11 @@ public partial class Quest : ObservableValidator
 
     #region Quest configuration properties: Post numbers
     [ObservableProperty]
-    int postsPerPage = 0;
+    public partial int PostsPerPage { get; set; } = 0;
 
     [ObservableProperty]
     [Range(1, 1_000_000, ErrorMessage = "Starting post number must be at least 1")]
-    int startPost = 1;
+    public partial int StartPost { get; set; } = 1;
 
     partial void OnStartPostChanging(int value)
     {
@@ -102,7 +102,7 @@ public partial class Quest : ObservableValidator
     [ObservableProperty]
     [Range(0, 1_000_000, ErrorMessage = "Ending post number must be at least 0")]
     [NotifyPropertyChangedFor(nameof(ReadToEndOfThread))]
-    int endPost = 0;
+    public partial int EndPost { get; set; } = 0;
 
     partial void OnEndPostChanging(int value)
     {
@@ -110,10 +110,10 @@ public partial class Quest : ObservableValidator
     }
 
     [ObservableProperty]
-    bool checkForLastThreadmark;
+    public partial bool CheckForLastThreadmark { get; set; }
 
     [ObservableProperty]
-    BoolEx useRSSThreadmarks = BoolEx.Unknown;
+    public partial BoolEx UseRSSThreadmarks { get; set; } = BoolEx.Unknown;
 
     /// <summary>
     /// Boolean value indicating if the tally system should read to the end
@@ -128,13 +128,15 @@ public partial class Quest : ObservableValidator
     /// from the list of valid 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    bool useCustomThreadmarkFilters = false;
+    public partial bool UseCustomThreadmarkFilters { get; set; } = false;
+
     /// <summary>
     /// Custom threadmark filters to exclude threadmarks from the list of valid
     /// 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    string customThreadmarkFilters = string.Empty;
+    public partial string CustomThreadmarkFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the threadmark filter, based on current threadmark filter settings.
     /// </summary>
@@ -152,13 +154,15 @@ public partial class Quest : ObservableValidator
     /// from the list of valid 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    bool useCustomTaskFilters = false;
+    public partial bool UseCustomTaskFilters { get; set; } = false;
+
     /// <summary>
     /// Custom threadmark filters to exclude threadmarks from the list of valid
     /// 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    string customTaskFilters = string.Empty;
+    public partial string CustomTaskFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the task filter, based on current task filter settings.
     /// </summary>
@@ -175,12 +179,14 @@ public partial class Quest : ObservableValidator
     /// Flag for whether to use custom filters to exclude specified users from the tally.
     /// </summary>
     [ObservableProperty]
-    bool useCustomUsernameFilters = false;
+    public partial bool UseCustomUsernameFilters { get; set; } = false;
+
     /// <summary>
     /// List of custom users to filter.
     /// </summary>
     [ObservableProperty]
-    string customUsernameFilters = string.Empty;
+    public partial string CustomUsernameFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the user filter, based on current user filter settings.
     /// </summary>
@@ -197,13 +203,15 @@ public partial class Quest : ObservableValidator
     /// Flag for whether to use custom filters to exclude specified posts from the tally.
     /// </summary>
     [ObservableProperty]
-    bool useCustomPostFilters = false;
+    public partial bool UseCustomPostFilters { get; set; } = false;
+
     /// <summary>
     /// List of custom posts to filter.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PostsFilter))]
-    string customPostFilters = string.Empty;
+    public partial string CustomPostFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the posts filter.
     /// </summary>
@@ -219,27 +227,37 @@ public partial class Quest : ObservableValidator
 
     #region Quest configuration properties: Tally processing
     [ObservableProperty]
-    PartitionMode partitionMode = PartitionMode.None;
+    public partial PartitionMode PartitionMode { get; set; } = PartitionMode.None;
+
     [ObservableProperty]
-    DisplayMode displayMode = DisplayMode.Normal;
+    public partial DisplayMode DisplayMode { get; set; } = DisplayMode.Normal;
+
     [ObservableProperty]
-    bool whitespaceAndPunctuationIsSignificant = false;
+    public partial bool WhitespaceAndPunctuationIsSignificant { get; set; } = false;
+
     [ObservableProperty]
-    bool caseIsSignificant = false;
+    public partial bool CaseIsSignificant { get; set; } = false;
+
     [ObservableProperty]
-    bool forcePlanReferencesToBeLabeled = false;
+    public partial bool ForcePlanReferencesToBeLabeled { get; set; } = false;
+
     [ObservableProperty]
-    bool forbidVoteLabelPlanNames = false;
+    public partial bool ForbidVoteLabelPlanNames { get; set; } = false;
+    
     [ObservableProperty]
-    bool allowUsersToUpdatePlans = false;
+    public partial bool AllowUsersToUpdatePlans { get; set; } = false;
+
     [ObservableProperty]
-    bool disableProxyVotes = false;
+    public partial bool DisableProxyVotes { get; set; } = false;
+
     [ObservableProperty]
-    bool forcePinnedProxyVotes = false;
+    public partial bool ForcePinnedProxyVotes { get; set; } = false;
+
     [ObservableProperty]
-    bool ignoreSpoilers = false;
+    public partial bool IgnoreSpoilers { get; set; } = false;
+
     [ObservableProperty]
-    bool trimExtendedText = false;
+    public partial bool TrimExtendedText { get; set; } = false;
     #endregion Quest configuration properties: Tally processing
 
     #region Quest configuration properties: String Comparison
@@ -278,7 +296,7 @@ public partial class Quest : ObservableValidator
     /// with this one.
     /// </summary>
     [ObservableProperty]
-    public ObservableCollection<QuestId> linkedQuestIds = [];
+    public partial ObservableCollection<QuestId> LinkedQuestIds { get; set; } = [];
 
     /// <summary>
     /// Determine whether this quest is linked to the provided quest.
