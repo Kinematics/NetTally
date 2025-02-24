@@ -199,7 +199,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             if (inputOptions.TrackPostAuthorsUniquely)
                 author = author with { Name = $"{author.Name}_{id.Id}" };
 
-            var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+            var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
             var post = Posting.Create(origin, text);
 
             return post;

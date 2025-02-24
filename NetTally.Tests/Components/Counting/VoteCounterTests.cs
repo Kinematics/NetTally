@@ -44,7 +44,7 @@ public class VoteCounterTests
     #endregion
 
     #region Origins
-    private static OriginType GetOrigin_Kinematics()
+    private static Origin GetOrigin_Kinematics()
     {
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -52,12 +52,12 @@ public class VoteCounterTests
         var postId = PostIds.Create(123426);
         int postNumber = 98;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Brogatar1()
+    private static Origin GetOrigin_Brogatar1()
     {
         var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -65,12 +65,12 @@ public class VoteCounterTests
         var postId = PostIds.Create(123456);
         int postNumber = 100;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Brogatar2()
+    private static Origin GetOrigin_Brogatar2()
     {
         var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -78,12 +78,12 @@ public class VoteCounterTests
         var postId = PostIds.Create(123476);
         int postNumber = 110;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Madfish1()
+    private static Origin GetOrigin_Madfish1()
     {
         var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -91,12 +91,12 @@ public class VoteCounterTests
         var postId = PostIds.Create(123460);
         int postNumber = 101;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Madfish2()
+    private static Origin GetOrigin_Madfish2()
     {
         var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -104,7 +104,7 @@ public class VoteCounterTests
         var postId = PostIds.Create(123466);
         int postNumber = 105;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }

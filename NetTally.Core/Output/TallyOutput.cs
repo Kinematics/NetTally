@@ -47,7 +47,7 @@ namespace NetTally.Output
         delegate void ConstructOutputFn(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
-            IEnumerable<OriginType> allVoters);
+            IEnumerable<Origin> allVoters);
 
         #endregion Delegates
 
@@ -286,7 +286,7 @@ namespace NetTally.Output
             }
         }
 
-        private static IEnumerable<OriginType> GetAllVotersInTask(VotesGroupedByTaskF task)
+        private static IEnumerable<Origin> GetAllVotersInTask(VotesGroupedByTaskF task)
         {
             return task
                 .SelectMany(t => t.Value)
@@ -321,7 +321,7 @@ namespace NetTally.Output
         private void ConstructNormalOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
-            IEnumerable<OriginType> allVoters)
+            IEnumerable<Origin> allVoters)
         {
             // Normal votes, either standard or compact
             if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
@@ -400,7 +400,7 @@ namespace NetTally.Output
         private void ConstructScoredOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
-            IEnumerable<OriginType> _)
+            IEnumerable<Origin> _)
         {
             // Scored votes, either standard or compact
             if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
@@ -470,7 +470,7 @@ namespace NetTally.Output
         private void ConstructApprovedOutput(
             VotesGroupedByTaskF votesInTask,
             IEnumerable<CompactVoteType> compactVotesInTask,
-            IEnumerable<OriginType> allVoters)
+            IEnumerable<Origin> allVoters)
         {
             // Scored votes, either standard or compact
             if (displayMode != DisplayMode.Compact && displayMode != DisplayMode.CompactNoVoters)
@@ -542,7 +542,7 @@ namespace NetTally.Output
         /// <param name="compactVotesInTask">All the compact votes.</param>
         /// <param name="allVoters">All the voters</param>
         private void ConstructRankedOutput(VotesGroupedByTaskF votesInTask, IEnumerable<CompactVoteType> _,
-            IEnumerable<OriginType> allVoters)
+            IEnumerable<Origin> allVoters)
         {
             var taskVotes = VoteStorage.CopyFrom(votesInTask.ToDictionary(a => a.Key, b => b.Value));
             var results = rankVoteCounter.CountVotesForTask(taskVotes);
@@ -770,7 +770,7 @@ namespace NetTally.Output
         /// </summary>
         /// <param name="voters">List of voters.</param>
         /// <param name="spoilerLabel">Optional spoiler label.</param>
-        private void AddRankedVoters(VoterStorage voters, IEnumerable<OriginType> allVoters)
+        private void AddRankedVoters(VoterStorage voters, IEnumerable<Origin> allVoters)
         {
             if (displayMode == DisplayMode.NormalNoVoters || displayMode == DisplayMode.CompactNoVoters)
                 return;
@@ -797,7 +797,7 @@ namespace NetTally.Output
         /// Add an individual voter line, with permalink.
         /// </summary>
         /// <param name="voter">The voter to add.</param>
-        private void AddVoter(OriginType voter, VoteBlockType? vote, MarkerType marker = MarkerType.None)
+        private void AddVoter(Origin voter, VoteBlockType? vote, MarkerType marker = MarkerType.None)
         {
             string markerToDisplay;
             if (voter.Category == IdentityType.Plan)
@@ -814,7 +814,7 @@ namespace NetTally.Output
             AddVoter(voter, markerToDisplay);
         }
 
-        private void AddVoter(OriginType voter, string marker = "")
+        private void AddVoter(Origin voter, string marker = "")
         {
             if (voter.Category == IdentityType.Plan) sb.Append("[b]");
 

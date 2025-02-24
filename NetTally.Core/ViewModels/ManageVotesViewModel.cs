@@ -30,7 +30,7 @@ namespace NetTally.ViewModels
         }
 
         public ObservableCollectionExt<VoteBlockType> AllVotesCollection { get; } = [];
-        public ObservableCollectionExt<OriginType> AllVotersCollection { get; } = [];
+        public ObservableCollectionExt<Origin> AllVotersCollection { get; } = [];
         public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounter.TaskList;
 
         public bool HasUndoActions => quest.VoteCounter.HasUndoActions;
@@ -55,12 +55,12 @@ namespace NetTally.ViewModels
         /// <summary>
         /// Get the voters associated with the currently selected From vote (if any).
         /// </summary>
-        public ObservableCollectionExt<OriginType> VotersFrom { get; } = [];
+        public ObservableCollectionExt<Origin> VotersFrom { get; } = [];
 
         /// <summary>
         /// Get the voters associated with the currently selected To vote (if any).
         /// </summary>
-        public ObservableCollectionExt<OriginType> VotersTo { get; } = [];
+        public ObservableCollectionExt<Origin> VotersTo { get; } = [];
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
@@ -98,14 +98,14 @@ namespace NetTally.ViewModels
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(JoinCommand))]
-        public partial OriginType? SelectedToVoter { get; set; }
+        public partial Origin? SelectedToVoter { get; set; }
 
         /// <summary>
         /// Get the voters for a given vote.
         /// </summary>
         /// <param name="vote">The vote to get voters for.</param>
         /// <returns>A list of voter origins.</returns>
-        public IEnumerable<OriginType> GetVotersForVote(VoteBlockType? vote) =>
+        public IEnumerable<Origin> GetVotersForVote(VoteBlockType? vote) =>
             (vote != null) ? quest.VoteCounter.GetUserVotersFor(vote) : [];
 
         #endregion Observable Vote List Properties

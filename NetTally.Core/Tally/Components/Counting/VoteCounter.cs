@@ -39,7 +39,7 @@ public class VoteCounter(
 
     VoterStorage ReferencePlans { get; } = [];
 
-    HashSet<OriginType> ReferenceOrigins { get; } = new HashSet<OriginType>(OriginNameComparer.Instance);
+    HashSet<Origin> ReferenceOrigins { get; } = new HashSet<Origin>(OriginNameComparer.Instance);
 
     Stack<UndoAction> UndoBuffer { get; } = new();
 
@@ -144,7 +144,7 @@ public class VoteCounter(
     /// <param name="postID">The post ID the plan was defined in.</param>
     /// <param name="plan">The the vote line block that defines the plan.</param>
     /// <returns>Returns true if it was added, or false if it already exists.</returns>
-    public bool AddReferencePlan(OriginType updateOrigin, VoteBlockType plan)
+    public bool AddReferencePlan(Origin updateOrigin, VoteBlockType plan)
     {
         // If it doesn't exist, we can just add it.
         if (ReferenceOrigins.Add(updateOrigin))
@@ -153,7 +153,7 @@ public class VoteCounter(
             return true;
         }
         else if (CanUpdatePlans() &&
-                 ReferenceOrigins.TryGetValue(updateOrigin, out OriginType? currentOrigin))
+                 ReferenceOrigins.TryGetValue(updateOrigin, out Origin? currentOrigin))
         {
             // Author can replace existing version of a plan he wrote on conditions:
             // - Options allow plan replacement
@@ -163,7 +163,7 @@ public class VoteCounter(
             // - New plan is more than one line (ie: not simply re-voting for the existing version)
             // - Content of the plan is different
 
-            if (updateOrigin.Source != Origin.None &&
+            if (updateOrigin.Source != Origins.None &&
                 OriginComparer.Instance.Equals(updateOrigin.Source, currentOrigin.Source) &&
                 PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
                 plan.LineCount > 1 &&
@@ -194,7 +194,7 @@ public class VoteCounter(
     /// <param name="voterName">The proper name of the voter.</param>
     /// <param name="postID">The ID of their vote post.</param>
     /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-    public bool AddReferenceVoter(OriginType voter)
+    public bool AddReferenceVoter(Origin voter)
     {
         return ReferenceOrigins.Add(voter);
     }
@@ -238,7 +238,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="planName">The name of the plan being checked for.</param>
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    public OriginType? GetPlanOriginByName(string? planName)
+    public Origin? GetPlanOriginByName(string? planName)
     {
         if (string.IsNullOrEmpty(planName))
             return null;
@@ -253,7 +253,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="voterName">The name of the voter being checked for.</param>
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    public OriginType? GetVoterOriginByName(string? voterName)
+    public Origin? GetVoterOriginByName(string? voterName)
     {
         if (string.IsNullOrEmpty(voterName))
             return null;
@@ -269,9 +269,9 @@ public class VoteCounter(
     /// <param name="author">The author to query.</param>
     /// <param name="identityType">The identity type of the author.</param>
     /// <returns>The existing origin, if it exists, or null.</returns>
-    private OriginType? GetOriginByAuthor(Author author, IdentityType identityType)
+    private Origin? GetOriginByAuthor(Author author, IdentityType identityType)
     {
-        var namedOrigin = Origin.CreateOriginForName(identityType, author);
+        var namedOrigin = Origins.CreateOriginForName(identityType, author);
 
         if (namedOrigin == null)
             return null;
@@ -284,9 +284,9 @@ public class VoteCounter(
     /// </summary>
     /// <param name="namedOrigin">An origin with a named author, either user or plan.</param>
     /// <returns>An origin stored in our reference pool, if found. Otherwise null.</returns>
-    private OriginType? GetReferenceOrigin(OriginType namedOrigin)
+    private Origin? GetReferenceOrigin(Origin namedOrigin)
     {
-        if (ReferenceOrigins.TryGetValue(namedOrigin, out OriginType? actualOrigin))
+        if (ReferenceOrigins.TryGetValue(namedOrigin, out Origin? actualOrigin))
         {
             return actualOrigin;
         }
@@ -302,9 +302,9 @@ public class VoteCounter(
     /// </summary>
     /// <param name="voterName">The name of the voter to check for.</param>
     /// <returns>Returns the post ID if the voter's most recently processed post, or 0 if not found.</returns>
-    public PostId? GetLatestVoterPostId(OriginType voter)
+    public PostId? GetLatestVoterPostId(Origin voter)
     {
-        if (ReferenceOrigins.TryGetValue(voter, out OriginType? actual))
+        if (ReferenceOrigins.TryGetValue(voter, out Origin? actual))
         {
             return actual.PostId;
         }
@@ -319,7 +319,7 @@ public class VoteCounter(
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    public PostToProcess? GetLastPostByAuthor(OriginType author, PostId maxPostId)
+    public PostToProcess? GetLastPostByAuthor(Origin author, PostId maxPostId)
     {
         var actualOrigin = GetReferenceOrigin(author);
 
@@ -354,7 +354,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="planName">The name of the plan to get.</param>
     /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-    public VoteBlockType? GetReferencePlan(OriginType planOrigin)
+    public VoteBlockType? GetReferencePlan(Origin planOrigin)
     {
         return ReferencePlans.GetValueOrDefault(planOrigin);
     }
@@ -369,7 +369,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    public IEnumerable<VoteBlockType> GetVotesBy(OriginType voter) => VoteStorage.GetVotesBy(voter);
+    public IEnumerable<VoteBlockType> GetVotesBy(Origin voter) => VoteStorage.GetVotesBy(voter);
 
     /// <summary>
     /// Gets a count of the known voters.
@@ -390,14 +390,14 @@ public class VoteCounter(
     /// Get a list of all known voters.
     /// </summary>
     /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
-    public IEnumerable<OriginType> GetAllVoters() => VoteStorage.GetAllVoters();
+    public IEnumerable<Origin> GetAllVoters() => VoteStorage.GetAllVoters();
 
     /// <summary>
     /// Gets all voters that are supporting the specified vote.
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    public IEnumerable<OriginType> GetVotersFor(VoteBlockType vote) =>
+    public IEnumerable<Origin> GetVotersFor(VoteBlockType vote) =>
         VoteStorage.GetVotersFor(vote);
 
     /// <summary>
@@ -405,7 +405,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    public IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote) =>
+    public IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote) =>
         VoteStorage.GetUserVotersFor(vote);
     #endregion
 
@@ -416,7 +416,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
     /// <param name="voter">The voter for this vote.</param>
-    public void AddVotes(IEnumerable<VoteBlockType> votePartitions, OriginType voter)
+    public void AddVotes(IEnumerable<VoteBlockType> votePartitions, Origin voter)
     {
         if (!votePartitions.Any())
             return;
@@ -577,7 +577,7 @@ public class VoteCounter(
     /// <param name="voters">The voters that will support the new voter.</param>
     /// <param name="voterToJoin">The voter to join.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Join(List<OriginType> voters, OriginType voterToJoin)
+    public bool Join(List<Origin> voters, Origin voterToJoin)
     {
         bool joined = false;
 
@@ -605,7 +605,7 @@ public class VoteCounter(
         /// <param name="joiningVoter">The voter being moved to a new voting support set.</param>
         /// <param name="voterToJoin">The voter being joined.</param>
         /// <returns>Returns true if the join was completed.</returns>
-        bool JoinImpl(OriginType joiningVoter, OriginType voterToJoin)
+        bool JoinImpl(Origin joiningVoter, Origin voterToJoin)
         {
             var source = GetVotesBy(joiningVoter);
             var dest = GetVotesBy(voterToJoin);
@@ -1000,7 +1000,7 @@ public class VoteCounter(
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origin.CreatePlanOrigin(p.Origin, a.Name)!))
+                              Origin: Origins.CreatePlanOrigin(p.Origin, a.Name)!))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))

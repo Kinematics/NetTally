@@ -18,7 +18,7 @@ public class VoteBlocksTests
         TestStartup.ConfigureServices();
     }
 
-    private static OriginType GetOrigin1()
+    private static Origin GetOrigin1()
     {
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -26,7 +26,7 @@ public class VoteBlocksTests
         var postId = PostIds.Create(123456);
         int postNumber = 123;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }

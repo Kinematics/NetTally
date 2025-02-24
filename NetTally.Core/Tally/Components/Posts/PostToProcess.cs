@@ -18,7 +18,7 @@ public class PostToProcess(Post post)
     /// <summary>
     /// The post's origin.
     /// </summary>
-    public OriginType Origin => post.Origin;
+    public Origin Origin => post.Origin;
 
     /// <summary>
     /// The post's vote lines.

@@ -12,7 +12,7 @@ namespace NetTally.Tally.Components.Posts;
 /// <param name="Origin">Origin information on the post.</param>
 /// <param name="Text">Text contents of the post.</param>
 /// <param name="VoteLines">Any extracted vote lines from the post.</param>
-public record Post(OriginType Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
+public record Post(Origin Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
 {
     /// <summary>
     /// Whether the post has any vote lines.
@@ -37,7 +37,7 @@ public static class Posting
     /// <param name="origin">The origination of the post. Result is null if this is null.</param>
     /// <param name="text">The contents of the post. Result is null if this is null or empty.</param>
     /// <returns>A <see cref="Post"/> containing the post information.</returns>
-    public static Post? Create(OriginType? origin, string text)
+    public static Post? Create(Origin? origin, string text)
     {
         if (origin == null) return null;
         if (string.IsNullOrEmpty(text)) return null;
@@ -54,7 +54,7 @@ public static class Posting
     /// <param name="origin">The post's origin.</param>
     /// <param name="text">The text contents of the post.</param>
     /// <returns>A <see cref="PostToProcess"/>. Returns <c>null</c> if no post could be created.</returns>
-    public static PostToProcess? CreateToProcess(OriginType? origin, string text)
+    public static PostToProcess? CreateToProcess(Origin? origin, string text)
     {
         var post = Create(origin, text);
         if (post == null) return null;

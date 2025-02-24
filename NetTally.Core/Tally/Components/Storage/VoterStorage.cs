@@ -10,7 +10,7 @@ namespace NetTally.Tally.Components.Storage;
 /// VoterStorage is a dictionary of voter origins and the vote
 /// each submitted.
 /// </summary>
-public class VoterStorage : Dictionary<OriginType, VoteBlockType>
+public class VoterStorage : Dictionary<Origin, VoteBlockType>
 {
     #region Constructors
     /// <summary>
@@ -36,7 +36,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="origin">The origin to compare to.</param>
     /// <returns>Returns true if the origin exists in this lookup.</returns>
-    public bool HasIdentity(OriginType origin)
+    public bool HasIdentity(Origin origin)
     {
         return ContainsKey(origin);
     }
@@ -49,7 +49,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     public bool HasPlan(string planName)
     {
         var author = Authors.Create(planName);
-        var origin = Origin.CreateOriginForName(IdentityType.Plan, author);
+        var origin = Origins.CreateOriginForName(IdentityType.Plan, author);
         return origin != null && ContainsKey(origin);
     }
 
@@ -61,7 +61,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     public bool HasVoter(string voterName)
     {
         var author = Authors.Create(voterName);
-        var origin = Origin.CreateOriginForName(IdentityType.User, author);
+        var origin = Origins.CreateOriginForName(IdentityType.User, author);
         return origin != null && ContainsKey(origin);
     }
     #endregion Queries - Has XX?

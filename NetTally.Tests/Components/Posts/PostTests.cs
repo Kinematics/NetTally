@@ -23,7 +23,7 @@ public class PostTests
     [TestMethod]
     public void Construct_NullText_Error()
     {
-        var origin = Origin.None;
+        var origin = Origins.None;
         var post = Posting.Create(origin, null!);
         Assert.IsNull(post);
     }
@@ -33,7 +33,7 @@ public class PostTests
     {
         var author1 = Authors.Create("Kinematics");
         Assert.IsNotNull(author1);
-        var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
+        var origin1 = Origins.CreateOriginForName(IdentityType.User, author1);
         Assert.IsNotNull(origin1);
         var post1 = Posting.Create(origin1, "Some text");
         var post2 = Posting.Create(origin1, "Some text");
@@ -46,7 +46,7 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentText()
     {
-        var origin = Origin.None;
+        var origin = Origins.None;
         var post1 = Posting.Create(origin, "Some text");
         var post2 = Posting.Create(origin, "Some more text");
         Assert.IsNotNull(post1);
@@ -62,8 +62,8 @@ public class PostTests
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
-        var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
+        var origin1 = Origins.CreateOriginForName(IdentityType.User, author1);
+        var origin2 = Origins.CreateOriginForName(IdentityType.User, author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
@@ -83,13 +83,13 @@ public class PostTests
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateUser(author1,
+        var origin1 = Origins.CreateUser(author1,
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
             PostIds.Create(123456),
             150,
             DateTimeOffset.MinValue);
-        var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
+        var origin2 = Origins.CreateOriginForName(IdentityType.User, author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 

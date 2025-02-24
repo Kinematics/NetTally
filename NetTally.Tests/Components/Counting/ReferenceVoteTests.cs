@@ -29,7 +29,7 @@ public class ReferenceVoteTests
     #endregion Setup
 
     #region Origins
-    private static OriginType GetOrigin_Kinematics1()
+    private static Origin GetOrigin_Kinematics1()
     {
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -37,12 +37,12 @@ public class ReferenceVoteTests
         var postId = PostIds.Create(123456);
         int postNumber = 101;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Atreya()
+    private static Origin GetOrigin_Atreya()
     {
         var author = Authors.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -50,12 +50,12 @@ public class ReferenceVoteTests
         var postId = PostIds.Create(123457);
         int postNumber = 102;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Kimberly()
+    private static Origin GetOrigin_Kimberly()
     {
         var author = Authors.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -63,12 +63,12 @@ public class ReferenceVoteTests
         var postId = PostIds.Create(123458);
         int postNumber = 103;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Kinematics2()
+    private static Origin GetOrigin_Kinematics2()
     {
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -76,7 +76,7 @@ public class ReferenceVoteTests
         var postId = PostIds.Create(123459);
         int postNumber = 104;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }

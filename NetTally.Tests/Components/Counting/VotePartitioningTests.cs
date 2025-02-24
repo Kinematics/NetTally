@@ -20,7 +20,7 @@ public class VotePartitioningTests
     }
 
     #region Data
-    private static OriginType GetOrigin_Kinematics()
+    private static Origin GetOrigin_Kinematics()
     {
         var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
@@ -28,7 +28,7 @@ public class VotePartitioningTests
         var postId = PostIds.Create(123456);
         int postNumber = 10;
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
