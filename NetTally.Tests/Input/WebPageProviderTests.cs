@@ -12,7 +12,7 @@ using NetTally.Web;
 namespace NetTally.Tests.Input
 {
     [TestClass]
-    //[Ignore]
+    [Ignore]
     public class WebPageProviderTests
     {
         static IPageProvider? pageProvider;

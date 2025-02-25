@@ -3,7 +3,7 @@ using NetTally.Enums;
 using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Posts;
-public sealed record Origin(
+public sealed record Origin1(
     IdentityType Category,
     Author Author,
     Uri Thread,
@@ -11,7 +11,7 @@ public sealed record Origin(
     PostId PostId,
     int ThreadPostNumber,
     DateTimeOffset Timestamp,
-    Origin? Source)
+    Origin1? Source)
 {
     public bool IsUser => Category == IdentityType.User;
     public bool IsPlan => Category == IdentityType.Plan;
@@ -22,14 +22,14 @@ public sealed record Origin(
     }
 }
 
-public static class Origins
+public static class Origins1
 {
-    static readonly Uri ExampleUri = OriginComparer.ExampleUri;
+    static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
 
     /// <summary>
-    /// An empty origin.
+    /// An empty Origin1.
     /// </summary>
-    public static Origin None { get; } = new Origin(
+    public static Origin1 None { get; } = new Origin1(
         IdentityType.User,
         Authors.None,
         ExampleUri,
@@ -40,7 +40,7 @@ public static class Origins
         null);
 
     /// <summary>
-    /// Create an <see cref="Origin"/> object, fully defined.
+    /// Create an <see cref="Origin1"/> object, fully defined.
     /// </summary>
     /// <param name="category"></param>
     /// <param name="author"></param>
@@ -51,7 +51,7 @@ public static class Origins
     /// <param name="timestamp"></param>
     /// <param name="source"></param>
     /// <returns></returns>
-    public static Origin? Create(
+    public static Origin1? Create(
         IdentityType category,
         Author author,
         Uri thread,
@@ -59,7 +59,7 @@ public static class Origins
         PostId postId,
         int postNumber,
         DateTimeOffset timestamp,
-        Origin source)
+        Origin1 source)
     {
         if (author == Authors.None)
             return null;
@@ -67,17 +67,17 @@ public static class Origins
         if (postNumber < 1)
             postNumber = 0;
 
-        return new Origin(category, author,
+        return new Origin1(category, author,
             thread, permalink, postId, postNumber, timestamp, source);
     }
 
     /// <summary>
-    /// Create a simple <see cref="Origin"/> with only name and category values.
+    /// Create a simple <see cref="Origin1"/> with only name and category values.
     /// </summary>
     /// <param name="category">The type of author.</param>
-    /// <param name="author">The author for the origin.</param>
+    /// <param name="author">The author for the Origin1.</param>
     /// <returns></returns>
-    public static Origin? CreateOriginForName(
+    public static Origin1? CreateOriginForName(
         IdentityType category,
         Author author)
     {
@@ -86,7 +86,7 @@ public static class Origins
     }
 
     /// <summary>
-    /// Shortcut to create an <see cref="Origin"/> for a user.
+    /// Shortcut to create an <see cref="Origin1"/> for a user.
     /// </summary>
     /// <param name="author"></param>
     /// <param name="thread"></param>
@@ -94,7 +94,7 @@ public static class Origins
     /// <param name="postId"></param>
     /// <param name="postNumber"></param>
     /// <returns></returns>
-    public static Origin? CreateUser(
+    public static Origin1? CreateUser(
         Author author,
         Uri thread,
         Uri permalink,
@@ -105,7 +105,7 @@ public static class Origins
     }
 
     /// <summary>
-    /// Shortcut to create an <see cref="Origin"/> for a user.
+    /// Shortcut to create an <see cref="Origin1"/> for a user.
     /// Include timestamp.
     /// </summary>
     /// <param name="author"></param>
@@ -115,7 +115,7 @@ public static class Origins
     /// <param name="postNumber"></param>
     /// <param name="timestamp"></param>
     /// <returns></returns>
-    public static Origin? CreateUser(
+    public static Origin1? CreateUser(
         Author author,
         Uri thread,
         Uri permalink,
@@ -127,30 +127,30 @@ public static class Origins
     }
 
     /// <summary>
-    /// Create an <see cref="Origin"/> for a plan, using a user as a base.
+    /// Create an <see cref="Origin1"/> for a plan, using a user as a base.
     /// </summary>
-    /// <param name="origin"></param>
+    /// <param name="Origin1"></param>
     /// <param name="planName">The name of the plan to use.</param>
     /// <returns></returns>
-    public static Origin? CreatePlanOrigin(Origin origin, string? planName)
+    public static Origin1? CreatePlanOrigin1(Origin1 Origin1, string? planName)
     {
         if (planName == null)
             return null;
 
         Author author = Authors.Create(planName);
 
-        return CreatePlanOrigin(origin, author);
+        return CreatePlanOrigin1(Origin1, author);
     }
 
     /// <summary>
-    /// Create an <see cref="Origin"/> for a plan, using a user as a base.
+    /// Create an <see cref="Origin1"/> for a plan, using a user as a base.
     /// </summary>
-    /// <param name="origin"></param>
+    /// <param name="Origin1"></param>
     /// <param name="plan">The <see cref="Author"/> for the plan.</param>
     /// <returns></returns>
-    public static Origin? CreatePlanOrigin(Origin origin, Author plan)
+    public static Origin1? CreatePlanOrigin1(Origin1 Origin1, Author plan)
     {
-        if (origin.Category != IdentityType.User)
+        if (Origin1.Category != IdentityType.User)
         {
             return null;
         }
@@ -161,17 +161,17 @@ public static class Origins
         }
 
         return Create(IdentityType.Plan, plan,
-            origin.Thread, origin.Permalink, origin.PostId, origin.ThreadPostNumber,
-            origin.Timestamp, origin);
+            Origin1.Thread, Origin1.Permalink, Origin1.PostId, Origin1.ThreadPostNumber,
+            Origin1.Timestamp, Origin1);
     }
 }
 
-public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
+public class OriginComparer1 : IEqualityComparer<Origin1>, IComparer<Origin1>
 {
     public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
-    public static OriginComparer Instance { get; } = new();
+    public static OriginComparer1 Instance { get; } = new OriginComparer1();
 
-    public int Compare(Origin? x, Origin? y)
+    public int Compare(Origin1? x, Origin1? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -200,7 +200,7 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
         return 0;
     }
 
-    public bool Equals(Origin? x, Origin? y)
+    public bool Equals(Origin1? x, Origin1? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -208,18 +208,18 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] Origin obj)
+    public int GetHashCode([DisallowNull] Origin1 obj)
     {
         return AuthorComparer.Instance.GetHashCode(obj.Author);
     }
 }
 
-public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
+public class OriginNameComparer1 : IEqualityComparer<Origin1>, IComparer<Origin1>
 {
     public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
-    public static OriginNameComparer Instance { get; } = new();
+    public static OriginNameComparer1 Instance { get; } = new();
 
-    public int Compare(Origin? x, Origin? y)
+    public int Compare(Origin1? x, Origin1? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -232,7 +232,7 @@ public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
         return AuthorComparer.Instance.Compare(x.Author, y.Author);
     }
 
-    public bool Equals(Origin? x, Origin? y)
+    public bool Equals(Origin1? x, Origin1? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -240,7 +240,7 @@ public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] Origin obj)
+    public int GetHashCode([DisallowNull] Origin1 obj)
     {
         return AuthorComparer.Instance.GetHashCode(obj.Author);
     }

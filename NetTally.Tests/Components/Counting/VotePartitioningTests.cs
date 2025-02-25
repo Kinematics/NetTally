@@ -26,7 +26,7 @@ public class VotePartitioningTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123456);
-        int postNumber = 10;
+        var postNumber = PostIds.Create(10);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 

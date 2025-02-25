@@ -291,7 +291,7 @@ namespace NetTally.Output
             return task
                 .SelectMany(t => t.Value)
                 .Select(u => u.Key)
-                .Where(v => v.Category == IdentityType.User)
+                .Where(v => v is UserOrigin)
                 .GroupBy(v => v, OriginNameComparer.Instance)
                 .Select(g => g.MaxBy(v => v.PostId, PostIdComparer.Instance)!)
                 .OrderBy(v => v, OriginNameComparer.Instance);
@@ -800,7 +800,7 @@ namespace NetTally.Output
         private void AddVoter(Origin voter, VoteBlockType? vote, MarkerType marker = MarkerType.None)
         {
             string markerToDisplay;
-            if (voter.Category == IdentityType.Plan)
+            if (voter is PlanOrigin)
                 markerToDisplay = Strings.PlanNameMarker;
             else if (marker == MarkerType.Rank && vote is not null && vote.Marker.MarkerType != MarkerType.Rank)
                 markerToDisplay = Strings.NoRankMarker;
@@ -816,13 +816,13 @@ namespace NetTally.Output
 
         private void AddVoter(Origin voter, string marker = "")
         {
-            if (voter.Category == IdentityType.Plan) sb.Append("[b]");
+            if (voter is PlanOrigin) sb.Append("[b]");
 
             sb.Append('[');
             sb.Append(marker);
             sb.Append("] ");
 
-            if (voter.Category == IdentityType.Plan) sb.Append("Plan: ");
+            if (voter is PlanOrigin) sb.Append("Plan: ");
 
             sb.Append("[url=\"");
             sb.Append(voter.Permalink);
@@ -830,7 +830,7 @@ namespace NetTally.Output
             sb.Append(voter.Author.Name);
             sb.Append("[/url]");
 
-            if (voter.Category == IdentityType.Plan) sb.Append("[/b]");
+            if (voter is PlanOrigin) sb.Append("[/b]");
 
             sb.AppendLine();
         }

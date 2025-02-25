@@ -52,7 +52,7 @@ public class BordaFraction
         // If any voter didn't vote for an option, they effectively add a 0 (rank #6) for that option.
         foreach (var voter in vote.Value)
         {
-            if (voter.Key.Category == IdentityType.User && voter.Value.Marker.MarkerType == MarkerType.Rank)
+            if (voter.Key is UserOrigin && voter.Value.Marker.MarkerType == MarkerType.Rank)
             {
                 voteValue += (1.0 / voter.Value.Marker.MarkerValue);
                 count++;

@@ -50,7 +50,7 @@ public class VoteCounterTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123426);
-        int postNumber = 98;
+        var postNumber = PostIds.Create(98);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -63,7 +63,7 @@ public class VoteCounterTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123456);
-        int postNumber = 100;
+        var postNumber = PostIds.Create(100);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -76,7 +76,7 @@ public class VoteCounterTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123476);
-        int postNumber = 110;
+        var postNumber = PostIds.Create(110);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -89,7 +89,7 @@ public class VoteCounterTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123460);
-        int postNumber = 101;
+        var postNumber = PostIds.Create(101);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -102,7 +102,7 @@ public class VoteCounterTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123466);
-        int postNumber = 105;
+        var postNumber = PostIds.Create(105);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 

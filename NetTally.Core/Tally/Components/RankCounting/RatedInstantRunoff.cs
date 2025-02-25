@@ -1,4 +1,5 @@
 ﻿using NetTally.Enums;
+using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.RankCounting.Reference;
 using NetTally.Tally.Components.Storage;
 
@@ -99,7 +100,7 @@ public class RatedInstantRunoff : IRankVoteCounter
         var allVoters = voters1.Keys
             .Concat(voters2.Keys)
             .Distinct()
-            .Where(v => v.Category == IdentityType.User)
+            .Where(v => v is UserOrigin)
             .ToList();
 
         int count1 = 0;

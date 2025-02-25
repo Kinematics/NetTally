@@ -13,7 +13,7 @@ public static class VoterAnalysis
     /// <returns>The number of users in storage.</returns>
     public static int GetUserCount(VoterStorageType storage)
     {
-        return storage.Count(s => s.Key.IsUser);
+        return storage.Count(s => s.Key is UserOrigin);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public static class VoterAnalysis
     /// <returns>The number of users who expressed positive support.</returns>
     public static int GetSupportCount(VoterStorageType storage)
     {
-        return storage.Count(s => s.Key.IsUser && s.Value.Marker.IsPositive().GetValueOrDefault());
+        return storage.Count(s => s.Key is UserOrigin && s.Value.Marker.IsPositive().GetValueOrDefault());
     }
 
     /// <summary>
@@ -170,10 +170,10 @@ public static class VoterAnalysis
     //private (OriginType voter, VoteBlockType vote) GetFirstVoter()
     private static VoterStorageEntryF? GetFirstVoter(VoterStorageType storage)
     {
-        if (storage.Count() == 0)
+        if (!storage.Any())
             return null;
 
-        var entries = storage.Where(v => v.Key.IsPlan);
+        var entries = storage.Where(v => v.Key is PlanOrigin);
 
         if (!entries.Any())
         {

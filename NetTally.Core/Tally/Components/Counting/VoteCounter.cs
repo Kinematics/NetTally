@@ -163,8 +163,8 @@ public class VoteCounter(
             // - New plan is more than one line (ie: not simply re-voting for the existing version)
             // - Content of the plan is different
 
-            if (updateOrigin.Source != Origins.None &&
-                OriginComparer.Instance.Equals(updateOrigin.Source, currentOrigin.Source) &&
+            if (updateOrigin.Source() != Origins.None &&
+                OriginComparer.Instance.Equals(updateOrigin.Source(), currentOrigin.Source()) &&
                 PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
                 plan.LineCount > 1 &&
                 ReferencePlans.TryGetValue(currentOrigin, out VoteBlockType? currentPlan) &&
@@ -215,7 +215,7 @@ public class VoteCounter(
 
     public bool HasPlan(Author planAuthor)
     {
-        return GetOriginByAuthor(planAuthor, IdentityType.Plan) != null;
+        return GetOriginByPlanAuthor(planAuthor) != null;
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public class VoteCounter(
 
     public bool HasVoter(Author planAuthor)
     {
-        return GetOriginByAuthor(planAuthor, IdentityType.User) != null;
+        return GetOriginByUserAuthor(planAuthor) != null;
     }
 
     /// <summary>
@@ -245,7 +245,7 @@ public class VoteCounter(
 
         var author = Authors.Create(planName);
 
-        return GetOriginByAuthor(author, IdentityType.Plan);
+        return GetOriginByPlanAuthor(author);
     }
 
     /// <summary>
@@ -260,7 +260,7 @@ public class VoteCounter(
 
         var author = Authors.Create(voterName);
 
-        return GetOriginByAuthor(author, IdentityType.User);
+        return GetOriginByUserAuthor(author);
     }
 
     /// <summary>
@@ -269,12 +269,16 @@ public class VoteCounter(
     /// <param name="author">The author to query.</param>
     /// <param name="identityType">The identity type of the author.</param>
     /// <returns>The existing origin, if it exists, or null.</returns>
-    private Origin? GetOriginByAuthor(Author author, IdentityType identityType)
+    private Origin? GetOriginByUserAuthor(Author author)
     {
-        var namedOrigin = Origins.CreateOriginForName(identityType, author);
+        var namedOrigin = Origins.CreateUserNameOnly(author);
 
-        if (namedOrigin == null)
-            return null;
+        return GetReferenceOrigin(namedOrigin);
+    }
+
+    private Origin? GetOriginByPlanAuthor(Author author)
+    {
+        var namedOrigin = Origins.CreatePlanNameOnly(author);
 
         return GetReferenceOrigin(namedOrigin);
     }
@@ -1000,7 +1004,7 @@ public class VoteCounter(
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origins.CreatePlanOrigin(p.Origin, a.Name)!))
+                              Origin: Origins.CreatePlan(p.Origin, Authors.Create(a.Name))))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))

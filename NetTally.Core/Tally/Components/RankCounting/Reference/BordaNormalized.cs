@@ -56,7 +56,7 @@ public class BordaNormalized : IRankVoteCounter
         // That means first place is 5x as valuable as last place, rather than 9x as valuable.
         foreach (var voter in vote.Value)
         {
-            if (voter.Key.Category == IdentityType.User && voter.Value.Marker.MarkerType == MarkerType.Rank)
+            if (voter.Key is UserOrigin && voter.Value.Marker.MarkerType == MarkerType.Rank)
             {
                 voteValue += (1.0 + voter.Value.Marker.MarkerValue);
                 count++;

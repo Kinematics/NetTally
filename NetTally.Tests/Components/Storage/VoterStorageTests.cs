@@ -36,7 +36,7 @@ public class VoterStorageTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123456);
-        int postNumber = 101;
+        var postNumber = PostIds.Create(101);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -49,7 +49,7 @@ public class VoterStorageTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123457);
-        int postNumber = 102;
+        var postNumber = PostIds.Create(102);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -62,7 +62,7 @@ public class VoterStorageTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123458);
-        int postNumber = 103;
+        var postNumber = PostIds.Create(103);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -75,7 +75,7 @@ public class VoterStorageTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123459);
-        int postNumber = 104;
+        var postNumber = PostIds.Create(104);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -88,7 +88,7 @@ public class VoterStorageTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostIds.Create(123460);
-        int postNumber = 105;
+        var postNumber = PostIds.Create(105);
 
         var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -231,8 +231,8 @@ public class VoterStorageTests
         var post = GetPost_Kinematics();
         var origin = post.Origin;
         var vote = GetVote(post);
-        string planName = "Zoom";
-        var planOrigin = Origins.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
 
         Assert.IsNotNull(planOrigin);
 
@@ -251,7 +251,7 @@ public class VoterStorageTests
         var post = GetPost_Kinematics();
         var origin = post.Origin;
         var vote = GetVote(post);
-        var simpleOrigin = Origins.CreateOriginForName(IdentityType.User, origin.Author);
+        var simpleOrigin = Origins.CreateUserNameOnly(origin.Author);
 
         Assert.IsNotNull(simpleOrigin);
 
@@ -270,11 +270,11 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origins.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
-        var simpleOrigin = Origins.CreateOriginForName(IdentityType.Plan, planOrigin.Author);
+        var simpleOrigin = Origins.CreatePlanNameOnly(planOrigin.GetName());
         Assert.IsNotNull(simpleOrigin);
 
         voterStorage.Add(planOrigin, vote);
@@ -291,8 +291,8 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origins.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();
@@ -323,8 +323,8 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origins.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();

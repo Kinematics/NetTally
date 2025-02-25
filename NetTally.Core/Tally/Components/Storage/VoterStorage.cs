@@ -48,9 +48,14 @@ public class VoterStorage : Dictionary<Origin, VoteBlockType>
     /// <returns>Returns true if the plan name can be found in this lookup.</returns>
     public bool HasPlan(string planName)
     {
-        var author = Authors.Create(planName);
-        var origin = Origins.CreateOriginForName(IdentityType.Plan, author);
-        return origin != null && ContainsKey(origin);
+        var planAuthor = Authors.Create(planName);
+        return HasPlan(planAuthor);
+    }
+
+    public bool HasPlan(Author planAuthor)
+    {
+        var origin = Origins.CreatePlanNameOnly(planAuthor);
+        return ContainsKey(origin);
     }
 
     /// <summary>
@@ -61,8 +66,13 @@ public class VoterStorage : Dictionary<Origin, VoteBlockType>
     public bool HasVoter(string voterName)
     {
         var author = Authors.Create(voterName);
-        var origin = Origins.CreateOriginForName(IdentityType.User, author);
-        return origin != null && ContainsKey(origin);
+        return HasVoter(author);
+    }
+
+    public bool HasVoter(Author voterName)
+    {
+        var origin = Origins.CreateUserNameOnly(voterName);
+        return ContainsKey(origin);
     }
     #endregion Queries - Has XX?
 

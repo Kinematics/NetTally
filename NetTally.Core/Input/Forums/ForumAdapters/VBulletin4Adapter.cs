@@ -204,7 +204,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             var id = GetPostId(li);
             var author = GetPostAuthor(li);
-            int number = GetPostNumber(page, id);
+            var number = PostIds.Create(GetPostNumber(page, id));
             string text = GetPostText(li, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
