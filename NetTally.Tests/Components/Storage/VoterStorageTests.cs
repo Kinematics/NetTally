@@ -130,7 +130,6 @@ public class VoterStorageTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Store_Same_Vote()
     {
         var post = GetPost_Kinematics();
@@ -138,7 +137,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         voterStorage.Add(origin, vote);
-        voterStorage.Add(origin, vote);
+        Assert.ThrowsExactly<ArgumentException>(() => voterStorage.Add(origin, vote));
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));

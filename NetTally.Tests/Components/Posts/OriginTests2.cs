@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Threading;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Components.Posts;
 
 namespace NetTally.Tests.Components.Posts;
+
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
 
 [TestClass]
 public class OriginTests2
@@ -23,9 +23,9 @@ public class OriginTests2
         string authorName = "Kinematics";
         Author author = Authors.Create(authorName);
         string threadUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/";
-        Uri thread = new Uri(threadUrl);
+        Uri thread = new(threadUrl);
         string permalinkUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809";
-        Uri permalink = new Uri(permalinkUrl);
+        Uri permalink = new(permalinkUrl);
         long postIdNumber = 2236809;
         PostId postId = PostIds.Create(postIdNumber);
         int threadSeqNumber = 2490;
@@ -156,3 +156,4 @@ public class OriginTests2
     }
 
 }
+#pragma warning restore IDE0059 // Unnecessary assignment of a value

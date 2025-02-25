@@ -372,15 +372,15 @@ public class WebPageProvider2 : IDisposable, IPageProvider
             description = e.Response.RequestMessage?.RequestUri?.AbsolutePath ?? "";
         }
 
-        if (e.RetryAgain)
-        {
-            logger.LogDebug("Tried: {description} - Attempt {count} - Retrying", description, e.RetryCount);
-            NotifyStatusChange(PageRequestStatusType.Retry, e.Url, description, e.Exception, SuppressNotifications.No);
-        }
-        else
+        if (e.ReachedMaxRetries)
         {
             logger.LogDebug("Tried: {description} - Attempt {count} - Failed", description, e.RetryCount);
             NotifyStatusChange(PageRequestStatusType.Failed, e.Url, description, e.Exception, SuppressNotifications.No);
+        }
+        else
+        {
+            logger.LogDebug("Tried: {description} - Attempt {count} - Retrying", description, e.RetryCount);
+            NotifyStatusChange(PageRequestStatusType.Retry, e.Url, description, e.Exception, SuppressNotifications.No);
         }
     }
 

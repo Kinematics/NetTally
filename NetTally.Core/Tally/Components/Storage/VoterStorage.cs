@@ -1,5 +1,4 @@
-﻿using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.Storage;

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -58,13 +56,13 @@ public static class AppX
         var builder = Host.CreateApplicationBuilder();
 
         // Load legacy config, if available.
-        builder.Services.AddSingleton(LoadLegacyConfig() ?? new ConfigInfo());
+        builder.Services.AddSingleton(LoadLegacyConfig());
 
         ConfigureConfiguration(builder.Configuration);
         ConfigureOptions(builder.Services);
         ConfigureLogging(builder.Logging);
         ConfigureServices(builder.Services);
-        ConfigureHttp(builder);
+        ConfigureHttp(builder.Services);
 
         // Call callback to allow calling library to add its own services.
         servicesCallback?.Invoke(builder.Services);
@@ -139,17 +137,15 @@ public static class AppX
         services.AddSingleton<CheckForNewRelease>();
         services.AddSingleton(TimeProvider.System);
 
-        services.AddTransient<HttpClientHandler, HttpClientHandler>();
-
         services.AddSingleton<Tallyer>();
-        services.AddTransient<IVoteCounter, VoteCounter>();
-        services.AddTransient<VoteCounterFactory>();
-        services.AddTransient<IPageProvider, WebPageProvider>();
-        services.AddTransient<IForumReader, ForumReader>();
         services.AddSingleton<ForumAdapterFactory>();
         services.AddSingleton<ForumIdentifier>();
 
+        services.AddTransient<IVoteCounter, VoteCounter>();
+        services.AddTransient<VoteCounterFactory>();
+        services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<IPageProvider, WebPageProvider2>();
+        services.AddTransient<IForumReader, ForumReader>();
 
         // Fake service so that Avalonia doesn't crash on startup.
         services.AddTransient<Quest>();
@@ -185,7 +181,7 @@ public static class AppX
     /// Load legacy XML user configuration data, to be used in migration to json config files.
     /// </summary>
     /// <returns>Returns any legacy configuration.</returns>
-    private static ConfigInfo? LoadLegacyConfig()
+    private static ConfigInfo LoadLegacyConfig()
     {
         if (LegacyNetTallyConfig.Load(out QuestCollection? quests, out string? currentQuest, GlobalOptionsConfig.Instance))
         {
@@ -205,14 +201,14 @@ public static class AppX
             return config;
         }
 
-        return null;
+        return new ConfigInfo();
     }
 
-    private static void ConfigureHttp(HostApplicationBuilder builder)
+    private static void ConfigureHttp(IServiceCollection services)
     {
         string userAgent = $"{ProductInfo.Name} ({ProductInfo.Version})";
 
-        builder.Services
+        services
             .AddHttpClient(ConfigStrings.WithProxy, client =>
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
@@ -232,7 +228,7 @@ public static class AppX
             .SetHandlerLifetime(TimeSpan.FromMinutes(5))
             .AddPolicyHandler(GetRetryPolicy());
 
-        builder.Services
+        services
             .AddHttpClient(ConfigStrings.NoProxy, client =>
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
@@ -255,7 +251,7 @@ public static class AppX
             .SetHandlerLifetime(TimeSpan.FromMinutes(5))
             .AddPolicyHandler(GetRetryPolicy());
 
-        builder.Services
+        services
             .AddHttpClient(ConfigStrings.Github, client =>
             {
                 client.BaseAddress = new Uri("https://api.github.com/");
@@ -280,14 +276,14 @@ public static class AppX
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()
-            //.OrResult(msg => msg.StatusCode == System.Net.HttpStatusCode.NotFound)
-            .WaitAndRetryAsync(ConfigStrings.MaxRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+            .WaitAndRetryAsync(ConfigStrings.MaxRetries,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 onRetry: (result, timespan, retryAttempt, context) =>
                 {
                     var eventArgs = new RetryFailedEventArgs(
                         result.Result.RequestMessage?.RequestUri?.AbsoluteUri ?? "Unknown",
                         retryAttempt, result.Exception, result.Result,
-                        retryAttempt != ConfigStrings.MaxRetries);
+                        retryAttempt == ConfigStrings.MaxRetries);
 
                     RetryFailureHandler.OnRetryFailed(context, eventArgs);
                 });
@@ -331,7 +327,7 @@ public static class AppX
     /// </summary>
     /// <param name="category">The log category.</param>
     /// <param name="logLevel">The log level.</param>
-    /// <returns>True if the event should be logged, or false if not.</returns>
+    /// <returns><c>True</c> if the event should be logged, or <c>false</c> if not.</returns>
     private static bool FileLoggingFilter(string? category, LogLevel logLevel)
     {
         if (GlobalOptionsConfig.Instance.DebugMode)
@@ -346,7 +342,7 @@ public static class AppX
     /// </summary>
     /// <param name="category">The log category.</param>
     /// <param name="logLevel">The log level.</param>
-    /// <returns>True if the event should be logged, or false if not.</returns>
+    /// <returns><c>True</c> if the event should be logged, or <c>false</c> if not.</returns>
     private static bool DebugLoggingFilter(string? category, LogLevel logLevel)
     {
         if (GlobalOptionsConfig.Instance.DebugMode)
