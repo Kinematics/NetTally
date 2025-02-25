@@ -6,7 +6,10 @@ namespace NetTally.Tally.Components.Posts;
 /// A post identifier value.
 /// </summary>
 /// <param name="Id">The unique ID for a post on a forum.</param>
-public record PostId(long Id);
+public record PostId(long Id)
+{
+    public static implicit operator long(PostId postId) => postId.Id;
+}
 
 /// <summary>
 /// Class for creating <see cref="PostId"/> objects.
