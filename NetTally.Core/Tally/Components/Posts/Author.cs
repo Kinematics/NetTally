@@ -32,9 +32,7 @@ public static class Authors
     /// <returns>An <see cref="Author"/>. If no name is provided, returns <see cref="None"/></returns>
     public static Author Create(string name)
     {
-        name = name.RemoveUnsafeCharacters().Trim();
-
-        if (string.IsNullOrEmpty(name))
+        if (string.IsNullOrWhiteSpace(name))
             return None;
 
         return new Author(name);

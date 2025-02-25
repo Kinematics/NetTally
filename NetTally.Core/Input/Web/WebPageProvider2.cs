@@ -10,6 +10,7 @@ using NetTally.Configure;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Input.Web.Handlers;
+using NetTally.Utility;
 using NetTally.Web;
 
 namespace NetTally.Input.Web;
@@ -253,6 +254,8 @@ public class WebPageProvider2 : IDisposable, IPageProvider
             {
                 string result = await response.Content.ReadAsStringAsync(token)
                     .ConfigureAwait(ConfigureAwaitOptions.None);
+
+                result = result.RemoveUnsafeCharacters().Trim();
 
                 if (!string.IsNullOrEmpty(result))
                 {

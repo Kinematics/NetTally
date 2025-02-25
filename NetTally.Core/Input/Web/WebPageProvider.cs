@@ -8,6 +8,7 @@ using NetTally.Cache;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Extensions;
+using NetTally.Utility;
 
 namespace NetTally.Web
 {
@@ -419,7 +420,7 @@ namespace NetTally.Web
 
             NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
 
-            return result;
+            return result.RemoveUnsafeCharacters();
         }
 
         /// <summary>

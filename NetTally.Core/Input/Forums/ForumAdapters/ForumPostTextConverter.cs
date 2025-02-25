@@ -43,7 +43,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             text = HtmlEntity.DeEntitize(text);
 
-            return text.RemoveUnsafeCharacters();
+            return text;
         }
 
         /// <summary>
