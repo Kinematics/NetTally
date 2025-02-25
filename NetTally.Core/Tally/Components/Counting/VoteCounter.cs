@@ -140,10 +140,9 @@ public class VoteCounter(
     /// Store a plan's information to allow it to be looked up by plan name or post ID.
     /// If the plan name has already been entered, will not update anything and return false.
     /// </summary>
-    /// <param name="planName">The canonical name of the plan.</param>
-    /// <param name="postID">The post ID the plan was defined in.</param>
-    /// <param name="plan">The the vote line block that defines the plan.</param>
-    /// <returns>Returns true if it was added, or false if it already exists.</returns>
+    /// <param name="updateOrigin">The <see cref="Origin"/> key we are attempting to update.</param>
+    /// <param name="plan">The vote block being updated/added.</param>
+    /// <returns></returns>
     public bool AddReferencePlan(Origin updateOrigin, VoteBlockType plan)
     {
         // If it doesn't exist, we can just add it.

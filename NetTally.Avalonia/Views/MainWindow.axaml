@@ -39,7 +39,7 @@
 				  SelectedItem="{Binding SelectedQuest}" ItemsSource="{Binding Quests}" >
 			<ComboBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="HasQuests" Mode="OneWay" />
 				</MultiBinding>
 			</ComboBox.IsEnabled>
@@ -61,7 +61,7 @@
 				Click="QuestOptionsButton_Click">
 			<Button.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</Button.IsEnabled>
@@ -76,7 +76,7 @@
 				Width="105" Height="30" Margin="0,45,227,0"
 				VerticalAlignment="Top" HorizontalAlignment="Right"
 				Click="GlobalOptionsButton_Click"
-				IsEnabled="{Binding !TallyIsRunning}">
+				IsEnabled="{Binding !IsTallyRunning}">
 			<ToolTip.Tip>
 				<StackPanel>
 					<TextBlock FontWeight="Bold">Advanced Options</TextBlock>
@@ -91,7 +91,7 @@
 				 PointerPressed="TextBox_PointerPressed">
 			<TextBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</TextBox.IsEnabled>
@@ -109,7 +109,7 @@
 				 PointerPressed="TextBox_PointerPressed">
 			<TextBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</TextBox.IsEnabled>
@@ -124,7 +124,7 @@
 				  RenderTransformOrigin="0.24,0.938" Content="Try Last Threadmark" IsChecked="{Binding SelectedQuest.CheckForLastThreadmark}">
 			<CheckBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</CheckBox.IsEnabled>
@@ -141,7 +141,7 @@
 				  ItemsSource="{Binding PartitionModes}" SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={x:Static converters:EnumConverter.Instance}}">
 			<ComboBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</ComboBox.IsEnabled>
@@ -157,7 +157,7 @@
 				HorizontalAlignment="Left" Width="145" Height="30">
 			<ComboBox.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</ComboBox.IsEnabled>
@@ -174,7 +174,7 @@
 				Click="OpenManageVotesWindow_Click">
 			<Button.IsEnabled>
 				<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-					<Binding Path="!TallyIsRunning" Mode="OneWay" />
+					<Binding Path="!IsTallyRunning" Mode="OneWay" />
 					<Binding Path="IsQuestSelected" Mode="OneWay" />
 				</MultiBinding>
 			</Button.IsEnabled>

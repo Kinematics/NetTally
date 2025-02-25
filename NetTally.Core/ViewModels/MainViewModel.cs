@@ -52,7 +52,7 @@ namespace NetTally.ViewModels
         #region State Properties
         public bool HasQuests => Quests.Count > 0;
         public bool IsQuestSelected => SelectedQuest != null;
-        public bool TallyIsRunning => RunTallyCommand.IsRunning;
+        public bool IsTallyRunning => RunTallyCommand.IsRunning;
         public bool HasOutput => tally.HasTallyResults;
         public string Output => tally.TallyResults;
         #endregion State Properties
@@ -120,7 +120,7 @@ namespace NetTally.ViewModels
         #endregion Update Functions
 
         #region View Model Commands
-        private bool CanAddQuest => !TallyIsRunning;
+        private bool CanAddQuest => !IsTallyRunning;
 
         [RelayCommand(CanExecute = nameof(CanAddQuest))]
         private void AddQuest()
@@ -137,7 +137,7 @@ namespace NetTally.ViewModels
             logger.LogInformation("Added new quest");
         }
 
-        private bool CanRemoveQuest() => !TallyIsRunning && IsQuestSelected;
+        private bool CanRemoveQuest() => !IsTallyRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRemoveQuest))]
         private void RemoveQuest()
@@ -169,7 +169,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanRunTally() => !TallyIsRunning && IsQuestSelected;
+        private bool CanRunTally() => !IsTallyRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanRunTally),
             IncludeCancelCommand = true)]
@@ -201,7 +201,7 @@ namespace NetTally.ViewModels
             }
         }
 
-        private bool CanClearTallyCache() => !TallyIsRunning && IsQuestSelected;
+        private bool CanClearTallyCache() => !IsTallyRunning && IsQuestSelected;
 
         [RelayCommand(CanExecute = nameof(CanClearTallyCache))]
         private void ClearTallyCache()
@@ -254,7 +254,7 @@ namespace NetTally.ViewModels
                 AddQuestCommand.NotifyCanExecuteChanged();
                 RemoveQuestCommand.NotifyCanExecuteChanged();
                 ClearTallyCacheCommand.NotifyCanExecuteChanged();
-                OnPropertyChanged(nameof(TallyIsRunning));
+                OnPropertyChanged(nameof(IsTallyRunning));
 
                 if (RunTallyCommand.ExecutionTask?.IsCompletedSuccessfully ?? false)
                 {

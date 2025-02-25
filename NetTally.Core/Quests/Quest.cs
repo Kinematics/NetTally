@@ -46,25 +46,11 @@ public partial class Quest : ObservableValidator
         }
     } = Strings.NewThreadEntry;
 
-    [ObservableProperty]
-    public partial string DisplayName { get; set; } = Strings.NewThreadDisplayName;
-
-    /// <summary>
-    /// Ensure the display name is not null, nor has unsafe characters.
-    /// </summary>
-    /// <param name="value">The new DisplayName value.</param>
-    partial void OnDisplayNameChanged(string value)
+    public string DisplayName
     {
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-        if (value is null)
-        {
-            DisplayName = string.Empty;
-            return;
-        }
-
-        DisplayName = value.RemoveUnsafeCharacters().Trim();
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-    }
+        get => field;
+        set => SetProperty(ref field, value.RemoveUnsafeCharacters().Trim(), nameof(DisplayName));
+    } = Strings.NewThreadDisplayName;
 
     public override string ToString() => DisplayName;
 
