@@ -207,7 +207,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     {
         HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
             "Github Releases", CachingMode.NoCache,
-            SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(false);
+            SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.None);
 
         return doc;
     }

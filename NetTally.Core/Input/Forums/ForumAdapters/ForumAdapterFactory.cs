@@ -52,11 +52,12 @@ namespace NetTally.Input.Forums.ForumAdapters
 
             if (quest.ForumType == ForumType.Unknown)
             {
-                await ss.WaitAsync(token).ConfigureAwait(false);
+                await ss.WaitAsync(token).ConfigureAwait(ConfigureAwaitOptions.None);
 
                 try
                 {
-                    quest.ForumType = await forumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token);
+                    quest.ForumType = await forumIdentifier.IdentifyForumTypeAsync(quest.ThreadUri, token)
+                        .ConfigureAwait(ConfigureAwaitOptions.None);
                 }
                 finally
                 {

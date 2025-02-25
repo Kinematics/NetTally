@@ -142,7 +142,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 infoPageUrl, "Info Page",
                 CachingMode.WriteOnly,
                 SuppressNotifications.Yes, token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             return page;
         }

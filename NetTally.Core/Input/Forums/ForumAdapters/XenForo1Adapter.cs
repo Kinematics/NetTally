@@ -185,7 +185,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 infoPageUrl, "Info Page",
                 CachingMode.WriteOnly,
                 SuppressNotifications.Yes, token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             return page;
         }
@@ -247,7 +247,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
                 GetThreadmarksPageUrl(quest.ThreadUri), "Threadmarks",
                 CachingMode.ReadWrite,
-                SuppressNotifications.No, token).ConfigureAwait(false);
+                SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (threadmarksPage == null)
                 return (false, ThreadRanges.None);
@@ -287,7 +287,7 @@ namespace NetTally.Input.Forums.ForumAdapters
                 // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
                 string fullUrl = await pageProvider.GetRedirectUrlAsync(
                     permalink.AbsoluteUri, "",
-                    SuppressNotifications.Yes, token).ConfigureAwait(false);
+                    SuppressNotifications.Yes, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
                 if (!string.IsNullOrEmpty(fullUrl))
                     lastThreadmarkHref = fullUrl;
@@ -331,7 +331,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             XDocument? rss = await pageProvider.GetXmlDocumentAsync(
                 GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
                 CachingMode.ReadWrite,
-                SuppressNotifications.No, token).ConfigureAwait(false);
+                SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (rss == null)
             {

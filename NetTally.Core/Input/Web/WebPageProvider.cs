@@ -110,14 +110,16 @@ namespace NetTally.Web
             logger.LogInformation("Requested HTML document \"{shortDescrip}\"", shortDescrip);
             HtmlDocument? htmldoc = null;
 
-            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (!string.IsNullOrEmpty(content))
             {
                 logger.LogInformation("\"{shortDescrip}\" successfully loaded from web.", shortDescrip);
                 htmldoc = new HtmlDocument();
 
-                await Task.Run(() => htmldoc.LoadHtml(content), token).ConfigureAwait(false);
+                await Task.Run(() => htmldoc.LoadHtml(content), token)
+                    .ConfigureAwait(ConfigureAwaitOptions.None);
                 logger.LogDebug("\"{shortDescrip}\" successfully parsed into HtmlDocument.", shortDescrip);
             }
 
@@ -140,7 +142,8 @@ namespace NetTally.Web
             logger.LogInformation("Requested XML document \"{shortDescrip}\"", shortDescrip);
             XDocument? xmldoc = null;
 
-            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (!string.IsNullOrEmpty(content))
             {
@@ -157,7 +160,8 @@ namespace NetTally.Web
         {
             logger.LogInformation("Requested JSON document \"{shortDescrip}\"", shortDescrip);
 
-            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false);
+            string content = await GetPageContent(url, shortDescrip, caching, suppressNotifications, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (!string.IsNullOrEmpty(content))
             {
@@ -260,7 +264,8 @@ namespace NetTally.Web
             }
             else
             {
-                content = await GetUrlContent(uri, url2, shortDescrip, caching, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
+                content = await GetUrlContent(uri, url2, shortDescrip, caching, suppressNotifications, token)
+                    .ConfigureAwait(ConfigureAwaitOptions.None) ?? string.Empty;
             }
 
             return content;
@@ -287,7 +292,7 @@ namespace NetTally.Web
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
             // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
+            await ss.WaitAsync(token).ConfigureAwait(ConfigureAwaitOptions.None);
 
             try
             {
@@ -312,7 +317,7 @@ namespace NetTally.Web
                     if (tries > 0)
                     {
                         // Delay any additional attempts after the first.
-                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
                         // Notify the user if we're making another attempt to load the page.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
@@ -325,11 +330,12 @@ namespace NetTally.Web
                         getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
                         logger.LogDebug("Get URI {uri} task ID: {Id}", uri, getResponseTask.Id);
 
-                        using var response = await getResponseTask.ConfigureAwait(false);
+                        using var response = await getResponseTask.ConfigureAwait(ConfigureAwaitOptions.None);
 
                         if (response.IsSuccessStatusCode)
                         {
-                            result = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
+                            result = await response.Content.ReadAsStringAsync(token)
+                                .ConfigureAwait(ConfigureAwaitOptions.None);
 
                             // Get expires value
                             // Cannot get Expires value until we move to .NET Standard 2.0.
@@ -431,7 +437,7 @@ namespace NetTally.Web
             NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
 
             // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
+            await ss.WaitAsync(token).ConfigureAwait(ConfigureAwaitOptions.None);
 
             try
             {
@@ -456,7 +462,7 @@ namespace NetTally.Web
                     if (tries > 0)
                     {
                         // Delay any additional attempts after the first.
-                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
+                        await Task.Delay(retryDelay, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
                         // Notify the user if we're re-trying to load the page.
                         NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
@@ -470,7 +476,8 @@ namespace NetTally.Web
 
                         // As long as we got a response (whether 200 or 404), we can extract what
                         // the server thinks the URL should be.
-                        using HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false);
+                        using HttpResponseMessage response = await httpClient.SendAsync(request, token)
+                            .ConfigureAwait(ConfigureAwaitOptions.None);
 
                         return response.RequestMessage?.RequestUri;
                     }

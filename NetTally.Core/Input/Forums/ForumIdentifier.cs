@@ -28,7 +28,7 @@ namespace NetTally.Input.Forums
 
             if (!forumTypes.TryGetValue(uri.Host, out ForumType forumType))
             {
-                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(false);
+                var doc = await GetDocumentAsync(uri, token).ConfigureAwait(ConfigureAwaitOptions.None);
 
                 if (doc == null)
                 {
@@ -103,7 +103,7 @@ namespace NetTally.Input.Forums
             {
                 page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
                     CachingMode.ReadWrite, SuppressNotifications.Yes, token)
-                    .ConfigureAwait(false);
+                    .ConfigureAwait(ConfigureAwaitOptions.None);
 
                 if (token.IsCancellationRequested)
                     page = null;

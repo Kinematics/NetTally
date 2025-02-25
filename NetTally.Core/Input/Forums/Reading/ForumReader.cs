@@ -62,7 +62,7 @@ public class ForumReader(
         // Load all posts from the base quest and all linked quests.
         var results = await Task.WhenAll(
                 questsToRead.Select(q => GetPostsWithVotesFromQuestAsync(q, cancellationToken)))
-            .ConfigureAwait(false);
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         var allTitles = results.Select(q => AddPostCountToTitle(q.Title, q.Posts));
         var allPosts = results.SelectMany(q => q.Posts);
@@ -107,10 +107,10 @@ public class ForumReader(
             pageProvider.StatusChanged += PageProvider_StatusChanged;
 
             IForumAdapter adapter = await GetForumAdapter(quest, token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             return await GetPostsWithVotesAsync(quest, pageProvider, adapter, token)
-                .ConfigureAwait(false);
+                .ConfigureAwait(ConfigureAwaitOptions.None);
         }
         catch (Exception e)
         {
@@ -138,12 +138,12 @@ public class ForumReader(
         // Get information about the thread, and which pages need to be loaded.
         //(ThreadRangeType rangeInfo, ThreadInfoType threadInfo)
         var threadData = await GetThreadInfoAsync(quest, pageProvider, adapter, token)
-            .ConfigureAwait(false);
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         if (threadData != ThreadInfos.None)
         {
             var pages = await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
-                                .ConfigureAwait(false);
+                                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             if (pages.All(p => p != null))
             {
@@ -229,7 +229,7 @@ public class ForumReader(
     private async Task<IForumAdapter> GetForumAdapter(Quest quest, CancellationToken token)
     {
         IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, token)
-            .ConfigureAwait(false);
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         SyncQuestWithForumAdapter(quest, adapter);
 
@@ -271,7 +271,7 @@ public class ForumReader(
         CancellationToken token)
     {
         var infos = await adapter.GetThreadInfoAsync(quest, pageProvider, token)
-            .ConfigureAwait(false);
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
             quest.DisplayName, infos);
@@ -317,7 +317,7 @@ public class ForumReader(
         }
 
         var finished = await Task.WhenAll(tasks)
-            .ConfigureAwait(false);
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         logger.LogDebug("Got {Count} pages loading {questDisplayName}.", finished.Length, quest.DisplayName);
 

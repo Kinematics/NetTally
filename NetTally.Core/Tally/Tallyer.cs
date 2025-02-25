@@ -57,7 +57,7 @@ namespace NetTally.Tally
             try
             {
                 var (Titles, Posts) = await forumReader.ReadQuestAsync(quest, cancellationToken)
-                                            .ConfigureAwait(false);
+                                            .ConfigureAwait(ConfigureAwaitOptions.None);
 
                 quest.ConstructVotes(Titles, Posts);
 
