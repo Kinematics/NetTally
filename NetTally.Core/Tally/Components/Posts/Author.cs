@@ -35,6 +35,8 @@ public static class Authors
         if (string.IsNullOrWhiteSpace(name))
             return None;
 
+        name = name.RemoveUnsafeCharacters().Trim();
+
         return new Author(name);
     }
 }
