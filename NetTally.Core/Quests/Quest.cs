@@ -226,7 +226,7 @@ public partial class Quest : ObservableValidator
 
     [ObservableProperty]
     public partial bool ForbidVoteLabelPlanNames { get; set; } = false;
-    
+
     [ObservableProperty]
     public partial bool AllowUsersToUpdatePlans { get; set; } = false;
 

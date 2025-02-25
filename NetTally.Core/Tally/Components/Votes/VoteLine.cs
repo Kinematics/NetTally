@@ -15,7 +15,7 @@ public record VoteLineType(PrefixType Prefix, MarkerData Marker, VoteTaskType Ta
 
     public override string ToString()
     {
-        return $"{{{Prefix.Indent}[{Marker.MarkerSymbol}][{Task.Name}] {Content.CleanContent}}}";
+        return $"{{{Prefix.Indent}[{Marker.MarkerText}][{Task.Name}] {Content.CleanContent}}}";
     }
 }
 
@@ -67,7 +67,7 @@ public static class VoteLineDisplay
     public static string ToString(VoteLineType voteLine)
     {
         string task = voteLine.HasTask ? $"[{voteLine.Task.Name}]" : "";
-        return $"{voteLine.Prefix.Indent}[{voteLine.Marker.MarkerSymbol}]{task} {voteLine.Content.Content}";
+        return $"{voteLine.Prefix.Indent}[{voteLine.Marker.MarkerText}]{task} {voteLine.Content.Content}";
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public static class VoteLineDisplay
     /// <returns>Returns a string representing the current object.</returns>
     public static string ToOverrideString(VoteLineType voteLine, string? marker = null, string? task = null)
     {
-        marker ??= voteLine.Marker.MarkerSymbol;
+        marker ??= voteLine.Marker.MarkerText;
         task ??= voteLine.Task.Name;
         task = task.Length > 0 ? $"[{task}]" : "";
         return $"{voteLine.Prefix.Indent}[{marker}]{task} {voteLine.Content.Content}";
@@ -106,7 +106,7 @@ public static class VoteLineDisplay
     /// <returns>Returns a string representing the current vote line.</returns>
     public static string ToOutputString(VoteLineType voteLine, string? marker = null, string? task = null)
     {
-        marker ??= voteLine.Marker.MarkerSymbol;
+        marker ??= voteLine.Marker.MarkerText;
         task ??= voteLine.Task.Name;
         task = task.Length > 0 ? $"[{task}]" : "";
         string content = FormatBBCodeForOutput(voteLine.Content.Content);

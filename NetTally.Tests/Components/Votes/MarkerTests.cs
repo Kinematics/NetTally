@@ -58,7 +58,7 @@ public class MarkerTests
         Assert.IsNotNull(marker);
         Assert.AreEqual(MarkerType.Vote, marker.MarkerType);
         Assert.AreEqual(100, marker.MarkerValue);
-        Assert.AreEqual("X", marker.MarkerSymbol);
+        Assert.AreEqual("X", marker.MarkerText);
     }
 
     [TestMethod]

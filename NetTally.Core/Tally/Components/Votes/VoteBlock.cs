@@ -40,7 +40,7 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marke
         GetEnumerator();
 
     public override string ToString() =>
-        $"{{[{Marker.MarkerSymbol}][{Task.Name}]||{Lines[0]}}}";
+        $"{{[{Marker.MarkerText}][{Task.Name}]||{Lines[0]}}}";
 
     public string ManageVotesDisplay =>
         VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
@@ -116,7 +116,7 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? VoteLineDisplay.ToOverrideString(a, block.Marker.MarkerSymbol, block.Task.Name)
+                ? VoteLineDisplay.ToOverrideString(a, block.Marker.MarkerText, block.Task.Name)
                 : VoteLineDisplay.ToString(a))
             .Aggregate((a, b) => $"{a}\n{b}");
     }

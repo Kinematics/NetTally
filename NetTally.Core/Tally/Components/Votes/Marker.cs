@@ -10,8 +10,8 @@ namespace NetTally.Tally.Components.Votes;
 /// </summary>
 /// <param name="MarkerType">The type of marker.</param>
 /// <param name="MarkerValue">The numeric value of the marker.</param>
-/// <param name="MarkerSymbol">The marker text.</param>
-public record MarkerData(MarkerType MarkerType, int MarkerValue, string MarkerSymbol);
+/// <param name="MarkerText">The marker text.</param>
+public record MarkerData(MarkerType MarkerType, int MarkerValue, string MarkerText);
 
 /// <summary>
 /// Static class to handle creation of <see cref="MarkerData"/> objects.
@@ -108,6 +108,28 @@ public static partial class Marker
 }
 
 /// <summary>
+/// Extension class for <see cref="MarkerData"/> objects.
+/// </summary>
+public static partial class MarkerExtensions
+{
+    /// <summary>
+    /// Determine if the marker is considered a positive result or not.
+    /// </summary>
+    /// <param name="marker">The <see cref="MarkerData"/> object to check.</param>
+    /// <returns><c>True</c> if the marker is a positive result, <c>false</c> if it is a negative result,
+    /// or <c>null</c> if it cannot be evaluated.</returns>
+    public static bool? IsPositive(this MarkerData marker)
+    {
+        return marker.MarkerType switch
+        {
+            MarkerType.Rank => null,
+            MarkerType.Vote => true,
+            _ => marker.MarkerValue > 50
+        };
+    }
+}
+
+/// <summary>
 /// Comparer class for <see cref="MarkerData"/> objects.
 /// </summary>
 public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerData>
@@ -149,24 +171,3 @@ public class MarkerComparer : IEqualityComparer<MarkerData>, IComparer<MarkerDat
     }
 }
 
-/// <summary>
-/// Extension class for <see cref="MarkerData"/> objects.
-/// </summary>
-public static class MarkerExtensions
-{
-    /// <summary>
-    /// Determine if the marker is considered a positive result or not.
-    /// </summary>
-    /// <param name="marker">The <see cref="MarkerData"/> object to check.</param>
-    /// <returns><c>True</c> if the marker is a positive result, <c>false</c> if it is a negative result,
-    /// or <c>null</c> if it cannot be evaluated.</returns>
-    public static bool? IsPositive(this MarkerData marker)
-    {
-        return marker.MarkerType switch
-        {
-            MarkerType.Rank => null,
-            MarkerType.Vote => true,
-            _ => marker.MarkerValue > 50
-        };
-    }
-}

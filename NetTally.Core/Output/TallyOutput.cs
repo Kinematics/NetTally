@@ -807,7 +807,7 @@ namespace NetTally.Output
             else if (marker == MarkerType.Rank && (vote is null))
                 markerToDisplay = Strings.NonVotingMarker;
             else if (vote is not null)
-                markerToDisplay = vote.Marker.MarkerSymbol;
+                markerToDisplay = vote.Marker.MarkerText;
             else
                 markerToDisplay = Strings.UnknownMarker;
 
