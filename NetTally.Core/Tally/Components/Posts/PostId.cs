@@ -5,10 +5,10 @@ namespace NetTally.Tally.Components.Posts;
 /// <summary>
 /// A post identifier value.
 /// </summary>
-/// <param name="Id">The unique ID for a post on a forum.</param>
-public record PostId(long Id)
+/// <param name="Value">The unique ID for a post on a forum.</param>
+public record PostId(long Value)
 {
-    public static implicit operator long(PostId postId) => postId.Id;
+    public static implicit operator long(PostId postId) => postId.Value;
 }
 
 /// <summary>
@@ -69,6 +69,6 @@ public class PostIdComparer : IComparer<PostId>
         if (x is null) return -1;
         if (y is null) return 1;
 
-        return x.Id.CompareTo(y.Id);
+        return x.Value.CompareTo(y.Value);
     }
 }

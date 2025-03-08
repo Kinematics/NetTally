@@ -209,7 +209,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             string text = GetPostText(page, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = author with { Name = $"{author.Name}_{id.Id}" };
+                author = author with { Name = $"{author.Name}_{id.Value}" };
 
             var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
             var post = Posting.Create(origin, text);
@@ -228,7 +228,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         private static Author GetPostAuthor(HtmlDocument page, PostId id)
         {
             string authorName = "";
-            string postAuthorDivID = $"postmenu_{id.Id}";
+            string postAuthorDivID = $"postmenu_{id.Value}";
 
             var authorAnchor = page.GetElementbyId(postAuthorDivID).Element("a");
 
@@ -252,7 +252,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         private static string GetPostText(HtmlDocument page, PostId id, Quest quest)
         {
-            string postMessageId = $"post_message_{id.Id}";
+            string postMessageId = $"post_message_{id.Value}";
 
             var postContents = page.GetElementbyId(postMessageId);
 
@@ -267,7 +267,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         private static int GetPostNumber(HtmlDocument page, PostId id)
         {
-            string postNumberAnchorID = $"postcount{id.Id}";
+            string postNumberAnchorID = $"postcount{id.Value}";
 
             var anchor = page.GetElementbyId(postNumberAnchorID);
 
@@ -324,7 +324,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
-            string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}";
+            string url = $"{GetHostBasePostsUrl(uri)}{postId.Value}";
             return new Uri(url);
         }
 

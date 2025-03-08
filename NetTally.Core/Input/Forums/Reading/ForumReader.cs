@@ -82,7 +82,7 @@ public class ForumReader(
         sb.Append(title)
           .Append(' ')
           .Append(posts.Count > 0
-                ? $"[Posts: {posts.Min(p => p.Origin.PostNumber.Id)}-{posts.Max(p => p.Origin.PostNumber.Id)}]"
+                ? $"[Posts: {posts.Min(p => p.Origin.PostNumber.Value)}-{posts.Max(p => p.Origin.PostNumber.Value)}]"
                 : "[No votes]");
 
         return sb.ToString();
@@ -178,7 +178,7 @@ public class ForumReader(
             .SelectMany((p, i) => adapter.GetPosts(p!, quest, startPage + i))
             .Where(p => KeepPost(p, quest, threadInfo))
             .DistinctBy(p => p.Origin) // remove sticky posts
-            .OrderBy(p => p.Origin.PostNumber.Id)
+            .OrderBy(p => p.Origin.PostNumber.Value)
             .ToList();
 
         logger.LogDebug("Got {Count} posts for quest {questDisplayName}.", posts.Count, quest.DisplayName);

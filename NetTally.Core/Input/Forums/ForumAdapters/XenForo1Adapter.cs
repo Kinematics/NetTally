@@ -480,7 +480,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             var number = PostIds.Create(GetPostNumber(li));
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = author with { Name = $"{author.Name}_{id.Id}" };
+                author = author with { Name = $"{author.Name}_{id.Value}" };
 
             var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
             var post = Posting.Create(origin, text);
@@ -626,7 +626,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         private static Uri GetPermalinkForId(Uri uri, PostId postId)
         {
-            string url = $"{GetHostBasePostsUrl(uri)}{postId.Id}/";
+            string url = $"{GetHostBasePostsUrl(uri)}{postId.Value}/";
             return new Uri(url);
         }
         #endregion URL Manipulation

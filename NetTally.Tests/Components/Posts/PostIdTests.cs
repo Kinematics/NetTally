@@ -36,7 +36,7 @@ public class PostIdTests
     public void Construct_Positive_Normal()
     {
         var postId = PostIds.Create(102366);
-        Assert.AreEqual(102366, postId.Id);
+        Assert.AreEqual(102366, postId.Value);
     }
 
     [TestMethod]
@@ -65,7 +65,7 @@ public class PostIdTests
     {
         var postId = PostIds.Create("102366");
         Assert.IsNotNull(postId);
-        Assert.AreEqual(102366, postId.Id);
+        Assert.AreEqual(102366, postId.Value);
     }
 
     [TestMethod]
@@ -81,7 +81,7 @@ public class PostIdTests
     {
         var postId = PostIds.Create("102,366");
         Assert.IsNotNull(postId);
-        Assert.AreEqual(102366, postId.Id);
+        Assert.AreEqual(102366, postId.Value);
     }
 
     [TestMethod]
@@ -103,8 +103,8 @@ public class PostIdTests
     {
         var postId = PostIds.Create("4,294,967,296");
         Assert.IsNotNull(postId);
-        Assert.AreEqual(4294967296, postId.Id);
-        Assert.IsTrue(postId.Id == 4294967296);
+        Assert.AreEqual(4294967296, postId.Value);
+        Assert.IsTrue(postId.Value == 4294967296);
     }
 
 }

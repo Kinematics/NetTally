@@ -208,7 +208,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             string text = GetPostText(li, id, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = author with { Name = $"{author.Name}_{id.Id}" };
+                author = author with { Name = $"{author.Name}_{id.Value}" };
 
             var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
             var post = Posting.Create(origin, text);
@@ -241,7 +241,7 @@ namespace NetTally.Input.Forums.ForumAdapters
 
         private static int GetPostNumber(HtmlDocument page, PostId id)
         {
-            var postCount = page.GetElementbyId($"postcount{id.Id}");
+            var postCount = page.GetElementbyId($"postcount{id.Value}");
 
             if (postCount != null)
                 return int.Parse(postCount.GetAttributeValue("name", "0"));
@@ -256,7 +256,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             if (postDetails != null)
             {
                 // Text
-                string postMessageId = $"post_message_{id.Id}";
+                string postMessageId = $"post_message_{id.Value}";
 
                 var message = li.OwnerDocument.GetElementbyId(postMessageId)?.Element("blockquote");
 
@@ -314,7 +314,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         {
             // http://forums.militarytimes.com/showthread.php/9961-Furlough?p=371392&viewfull=1#post371392
 
-            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Id}&viewfull=1#post{postId.Id}";
+            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Value}&viewfull=1#post{postId.Value}";
             return new Uri(url);
         }
 

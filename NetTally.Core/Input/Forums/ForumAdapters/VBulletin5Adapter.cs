@@ -197,7 +197,7 @@ namespace NetTally.Input.Forums.ForumAdapters
             string text = GetPostText(li, quest);
 
             if (inputOptions.TrackPostAuthorsUniquely)
-                author = author with { Name = $"{author.Name}_{id.Id}" };
+                author = author with { Name = $"{author.Name}_{id.Value}" };
 
             var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
             var post = Posting.Create(origin, text);
@@ -304,7 +304,7 @@ namespace NetTally.Input.Forums.ForumAdapters
         {
             // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire?p=735857#post735857
 
-            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Id}#post{postId.Id}";
+            string url = $"{GetBaseThreadUrl(uri)}?p={postId.Value}#post{postId.Value}";
             return new Uri(url);
         }
 

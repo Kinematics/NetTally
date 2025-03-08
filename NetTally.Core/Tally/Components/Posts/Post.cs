@@ -78,8 +78,8 @@ public static class PostExtensions
     {
         return threadRange switch
         {
-            ThreadRangeById range => post.Origin.PostId.Id < range.PostId.Id,
-            ThreadRangeByPosts range => post.Origin.PostNumber.Id < range.StartPostNumber,
+            ThreadRangeById range => post.Origin.PostId.Value < range.PostId.Value,
+            ThreadRangeByPosts range => post.Origin.PostNumber.Value < range.StartPostNumber,
             _ => throw new InvalidOperationException("Unknown ThreadRange type.")
         };
     }
@@ -97,7 +97,7 @@ public static class PostExtensions
         {
             ThreadRangeById => false,
             ThreadRangeByPosts range when range.EndPostNumber == 0 => false,
-            ThreadRangeByPosts range => post.Origin.PostNumber.Id > range.EndPostNumber,
+            ThreadRangeByPosts range => post.Origin.PostNumber.Value > range.EndPostNumber,
             _ => throw new InvalidOperationException("Unknown ThreadRange type.")
         };
     }
@@ -122,8 +122,8 @@ public static class PostExtensions
     public static bool MatchesPostNumberFilter(this Post post, Quest quest)
     {
         return quest.UseCustomPostFilters &&
-            (quest.PostsFilter.Blocks(post.Origin.PostNumber.Id) ||
-             quest.PostsFilter.Blocks(post.Origin.PostId.Id));
+            (quest.PostsFilter.Blocks(post.Origin.PostNumber.Value) ||
+             quest.PostsFilter.Blocks(post.Origin.PostId.Value));
     }
 }
 
