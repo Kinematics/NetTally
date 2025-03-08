@@ -61,9 +61,11 @@ public static partial class Markers
                 _ when m.Groups["vote"].Success => new VoteMarker(),
                 _ when m.Groups["approval"].Success => new ApprovalMarker(
                     m.Groups["approval"].Value == "+"),
+                _ when m.Groups["rank"].Success => new RankMarker(
+                    Math.Clamp(int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture), 1, 99)),
                 _ when m.Groups["score"].Success => new ScoreMarker(
                     Math.Clamp(int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture), 0, 100)),
-                _ when m.Groups["rank"].Success => new RankMarker(
+                _ when m.Groups["value"].Success => new RankMarker(
                     Math.Clamp(int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture), 1, 99)),
                 _ => new VoteMarker()
             };
