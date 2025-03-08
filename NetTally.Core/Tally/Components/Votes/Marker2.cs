@@ -25,18 +25,26 @@ public record RankMarker(int Rank) : MarkerBase
     public override string ToString() => $"#{Rank}";
 }
 
+public record NoMarker() : MarkerBase
+{
+    public override string ToString() => "";
+}
+
+
 /// <summary>
 /// Class for creating <see cref="MarkerBase"/> objects.
 /// </summary>
 public static partial class Markers
 {
+    public static MarkerBase Empty { get; } = new NoMarker();
+
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex { get; }
 
     public static MarkerBase? Create(string? markerText)
     {
         if (string.IsNullOrWhiteSpace(markerText))
-            return null;
+            return Empty;
 
         markerText = markerText.Trim();
 
