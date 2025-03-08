@@ -108,23 +108,17 @@ public class WebPageProvider2 : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogInformation("Requested HTML document \"{description}\" ({url})", description, urlString);
-
-        UrlDescriptions[urlString] = description;
-
-        if (!TryGetContentFromCache(urlString, description, cachingMode, suppressNotifications,
-            out string? content))
-        {
-            content = await GetContentFromWeb(urlString, description, cachingMode, suppressNotifications, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
-        }
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "HTML",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         if (content is null)
         {
             return null;
         }
 
-        HtmlDocument? htmldoc = new();
+        HtmlDocument htmldoc = new();
         htmldoc.LoadHtml(content);
 
         return htmldoc;
@@ -137,16 +131,10 @@ public class WebPageProvider2 : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogInformation("Requested XML document \"{description}\" ({url})", description, urlString);
-
-        UrlDescriptions[urlString] = description;
-
-        if (!TryGetContentFromCache(urlString, description, cachingMode, suppressNotifications,
-            out string? content))
-        {
-            content = await GetContentFromWeb(urlString, description, cachingMode, suppressNotifications, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
-        }
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "XML",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         if (content is null)
         {
@@ -165,7 +153,24 @@ public class WebPageProvider2 : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogInformation("Requested JSON document \"{description}\" ({url})", description, urlString);
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "JSON",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        return content;
+    }
+
+    private async Task<string?> GetDocumentContentAsync(
+        string urlString,
+        string description,
+        string docType,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
+            docType, description, urlString);
 
         UrlDescriptions[urlString] = description;
 
