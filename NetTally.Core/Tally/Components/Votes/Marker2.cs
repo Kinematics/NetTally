@@ -1,34 +1,24 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using NetTally.Enums;
+using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Votes;
 
 
 public abstract record MarkerBase();
 
-public record VoteMarker() : MarkerBase
-{
-    public override string ToString() => "X";
-}
+public record VoteMarker() : MarkerBase;
 
-public record ApprovalMarker(bool Approve) : MarkerBase
-{
-    public override string ToString() => Approve ? "+" : "-";
-}
+public record ApprovalMarker(bool Approve) : MarkerBase;
 
-public record ScoreMarker(int Score) : MarkerBase
-{
-    public override string ToString() => $"{Score}%";
-}
+public record ScoreMarker(int Score) : MarkerBase;
 
-public record RankMarker(int Rank) : MarkerBase
-{
-    public override string ToString() => $"#{Rank}";
-}
+public record RankMarker(int Rank) : MarkerBase;
 
-public record NoMarker() : MarkerBase
-{
-    public override string ToString() => "";
-}
+public record NoMarker() : MarkerBase;
+
+public record PlanMarker() : MarkerBase;
 
 
 /// <summary>
@@ -37,6 +27,7 @@ public record NoMarker() : MarkerBase
 public static partial class Markers
 {
     public static MarkerBase Empty { get; } = new NoMarker();
+    public static MarkerBase PlanMarker { get; } = new PlanMarker();
 
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex { get; }
@@ -98,19 +89,49 @@ public static class MarkerMapping
         Func<VoteMarker, T> voteMap,
         Func<RankMarker, T> rankMap,
         Func<ScoreMarker, T> scoreMap,
-        Func<ApprovalMarker, T> approvalMap) =>
+        Func<ApprovalMarker, T> approvalMap,
+        Func<PlanMarker, T> planMap,
+        Func<NoMarker, T> emptyMap) =>
         marker switch
         {
             VoteMarker voteMarker => voteMap(voteMarker),
             RankMarker rankMaker => rankMap(rankMaker),
             ScoreMarker scoreMarker => scoreMap(scoreMarker),
             ApprovalMarker approvalMarker => approvalMap(approvalMarker),
+            PlanMarker planMarker => planMap(planMarker),
+            NoMarker noMarker => emptyMap(noMarker),
             _ => throw new InvalidOperationException("Unknown Marker type.")
         };
 }
 
 public static partial class MarkerExtensions
 {
+    /// <summary>
+    /// Get a string value to use for display purposes for a marker.
+    /// </summary>
+    /// <param name="marker">The marker to get a value for.</param>
+    /// <returns>Returns a string value based on the marker's derived class and state.</returns>
+    public static string Display(this MarkerBase marker) => marker.Map(
+        voteMarker => "X",
+        rankMarker => $"#{rankMarker.Rank}",
+        scoreMarker => $"{scoreMarker.Score}%",
+        approvalMarker => approvalMarker.Approve ? "+" : "-",
+        planMarker => Strings.PlanNameMarker,
+        noMarker => "");
+
+    /// <summary>
+    /// Get a string value to use for display purposes for a marker.
+    /// </summary>
+    /// <param name="marker">The marker to get a value for.</param>
+    /// <returns>Returns a string value based on the marker's derived class and state.</returns>
+    public static MarkerType Type(this MarkerBase marker) => marker.Map(
+        voteMarker => MarkerType.Vote,
+        rankMarker => MarkerType.Rank,
+        scoreMarker => MarkerType.Score,
+        approvalMarker => MarkerType.Approval,
+        planMarker => MarkerType.Plan,
+        noMarker => MarkerType.None);
+
     /// <summary>
     /// Get a numeric value representing a marker.
     /// </summary>
@@ -120,7 +141,9 @@ public static partial class MarkerExtensions
         voteMarker => 100,
         rankMarker => rankMarker.Rank,
         scoreMarker => scoreMarker.Score,
-        approvalMarker => approvalMarker.Approve ? 80 : 20);
+        approvalMarker => approvalMarker.Approve ? 80 : 20,
+        planMarker => 0,
+        noMarker => 0);
 
     /// <summary>
     /// Gets whether the marker's current state can be considered a 'positive' result.
@@ -132,5 +155,51 @@ public static partial class MarkerExtensions
         voteMarker => true,
         rankMarker => (bool?)null,
         scoreMarker => scoreMarker.Score > 50,
-        approvalMarker => approvalMarker.Approve);
+        approvalMarker => approvalMarker.Approve,
+        planMarker => null,
+        noMarker => null);
+}
+
+/// <summary>
+/// Comparer class for <see cref="MarkerBase"/> objects.
+/// </summary>
+public class MarkersComparer : IEqualityComparer<MarkerBase>, IComparer<MarkerBase>
+{
+    public static MarkersComparer Instance { get; } = new();
+
+    public int Compare(MarkerBase? x, MarkerBase? y)
+    {
+        if (ReferenceEquals(x, y)) return 0;
+        if (x is null) return -1;
+        if (y is null) return 1;
+
+        // MarkerType.None matches anything.
+        if (x is NoMarker || y is NoMarker) return 0;
+
+        // MarkerType.Plan should be ignored.
+        if (x is PlanMarker || y is PlanMarker) return 0;
+
+        if (x.Type() == y.Type())
+            return x.GetValue().CompareTo(y.GetValue());
+
+        // Ranks should get sorted before other types.
+        if (x is RankMarker) return -1;
+        if (y is RankMarker) return 1;
+
+        // Otherwise just compare the values.
+        return x.GetValue().CompareTo(y.GetValue());
+    }
+
+    public bool Equals(MarkerBase? x, MarkerBase? y)
+    {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
+        return Compare(x, y) == 0;
+    }
+
+    public int GetHashCode([DisallowNull] MarkerBase obj)
+    {
+        return obj.GetValue().GetHashCode();
+    }
 }

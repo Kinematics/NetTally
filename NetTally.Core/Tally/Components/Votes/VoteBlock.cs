@@ -11,7 +11,7 @@ namespace NetTally.Tally.Components.Votes;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
-public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marker, VoteTaskType Task)
+public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerBase Marker, VoteTaskType Task)
     : IEnumerable<VoteLineType>
 {
     public int LineCount => Lines.Length;
@@ -40,7 +40,7 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, MarkerData Marke
         GetEnumerator();
 
     public override string ToString() =>
-        $"{{[{Marker.MarkerText}][{Task.Name}]||{Lines[0]}}}";
+        $"{{[{Marker.Display()}][{Task.Name}]||{Lines[0]}}}";
 
     public string ManageVotesDisplay =>
         VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
@@ -54,7 +54,7 @@ public static class VoteBlock
     /// <summary>
     /// A basic empty <see cref="VoteBlockType"/>.
     /// </summary>
-    public static VoteBlockType Empty { get; } = new VoteBlockType([], Marker.Empty, VoteTask.Empty);
+    public static VoteBlockType Empty { get; } = new VoteBlockType([], Markers.Empty, VoteTask.Empty);
 
     /// <summary>
     /// Create a vote block with the given vote lines.
@@ -116,7 +116,7 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? VoteLineDisplay.ToOverrideString(a, block.Marker.MarkerText, block.Task.Name)
+                ? VoteLineDisplay.ToOverrideString(a, block.Marker.Display(), block.Task.Name)
                 : VoteLineDisplay.ToString(a))
             .Aggregate((a, b) => $"{a}\n{b}");
     }
@@ -132,7 +132,7 @@ public static class VoteBlockDisplay
 
     public static string ToManageVotesString(VoteBlockType block)
     {
-        return ToOutputString(block, string.Empty, string.Empty);
+        return ToOutputString(block, marker: "", subMarker: "");
     }
 
     public static string ToComparableString(VoteBlockType block)

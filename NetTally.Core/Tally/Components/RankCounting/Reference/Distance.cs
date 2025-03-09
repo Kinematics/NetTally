@@ -1,5 +1,4 @@
-﻿using NetTally.Enums;
-using NetTally.Tally.Components.Storage;
+﻿using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
@@ -15,7 +14,7 @@ public class Distance : IRankVoteCounter
         var voterPreferences = taskVotes
             .SelectMany(v => v.Value)
             .GroupBy(u => u.Key)
-            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.MarkerValue).ToList());
+            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.GetValue()).ToList());
 
 
         int[,] pairwiseData = GetPairwiseData(voterPreferences, listOfChoices);
@@ -49,7 +48,7 @@ public class Distance : IRankVoteCounter
 
         foreach (var voter in voterRankings)
         {
-            IEnumerable<VoteBlockType> rankedChoices = voter.Value.Where(v => v.Marker.MarkerType == MarkerType.Rank);
+            IEnumerable<VoteBlockType> rankedChoices = voter.Value.Where(v => v.Marker is RankMarker);
             IEnumerable<VoteBlockType> unrankedChoices = listOfChoices.Except(rankedChoices);
 
             foreach (var choice in rankedChoices)
@@ -59,10 +58,10 @@ public class Distance : IRankVoteCounter
                     // Each ranked vote that has a higher rank (lower number) than each
                     // alternative has the distance between the choices added to the
                     // corresponding table entry.
-                    if ((choice != otherChoice) && (choice.Marker.MarkerValue <= otherChoice.Marker.MarkerValue))
+                    if ((choice != otherChoice) && (choice.Marker.GetValue() <= otherChoice.Marker.GetValue()))
                     {
                         data[choiceIndexes[choice], choiceIndexes[otherChoice]] +=
-                            otherChoice.Marker.MarkerValue - choice.Marker.MarkerValue;
+                            otherChoice.Marker.GetValue() - choice.Marker.GetValue();
                     }
                 }
 

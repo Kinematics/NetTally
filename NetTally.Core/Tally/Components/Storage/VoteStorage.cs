@@ -55,7 +55,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Markers.Empty };
 
             localVoters = [];
 
@@ -76,7 +76,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Markers.Empty };
 
             localVoters = [];
 
@@ -187,7 +187,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
             if (total == 0)
                 return MarkerType.None;
 
-            var supporterMarkers = supportingUsers.GroupBy(s => s.Value.Marker.MarkerType);
+            var supporterMarkers = supportingUsers.GroupBy(s => s.Value.Marker.Type());
 
             foreach (var supporterMarker in supporterMarkers)
             {

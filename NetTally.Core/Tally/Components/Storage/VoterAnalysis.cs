@@ -48,12 +48,12 @@ public static class VoterAnalysis
         int count = 0;
         int accum = 0;
 
-        var (rating, lowerBound) = RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.MarkerValue);
+        var (rating, lowerBound) = RankingCalculations.GetLowerWilsonScore(users, a => a.Value.Marker.GetValue());
 
         foreach (var (userOrigin, userVote) in users)
         {
             count++;
-            accum += userVote.Marker.MarkerValue;
+            accum += userVote.Marker.GetValue();
         }
 
         if (count == 0)
@@ -82,7 +82,7 @@ public static class VoterAnalysis
         // Sum up the positive and negative results.
         foreach (var (userOrigin, userVote) in users)
         {
-            if (userVote.Marker.MarkerValue > 50)
+            if (userVote.Marker.IsPositive().GetValueOrDefault())
                 positive++;
             else
                 negative++;
@@ -115,7 +115,7 @@ public static class VoterAnalysis
 
         var orderRemaining = storage
             .Where(v => !OriginComparer.Instance.Equals(v.Key, firstEntry.Value.Key))
-            .OrderByDescending(v => v.Value.Marker.MarkerValue)
+            .OrderByDescending(v => v.Value.Marker.GetValue())
             .ThenBy(v => v.Key, OriginComparer.Instance);
 
         OrderedVoterStorageF voterList = [firstEntry.Value, .. orderRemaining];
@@ -133,11 +133,11 @@ public static class VoterAnalysis
     public static OrderedVoterStorageF GetOrderedRankedVoterList(VoterStorageType storage)
     {
         var ranksOnly = storage
-            .Where(v => v.Value.Marker.MarkerType == MarkerType.Rank)
-            .OrderBy(v => v.Value.Marker.MarkerValue)
+            .Where(v => v.Value.Marker is RankMarker)
+            .OrderBy(v => v.Value.Marker.GetValue())
             .ThenBy(v => v.Key, OriginComparer.Instance);
         var others = storage
-            .Where(v => v.Value.Marker.MarkerType != MarkerType.Rank)
+            .Where(v => v.Value.Marker is not RankMarker)
             .OrderBy(v => v.Key, OriginComparer.Instance);
 
         OrderedVoterStorageF result = [.. ranksOnly, .. others];
@@ -156,7 +156,7 @@ public static class VoterAnalysis
     public static VoterStorageType GetNonRankUsers(VoterStorageType storage)
     {
         return storage.Where(s => s.Key.IsUser &&
-                               nonRankMarkerTypes.Contains(s.Value.Marker.MarkerType));
+                               nonRankMarkerTypes.Contains(s.Value.Marker.Type()));
     }
     #endregion
 

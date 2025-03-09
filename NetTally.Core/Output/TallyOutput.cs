@@ -802,12 +802,12 @@ namespace NetTally.Output
             string markerToDisplay;
             if (voter is PlanOrigin)
                 markerToDisplay = Strings.PlanNameMarker;
-            else if (marker == MarkerType.Rank && vote is not null && vote.Marker.MarkerType != MarkerType.Rank)
+            else if (marker == MarkerType.Rank && vote is not null && vote.Marker is not RankMarker)
                 markerToDisplay = Strings.NoRankMarker;
             else if (marker == MarkerType.Rank && (vote is null))
                 markerToDisplay = Strings.NonVotingMarker;
             else if (vote is not null)
-                markerToDisplay = vote.Marker.MarkerText;
+                markerToDisplay = vote.Marker.Display();
             else
                 markerToDisplay = Strings.UnknownMarker;
 

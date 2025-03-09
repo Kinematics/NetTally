@@ -8,14 +8,14 @@ namespace NetTally.Tally.Components.Votes;
 /// <param name="Marker">The voting marker.</param>
 /// <param name="Task">The task assigned to the vote line.</param>
 /// <param name="Content">The contents of the vote line.</param>
-public record VoteLineType(PrefixType Prefix, MarkerData Marker, VoteTaskType Task, VoteContentType Content)
+public record VoteLineType(PrefixType Prefix, MarkerBase Marker, VoteTaskType Task, VoteContentType Content)
 {
     public int Depth => Prefix.Depth;
     public bool HasTask => Task.Name.Length > 0;
 
     public override string ToString()
     {
-        return $"{{{Prefix.Indent}[{Marker.MarkerText}][{Task.Name}] {Content.CleanContent}}}";
+        return $"{{{Prefix.Indent}[{Marker.Display()}][{Task.Name}] {Content.CleanContent}}}";
     }
 }
 
@@ -25,11 +25,11 @@ public record VoteLineType(PrefixType Prefix, MarkerData Marker, VoteTaskType Ta
 public static class VoteLine
 {
     public static VoteLineType Empty { get; } =
-        new VoteLineType(Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
+        new VoteLineType(Prefix.Empty, Markers.Empty, VoteTask.Empty, VoteContent.Empty);
 
     public static VoteLineType? Create(
         PrefixType? prefix,
-        MarkerData? marker,
+        MarkerBase? marker,
         VoteTaskType? task,
         VoteContentType? content)
     {
@@ -67,7 +67,7 @@ public static class VoteLineDisplay
     public static string ToString(VoteLineType voteLine)
     {
         string task = voteLine.HasTask ? $"[{voteLine.Task.Name}]" : "";
-        return $"{voteLine.Prefix.Indent}[{voteLine.Marker.MarkerText}]{task} {voteLine.Content.Content}";
+        return $"{voteLine.Prefix.Indent}[{voteLine.Marker.Display()}]{task} {voteLine.Content.Content}";
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public static class VoteLineDisplay
     /// <returns>Returns a string representing the current object.</returns>
     public static string ToOverrideString(VoteLineType voteLine, string? marker = null, string? task = null)
     {
-        marker ??= voteLine.Marker.MarkerText;
+        marker ??= voteLine.Marker.Display();
         task ??= voteLine.Task.Name;
         task = task.Length > 0 ? $"[{task}]" : "";
         return $"{voteLine.Prefix.Indent}[{marker}]{task} {voteLine.Content.Content}";
@@ -106,7 +106,7 @@ public static class VoteLineDisplay
     /// <returns>Returns a string representing the current vote line.</returns>
     public static string ToOutputString(VoteLineType voteLine, string? marker = null, string? task = null)
     {
-        marker ??= voteLine.Marker.MarkerText;
+        marker ??= voteLine.Marker.Display();
         task ??= voteLine.Task.Name;
         task = task.Length > 0 ? $"[{task}]" : "";
         string content = FormatBBCodeForOutput(voteLine.Content.Content);
