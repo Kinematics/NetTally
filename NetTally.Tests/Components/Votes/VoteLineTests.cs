@@ -269,7 +269,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[✓] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
     }
 
     [TestMethod]
@@ -348,7 +348,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[☒] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
     }
 
     [TestMethod]
