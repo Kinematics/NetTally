@@ -97,8 +97,7 @@ public static class OriginExtensions
     /// <returns>The <see cref="Author"/> of the <see cref="Origin"/>.</returns>
     public static Author GetName(this Origin origin) => origin.Map(
         userOrigin => userOrigin.Author,
-        planOrigin => planOrigin.PlanName
-        );
+        planOrigin => planOrigin.PlanName);
 
     /// <summary>
     /// Gets the original <see cref="Origin"/> used as a basis for this one.
@@ -108,8 +107,7 @@ public static class OriginExtensions
     /// <returns></returns>
     public static Origin Source(this Origin origin) => origin.Map(
         userOrigin => Origins.None,
-        planOrigin => planOrigin.Origin
-        );
+        planOrigin => planOrigin.Origin);
 
     /// <summary>
     /// Gets a formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.

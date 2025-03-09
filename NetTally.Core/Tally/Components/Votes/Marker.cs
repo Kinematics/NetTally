@@ -82,6 +82,8 @@ public static class MarkerMapping
     /// <param name="rankMap">What to do if the <see cref="Marker"/> is a <see cref="RankMarker"/></param>
     /// <param name="scoreMap">What to do if the <see cref="Marker"/> is a <see cref="ScoreMarker"/></param>
     /// <param name="approvalMap">What to do if the <see cref="Marker"/> is a <see cref="ApprovalMarker"/></param>
+    /// <param name="planMap">What to do if the <see cref="Marker"/> is a <see cref="PlanMarker"/></param>
+    /// <param name="emptyMap">What to do if the <see cref="Marker"/> is a <see cref="NoMarker"/></param>
     /// <returns>The result of whichever function got applied.</returns>
     /// <exception cref="InvalidOperationException">Will trigger if another subclass is
     /// ever created, but this function hasn't been updated.</exception>
