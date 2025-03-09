@@ -6,33 +6,33 @@ using NetTally.Utility;
 namespace NetTally.Tally.Components.Votes;
 
 
-public abstract record MarkerBase();
+public abstract record Marker();
 
-public record VoteMarker() : MarkerBase;
+public record VoteMarker() : Marker;
 
-public record ApprovalMarker(bool Approve) : MarkerBase;
+public record ApprovalMarker(bool Approve) : Marker;
 
-public record ScoreMarker(int Score) : MarkerBase;
+public record ScoreMarker(int Score) : Marker;
 
-public record RankMarker(int Rank) : MarkerBase;
+public record RankMarker(int Rank) : Marker;
 
-public record NoMarker() : MarkerBase;
+public record NoMarker() : Marker;
 
-public record PlanMarker() : MarkerBase;
+public record PlanMarker() : Marker;
 
 
 /// <summary>
-/// Class for creating <see cref="MarkerBase"/> objects.
+/// Class for creating <see cref="Marker"/> objects.
 /// </summary>
 public static partial class Markers
 {
-    public static MarkerBase Empty { get; } = new NoMarker();
-    public static MarkerBase PlanMarker { get; } = new PlanMarker();
+    public static Marker Empty { get; } = new NoMarker();
+    public static Marker PlanMarker { get; } = new PlanMarker();
 
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex { get; }
 
-    public static MarkerBase? Create(string? markerText)
+    public static Marker? Create(string? markerText)
     {
         if (string.IsNullOrWhiteSpace(markerText))
             return Empty;
@@ -68,24 +68,24 @@ public static partial class Markers
 }
 
 /// <summary>
-/// Class containing mapping function for subclasses of <see cref="MarkerBase"/> objects.
+/// Class containing mapping function for subclasses of <see cref="Marker"/> objects.
 /// </summary>
 public static class MarkerMapping
 {
     /// <summary>
     /// Map function that defines how to implement a function that can apply to different
-    /// subclasses of <see cref="MarkerBase"/>.
+    /// subclasses of <see cref="Marker"/>.
     /// </summary>
     /// <typeparam name="T">The function return type.</typeparam>
     /// <param name="origin">The <see cref="Origin"/> that this extension method applies to.</param>
-    /// <param name="voteMap">What to do if the <see cref="MarkerBase"/> is a <see cref="VoteMarker"/></param>
-    /// <param name="rankMap">What to do if the <see cref="MarkerBase"/> is a <see cref="RankMarker"/></param>
-    /// <param name="scoreMap">What to do if the <see cref="MarkerBase"/> is a <see cref="ScoreMarker"/></param>
-    /// <param name="approvalMap">What to do if the <see cref="MarkerBase"/> is a <see cref="ApprovalMarker"/></param>
+    /// <param name="voteMap">What to do if the <see cref="Marker"/> is a <see cref="VoteMarker"/></param>
+    /// <param name="rankMap">What to do if the <see cref="Marker"/> is a <see cref="RankMarker"/></param>
+    /// <param name="scoreMap">What to do if the <see cref="Marker"/> is a <see cref="ScoreMarker"/></param>
+    /// <param name="approvalMap">What to do if the <see cref="Marker"/> is a <see cref="ApprovalMarker"/></param>
     /// <returns>The result of whichever function got applied.</returns>
     /// <exception cref="InvalidOperationException">Will trigger if another subclass is
     /// ever created, but this function hasn't been updated.</exception>
-    public static T Map<T>(this MarkerBase marker,
+    public static T Map<T>(this Marker marker,
         Func<VoteMarker, T> voteMap,
         Func<RankMarker, T> rankMap,
         Func<ScoreMarker, T> scoreMap,
@@ -111,7 +111,7 @@ public static partial class MarkerExtensions
     /// </summary>
     /// <param name="marker">The marker to get a value for.</param>
     /// <returns>Returns a string value based on the marker's derived class and state.</returns>
-    public static string Display(this MarkerBase marker) => marker.Map(
+    public static string Display(this Marker marker) => marker.Map(
         voteMarker => "X",
         rankMarker => $"#{rankMarker.Rank}",
         scoreMarker => $"{scoreMarker.Score}%",
@@ -124,7 +124,7 @@ public static partial class MarkerExtensions
     /// </summary>
     /// <param name="marker">The marker to get a value for.</param>
     /// <returns>Returns a string value based on the marker's derived class and state.</returns>
-    public static MarkerType Type(this MarkerBase marker) => marker.Map(
+    public static MarkerType Type(this Marker marker) => marker.Map(
         voteMarker => MarkerType.Vote,
         rankMarker => MarkerType.Rank,
         scoreMarker => MarkerType.Score,
@@ -137,7 +137,7 @@ public static partial class MarkerExtensions
     /// </summary>
     /// <param name="marker">The marker to get a value for.</param>
     /// <returns>Returns an integer value based on the marker's derived class and state.</returns>
-    public static int GetValue(this MarkerBase marker) => marker.Map(
+    public static int GetValue(this Marker marker) => marker.Map(
         voteMarker => 100,
         rankMarker => rankMarker.Rank,
         scoreMarker => scoreMarker.Score,
@@ -151,7 +151,7 @@ public static partial class MarkerExtensions
     /// <param name="marker">The marker to examine.</param>
     /// <returns>Returns <c>true</c> if the marker is positive, <c>false</c> if
     /// it is not, or <c>null</c> if there is no meaningful way to answer.</returns>
-    public static bool? IsPositive(this MarkerBase marker) => marker.Map(
+    public static bool? IsPositive(this Marker marker) => marker.Map(
         voteMarker => true,
         rankMarker => (bool?)null,
         scoreMarker => scoreMarker.Score > 50,
@@ -161,13 +161,13 @@ public static partial class MarkerExtensions
 }
 
 /// <summary>
-/// Comparer class for <see cref="MarkerBase"/> objects.
+/// Comparer class for <see cref="Marker"/> objects.
 /// </summary>
-public class MarkersComparer : IEqualityComparer<MarkerBase>, IComparer<MarkerBase>
+public class MarkersComparer : IEqualityComparer<Marker>, IComparer<Marker>
 {
     public static MarkersComparer Instance { get; } = new();
 
-    public int Compare(MarkerBase? x, MarkerBase? y)
+    public int Compare(Marker? x, Marker? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -190,7 +190,7 @@ public class MarkersComparer : IEqualityComparer<MarkerBase>, IComparer<MarkerBa
         return x.GetValue().CompareTo(y.GetValue());
     }
 
-    public bool Equals(MarkerBase? x, MarkerBase? y)
+    public bool Equals(Marker? x, Marker? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -198,7 +198,7 @@ public class MarkersComparer : IEqualityComparer<MarkerBase>, IComparer<MarkerBa
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] MarkerBase obj)
+    public int GetHashCode([DisallowNull] Marker obj)
     {
         return obj.GetValue().GetHashCode();
     }

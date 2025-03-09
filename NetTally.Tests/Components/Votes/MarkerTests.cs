@@ -4,7 +4,7 @@ using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Votes;
 [TestClass]
-public class Marker2Tests
+public class MarkerTests
 {
     [ClassInitialize]
     public static void ClassInit(TestContext _)

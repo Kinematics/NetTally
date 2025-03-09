@@ -279,7 +279,7 @@ public static partial class VoteConstructor
             workingVote.Add(blockRef);
         }
 
-        void AddReference(VoteBlockType block, MarkerBase marker)
+        void AddReference(VoteBlockType block, Marker marker)
         {
             var replacementBlock = block with { Marker = marker };
             var blockRef = new VoteBlockRef(replacementBlock, true);
