@@ -58,7 +58,7 @@ public static partial class Markers
                     Math.Clamp(int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture), 0, 100)),
                 _ when m.Groups["value"].Success => new RankMarker(
                     Math.Clamp(int.Parse(m.Groups["value"].Value, System.Globalization.CultureInfo.CurrentCulture), 1, 99)),
-                _ => new VoteMarker()
+                _ => throw new InvalidOperationException($"Regex passed, but no valid regex group found. Text: {markerText}")
             };
 
         }
