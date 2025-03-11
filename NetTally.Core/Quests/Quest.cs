@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Quests;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
@@ -65,6 +66,29 @@ public partial class Quest : ObservableValidator
     /// Is set when a forum adapter is created/identified.
     /// </summary>
     public ForumType ForumType { get; set; } = ForumType.Unknown;
+
+    /// <summary>
+    /// Get the forum adapter for this quest.
+    /// Updates the quest as necessary.
+    /// </summary>
+    /// <param name="adapterFactory">The adapter factory used to create forum adapters.</param>
+    /// <param name="token">A cancellation token.</param>
+    /// <returns>A <see cref="IForumAdapter"/> for this quest.</returns>
+    public async Task<IForumAdapter> GetForumAdapter(ForumAdapterFactory adapterFactory,
+        CancellationToken token)
+    {
+        IForumAdapter adapter = await adapterFactory
+            .CreateForumAdapterAsync(this, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        if (PostsPerPage == 0)
+            PostsPerPage = adapter.GetDefaultPostsPerPage(ThreadUri);
+
+        if (adapter.HasRssThreadmarksFeed(ThreadUri) == BoolEx.True && UseRSSThreadmarks == BoolEx.Unknown)
+            UseRSSThreadmarks = BoolEx.True;
+
+        return adapter;
+    }
     #endregion
 
     #region Quest Configuration Properties
