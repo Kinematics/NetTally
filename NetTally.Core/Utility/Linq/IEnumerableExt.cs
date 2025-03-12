@@ -469,4 +469,31 @@ static class IEnumerableExt
 
         return values;
     }
+
+    public static async IAsyncEnumerable<R> SelectAsync<T, R>(
+        this IEnumerable<T> source,
+        Func<T, Task<R>> func,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var t in source)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var r = await func(t);
+            yield return r;
+        }
+    }
+
+    public static async IAsyncEnumerable<R> SelectManyAsync<T, R>(
+        this IEnumerable<T> source,
+        Func<T, Task<IEnumerable<R>>> func,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        foreach (var t in source)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var rs = await func(t);
+            foreach (var r in rs)
+                yield return r;
+        }
+    }
 }
