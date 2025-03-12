@@ -25,6 +25,15 @@ Call the async Try-method like this:
 
 public static class TupleExtensions
 {
+    /// <summary>
+    /// Use a try pattern to assign an out parameter while returning
+    /// a bool to indicate whether the attempt succeeded, for async
+    /// methods.
+    /// </summary>
+    /// <typeparam name="P2">The type of object put in the out parameter.</typeparam>
+    /// <param name="tuple">The return tuple of the original method.</param>
+    /// <param name="p2">The parameter being returned.</param>
+    /// <returns>Returns <c>true</c> if the function succeeded, and p2 is valid.</returns>
     public static bool TryOut<P2>(this ValueTuple<bool, P2> tuple,
         [NotNullWhen(true)] out P2 p2)
     {
