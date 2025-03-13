@@ -146,6 +146,7 @@ public static class AppX
         services.AddTransient<IPageProvider, WebPageProvider>();
         services.AddTransient<IPageProvider, WebPageProvider2>();
         services.AddTransient<IForumReader, ForumReader>();
+        services.AddTransient<IForumReader, ForumReader2>();
 
         // Fake service so that Avalonia doesn't crash on startup.
         services.AddTransient<Quest>();
