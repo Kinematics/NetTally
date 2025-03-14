@@ -3,7 +3,6 @@ using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 
 namespace NetTally.Utility.Cache;
 
@@ -11,8 +10,6 @@ public class CacheService(
     IMemoryCache memoryCache,
     ILogger<CacheService> logger)
 {
-    CancellationTokenSource resetCacheToken = new();
-
     public void Add(string key, string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));
@@ -21,7 +18,6 @@ public class CacheService(
         var store = Compress(value);
 
         var options = new MemoryCacheEntryOptions() { SlidingExpiration = TimeSpan.FromMinutes(15) };
-        options.AddExpirationToken(new CancellationChangeToken(resetCacheToken.Token));
 
         memoryCache.Set(key, store, options);
     }
@@ -43,18 +39,10 @@ public class CacheService(
 
     public void Clear()
     {
-        if (resetCacheToken != null &&
-            !resetCacheToken.IsCancellationRequested &&
-            resetCacheToken.Token.CanBeCanceled)
+        if (memoryCache is MemoryCache cache)
         {
-            resetCacheToken.Cancel();
-            resetCacheToken.Dispose();
-
-            resetCacheToken = new CancellationTokenSource();
-
-            var stats = memoryCache.GetCurrentStatistics();
-            logger.LogDebug("Token reset and cache cleared. Current count: {count}",
-                stats?.CurrentEntryCount ?? -1);
+            logger.LogDebug("Clearing cache. Current count: {count}", Count);
+            cache.Clear();
         }
     }
 
@@ -62,8 +50,12 @@ public class CacheService(
     {
         get
         {
-            var stats = memoryCache.GetCurrentStatistics();
-            return stats?.CurrentEntryCount ?? -1;
+            if (memoryCache is MemoryCache cache)
+            {
+                return cache.Count;
+            }
+
+            return -1;
         }
     }
 

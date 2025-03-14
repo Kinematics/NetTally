@@ -5,7 +5,6 @@ using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Cache;
 using NetTally.Configure;
 using NetTally.CustomEventArgs;
 using NetTally.Enums;
