@@ -87,9 +87,11 @@ public class ForumReader2(
             logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
                 quest.DisplayName, threadInfo);
 
-            var pages = await GetPagesFromQuest(quest, adapter, threadInfo, token);
+            var pages = await GetPagesFromQuest(quest, adapter, threadInfo, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
-            var posts = pages.SelectMany((p, i) => GetPostsFromPage(quest, p, i, adapter, threadInfo))
+            var posts = pages
+                .SelectMany((p, i) => GetPostsFromPage(quest, p, i, adapter, threadInfo))
                 .ToList();
 
             string title = CraftTitle(threadInfo, posts);
