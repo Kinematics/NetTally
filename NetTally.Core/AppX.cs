@@ -20,6 +20,7 @@ using NetTally.Output;
 using NetTally.Product;
 using NetTally.Tally;
 using NetTally.Tally.Components.Counting;
+using NetTally.Utility.Cache;
 using NetTally.Utility.Comparers;
 using NetTally.ViewModels;
 using NetTally.Web;
@@ -130,8 +131,11 @@ public static class AppX
     /// <param name="services">The service collection of the Host.</param>
     private static void ConfigureServices(IServiceCollection services)
     {
+        services.AddMemoryCache();
+
         // Get the services provided by the core library.
         services.AddSingleton<PageCache>();
+        services.AddSingleton<CacheService>();
         services.AddSingleton<Agnostic>();
         services.AddSingleton<IHash, NormalHash>();
         services.AddSingleton<CheckForNewRelease>();

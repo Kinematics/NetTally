@@ -11,6 +11,7 @@ using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Input.Web.Handlers;
 using NetTally.Utility;
+using NetTally.Utility.Cache;
 using NetTally.Web;
 
 namespace NetTally.Input.Web;
@@ -19,7 +20,8 @@ public class WebPageProvider2 : IDisposable, IPageProvider
 {
     private readonly ILogger<WebPageProvider2> logger;
     private readonly IHttpClientFactory httpClientFactory;
-    private readonly PageCache pageCache;
+    private readonly CacheService cacheService;
+    private readonly IOptions<GlobalSettings> options;
     private readonly GlobalSettings settings;
     private readonly TimeProvider timeProvider;
 
@@ -34,14 +36,15 @@ public class WebPageProvider2 : IDisposable, IPageProvider
     public WebPageProvider2(
         ILogger<WebPageProvider2> logger,
         IHttpClientFactory httpClientFactory,
-        PageCache pageCache,
+        CacheService cacheService,
         IOptions<GlobalSettings> options,
         TimeProvider timeProvider
         )
     {
         this.logger = logger;
         this.httpClientFactory = httpClientFactory;
-        this.pageCache = pageCache;
+        this.cacheService = cacheService;
+        this.options = options;
         this.settings = options.Value;
         this.timeProvider = timeProvider;
 
@@ -219,7 +222,7 @@ public class WebPageProvider2 : IDisposable, IPageProvider
         {
             var (_, url) = GetVerifiedUrl(urlString);
 
-            if (pageCache.TryGet(url, out content))
+            if (cacheService.TryGet(url, out content))
             {
                 NotifyStatusChange(PageRequestStatusType.LoadedFromCache,
                     urlString, description, null, suppressNotifications);
@@ -265,7 +268,7 @@ public class WebPageProvider2 : IDisposable, IPageProvider
                 if (!string.IsNullOrEmpty(result))
                 {
                     if (cachingMode is CachingMode.ReadWrite or CachingMode.WriteOnly)
-                        pageCache.Add(url, result, CacheInfo.DefaultExpiration);
+                        cacheService.Add(url, result);
 
                     NotifyStatusChange(PageRequestStatusType.Loaded,
                         urlString, description, null, suppressNotifications);
