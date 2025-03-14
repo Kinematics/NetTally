@@ -9,6 +9,7 @@ using NetTally.Product;
 using NetTally.Enums;
 using NetTally.Extensions;
 using NetTally.Tally;
+using NetTally.Utility.Cache;
 
 namespace NetTally.ViewModels
 {
@@ -17,6 +18,7 @@ namespace NetTally.ViewModels
         private readonly IQuestsInfoMod questsInfo;
         private readonly Tallyer tally;
         private readonly PageCache pageCache;
+        private readonly CacheService cacheService;
         private readonly CheckForNewRelease checkForNewRelease;
         private readonly ILogger<MainViewModel> logger;
 
@@ -24,6 +26,7 @@ namespace NetTally.ViewModels
             IQuestsInfoMod questsInfo,
             Tallyer tally,
             PageCache cache,
+            CacheService cacheService,
             CheckForNewRelease checkForNewRelease,
             ILogger<MainViewModel> logger)
         {
@@ -31,6 +34,7 @@ namespace NetTally.ViewModels
             this.questsInfo = questsInfo;
             this.tally = tally;
             this.pageCache = cache;
+            this.cacheService = cacheService;
             this.checkForNewRelease = checkForNewRelease;
             SelectedQuest = questsInfo.SelectedQuest;
 
@@ -207,6 +211,7 @@ namespace NetTally.ViewModels
         private void ClearTallyCache()
         {
             pageCache.Clear();
+            cacheService.Clear();
             SelectedQuest?.VoteCounter.ResetUserMerges();
         }
         #endregion View Model Commands
