@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
 	<PropertyGroup>
-		<VersionPrefix>5.1.3</VersionPrefix>
+		<VersionPrefix>5.2.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup Label="Configuration">
 		<AssemblyName>nettally</AssemblyName>
@@ -14,7 +14,7 @@
 	<PropertyGroup>
 		<Product>NetTally</Product>
 		<Company>Wayward Gamers</Company>
-		<Copyright>2015-2024</Copyright>
+		<Copyright>2015-2025</Copyright>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DebugType>embedded</DebugType>

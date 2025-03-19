@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>5.1.3</VersionPrefix>
+		<VersionPrefix>5.2.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<AssemblyName>NetTally</AssemblyName>
@@ -18,7 +18,7 @@
 		<Description>Program for tallying forum user votes.</Description>
 		<Company>Wayward Gamers</Company>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<Copyright>2015-2024</Copyright>
+		<Copyright>2015-2025</Copyright>
 	</PropertyGroup>
 	<ItemGroup>
 		<AvaloniaResource Include="Assets\*" />
