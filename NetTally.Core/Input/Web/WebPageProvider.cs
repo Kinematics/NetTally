@@ -163,29 +163,6 @@ public class WebPageProvider : IDisposable, IPageProvider
         return content;
     }
 
-    private async Task<string?> GetDocumentContentAsync(
-        string urlString,
-        string description,
-        string docType,
-        CachingMode cachingMode,
-        SuppressNotifications suppressNotifications,
-        CancellationToken token)
-    {
-        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
-            docType, description, urlString);
-
-        UrlDescriptions[urlString] = description;
-
-        if (!TryGetContentFromCache(urlString, description, cachingMode, suppressNotifications,
-            out string? content))
-        {
-            content = await GetContentFromWeb(urlString, description, cachingMode, suppressNotifications, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
-        }
-
-        return content;
-    }
-
     public async Task<string> GetRedirectUrlAsync(
         string urlString,
         string description,
@@ -209,6 +186,34 @@ public class WebPageProvider : IDisposable, IPageProvider
     #endregion IPageProvider Methods
 
     #region Read Content
+    /// <summary>
+    /// Generic content loader function that handles checking cache, and then
+    /// loading the requested URL if no cache item is found.
+    /// </summary>
+    /// <returns>The string content of the URL, if found. Otherwise <c>null</c>.</returns>
+    private async Task<string?> GetDocumentContentAsync(
+        string urlString,
+        string description,
+        string docType,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
+            docType, description, urlString);
+
+        UrlDescriptions[urlString] = description;
+
+        if (!TryGetContentFromCache(urlString, description, cachingMode, suppressNotifications,
+            out string? content))
+        {
+            content = await GetContentFromWeb(urlString, description, cachingMode, suppressNotifications, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
+        }
+
+        return content;
+    }
+
 
     private bool TryGetContentFromCache(
         string urlString,
