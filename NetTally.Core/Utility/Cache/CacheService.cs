@@ -41,7 +41,7 @@ public class CacheService(
     {
         if (memoryCache is MemoryCache cache)
         {
-            logger.LogDebug("Clearing cache. Current count: {count}", Count);
+            logger.LogDebug("Clearing cache. Current count: {count}", cache.Count);
             cache.Clear();
         }
     }
