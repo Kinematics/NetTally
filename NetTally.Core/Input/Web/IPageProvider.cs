@@ -12,11 +12,10 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL of the page to load.  Cannot be null.</param>
         /// <param name="description">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="caching">Indicate the type of caching that should be performed, for reading and writing.</param>
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns an HTML document, if it can be loaded.</returns>
+        /// <returns>Returns an HTML document, if it can be loaded. Otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         Task<HtmlDocument?> GetHtmlDocumentAsync(
             string url,
@@ -30,11 +29,10 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL of the page to load.  Cannot be null.</param>
         /// <param name="description">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
+        /// <param name="caching">Indicate the type of caching that should be performed, for reading and writing.</param>
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns an XML document, if it can be loaded.</returns>
+        /// <returns>Returns an XML document, if it can be loaded. Otherwise <c>null</c>.</returns>
         /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         Task<XDocument?> GetXmlDocumentAsync(
             string url,
@@ -43,6 +41,16 @@ namespace NetTally.Web
             SuppressNotifications suppressNotifications,
             CancellationToken token);
 
+        /// <summary>
+        /// Asynchronously load a specific JSON document.
+        /// </summary>
+        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
+        /// <param name="description">A short description that can be used in status updates.  If null, no update will be given.</param>
+        /// <param name="caching">Indicate the type of caching that should be performed, for reading and writing.</param>
+        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>Returns the string content of the requested URL. Otherwise <c>null</c>.</returns>
+        /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
         Task<string?> GetJsonDocumentAsync(
             string url,
             string description,
@@ -56,8 +64,6 @@ namespace NetTally.Web
         /// </summary>
         /// <param name="url">The URL of the page to load.  Cannot be null.</param>
         /// <param name="description">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
         /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns>Returns the URL that the response headers say we requested.</returns>
