@@ -15,9 +15,9 @@ using NetTally.Web;
 
 namespace NetTally.Input.Web;
 
-public class WebPageProvider2 : IDisposable, IPageProvider
+public class WebPageProvider : IDisposable, IPageProvider
 {
-    private readonly ILogger<WebPageProvider2> logger;
+    private readonly ILogger<WebPageProvider> logger;
     private readonly IHttpClientFactory httpClientFactory;
     private readonly CacheService cacheService;
     private readonly IOptions<GlobalSettings> options;
@@ -32,8 +32,8 @@ public class WebPageProvider2 : IDisposable, IPageProvider
     private HttpClient? _client;
 
     #region Construction
-    public WebPageProvider2(
-        ILogger<WebPageProvider2> logger,
+    public WebPageProvider(
+        ILogger<WebPageProvider> logger,
         IHttpClientFactory httpClientFactory,
         CacheService cacheService,
         IOptions<GlobalSettings> options,

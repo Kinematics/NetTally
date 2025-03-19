@@ -11,8 +11,8 @@ using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
 
-public class ForumReader2(
-    ILogger<ForumReader2> logger,
+public class ForumReader(
+    ILogger<ForumReader> logger,
     ForumAdapterFactory forumAdapterFactory,
     IQuestsInfo questsInfo,
     IPageProvider pageProvider) : IForumReader
