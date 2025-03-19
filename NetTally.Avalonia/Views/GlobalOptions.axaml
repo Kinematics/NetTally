@@ -108,6 +108,7 @@
 
 	  <StackPanel Classes="Theming List">
 		  <TextBlock Classes="Label" Text="Theme" />
+		  <!-- Listbox in place of radio buttons: https://github.com/AvaloniaUI/Avalonia/issues/3016 -->
 		  <ListBox ItemsSource="{Binding AvaloniaThemes}"
 				SelectedItem="{Binding ThemeVariant}"
 				Margin="16,0,0,5"
