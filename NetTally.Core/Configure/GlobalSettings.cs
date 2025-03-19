@@ -32,6 +32,9 @@ namespace NetTally.Configure
         [JsonIgnore]
         public partial bool DebugMode { get; set; } = false;
 
+        [ObservableProperty]
+        public partial AvaloniaTheme ThemeVariant { get; set; } = AvaloniaTheme.Default;
+
         public void UpdateFromLegacySettings(GlobalSettings legacySettings)
         {
             DisplayMode = legacySettings.DisplayMode;

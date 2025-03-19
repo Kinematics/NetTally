@@ -7,9 +7,10 @@
         x:Class="NetTally.Avalonia.Views.GlobalOptions"
         Classes="Dialog1"
         Title="Global Options" Icon="/Assets/CheckVoteWin.ico"
-        Width="400" Height="390" CanResize="False"
+        Width="400" Height="470" CanResize="False"
         WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
-		d:DesignWidth="400" d:DesignHeight="390">
+		d:DesignWidth="400" d:DesignHeight="470">
+	
   <Window.Resources>
     <converters:ThreeStateBoolConverter x:Key="ThreeStateBoolConverter" />
   </Window.Resources>
@@ -103,6 +104,14 @@
 				  </StackPanel>
 			  </ToolTip.Tip>
 		  </CheckBox>
+	  </StackPanel>
+
+	  <StackPanel Classes="Theming List">
+		  <TextBlock Classes="Label" Text="Theme" />
+		  <ListBox ItemsSource="{Binding AvaloniaThemes}"
+				SelectedItem="{Binding ThemeVariant}"
+				Margin="16,0,0,5"
+				Classes="RadioButtonListBox"/>
 	  </StackPanel>
 
 	  <StackPanel Classes="CommandFooter">

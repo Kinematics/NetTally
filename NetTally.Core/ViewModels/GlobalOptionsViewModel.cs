@@ -36,6 +36,7 @@ namespace NetTally.ViewModels
             TrackPostAuthorsUniquely = globalSettings.TrackPostAuthorsUniquely;
             DisableWebProxy = globalSettings.DisableWebProxy;
             DebugMode = globalSettings.DebugMode;
+            ThemeVariant = globalSettings.ThemeVariant;
         }
 
         [RelayCommand]
@@ -49,6 +50,7 @@ namespace NetTally.ViewModels
             TrackPostAuthorsUniquely = false;
             DisableWebProxy = false;
             DebugMode = false;
+            ThemeVariant = AvaloniaTheme.Default;
 
             logger.LogDebug("Global options were reset.");
         }
@@ -70,8 +72,8 @@ namespace NetTally.ViewModels
             globalSettings.TrackPostAuthorsUniquely = TrackPostAuthorsUniquely;
             globalSettings.DisableWebProxy = DisableWebProxy;
             globalSettings.DebugMode = DebugMode;
+            globalSettings.ThemeVariant = ThemeVariant;
         }
-
 
         // Options list
         public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
@@ -104,5 +106,11 @@ namespace NetTally.ViewModels
         // Obsolete. Quest option now
         [ObservableProperty]
         public partial DisplayMode DisplayMode { get; set; } = DisplayMode.Normal;
+
+        // Theming
+        public List<AvaloniaTheme> AvaloniaThemes { get; } = [AvaloniaTheme.Light, AvaloniaTheme.Dark];
+
+        [ObservableProperty]
+        public partial AvaloniaTheme ThemeVariant { get; set; } = AvaloniaTheme.Default;
     }
 }

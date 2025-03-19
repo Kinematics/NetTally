@@ -4,9 +4,13 @@ using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NetTally.Avalonia.Navigation;
+using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Product;
 using NetTally.ViewModels;
 
@@ -19,6 +23,7 @@ namespace NetTally.Avalonia.Views
         private readonly AvaloniaNavigationService navigationService;
         private readonly ILogger<MainWindow> logger;
         private readonly IHostEnvironment hostEnvironment;
+        private readonly GlobalSettings globalSettings;
         #endregion
 
         #region Startup/shutdown events
@@ -31,12 +36,14 @@ namespace NetTally.Avalonia.Views
             MainViewModel viewModel,
             AvaloniaNavigationService navigationService,
             ILogger<MainWindow> logger,
-            IHostEnvironment hostEnvironment)
+            IHostEnvironment hostEnvironment,
+            IOptions<GlobalSettings> globalOptions)
         {
             mainViewModel = viewModel;
             this.navigationService = navigationService;
             this.logger = logger;
             this.hostEnvironment = hostEnvironment;
+            this.globalSettings = globalOptions.Value;
 
             // Initialize the window.
             InitializeComponent();
@@ -64,8 +71,21 @@ namespace NetTally.Avalonia.Views
             if (hostEnvironment.IsDevelopment())
                 return;
 
+            ApplyTheme(globalSettings.ThemeVariant);
+
             mainViewModel.CheckForNewRelease();
         }
+
+        private void ApplyTheme(AvaloniaTheme avaloniaTheme)
+        {
+            App.Current!.RequestedThemeVariant = avaloniaTheme switch
+            {
+                AvaloniaTheme.Light => ThemeVariant.Light,
+                AvaloniaTheme.Dark => ThemeVariant.Dark,
+                _ => ThemeVariant.Default
+            };
+        }
+
         #endregion
 
         #region Watched Events        

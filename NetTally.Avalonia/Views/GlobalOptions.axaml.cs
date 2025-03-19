@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Styling;
 using Microsoft.Extensions.Logging;
+using NetTally.Enums;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -40,6 +42,10 @@ namespace NetTally.Avalonia.Views
                 logger.LogDebug("Global options were saved.");
                 Close();
             }
+            else if (e.PropertyName == nameof(globalOptionsViewModel.ThemeVariant))
+            {
+                ApplyRequestedTheme();
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -47,6 +53,34 @@ namespace NetTally.Avalonia.Views
             this.globalOptionsViewModel.PropertyChanged -= GlobalOptionsViewModel_PropertyChanged;
             base.OnClosed(e);
         }
+
+
+        private AvaloniaTheme GetCurrentTheme()
+        {
+            if (App.Current!.ActualThemeVariant == ThemeVariant.Light)
+                return AvaloniaTheme.Light;
+            if (App.Current!.ActualThemeVariant == ThemeVariant.Dark)
+                return AvaloniaTheme.Dark;
+            return AvaloniaTheme.Default;
+        }
+
+        private void ApplyRequestedTheme()
+        {
+            var current = GetCurrentTheme();
+            if (current == globalOptionsViewModel.ThemeVariant)
+                return;
+
+            logger.LogDebug("Requested a change in theme from {before} to {after}",
+                current, globalOptionsViewModel.ThemeVariant);
+
+            App.Current!.RequestedThemeVariant = globalOptionsViewModel.ThemeVariant switch
+            {
+                AvaloniaTheme.Light => ThemeVariant.Light,
+                AvaloniaTheme.Dark => ThemeVariant.Dark,
+                _ => ThemeVariant.Default
+            };
+        }
+
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 #if DEBUG
