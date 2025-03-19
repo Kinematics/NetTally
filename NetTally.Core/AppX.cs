@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
-using NetTally.Cache;
 using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Configure.Json;
@@ -134,7 +133,6 @@ public static class AppX
         services.AddMemoryCache();
 
         // Get the services provided by the core library.
-        services.AddSingleton<PageCache>();
         services.AddSingleton<CacheService>();
         services.AddSingleton<Agnostic>();
         services.AddSingleton<IHash, NormalHash>();
