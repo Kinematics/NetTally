@@ -10,6 +10,11 @@ public class CacheService(
     IMemoryCache memoryCache,
     ILogger<CacheService> logger)
 {
+    /// <summary>
+    /// Add a string to the cache.
+    /// </summary>
+    /// <param name="key">The lookup key for the string value. Cannot be null.</param>
+    /// <param name="value">The string to be stored. Cannot be null.</param>
     public void Add(string key, string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));
@@ -22,7 +27,12 @@ public class CacheService(
         memoryCache.Set(key, store, options);
     }
 
-
+    /// <summary>
+    /// Try to get a stored string value from the cache.
+    /// </summary>
+    /// <param name="key">The lookup key for the string value. Cannot be null.</param>
+    /// <param name="value">The out parameter for the found string, if any.</param>
+    /// <returns><c>True</c> if the requested item was found. Otherwise <c>false</c>.</returns>
     public bool TryGet(string key, [NotNullWhen(true)] out string? value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key, nameof(key));
@@ -37,16 +47,26 @@ public class CacheService(
         return false;
     }
 
-    public void Clear()
+    /// <summary>
+    /// Clears the current cache.
+    /// </summary>
+    /// <returns><c>True</c> if the cache was successfully cleared. Otherwise <c>false</c>.</returns>
+    public bool Clear()
     {
         if (memoryCache is MemoryCache cache)
         {
             logger.LogDebug("Clearing cache. Current count: {count}", cache.Count);
             cache.Clear();
+            return true;
         }
+
+        return false;
     }
 
-    public long Count
+    /// <summary>
+    /// Gets a count of the current number of items in the cache.
+    /// </summary>
+    public int Count
     {
         get
         {
