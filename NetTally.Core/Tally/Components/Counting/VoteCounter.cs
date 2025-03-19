@@ -950,7 +950,7 @@ public class VoteCounter(
 
 
     public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLineType> lines) =>
-        VoteBlocks.GetBlocks(lines).ToList();
+        [.. VoteBlocks.GetBlocks(lines)];
 
     public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLineType> lines) =>
         [VoteBlock.Create(lines)!];
