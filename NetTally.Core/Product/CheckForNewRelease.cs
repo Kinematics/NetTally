@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 {
     const string githubReleasesPage = "https://github.com/Kinematics/NetTally/releases";
     const string githubLatestPage = "https://github.com/Kinematics/NetTally/releases/latest";
+    const string githubApiPage = "https://api.github.com/repos/Kinematics/NetTally/releases";
 
     readonly IPageProvider pageProvider;
     readonly ILogger<CheckForNewRelease> logger;
@@ -27,6 +29,11 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
     [GeneratedRegex(@"releases/tag/v?(?<tag>.+)$")]
     private static partial Regex ReleasesTagRegex { get; }
+
+    private readonly JsonSerializerOptions jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+    };
 
 
     public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
@@ -66,12 +73,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
         try
         {
-            bool newVersion = await DoVersionCheckAsync();
-
-            if (newVersion)
-            {
-                HasNewRelease = true;
-            }
+            HasNewRelease = await DoVersionCheckAsync();
         }
         catch (Exception e)
         {
@@ -93,9 +95,9 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         if (currentVersion == null)
             return false;
 
-        Version latestVersion = await GetLatestVersionAsync();
+        Version? latestVersion = await GetLatestVersionAsync();
 
-        return latestVersion > currentVersion;
+        return latestVersion is not null && latestVersion > currentVersion;
     }
 
     /// <summary>
@@ -105,31 +107,82 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     /// don't suggest upgrades across major versions.
     /// </summary>
     /// <returns>Returns the latest version we can find.</returns>
-    private async Task<Version> GetLatestVersionAsync()
+    private async Task<Version?> GetLatestVersionAsync()
+    {
+        var latestVersion = await GetLatestVersionViaApi() ??
+                            await GetLatestVersionViaRedirect() ??
+                            await GetLatestVersionViaScrape();
+
+        return latestVersion;
+    }
+
+    /// <summary>
+    /// Try to read the JSON API page Github provides for the repo,
+    /// and extract the latest version released.
+    /// </summary>
+    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    private async Task<Version?> GetLatestVersionViaApi()
+    {
+        var json = await pageProvider.GetJsonDocumentAsync(githubApiPage,
+            "api", CachingMode.ReadWrite, SuppressNotifications.Yes, default);
+
+        if (string.IsNullOrEmpty(json))
+            return null;
+
+        var releases = JsonSerializer.Deserialize<List<GithubRelease>>(json, jsonOptions);
+
+        if (releases is null)
+            return null;
+
+        var latestVersion = releases
+            .Where(r => r.Version is not null)
+            .Select(r => r.Version!)
+            .Where(FilterForOldFramework)
+            .OrderDescending()
+            .FirstOrDefault();
+
+        return latestVersion;
+    }
+
+    /// <summary>
+    /// Try to load the URL that should just return a redirection
+    /// with the latest version tag first.
+    /// </summary>
+    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    private async Task<Version?> GetLatestVersionViaRedirect()
     {
         // Try to load the URL that should just return a redirection
         // with the latest version tag first.
         Version? redirectVersion = await GetLatestRedirectVersion();
 
-        if (redirectVersion is not null)
-        {
-            return redirectVersion;
-        }
+        return redirectVersion;
+    }
 
-        // Otherwise load the entire releases page and filter that.
+    /// <summary>
+    /// Try to load the entire releases page and filter that for
+    /// the latest version information.
+    /// </summary>
+    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    private async Task<Version?> GetLatestVersionViaScrape()
+    {
         var versions = await GetReleaseVersionsAsync();
 
-        Func<Version, bool> testForMajor;
-        if (ProductInfo.FileVersion.Major == frameworkVersion)
-            testForMajor = (v) => v.Major == frameworkVersion;
-        else
-            testForMajor = (v) => true;
+        if (versions is null || versions.Count == 0)
+            return null;
 
-        Version latestVersion = versions.Where(testForMajor)
-                                        .OrderDescending()
-                                        .FirstOrDefault(new Version());
+        var latestVersion = versions.Where(FilterForOldFramework)
+                                    .OrderDescending()
+                                    .FirstOrDefault();
 
         return latestVersion;
+    }
+
+    private static bool FilterForOldFramework(Version version)
+    {
+        if (ProductInfo.FileVersion.Major == frameworkVersion)
+            return version.Major == frameworkVersion;
+        else
+            return true;
     }
 
     /// <summary>
@@ -154,13 +207,13 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
             string tag = m.Groups["tag"].Value;
             if (Version.TryParse(tag, out Version? result))
             {
-                return result;
+                if (FilterForOldFramework(result))
+                    return result;
             }
         }
 
         return null;
     }
-
 
     /// <summary>
     /// Get all the release versions we can find on the Github page.
