@@ -77,7 +77,7 @@ namespace NetTally.Avalonia.Views
             mainViewModel.CheckForNewRelease();
         }
 
-        private void ApplyTheme(AvaloniaTheme avaloniaTheme)
+        private static void ApplyTheme(AvaloniaTheme avaloniaTheme)
         {
             App.Current!.RequestedThemeVariant = avaloniaTheme switch
             {

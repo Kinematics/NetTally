@@ -179,7 +179,7 @@ public class ObservableCollectionExt<T> : ObservableCollection<T>
         }
         else if (Items != null)
         {
-            List<T> list = new(Items);
+            List<T> list = [.. Items];
             list.Sort(comparer);
 
             Items.Clear();
@@ -211,7 +211,7 @@ public class ObservableCollectionExt<T> : ObservableCollection<T>
         }
         else if (Items != null)
         {
-            List<T> list = new(Items);
+            List<T> list = [.. Items];
             list.Sort(comparer);
             list.Reverse();
 
