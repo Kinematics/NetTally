@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
-using NetTally.Extensions;
+using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
 
 namespace NetTally.Product;

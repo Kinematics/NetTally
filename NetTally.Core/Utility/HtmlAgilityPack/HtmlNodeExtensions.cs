@@ -1,11 +1,11 @@
 ﻿using HtmlAgilityPack;
 
-namespace NetTally.Extensions;
+namespace NetTally.Utility.HtmlNodes;
 
 /// <summary>
 /// Extension methods for HtmlNode objects.
 /// </summary>
-static class HtmlNodeEx
+static class HtmlNodeExtensions
 {
     /// <summary>
     /// Get the single HTML node result for searching for a direct child element
