@@ -3,7 +3,7 @@
 /// <summary>
 /// Class for other general extension methods.
 /// </summary>
-static class TaskExtensions
+static class AsyncExtensions
 {
     /// <summary>
     /// Function to allow setting a timeout on an async function that doesn't natively permit it.
