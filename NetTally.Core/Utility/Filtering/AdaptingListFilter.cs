@@ -1,6 +1,4 @@
-﻿using NetTally.Utility.Delegates;
-
-namespace NetTally.Utility.Filtering;
+﻿namespace NetTally.Utility.Filtering;
 
 /// <summary>
 /// An item filter that determines whether an object is allowed by
