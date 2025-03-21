@@ -5,7 +5,7 @@ namespace NetTally.Extensions;
 /// <summary>
 /// Class for generic LINQ extension methods.
 /// </summary>
-static class IEnumerableExt
+static class LinqExtensions
 {
     /// <summary>
     /// Returns a collection of items from the provided enumerable that match the
