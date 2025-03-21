@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace NetTally.Collections;
+namespace NetTally.Utility.Collections;
 
 /// <summary>
 /// An extension of the ObservableCollection class that allows specialized
@@ -10,8 +10,8 @@ namespace NetTally.Collections;
 /// notification after all adds/removes are complete, rather than after
 /// each one.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-/// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
+/// <typeparam name="T">The type of item in the collection.</typeparam>
+/// <seealso cref="ObservableCollection{T}" />
 public class ObservableCollectionExt<T> : ObservableCollection<T>
 {
     #region Constructor

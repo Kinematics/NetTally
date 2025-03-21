@@ -2,12 +2,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
+using NetTally.Utility.Collections;
 
 namespace NetTally.ViewModels;
 

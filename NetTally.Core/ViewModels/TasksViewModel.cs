@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.Components.Votes;
+using NetTally.Utility.Collections;
 
 namespace NetTally.ViewModels;
 
