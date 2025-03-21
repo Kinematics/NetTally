@@ -13,6 +13,3 @@ public class RetryFailedEventArgs(
     public HttpResponseMessage Response { get; } = response;
     public bool ReachedMaxRetries { get; } = reachedMaxRetries;
 }
-
-/// Define the event handler delegate
-public delegate void RetryFailedEventHandler(object sender, RetryFailedEventArgs e);
