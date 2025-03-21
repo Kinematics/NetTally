@@ -4,11 +4,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Extensions;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
 using NetTally.Utility.Collections;
+using NetTally.Utility.Linq;
 
 namespace NetTally.Tally.Components.Counting;
 

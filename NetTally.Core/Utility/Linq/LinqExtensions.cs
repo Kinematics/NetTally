@@ -1,11 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace NetTally.Extensions;
+namespace NetTally.Utility.Linq;
 
 /// <summary>
 /// Class for generic LINQ extension methods.
 /// </summary>
-static class LinqExtensions
+public static class LinqExtensions
 {
     /// <summary>
     /// Returns a collection of items from the provided enumerable that match the
@@ -20,8 +20,9 @@ static class LinqExtensions
     /// <param name="self">The enumeration being filtered.</param>
     /// <param name="transform">The transform function.</param>
     /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
-    public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
-        WithMin(self, transform, null);
+    public static IEnumerable<T> WithMin<T, U>(this IEnumerable<T> self, Func<T, U> transform)
+        where U : IComparable<U> =>
+        self.WithMin(transform, null);
 
     /// <summary>
     /// Returns a collection of items from the provided enumerable that match the
@@ -97,7 +98,7 @@ static class LinqExtensions
     /// <param name="transform">The transform function.</param>
     /// <returns>Returns an enumeration of objects that have the minimum transform value.</returns>
     public static IEnumerable<T> WithMax<T, U>(this IEnumerable<T> self, Func<T, U> transform) where U : IComparable<U> =>
-        WithMax(self, transform, null);
+        self.WithMax(transform, null);
 
     /// <summary>
     /// Returns a collection of items from the provided enumerable that match the
@@ -170,7 +171,7 @@ static class LinqExtensions
     /// <param name="nodeSelector">A function to select the part of the list item that you're filtering and returning.</param>
     /// <param name="filter">An optional predicate filter that will prevent traversal of any nodes or their children.</param>
     /// <returns>Returns a (potentially filtered) list of items, including all children of items from the initial list.</returns>
-    /// <exception cref="System.ArgumentNullException">Throw if <paramref name="childSelector"/> or <paramref name="nodeSelector"/>
+    /// <exception cref="ArgumentNullException">Throw if <paramref name="childSelector"/> or <paramref name="nodeSelector"/>
     /// is null.</exception>
     public static IEnumerable<U> TraverseList<T, U>(this IEnumerable<T> items,
         Func<T, IEnumerable<T>> childSelector, Func<T, U> nodeSelector, Func<U, bool> filter)
@@ -220,10 +221,10 @@ static class LinqExtensions
                 fail++;
         }
 
-        if ((pass + fail) == 0)
+        if (pass + fail == 0)
             return false;
 
-        return ((double)pass / (pass + fail) >= threshold);
+        return (double)pass / (pass + fail) >= threshold;
     }
 
 
