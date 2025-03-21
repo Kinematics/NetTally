@@ -2,232 +2,231 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 
-namespace NetTally.Collections
+namespace NetTally.Collections;
+
+/// <summary>
+/// An extension of the ObservableCollection class that allows specialized
+/// adding and removing functions that only generate a property changed
+/// notification after all adds/removes are complete, rather than after
+/// each one.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
+public class ObservableCollectionExt<T> : ObservableCollection<T>
 {
-    /// <summary>
-    /// An extension of the ObservableCollection class that allows specialized
-    /// adding and removing functions that only generate a property changed
-    /// notification after all adds/removes are complete, rather than after
-    /// each one.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <seealso cref="System.Collections.ObjectModel.ObservableCollection{T}" />
-    public class ObservableCollectionExt<T> : ObservableCollection<T>
+    #region Constructor
+    private readonly SynchronizationContext? _synchronizationContext = SynchronizationContext.Current;
+
+    public ObservableCollectionExt()
     {
-        #region Constructor
-        private readonly SynchronizationContext? _synchronizationContext = SynchronizationContext.Current;
+    }
 
-        public ObservableCollectionExt()
+    public ObservableCollectionExt(IEnumerable<T> list)
+        : base(list)
+    {
+    }
+    #endregion
+
+    #region Handling raising events on proper synchronization context.
+    protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    {
+        if (SynchronizationContext.Current == _synchronizationContext)
         {
+            // Execute the CollectionChanged event on the current thread
+            RaiseCollectionChanged(e);
         }
-
-        public ObservableCollectionExt(IEnumerable<T> list)
-            : base(list)
+        else
         {
+            // Raises the CollectionChanged event on the creator thread
+            _synchronizationContext?.Send(RaiseCollectionChanged, e);
         }
-        #endregion
+    }
 
-        #region Handling raising events on proper synchronization context.
-        protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+    private void RaiseCollectionChanged(object? param)
+    {
+        // We are in the creator thread, call the base implementation directly
+        if (param is NotifyCollectionChangedEventArgs e)
         {
-            if (SynchronizationContext.Current == _synchronizationContext)
-            {
-                // Execute the CollectionChanged event on the current thread
-                RaiseCollectionChanged(e);
-            }
-            else
-            {
-                // Raises the CollectionChanged event on the creator thread
-                _synchronizationContext?.Send(RaiseCollectionChanged, e);
-            }
+            base.OnCollectionChanged(e);
         }
+    }
 
-        private void RaiseCollectionChanged(object? param)
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        if (SynchronizationContext.Current == _synchronizationContext)
         {
-            // We are in the creator thread, call the base implementation directly
-            if (param is NotifyCollectionChangedEventArgs e)
-            {
-                base.OnCollectionChanged(e);
-            }
+            // Execute the PropertyChanged event on the current thread
+            RaisePropertyChanged(e);
         }
-
-        protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        else
         {
-            if (SynchronizationContext.Current == _synchronizationContext)
-            {
-                // Execute the PropertyChanged event on the current thread
-                RaisePropertyChanged(e);
-            }
-            else
-            {
-                // Raises the PropertyChanged event on the creator thread
-                _synchronizationContext?.Send(RaisePropertyChanged, e);
-            }
+            // Raises the PropertyChanged event on the creator thread
+            _synchronizationContext?.Send(RaisePropertyChanged, e);
         }
+    }
 
-        private void RaisePropertyChanged(object? param)
+    private void RaisePropertyChanged(object? param)
+    {
+        // We are in the creator thread, call the base implementation directly
+        if (param is PropertyChangedEventArgs e)
         {
-            // We are in the creator thread, call the base implementation directly
-            if (param is PropertyChangedEventArgs e)
-            {
-                base.OnPropertyChanged(e);
-            }
+            base.OnPropertyChanged(e);
         }
-        #endregion
+    }
+    #endregion
 
-        #region Custom modification functions
-        /// <summary>
-        /// Removes all matching instances from the collection before notifying
-        /// about changes.
-        /// </summary>
-        /// <param name="predicate">The predicate indicating what to remove.</param>
-        public void RemoveWhere(Predicate<T> predicate)
+    #region Custom modification functions
+    /// <summary>
+    /// Removes all matching instances from the collection before notifying
+    /// about changes.
+    /// </summary>
+    /// <param name="predicate">The predicate indicating what to remove.</param>
+    public void RemoveWhere(Predicate<T> predicate)
+    {
+        CheckReentrancy();
+
+        if (Items != null)
         {
-            CheckReentrancy();
+            //var removedItems = Items.Where(i => predicate(i)).ToList();
 
-            if (Items != null)
-            {
-                //var removedItems = Items.Where(i => predicate(i)).ToList();
-
-                var itemsBeingKept = Items.Where(a => !predicate(a)).ToList();
-
-                Items.Clear();
-
-                if (Items is List<T> itemsList)
-                {
-                    itemsList.AddRange(itemsBeingKept);
-                }
-                else
-                {
-                    foreach (var item in itemsBeingKept)
-                        Items.Add(item);
-                }
-
-                OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-                OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-                //NotifyCollectionChangedEventArgs does not support multiple removed items.
-                //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems));
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            }
-        }
-
-        /// <summary>
-        /// Adds a range of values to the collection before notifying about changes.
-        /// </summary>
-        /// <param name="list">The list of items to add.</param>
-        public void AddRange(IEnumerable<T> list)
-        {
-            if (list == null)
-                return;
-
-            CheckReentrancy();
-
-            //var addedItems = list.ToList();
-
-            foreach (T item in list)
-            {
-                Items.Add(item);
-            }
-
-            OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            //NotifyCollectionChangedEventArgs does not support multiple added items.
-            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, addedItems));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
-
-        /// <summary>
-        /// Replaces the current collection with the contents of the specified list.
-        /// </summary>
-        /// <param name="list">The list of new items for the collection.</param>
-        public void Replace(IEnumerable<T> list)
-        {
-            if (list == null)
-                return;
-
-            CheckReentrancy();
-
-            //var originalItems = Items.ToList();
+            var itemsBeingKept = Items.Where(a => !predicate(a)).ToList();
 
             Items.Clear();
 
-            foreach (T item in list)
+            if (Items is List<T> itemsList)
             {
-                Items.Add(item);
+                itemsList.AddRange(itemsBeingKept);
+            }
+            else
+            {
+                foreach (var item in itemsBeingKept)
+                    Items.Add(item);
             }
 
             OnPropertyChanged(new PropertyChangedEventArgs("Count"));
             OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
-            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
-            //    Items.ToList(), originalItems));
+            //NotifyCollectionChangedEventArgs does not support multiple removed items.
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItems));
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
-
-        /// <summary>
-        /// Sorts the current collection.
-        /// </summary>
-        public void Sort(IComparer<T>? comparer = null)
-        {
-            CheckReentrancy();
-
-            //var originalItems = Items.ToList();
-
-            if (Items is List<T> itemsList)
-            {
-                itemsList.Sort(comparer);
-            }
-            else if (Items != null)
-            {
-                List<T> list = new(Items);
-                list.Sort(comparer);
-
-                Items.Clear();
-                foreach (T item in list)
-                {
-                    Items.Add(item);
-                }
-            }
-
-            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
-            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
-            //    Items.ToList(), originalItems));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
-
-        /// <summary>
-        /// Sorts the current collection.
-        /// </summary>
-        public void SortDescending(IComparer<T>? comparer = null)
-        {
-            CheckReentrancy();
-
-            //var originalItems = Items.ToList();
-
-            if (Items is List<T> itemsList)
-            {
-                itemsList.Sort(comparer);
-            }
-            else if (Items != null)
-            {
-                List<T> list = new(Items);
-                list.Sort(comparer);
-                list.Reverse();
-
-                Items.Clear();
-                foreach (T item in list)
-                {
-                    Items.Add(item);
-                }
-            }
-
-            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-            //NotifyCollectionChangedEventArgs does not support multiple replaced items.
-            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
-            //    Items.ToList(), originalItems));
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-        }
-        #endregion
     }
+
+    /// <summary>
+    /// Adds a range of values to the collection before notifying about changes.
+    /// </summary>
+    /// <param name="list">The list of items to add.</param>
+    public void AddRange(IEnumerable<T> list)
+    {
+        if (list == null)
+            return;
+
+        CheckReentrancy();
+
+        //var addedItems = list.ToList();
+
+        foreach (T item in list)
+        {
+            Items.Add(item);
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        //NotifyCollectionChangedEventArgs does not support multiple added items.
+        //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, addedItems));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    /// <summary>
+    /// Replaces the current collection with the contents of the specified list.
+    /// </summary>
+    /// <param name="list">The list of new items for the collection.</param>
+    public void Replace(IEnumerable<T> list)
+    {
+        if (list == null)
+            return;
+
+        CheckReentrancy();
+
+        //var originalItems = Items.ToList();
+
+        Items.Clear();
+
+        foreach (T item in list)
+        {
+            Items.Add(item);
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+        //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+        //    Items.ToList(), originalItems));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    /// <summary>
+    /// Sorts the current collection.
+    /// </summary>
+    public void Sort(IComparer<T>? comparer = null)
+    {
+        CheckReentrancy();
+
+        //var originalItems = Items.ToList();
+
+        if (Items is List<T> itemsList)
+        {
+            itemsList.Sort(comparer);
+        }
+        else if (Items != null)
+        {
+            List<T> list = new(Items);
+            list.Sort(comparer);
+
+            Items.Clear();
+            foreach (T item in list)
+            {
+                Items.Add(item);
+            }
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+        //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+        //    Items.ToList(), originalItems));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+
+    /// <summary>
+    /// Sorts the current collection.
+    /// </summary>
+    public void SortDescending(IComparer<T>? comparer = null)
+    {
+        CheckReentrancy();
+
+        //var originalItems = Items.ToList();
+
+        if (Items is List<T> itemsList)
+        {
+            itemsList.Sort(comparer);
+        }
+        else if (Items != null)
+        {
+            List<T> list = new(Items);
+            list.Sort(comparer);
+            list.Reverse();
+
+            Items.Clear();
+            foreach (T item in list)
+            {
+                Items.Add(item);
+            }
+        }
+
+        OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+        //NotifyCollectionChangedEventArgs does not support multiple replaced items.
+        //OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+        //    Items.ToList(), originalItems));
+        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+    }
+    #endregion
 }

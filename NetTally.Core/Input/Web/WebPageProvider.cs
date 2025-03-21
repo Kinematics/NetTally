@@ -11,9 +11,8 @@ using NetTally.Enums;
 using NetTally.Input.Web.Handlers;
 using NetTally.Utility;
 using NetTally.Utility.Cache;
-using NetTally.Web;
 
-namespace NetTally.Input.Web;
+namespace NetTally.Web;
 
 public class WebPageProvider : IDisposable, IPageProvider
 {

@@ -1,34 +1,33 @@
-﻿namespace NetTally.Extensions
+﻿namespace NetTally.Extensions;
+
+/// <summary>
+/// Class for other general extension methods.
+/// </summary>
+static class TaskExtensions
 {
     /// <summary>
-    /// Class for other general extension methods.
+    /// Function to allow setting a timeout on an async function that doesn't natively permit it.
+    /// From: http://stackoverflow.com/a/22078975/770213
     /// </summary>
-    static class TaskExtensions
+    /// <typeparam name="TResult">The return type of the task being awaited.</typeparam>
+    /// <param name="task">The task to await.</param>
+    /// <param name="timeout">The timeout to wait for the task to complete.</param>
+    /// <param name="token">A cancellation token for user-initiated cancellations.</param>
+    /// <returns>Returns the awaited task, if it completed in less than the timeout period.</returns>
+    public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout, CancellationToken token)
     {
-        /// <summary>
-        /// Function to allow setting a timeout on an async function that doesn't natively permit it.
-        /// From: http://stackoverflow.com/a/22078975/770213
-        /// </summary>
-        /// <typeparam name="TResult">The return type of the task being awaited.</typeparam>
-        /// <param name="task">The task to await.</param>
-        /// <param name="timeout">The timeout to wait for the task to complete.</param>
-        /// <param name="token">A cancellation token for user-initiated cancellations.</param>
-        /// <returns>Returns the awaited task, if it completed in less than the timeout period.</returns>
-        public static async Task<TResult> TimeoutAfter<TResult>(this Task<TResult> task, TimeSpan timeout, CancellationToken token)
+        using CancellationTokenSource timeoutTokenSource = new(timeout);
+        using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token);
+
+        var completedTask = await Task.WhenAny(task, Task.Delay(timeout, linkedTokenSource.Token));
+
+        if (completedTask == task)
         {
-            using CancellationTokenSource timeoutTokenSource = new(timeout);
-            using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutTokenSource.Token);
-
-            var completedTask = await Task.WhenAny(task, Task.Delay(timeout, linkedTokenSource.Token));
-
-            if (completedTask == task)
-            {
-                return await task;  // Very important in order to propagate exceptions
-            }
-
-            token.ThrowIfCancellationRequested();
-
-            throw new TimeoutException("The operation has timed out.");
+            return await task;  // Very important in order to propagate exceptions
         }
+
+        token.ThrowIfCancellationRequested();
+
+        throw new TimeoutException("The operation has timed out.");
     }
 }

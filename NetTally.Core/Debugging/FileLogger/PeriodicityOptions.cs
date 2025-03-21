@@ -1,10 +1,9 @@
-﻿namespace NetTally.Debugging.FileLogger
+﻿namespace NetTally.Debugging.FileLogger;
+
+public enum PeriodicityOptions
 {
-    public enum PeriodicityOptions
-    {
-        Daily,
-        Hourly,
-        Minutely,
-        Monthly
-    }
+    Daily,
+    Hourly,
+    Minutely,
+    Monthly
 }

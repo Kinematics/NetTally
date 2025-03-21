@@ -7,349 +7,348 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility;
 
-namespace NetTally.ViewModels
+namespace NetTally.ViewModels;
+
+public partial class QuestOptionsViewModel : ObservableObject
 {
-    public partial class QuestOptionsViewModel : ObservableObject
+    private readonly ILogger<QuestOptionsViewModel> logger;
+    private readonly Quest quest;
+
+    public QuestOptionsViewModel(
+        IQuestsInfo questsInfo,
+        ILogger<QuestOptionsViewModel> logger)
     {
-        private readonly ILogger<QuestOptionsViewModel> logger;
-        private readonly Quest quest;
+        ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
 
-        public QuestOptionsViewModel(
-            IQuestsInfo questsInfo,
-            ILogger<QuestOptionsViewModel> logger)
+        this.logger = logger;
+
+        quest = questsInfo.SelectedQuest;
+        AvailableQuests = new ObservableCollection<Quest>(questsInfo.Quests);
+        AvailableQuests.Remove(quest);
+
+        SelectedAvailableQuest = AvailableQuests.FirstOrDefault();
+
+        LoadQuestOptions();
+    }
+
+    public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+
+    public List<ForumType> ValidForums { get; } = [.. Enum.GetValues<ForumType>()];
+
+    public ObservableCollection<Quest> AvailableQuests { get; }
+
+    public ObservableCollection<Quest> LinkedQuests { get; } = [];
+
+    private void LoadQuestOptions()
+    {
+        ThreadUri = quest.ThreadUri;
+        ThreadName = quest.ThreadName;
+        DisplayName = quest.DisplayName;
+        ForumType = quest.ForumType;
+        PostsPerPage = quest.PostsPerPage;
+        StartPost = quest.StartPost;
+        EndPost = quest.EndPost;
+        CheckForLastThreadmark = quest.CheckForLastThreadmark;
+        UseRSSThreadmarks = quest.UseRSSThreadmarks;
+        PartitionMode = quest.PartitionMode;
+        UseCustomThreadmarkFilters = quest.UseCustomThreadmarkFilters;
+        UseCustomTaskFilters = quest.UseCustomTaskFilters;
+        UseCustomUsernameFilters = quest.UseCustomUsernameFilters;
+        UseCustomPostFilters = quest.UseCustomPostFilters;
+        CustomThreadmarkFilters = quest.CustomThreadmarkFilters;
+        CustomTaskFilters = quest.CustomTaskFilters;
+        CustomUsernameFilters = quest.CustomUsernameFilters;
+        CustomPostFilters = quest.CustomPostFilters;
+        WhitespaceAndPunctuationIsSignificant = quest.WhitespaceAndPunctuationIsSignificant;
+        CaseIsSignificant = quest.CaseIsSignificant;
+        ForbidVoteLabelPlanNames = quest.ForbidVoteLabelPlanNames;
+        ForcePlanReferencesToBeLabeled = quest.ForcePlanReferencesToBeLabeled;
+        AllowUsersToUpdatePlans = quest.AllowUsersToUpdatePlans;
+        DisableProxyVotes = quest.DisableProxyVotes;
+        ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes;
+        IgnoreSpoilers = quest.IgnoreSpoilers;
+        TrimExtendedText = quest.TrimExtendedText;
+
+        LinkedQuests.Clear();
+
+        var linkedQuests = AvailableQuests.Where(quest.HasLinkedQuest);
+
+        foreach (var linkedQuest in linkedQuests)
         {
-            ArgumentNullException.ThrowIfNull(questsInfo.SelectedQuest, nameof(questsInfo.SelectedQuest));
-
-            this.logger = logger;
-
-            quest = questsInfo.SelectedQuest;
-            AvailableQuests = new ObservableCollection<Quest>(questsInfo.Quests);
-            AvailableQuests.Remove(quest);
-
-            SelectedAvailableQuest = AvailableQuests.FirstOrDefault();
-
-            LoadQuestOptions();
+            LinkedQuests.Add(linkedQuest);
         }
 
-        public List<int> ValidPostsPerPage { get; } = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
+        logger.LogInformation("Quest information loaded into view model.");
+    }
 
-        public List<ForumType> ValidForums { get; } = [.. Enum.GetValues<ForumType>()];
+    private void SaveQuestOptions()
+    {
+        quest.ThreadUri = ThreadUri;
+        quest.ThreadName = ThreadName;
+        quest.DisplayName = DisplayName;
+        quest.ForumType = ForumType;
+        quest.PostsPerPage = PostsPerPage;
+        quest.StartPost = StartPost;
+        quest.EndPost = EndPost;
+        quest.CheckForLastThreadmark = CheckForLastThreadmark;
+        quest.UseRSSThreadmarks = UseRSSThreadmarks;
+        quest.PartitionMode = PartitionMode;
+        quest.UseCustomThreadmarkFilters = UseCustomThreadmarkFilters;
+        quest.UseCustomTaskFilters = UseCustomTaskFilters;
+        quest.UseCustomUsernameFilters = UseCustomUsernameFilters;
+        quest.UseCustomPostFilters = UseCustomPostFilters;
+        quest.CustomThreadmarkFilters = CustomThreadmarkFilters;
+        quest.CustomTaskFilters = CustomTaskFilters;
+        quest.CustomUsernameFilters = CustomUsernameFilters;
+        quest.CustomPostFilters = CustomPostFilters;
+        quest.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
+        quest.CaseIsSignificant = CaseIsSignificant;
+        quest.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
+        quest.ForcePlanReferencesToBeLabeled = ForcePlanReferencesToBeLabeled;
+        quest.AllowUsersToUpdatePlans = AllowUsersToUpdatePlans;
+        quest.DisableProxyVotes = DisableProxyVotes;
+        quest.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
+        quest.IgnoreSpoilers = IgnoreSpoilers;
+        quest.TrimExtendedText = TrimExtendedText;
 
-        public ObservableCollection<Quest> AvailableQuests { get; }
-
-        public ObservableCollection<Quest> LinkedQuests { get; } = [];
-
-        private void LoadQuestOptions()
+        quest.LinkedQuestIds.Clear();
+        foreach (var linkedQuest in LinkedQuests)
         {
-            ThreadUri = quest.ThreadUri;
-            ThreadName = quest.ThreadName;
-            DisplayName = quest.DisplayName;
-            ForumType = quest.ForumType;
-            PostsPerPage = quest.PostsPerPage;
-            StartPost = quest.StartPost;
-            EndPost = quest.EndPost;
-            CheckForLastThreadmark = quest.CheckForLastThreadmark;
-            UseRSSThreadmarks = quest.UseRSSThreadmarks;
-            PartitionMode = quest.PartitionMode;
-            UseCustomThreadmarkFilters = quest.UseCustomThreadmarkFilters;
-            UseCustomTaskFilters = quest.UseCustomTaskFilters;
-            UseCustomUsernameFilters = quest.UseCustomUsernameFilters;
-            UseCustomPostFilters = quest.UseCustomPostFilters;
-            CustomThreadmarkFilters = quest.CustomThreadmarkFilters;
-            CustomTaskFilters = quest.CustomTaskFilters;
-            CustomUsernameFilters = quest.CustomUsernameFilters;
-            CustomPostFilters = quest.CustomPostFilters;
-            WhitespaceAndPunctuationIsSignificant = quest.WhitespaceAndPunctuationIsSignificant;
-            CaseIsSignificant = quest.CaseIsSignificant;
-            ForbidVoteLabelPlanNames = quest.ForbidVoteLabelPlanNames;
-            ForcePlanReferencesToBeLabeled = quest.ForcePlanReferencesToBeLabeled;
-            AllowUsersToUpdatePlans = quest.AllowUsersToUpdatePlans;
-            DisableProxyVotes = quest.DisableProxyVotes;
-            ForcePinnedProxyVotes = quest.ForcePinnedProxyVotes;
-            IgnoreSpoilers = quest.IgnoreSpoilers;
-            TrimExtendedText = quest.TrimExtendedText;
-
-            LinkedQuests.Clear();
-
-            var linkedQuests = AvailableQuests.Where(quest.HasLinkedQuest);
-
-            foreach (var linkedQuest in linkedQuests)
-            {
-                LinkedQuests.Add(linkedQuest);
-            }
-
-            logger.LogInformation("Quest information loaded into view model.");
+            quest.AddLinkedQuest(linkedQuest);
         }
 
-        private void SaveQuestOptions()
+        logger.LogInformation("View model information saved to quest.");
+    }
+
+    [RelayCommand]
+    private void ClearFilters()
+    {
+        CustomThreadmarkFilters = string.Empty;
+        CustomTaskFilters = string.Empty;
+        CustomUsernameFilters = string.Empty;
+        CustomPostFilters = string.Empty;
+
+        UseCustomThreadmarkFilters = false;
+        UseCustomTaskFilters = false;
+        UseCustomUsernameFilters = false;
+        UseCustomPostFilters = false;
+    }
+
+    [RelayCommand]
+    private void ClearOptions()
+    {
+        UseRSSThreadmarks = BoolEx.Unknown;
+        WhitespaceAndPunctuationIsSignificant = false;
+        CaseIsSignificant = false;
+        ForbidVoteLabelPlanNames = false;
+        ForcePlanReferencesToBeLabeled = false;
+        AllowUsersToUpdatePlans = false;
+        DisableProxyVotes = false;
+        ForcePinnedProxyVotes = false;
+        IgnoreSpoilers = false;
+        TrimExtendedText = false;
+    }
+
+    [RelayCommand]
+    private void Reset()
+    {
+        LoadQuestOptions();
+        OnPropertyChanged(nameof(ResetCommand));
+    }
+
+    [RelayCommand]
+    private void Save()
+    {
+        SaveQuestOptions();
+        OnPropertyChanged(nameof(SaveCommand));
+    }
+
+    [RelayCommand]
+    private void Cancel()
+    {
+        OnPropertyChanged(nameof(CancelCommand));
+    }
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(AddLinkedQuestCommand))]
+    public partial Quest? SelectedAvailableQuest { get; set; }
+
+    [RelayCommand(CanExecute = nameof(CanAddLinkedQuest))]
+    private void AddLinkedQuest(Quest? quest)
+    {
+        if (quest is not null &&
+            !LinkedQuests.Contains(quest))
         {
-            quest.ThreadUri = ThreadUri;
-            quest.ThreadName = ThreadName;
-            quest.DisplayName = DisplayName;
-            quest.ForumType = ForumType;
-            quest.PostsPerPage = PostsPerPage;
-            quest.StartPost = StartPost;
-            quest.EndPost = EndPost;
-            quest.CheckForLastThreadmark = CheckForLastThreadmark;
-            quest.UseRSSThreadmarks = UseRSSThreadmarks;
-            quest.PartitionMode = PartitionMode;
-            quest.UseCustomThreadmarkFilters = UseCustomThreadmarkFilters;
-            quest.UseCustomTaskFilters = UseCustomTaskFilters;
-            quest.UseCustomUsernameFilters = UseCustomUsernameFilters;
-            quest.UseCustomPostFilters = UseCustomPostFilters;
-            quest.CustomThreadmarkFilters = CustomThreadmarkFilters;
-            quest.CustomTaskFilters = CustomTaskFilters;
-            quest.CustomUsernameFilters = CustomUsernameFilters;
-            quest.CustomPostFilters = CustomPostFilters;
-            quest.WhitespaceAndPunctuationIsSignificant = WhitespaceAndPunctuationIsSignificant;
-            quest.CaseIsSignificant = CaseIsSignificant;
-            quest.ForbidVoteLabelPlanNames = ForbidVoteLabelPlanNames;
-            quest.ForcePlanReferencesToBeLabeled = ForcePlanReferencesToBeLabeled;
-            quest.AllowUsersToUpdatePlans = AllowUsersToUpdatePlans;
-            quest.DisableProxyVotes = DisableProxyVotes;
-            quest.ForcePinnedProxyVotes = ForcePinnedProxyVotes;
-            quest.IgnoreSpoilers = IgnoreSpoilers;
-            quest.TrimExtendedText = TrimExtendedText;
-
-            quest.LinkedQuestIds.Clear();
-            foreach (var linkedQuest in LinkedQuests)
-            {
-                quest.AddLinkedQuest(linkedQuest);
-            }
-
-            logger.LogInformation("View model information saved to quest.");
+            LinkedQuests.Add(quest);
         }
+    }
 
-        [RelayCommand]
-        private void ClearFilters()
+    private static bool CanAddLinkedQuest(Quest? quest)
+    {
+        return quest is not null;
+    }
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RemoveLinkedQuestCommand))]
+    public partial Quest? SelectedLinkedQuest { get; set; }
+
+    [RelayCommand(CanExecute = nameof(CanRemoveLinkedQuest))]
+    private void RemoveLinkedQuest(Quest? quest)
+    {
+        if (quest is not null)
         {
-            CustomThreadmarkFilters = string.Empty;
-            CustomTaskFilters = string.Empty;
-            CustomUsernameFilters = string.Empty;
-            CustomPostFilters = string.Empty;
-
-            UseCustomThreadmarkFilters = false;
-            UseCustomTaskFilters = false;
-            UseCustomUsernameFilters = false;
-            UseCustomPostFilters = false;
+            LinkedQuests.Remove(quest);
         }
+    }
 
-        [RelayCommand]
-        private void ClearOptions()
-        {
-            UseRSSThreadmarks = BoolEx.Unknown;
-            WhitespaceAndPunctuationIsSignificant = false;
-            CaseIsSignificant = false;
-            ForbidVoteLabelPlanNames = false;
-            ForcePlanReferencesToBeLabeled = false;
-            AllowUsersToUpdatePlans = false;
-            DisableProxyVotes = false;
-            ForcePinnedProxyVotes = false;
-            IgnoreSpoilers = false;
-            TrimExtendedText = false;
-        }
+    private static bool CanRemoveLinkedQuest(Quest? quest)
+    {
+        return quest is not null;
+    }
 
-        [RelayCommand]
-        private void Reset()
-        {
-            LoadQuestOptions();
-            OnPropertyChanged(nameof(ResetCommand));
-        }
+    [ObservableProperty]
+    public partial Uri ThreadUri { get; set; } = Quest.InvalidThreadUri;
 
-        [RelayCommand]
-        private void Save()
-        {
-            SaveQuestOptions();
-            OnPropertyChanged(nameof(SaveCommand));
-        }
+    [ObservableProperty]
+    public partial string ThreadName { get; set; } = string.Empty;
 
-        [RelayCommand]
-        private void Cancel()
-        {
-            OnPropertyChanged(nameof(CancelCommand));
-        }
+    [ObservableProperty]
+    public partial string DisplayName { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(AddLinkedQuestCommand))]
-        public partial Quest? SelectedAvailableQuest { get; set; }
+    [ObservableProperty]
+    public partial ForumType ForumType { get; set; }
 
-        [RelayCommand(CanExecute = nameof(CanAddLinkedQuest))]
-        private void AddLinkedQuest(Quest? quest)
-        {
-            if (quest is not null &&
-                !LinkedQuests.Contains(quest))
-            {
-                LinkedQuests.Add(quest);
-            }
-        }
+    [ObservableProperty]
+    public partial int PostsPerPage { get; set; }
 
-        private static bool CanAddLinkedQuest(Quest? quest)
-        {
-            return quest is not null;
-        }
+    [ObservableProperty]
+    public partial int StartPost { get; set; }
 
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(RemoveLinkedQuestCommand))]
-        public partial Quest? SelectedLinkedQuest { get; set; }
+    [ObservableProperty]
+    public partial int EndPost { get; set; }
 
-        [RelayCommand(CanExecute = nameof(CanRemoveLinkedQuest))]
-        private void RemoveLinkedQuest(Quest? quest)
-        {
-            if (quest is not null)
-            {
-                LinkedQuests.Remove(quest);
-            }
-        }
+    [ObservableProperty]
+    public partial bool CheckForLastThreadmark { get; set; }
 
-        private static bool CanRemoveLinkedQuest(Quest? quest)
-        {
-            return quest is not null;
-        }
+    [ObservableProperty]
+    public partial BoolEx UseRSSThreadmarks { get; set; } = BoolEx.Unknown;
 
-        [ObservableProperty]
-        public partial Uri ThreadUri { get; set; } = Quest.InvalidThreadUri;
+    [ObservableProperty]
+    public partial PartitionMode PartitionMode { get; set; }
 
-        [ObservableProperty]
-        public partial string ThreadName { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial bool UseCustomThreadmarkFilters { get; set; }
 
-        [ObservableProperty]
-        public partial string DisplayName { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string CustomThreadmarkFilters { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        public partial ForumType ForumType { get; set; }
+    [ObservableProperty]
+    public partial bool UseCustomTaskFilters { get; set; }
 
-        [ObservableProperty]
-        public partial int PostsPerPage { get; set; }
+    [ObservableProperty]
+    public partial string CustomTaskFilters { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        public partial int StartPost { get; set; }
+    [ObservableProperty]
+    public partial bool UseCustomUsernameFilters { get; set; }
 
-        [ObservableProperty]
-        public partial int EndPost { get; set; }
+    [ObservableProperty]
+    public partial string CustomUsernameFilters { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        public partial bool CheckForLastThreadmark { get; set; }
+    [ObservableProperty]
+    public partial bool UseCustomPostFilters { get; set; }
 
-        [ObservableProperty]
-        public partial BoolEx UseRSSThreadmarks { get; set; } = BoolEx.Unknown;
+    [ObservableProperty]
+    public partial string CustomPostFilters { get; set; } = string.Empty;
 
-        [ObservableProperty]
-        public partial PartitionMode PartitionMode { get; set; }
+    [ObservableProperty]
+    public partial bool WhitespaceAndPunctuationIsSignificant { get; set; }
 
-        [ObservableProperty]
-        public partial bool UseCustomThreadmarkFilters { get; set; }
+    [ObservableProperty]
+    public partial bool CaseIsSignificant { get; set; }
 
-        [ObservableProperty]
-        public partial string CustomThreadmarkFilters { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial bool ForcePlanReferencesToBeLabeled { get; set; }
 
-        [ObservableProperty]
-        public partial bool UseCustomTaskFilters { get; set; }
+    [ObservableProperty]
+    public partial bool ForbidVoteLabelPlanNames { get; set; }
 
-        [ObservableProperty]
-        public partial string CustomTaskFilters { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial bool AllowUsersToUpdatePlans { get; set; }
 
-        [ObservableProperty]
-        public partial bool UseCustomUsernameFilters { get; set; }
+    [ObservableProperty]
+    public partial bool DisableProxyVotes { get; set; }
 
-        [ObservableProperty]
-        public partial string CustomUsernameFilters { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial bool ForcePinnedProxyVotes { get; set; }
 
-        [ObservableProperty]
-        public partial bool UseCustomPostFilters { get; set; }
+    [ObservableProperty]
+    public partial bool IgnoreSpoilers { get; set; }
 
-        [ObservableProperty]
-        public partial string CustomPostFilters { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial bool TrimExtendedText { get; set; }
 
-        [ObservableProperty]
-        public partial bool WhitespaceAndPunctuationIsSignificant { get; set; }
+    public void SetQuestThreadFromClipboard(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return;
 
-        [ObservableProperty]
-        public partial bool CaseIsSignificant { get; set; }
+        if (ThreadName != Strings.NewThreadEntry)
+            return;
 
-        [ObservableProperty]
-        public partial bool ForcePlanReferencesToBeLabeled { get; set; }
-
-        [ObservableProperty]
-        public partial bool ForbidVoteLabelPlanNames { get; set; }
-
-        [ObservableProperty]
-        public partial bool AllowUsersToUpdatePlans { get; set; }
-
-        [ObservableProperty]
-        public partial bool DisableProxyVotes { get; set; }
-
-        [ObservableProperty]
-        public partial bool ForcePinnedProxyVotes { get; set; }
-
-        [ObservableProperty]
-        public partial bool IgnoreSpoilers { get; set; }
-
-        [ObservableProperty]
-        public partial bool TrimExtendedText { get; set; }
-
-        public void SetQuestThreadFromClipboard(string? url)
-        {
-            if (string.IsNullOrWhiteSpace(url))
-                return;
-
-            if (ThreadName != Strings.NewThreadEntry)
-                return;
-
-            if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                ThreadName = url;
-        }
+        if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            ThreadName = url;
+    }
 
 
-        partial void OnThreadNameChanged(string oldValue, string newValue)
-        {
-            // cleanup newValue
-            string cleanValue = CleanupThreadName(newValue);
-            cleanValue = Uri.UnescapeDataString(cleanValue);
-            ThreadName = cleanValue;
+    partial void OnThreadNameChanged(string oldValue, string newValue)
+    {
+        // cleanup newValue
+        string cleanValue = CleanupThreadName(newValue);
+        cleanValue = Uri.UnescapeDataString(cleanValue);
+        ThreadName = cleanValue;
 #pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
 
-            Uri newUri = new(cleanValue);
+        Uri newUri = new(cleanValue);
 
-            // if host changed, reset forum type and update the thread uri
-            if (ThreadUri.Host != newUri.Host)
-            {
-                ForumType = ForumType.Unknown;
-            }
-
-            ThreadUri = newUri;
-
-            DisplayName = GetDisplayNameFromUrl(cleanValue);
+        // if host changed, reset forum type and update the thread uri
+        if (ThreadUri.Host != newUri.Host)
+        {
+            ForumType = ForumType.Unknown;
         }
 
+        ThreadUri = newUri;
 
-        [GeneratedRegex(@"^(?<base>.+?)(?:&?page[-=]?\d+)?(?:&p=?\d+)?(?:(?<!showthread\.php)\?[^#]*)?(?:#[^/]*)?(?:unread)?$",
-            RegexOptions.None, 50)]
-        private static partial Regex PageNumberRegex();
+        DisplayName = GetDisplayNameFromUrl(cleanValue);
+    }
 
-        private static string CleanupThreadName(string url)
-        {
-            url = url.RemoveUnsafeCharacters();
 
-            Match m = PageNumberRegex().Match(url);
-            if (m.Success)
-                url = m.Groups["base"].Value;
+    [GeneratedRegex(@"^(?<base>.+?)(?:&?page[-=]?\d+)?(?:&p=?\d+)?(?:(?<!showthread\.php)\?[^#]*)?(?:#[^/]*)?(?:unread)?$",
+        RegexOptions.None, 50)]
+    private static partial Regex PageNumberRegex();
 
+    private static string CleanupThreadName(string url)
+    {
+        url = url.RemoveUnsafeCharacters();
+
+        Match m = PageNumberRegex().Match(url);
+        if (m.Success)
+            url = m.Groups["base"].Value;
+
+        return url;
+    }
+
+    [GeneratedRegex(@"(?:showthread\.php\?)?(?:t=)?(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
+    private static partial Regex DisplayNameRegex();
+
+    private static string GetDisplayNameFromUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return string.Empty;
+
+        Match m = DisplayNameRegex().Match(url);
+        if (m.Success)
+            return m.Groups["displayName"].Value;
+        else
             return url;
-        }
-
-        [GeneratedRegex(@"(?:showthread\.php\?)?(?:t=)?(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
-        private static partial Regex DisplayNameRegex();
-
-        private static string GetDisplayNameFromUrl(string url)
-        {
-            if (string.IsNullOrEmpty(url))
-                return string.Empty;
-
-            Match m = DisplayNameRegex().Match(url);
-            if (m.Success)
-                return m.Groups["displayName"].Value;
-            else
-                return url;
-        }
     }
 }
