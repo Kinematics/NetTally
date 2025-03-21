@@ -1,4 +1,4 @@
-﻿using NetTally.CustomEventArgs;
+﻿using NetTally.Utility.Events;
 
 namespace NetTally.Input.Web.Handlers;
 

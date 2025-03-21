@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.CustomEventArgs;
+using NetTally.Utility.Events;
 using NetTally.ViewModels;
 
 namespace NetTally.CLI

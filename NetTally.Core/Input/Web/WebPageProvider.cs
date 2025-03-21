@@ -6,11 +6,11 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
-using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Input.Web.Handlers;
 using NetTally.Utility;
 using NetTally.Utility.Cache;
+using NetTally.Utility.Events;
 
 namespace NetTally.Web;
 

@@ -1,12 +1,12 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
-using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Extensions;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Utility.Events;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;

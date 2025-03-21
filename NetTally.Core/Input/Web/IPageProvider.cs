@@ -1,7 +1,7 @@
 ﻿using System.Xml.Linq;
 using HtmlAgilityPack;
-using NetTally.CustomEventArgs;
 using NetTally.Enums;
+using NetTally.Utility.Events;
 
 namespace NetTally.Web;
 

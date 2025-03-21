@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace NetTally.CustomEventArgs;
+namespace NetTally.Utility.Events;
 
 /// <summary>
 /// Custom event args class for PropertyChanged events that allows passing
@@ -8,7 +8,7 @@ namespace NetTally.CustomEventArgs;
 /// Primarily designed so that the changed data can be passed with the property name.
 /// </summary>
 /// <typeparam name="T">The data type being passed.</typeparam>
-/// <seealso cref="System.ComponentModel.PropertyChangedEventArgs" />
+/// <seealso cref="PropertyChangedEventArgs" />
 public class PropertyDataChangedEventArgs<T>(string propertyName, T propertyData)
     : PropertyChangedEventArgs(propertyName)
 {

@@ -8,7 +8,7 @@ using NetTally.Configure;
 using NetTally.Configure.Json;
 using NetTally.Configure.Legacy;
 using NetTally.Configure.Xml;
-using NetTally.CustomEventArgs;
+using NetTally.Utility.Events;
 using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
 using NetTally.Input.Forums.ForumAdapters;

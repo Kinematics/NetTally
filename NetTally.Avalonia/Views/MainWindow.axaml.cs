@@ -12,6 +12,7 @@ using NetTally.Avalonia.Navigation;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Product;
+using NetTally.Utility.Events;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -138,7 +139,7 @@ namespace NetTally.Avalonia.Views
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="ExceptionEventArgs"/> instance containing the event data.</param>
-        private void MainViewModel_ExceptionRaised(object? sender, CustomEventArgs.ExceptionEventArgs e)
+        private void MainViewModel_ExceptionRaised(object? sender, ExceptionEventArgs e)
         {
             Exception ex = e.Exception;
 

@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
-using NetTally.CustomEventArgs;
 using NetTally.Input.Forums.Reading;
 using NetTally.Output;
+using NetTally.Utility.Events;
 
 namespace NetTally.Tally;
 

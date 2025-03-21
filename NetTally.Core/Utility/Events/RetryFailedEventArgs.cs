@@ -1,4 +1,4 @@
-﻿namespace NetTally.CustomEventArgs;
+﻿namespace NetTally.Utility.Events;
 
 public class RetryFailedEventArgs(
     string url,

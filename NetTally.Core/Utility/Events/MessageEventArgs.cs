@@ -1,4 +1,4 @@
-﻿namespace NetTally.CustomEventArgs;
+﻿namespace NetTally.Utility.Events;
 
 /// <summary>
 /// Custom EventArgs class to pass a message string.

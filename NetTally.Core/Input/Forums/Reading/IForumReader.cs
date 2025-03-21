@@ -1,5 +1,5 @@
-﻿using NetTally.CustomEventArgs;
-using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Components.Posts;
+using NetTally.Utility.Events;
 
 namespace NetTally.Input.Forums.Reading;
 public interface IForumReader
