@@ -25,7 +25,7 @@ public struct Spoiler : IDisposable
 
         if (Display)
         {
-            sb.AppendLine($"[spoiler=\"{label}\"]");
+            SB.AppendLine($"[spoiler=\"{label}\"]");
         }
     }
 

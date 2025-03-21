@@ -48,7 +48,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     /// <param name="globalSettings">Global settings that need to be updated with legacy info.</param>
     private void LoadLegacyQuests(ConfigInfo legacyConfig, GlobalSettings globalSettings)
     {
-        Quests = new ObservableCollection<Quest>(legacyConfig.UserQuests.Quests);
+        Quests = [.. legacyConfig.UserQuests.Quests];
 
         if (!string.IsNullOrEmpty(legacyConfig.UserQuests.CurrentQuest))
         {
@@ -67,7 +67,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
     /// <param name="userQuests"></param>
     private void LoadUserQuests(UserQuests userQuests)
     {
-        Quests = new ObservableCollection<Quest>(userQuests.Quests);
+        Quests = [.. userQuests.Quests];
 
         if (Quests.Count > 0 && !string.IsNullOrEmpty(userQuests.CurrentQuest))
         {
