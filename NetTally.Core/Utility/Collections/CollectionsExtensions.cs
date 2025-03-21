@@ -5,7 +5,7 @@ namespace NetTally.Utility.Collections;
 /// <summary>
 /// Extension methods for various collections.
 /// </summary>
-public static class CollectionsExt
+public static class CollectionsExtensions
 {
     /// <summary>
     /// Swap two values in a list.
