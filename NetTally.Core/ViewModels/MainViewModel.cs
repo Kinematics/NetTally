@@ -39,6 +39,8 @@ namespace NetTally.ViewModels
             checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
         }
 
+        public string Title => $"{ProductInfo.Name} – {ProductInfo.Version}";
+
         #region Item Source Properties
         public ObservableCollection<Quest> Quests => questsInfo.Quests;
 
