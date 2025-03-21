@@ -14,20 +14,24 @@ public static class CollectionsExtensions
     /// <param name="list">The list to swap data in.</param>
     /// <param name="firstIndex">The first index value being swapped.</param>
     /// <param name="secondIndex">The second index value being swapped.</param>
-    public static void Swap<T>(this IList<T> list, int firstIndex, int secondIndex)
+    /// <returns><c>True</c> if the items were swapped, or <c>false</c> if they were not.</returns>
+    public static bool Swap<T>(this IList<T> list, int firstIndex, int secondIndex)
     {
         ArgumentNullException.ThrowIfNull(list);
 
         if (firstIndex == secondIndex)
-            return;
+            return false;
+
         if (firstIndex < 0 || firstIndex >= list.Count || secondIndex < 0 || secondIndex >= list.Count)
-            return;
+            return false;
 
         (list[secondIndex], list[firstIndex]) = (list[firstIndex], list[secondIndex]);
+
+        return true;
     }
 
     /// <summary>
-    /// Does an in-place sort the specified collection.
+    /// Does an in-place sort of the specified collection.
     /// </summary>
     /// <typeparam name="T">The type of object held in the collection.</typeparam>
     /// <param name="collection">The collection to be sorted.</param>
@@ -38,34 +42,7 @@ public static class CollectionsExtensions
 
         for (int i = 0; i < sorted.Count; i++)
         {
-            int src = collection.IndexOf(sorted[i]);
-            if (src != i)
-                collection.Move(src, i);
+            collection[i] = sorted[i];
         }
-    }
-
-    /// <summary>
-    /// Find the index of the requested object within the readonly list.
-    /// Uses a sequential search.
-    /// </summary>
-    /// <typeparam name="T">The type of objects in the list.</typeparam>
-    /// <param name="list">The list being scanned.</param>
-    /// <param name="obj">The object being searched for.</param>
-    /// <returns>Returns the index the object was found at, or -1 if not found.</returns>
-    public static int IndexOf<T>(this IReadOnlyList<T> list, T obj) where T : IEquatable<T>
-    {
-        for (int i = 0; i < list.Count; i++)
-        {
-            if (list[i].Equals(obj))
-                return i;
-        }
-
-        return -1;
-    }
-
-    public static TValue? GetValueOrDefault1<TKey, TValue>(
-        this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : class
-    {
-        return dictionary.TryGetValue(key, out TValue? value) ? value : default;
     }
 }
