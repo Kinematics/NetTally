@@ -56,9 +56,9 @@ public class WebPageProvider : IDisposable, IPageProvider
 
             _client = (uri.Host, settings.DisableWebProxy) switch
             {
-                ("api.github.com", _) => httpClientFactory.CreateClient(ConfigStrings.Github),
-                (_, true) => httpClientFactory.CreateClient(ConfigStrings.NoProxy),
-                (_, false) => httpClientFactory.CreateClient(ConfigStrings.WithProxy),
+                ("api.github.com", _) => httpClientFactory.CreateClient(ConfigValues.Github),
+                (_, true) => httpClientFactory.CreateClient(ConfigValues.NoProxy),
+                (_, false) => httpClientFactory.CreateClient(ConfigValues.WithProxy),
             };
 
             Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);

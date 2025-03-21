@@ -60,7 +60,7 @@ public class LegacyNetTallyConfig
                 {
                     try
                     {
-                        if (config.Sections[ConfigStrings.SectionName] is QuestsSection questsSection)
+                        if (config.Sections[ConfigValues.SectionName] is QuestsSection questsSection)
                         {
                             questsSection.Load(out quests, out currentQuest, options);
                             return true;

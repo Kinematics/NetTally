@@ -208,7 +208,7 @@ public static class AppX
         string userAgent = $"{ProductInfo.Name} ({ProductInfo.Version})";
 
         services
-            .AddHttpClient(ConfigStrings.WithProxy, client =>
+            .AddHttpClient(ConfigValues.WithProxy, client =>
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
@@ -228,7 +228,7 @@ public static class AppX
             .AddPolicyHandler(GetRetryPolicy());
 
         services
-            .AddHttpClient(ConfigStrings.NoProxy, client =>
+            .AddHttpClient(ConfigValues.NoProxy, client =>
             {
                 client.DefaultRequestHeaders.Accept.ParseAdd("text/html");
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
@@ -251,7 +251,7 @@ public static class AppX
             .AddPolicyHandler(GetRetryPolicy());
 
         services
-            .AddHttpClient(ConfigStrings.Github, client =>
+            .AddHttpClient(ConfigValues.Github, client =>
             {
                 client.BaseAddress = new Uri("https://api.github.com/");
                 client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github.v3+json");
@@ -275,14 +275,14 @@ public static class AppX
     {
         return HttpPolicyExtensions
             .HandleTransientHttpError()
-            .WaitAndRetryAsync(ConfigStrings.MaxRetries,
+            .WaitAndRetryAsync(ConfigValues.MaxRetries,
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 onRetry: (result, timespan, retryAttempt, context) =>
                 {
                     var eventArgs = new RetryFailedEventArgs(
                         result.Result.RequestMessage?.RequestUri?.AbsoluteUri ?? "Unknown",
                         retryAttempt, result.Exception, result.Result,
-                        retryAttempt == ConfigStrings.MaxRetries);
+                        retryAttempt == ConfigValues.MaxRetries);
 
                     RetryFailureHandler.OnRetryFailed(context, eventArgs);
                 });

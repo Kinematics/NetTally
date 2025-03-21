@@ -67,12 +67,12 @@ internal class JsonConfiguration(
                 path = Path.Combine(path, ProductInfo.Name);
                 Directory.CreateDirectory(path);
 
-                yield return Path.Combine(path, ConfigStrings.UserConfigJsonFile);
+                yield return Path.Combine(path, ConfigValues.UserConfigJsonFileName);
             }
         }
 
         // After that, supply the file for the local directory.
         // This will take precedence over the AppSettings version of the file, if it exists.
-        yield return ConfigStrings.UserConfigJsonFile;
+        yield return ConfigValues.UserConfigJsonFileName;
     }
 }
