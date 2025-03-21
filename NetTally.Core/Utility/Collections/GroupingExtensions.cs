@@ -1,4 +1,4 @@
-﻿namespace NetTally.Extensions;
+﻿namespace NetTally.Utility.Collections;
 
 /// <summary>
 /// Extension methods to allow grouping collections in various ways.

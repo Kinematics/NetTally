@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace NetTally.Extensions;
+namespace NetTally.Utility.Collections;
 
 /// <summary>
 /// Generic class for containing a group of items that are identified with the same key value.

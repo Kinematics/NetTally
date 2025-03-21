@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Extensions;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
+using NetTally.Utility.Collections;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Counting;

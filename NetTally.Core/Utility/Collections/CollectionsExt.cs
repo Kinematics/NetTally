@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace NetTally.Extensions;
+namespace NetTally.Utility.Collections;
 
 /// <summary>
 /// Extension methods for various collections.
