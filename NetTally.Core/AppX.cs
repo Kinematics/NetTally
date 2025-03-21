@@ -268,7 +268,7 @@ public static class AppX
                     UseProxy = true
                 })
             .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-            .AddPolicyHandler(GetRetryPolicy());
+            .AddPolicyHandler(GetGithubRetryPolicy());
     }
 
     private static AsyncRetryPolicy<HttpResponseMessage> GetRetryPolicy()
@@ -285,6 +285,58 @@ public static class AppX
                         retryAttempt == ConfigValues.MaxRetries);
 
                     RetryFailureHandler.OnRetryFailed(context, eventArgs);
+                });
+    }
+
+    private static AsyncRetryPolicy<HttpResponseMessage> GetGithubRetryPolicy()
+    {
+        return HttpPolicyExtensions
+            .HandleTransientHttpError()
+            .WaitAndRetryAsync(ConfigValues.MaxRetries,
+                sleepDurationProvider: (retryAttempt, response, context) =>
+                {
+                    var headers = response.Result.Headers;
+
+                    if (headers.TryGetValues("retry-after", out var retryValues))
+                    {
+                        var retrySeconds = retryValues.LastOrDefault();
+
+                        if (retrySeconds is not null && int.TryParse(retrySeconds, out int seconds))
+                        {
+                            return TimeSpan.FromSeconds(seconds);
+                        }
+                    }
+
+                    if (headers.TryGetValues("x-ratelimit-remaining", out var ratelimitValues))
+                    {
+                        if (ratelimitValues.Any(v => v == "0"))
+                        {
+                            if (headers.TryGetValues("x-ratelimit-reset", out var resetValues))
+                            {
+                                var retrySeconds = resetValues.LastOrDefault();
+
+                                if (retrySeconds is not null && int.TryParse(retrySeconds, out int seconds))
+                                {
+                                    return TimeSpan.FromSeconds(seconds);
+                                }
+                            }
+                        }
+                    }
+
+                    var minutes = Math.Pow(2, retryAttempt);
+
+                    return TimeSpan.FromMinutes(minutes);
+                },
+                async (response, time, retryAttempt, context) =>
+                {
+                    var eventArgs = new RetryFailedEventArgs(
+                        response.Result.RequestMessage?.RequestUri?.AbsoluteUri ?? "Unknown",
+                        retryAttempt, response.Exception, response.Result,
+                        retryAttempt == ConfigValues.MaxRetries);
+
+                    RetryFailureHandler.OnRetryFailed(context, eventArgs);
+
+                    await Task.CompletedTask;
                 });
     }
     #endregion Hosting Setup
