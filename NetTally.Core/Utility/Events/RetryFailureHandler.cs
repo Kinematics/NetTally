@@ -1,6 +1,4 @@
-﻿using NetTally.Utility.Events;
-
-namespace NetTally.Input.Web.Handlers;
+﻿namespace NetTally.Utility.Events;
 
 public static class RetryFailureHandler
 {
