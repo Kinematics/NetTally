@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
 
-namespace NetTally.Extensions;
+namespace NetTally.Utility.Enumerations;
 
 /// <summary>
 /// Static class that can be used for extension methods on enums, in order to use
@@ -40,7 +40,7 @@ static class EnumExtensions
         {
             DescriptionAttribute? fieldAttribute = fieldInfo.GetCustomAttribute<DescriptionAttribute>();
 
-            if (fieldAttribute?.Description == description || (fieldAttribute == null && fieldInfo.Name == description))
+            if (fieldAttribute?.Description == description || fieldAttribute == null && fieldInfo.Name == description)
             {
                 var v = fieldInfo.GetValue(null);
 

@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Product;
 using NetTally.Enums;
-using NetTally.Extensions;
 using NetTally.Tally;
 using NetTally.Utility.Cache;
+using NetTally.Utility.Enumerations;
 
 namespace NetTally.ViewModels;
 

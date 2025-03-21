@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Extensions;
+using NetTally.Utility.Enumerations;
 
 namespace NetTally.ViewModels;
 
