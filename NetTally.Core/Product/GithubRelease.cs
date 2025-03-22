@@ -23,12 +23,9 @@ public class GithubRelease
         get
         {
             string tagVersion = Tag_Name.Trim('v');
-            if (Version.TryParse(tagVersion, out var version))
-            {
-                return version;
-            }
 
-            return null;
+            return Version.TryParse(tagVersion, out var version) ?
+                version : null;
         }
     }
 }

@@ -170,9 +170,10 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         if (versions is null || versions.Count == 0)
             return null;
 
-        var latestVersion = versions.Where(FilterForOldFramework)
-                                    .OrderDescending()
-                                    .FirstOrDefault();
+        var latestVersion = versions
+            .Where(FilterForOldFramework)
+            .OrderDescending()
+            .FirstOrDefault();
 
         return latestVersion;
     }
