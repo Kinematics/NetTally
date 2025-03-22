@@ -1,4 +1,5 @@
 ﻿using NetTally.Enums;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 
@@ -16,11 +17,11 @@ public static class RankingCalculations
         // Normalize to 9 points for #1, 8 points for #2, etc.
         foreach (var vote in votes.Value)
         {
-            if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                vote.Value.Marker.MarkerValue > 0 &&
-                vote.Value.Marker.MarkerValue < 10)
+            if (vote.Value.Marker is RankMarker &&
+                vote.Value.Marker.GetValue() > 0 &&
+                vote.Value.Marker.GetValue() < 10)
             {
-                voteValue += (10 - vote.Value.Marker.MarkerValue);
+                voteValue += (10 - vote.Value.Marker.GetValue());
             }
         }
 
@@ -39,11 +40,11 @@ public static class RankingCalculations
         // Value of each rank is 1/N.
         foreach (var vote in votes.Value)
         {
-            if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                vote.Value.Marker.MarkerValue > 0 &&
-                vote.Value.Marker.MarkerValue < 10)
+            if (vote.Value.Marker is RankMarker &&
+                vote.Value.Marker.GetValue() > 0 &&
+                vote.Value.Marker.GetValue() < 10)
             {
-                voteValue += (1.0 / vote.Value.Marker.MarkerValue);
+                voteValue += (1.0 / vote.Value.Marker.GetValue());
             }
         }
 
@@ -59,7 +60,7 @@ public static class RankingCalculations
     /// <returns>Returns a numeric evaluation of the overall score of the vote.</returns>
     public static (double score, int count) LowerWilsonRankingScore(VoteStorageEntryF votes)
     {
-        int n = votes.Value.Count(v => v.Value.Marker.MarkerType == MarkerType.Rank);
+        int n = votes.Value.Count(v => v.Value.Marker is RankMarker);
 
         if (n == 0)
             return (0, 0);
@@ -71,11 +72,11 @@ public static class RankingCalculations
         // Value of each rank is 1/N.
         foreach (var vote in votes.Value)
         {
-            if (vote.Value.Marker.MarkerType == MarkerType.Rank &&
-                vote.Value.Marker.MarkerValue > 0 &&
-                vote.Value.Marker.MarkerValue < 10)
+            if (vote.Value.Marker is RankMarker &&
+                vote.Value.Marker.GetValue() > 0 &&
+                vote.Value.Marker.GetValue() < 10)
             {
-                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.MarkerValue);
+                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.GetValue());
 
                 positiveScore += scaledPositiveScore;
                 negativeScore += (1.0 - scaledPositiveScore);

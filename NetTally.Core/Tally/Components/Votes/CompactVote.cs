@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Extensions;
 using NetTally.Tally.Components.Posts;
+using NetTally.Utility.Linq;
 
 namespace NetTally.Tally.Components.Votes;
 public record CompactVoteType(

@@ -56,7 +56,7 @@ public class UndoAction
             }
             else
             {
-                HashSet<OriginType> voterRemovals = [];
+                HashSet<Origin> voterRemovals = [];
 
                 foreach (var (currentSupporter, _) in currentSupporters)
                 {

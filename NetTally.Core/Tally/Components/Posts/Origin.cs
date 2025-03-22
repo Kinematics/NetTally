@@ -1,247 +1,204 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Enums;
 using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Posts;
-public sealed record OriginType(
-    IdentityType Category,
-    AuthorType Author,
-    Uri Thread,
-    Uri Permalink,
-    PostIdType PostId,
-    int ThreadPostNumber,
-    DateTimeOffset Timestamp,
-    OriginType? Source)
-{
-    public bool IsUser => Category == IdentityType.User;
-    public bool IsPlan => Category == IdentityType.Plan;
 
-    public override string ToString()
-    {
-        return $"{{Name: {Author.Name} ({Category}), {ThreadPostNumber} @ {Thread}";
-    }
+public abstract record Origin(Author Author, Uri Thread, Uri Permalink,
+    PostId PostId, PostId PostNumber, DateTimeOffset Timestamp)
+{
+    public bool IsUser => this is UserOrigin;
+    public bool IsPlan => this is PlanOrigin;
 }
 
-public static class Origin
+public sealed record UserOrigin(Author Author, Uri Thread, Uri Permalink,
+    PostId PostId, PostId PostNumber, DateTimeOffset Timestamp)
+    : Origin(Author, Thread, Permalink, PostId, PostNumber, Timestamp);
+
+public sealed record PlanOrigin(Origin Origin, Author PlanName) : Origin(Origin);
+
+/// <summary>
+/// Class for creating <see cref="Origin"/> objects.
+/// </summary>
+public static class Origins
 {
-    static readonly Uri ExampleUri = OriginComparer.ExampleUri;
+    static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
 
-    /// <summary>
-    /// An empty origin.
-    /// </summary>
-    public static OriginType None { get; } = new OriginType(
-        IdentityType.User,
-        Author.None,
-        ExampleUri,
-        ExampleUri,
-        PostId.Zero,
-        0,
-        DateTimeOffset.MinValue,
-        null);
+    public static Origin None { get; } = new UserOrigin(Authors.None,
+        ExampleUri, ExampleUri, PostIds.Zero, PostIds.Zero, DateTimeOffset.MinValue);
 
-    /// <summary>
-    /// Create an <see cref="OriginType"/> object, fully defined.
-    /// </summary>
-    /// <param name="category"></param>
-    /// <param name="author"></param>
-    /// <param name="thread"></param>
-    /// <param name="permalink"></param>
-    /// <param name="postId"></param>
-    /// <param name="postNumber"></param>
-    /// <param name="timestamp"></param>
-    /// <param name="source"></param>
-    /// <returns></returns>
-    public static OriginType? Create(
-        IdentityType category,
-        AuthorType author,
+    public static Origin? CreateUser(Author author, Uri thread, Uri permalink, PostId postId, PostId postNumber) =>
+        CreateUser(author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue);
+
+    public static Origin? CreateUser(
+        Author author,
         Uri thread,
         Uri permalink,
-        PostIdType postId,
-        int postNumber,
-        DateTimeOffset timestamp,
-        OriginType source)
-    {
-        if (author == Author.None)
-            return null;
-
-        if (postNumber < 1)
-            postNumber = 0;
-
-        return new OriginType(category, author,
-            thread, permalink, postId, postNumber, timestamp, source);
-    }
-
-    /// <summary>
-    /// Create a simple <see cref="OriginType"/> with only name and category values.
-    /// </summary>
-    /// <param name="category">The type of author.</param>
-    /// <param name="author">The author for the origin.</param>
-    /// <returns></returns>
-    public static OriginType? CreateOriginForName(
-        IdentityType category,
-        AuthorType author)
-    {
-        return Create(category, author, ExampleUri, ExampleUri, PostId.Zero,
-            0, DateTimeOffset.MinValue, None);
-    }
-
-    /// <summary>
-    /// Shortcut to create an <see cref="OriginType"/> for a user.
-    /// </summary>
-    /// <param name="author"></param>
-    /// <param name="thread"></param>
-    /// <param name="permalink"></param>
-    /// <param name="postId"></param>
-    /// <param name="postNumber"></param>
-    /// <returns></returns>
-    public static OriginType? CreateUser(
-        AuthorType author,
-        Uri thread,
-        Uri permalink,
-        PostIdType postId,
-        int postNumber)
-    {
-        return Create(IdentityType.User, author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue, None);
-    }
-
-    /// <summary>
-    /// Shortcut to create an <see cref="OriginType"/> for a user.
-    /// Include timestamp.
-    /// </summary>
-    /// <param name="author"></param>
-    /// <param name="thread"></param>
-    /// <param name="permalink"></param>
-    /// <param name="postId"></param>
-    /// <param name="postNumber"></param>
-    /// <param name="timestamp"></param>
-    /// <returns></returns>
-    public static OriginType? CreateUser(
-        AuthorType author,
-        Uri thread,
-        Uri permalink,
-        PostIdType postId,
-        int postNumber,
+        PostId postId,
+        PostId postNumber,
         DateTimeOffset timestamp)
     {
-        return Create(IdentityType.User, author, thread, permalink, postId, postNumber, timestamp, None);
+        if (author == Authors.None)
+            return null;
+
+        return new UserOrigin(author, thread, permalink, postId, postNumber, timestamp);
     }
 
-    /// <summary>
-    /// Create an <see cref="OriginType"/> for a plan, using a user as a base.
-    /// </summary>
-    /// <param name="origin"></param>
-    /// <param name="planName">The name of the plan to use.</param>
-    /// <returns></returns>
-    public static OriginType? CreatePlanOrigin(OriginType origin, string? planName)
+    public static Origin CreatePlan(Origin origin, Author planName)
     {
-        if (planName == null)
-            return null;
-
-        AuthorType author = Author.Create(planName);
-
-        return CreatePlanOrigin(origin, author);
+        return new PlanOrigin(origin, planName);
     }
 
-    /// <summary>
-    /// Create an <see cref="OriginType"/> for a plan, using a user as a base.
-    /// </summary>
-    /// <param name="origin"></param>
-    /// <param name="plan">The <see cref="AuthorType"/> for the plan.</param>
-    /// <returns></returns>
-    public static OriginType? CreatePlanOrigin(OriginType origin, AuthorType plan)
+    public static Origin CreateUserNameOnly(Author author)
     {
-        if (origin.Category != IdentityType.User)
-        {
-            return null;
-        }
+        return None with { Author = author };
+    }
 
-        if (plan == Author.None)
-        {
-            return null;
-        }
-
-        return Create(IdentityType.Plan, plan,
-            origin.Thread, origin.Permalink, origin.PostId, origin.ThreadPostNumber,
-            origin.Timestamp, origin);
+    public static Origin CreatePlanNameOnly(Author planName)
+    {
+        return new PlanOrigin(None, planName);
     }
 }
 
-public class OriginComparer : IEqualityComparer<OriginType>, IComparer<OriginType>
+/// <summary>
+/// Class containing mapping function for subclasses of <see cref="Origin"/> objects.
+/// </summary>
+public static class OriginMapping
 {
-    public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
+    /// <summary>
+    /// Map function that defines how to implement a function that can apply to different
+    /// subclasses of <see cref="Origin"/>.
+    /// </summary>
+    /// <typeparam name="T">The function return type.</typeparam>
+    /// <param name="origin">The <see cref="Origin"/> that this extension method applies to.</param>
+    /// <param name="userMap">What to do if the <see cref="Origin"/> is a <see cref="UserOrigin"/></param>
+    /// <param name="planMap">What to do if the <see cref="Origin"/> is a <see cref="PlanOrigin"/></param>
+    /// <returns>The result of whichever function got applied.</returns>
+    /// <exception cref="InvalidOperationException">Will trigger if another subclass is
+    /// ever created, but this function hasn't been updated.</exception>
+    public static T Map<T>(this Origin origin, Func<UserOrigin, T> userMap, Func<PlanOrigin, T> planMap) =>
+        origin switch
+        {
+            UserOrigin userOrigin => userMap(userOrigin),
+            PlanOrigin planOrigin => planMap(planOrigin),
+            _ => throw new InvalidOperationException("Unknown Origin type.")
+        };
+}
+
+/// <summary>
+/// Extension methods for <see cref="Origin"/> objects.
+/// </summary>
+public static class OriginExtensions
+{
+    /// <summary>
+    /// Get the appropriate <see cref="Author"/> based on the type of <see cref="Origin"/>.
+    /// <see cref="UserOrigin"/> returns the Author. <see cref="PlanOrigin"/> returns the PlanName.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <returns>The <see cref="Author"/> of the <see cref="Origin"/>.</returns>
+    public static Author GetName(this Origin origin) => origin.Map(
+        userOrigin => userOrigin.Author,
+        planOrigin => planOrigin.PlanName);
+
+    /// <summary>
+    /// Gets the original <see cref="Origin"/> used as a basis for this one.
+    /// Only applies to <see cref="PlanOrigin"/> objects. Otherwise returns <see cref="Origins.None"/>.
+    /// </summary>
+    /// <param name="origin">The Origin of the <see cref="Origin"/>, if any.</param>
+    /// <returns></returns>
+    public static Origin Source(this Origin origin) => origin.Map(
+        userOrigin => Origins.None,
+        planOrigin => planOrigin.Origin);
+
+    /// <summary>
+    /// Gets a formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
+    public static string GetBBCodeLink(this Origin origin) => origin.Map(
+        userOrigin => $"[url=\"{userOrigin.Permalink}\"]{userOrigin.Author.Name}[/url]",
+        planOrigin => $"[url=\"{planOrigin.Permalink}\"]{Strings.PlanNameMarker}{planOrigin.PlanName.Name}[/url]");
+}
+
+
+public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
+{
+    static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
     public static OriginComparer Instance { get; } = new();
 
-    public int Compare(OriginType? x, OriginType? y)
+    public int Compare(Origin? x, Origin? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
         if (y is null) return 1;
 
-        int result = x.Category.CompareTo(y.Category);
-
-        if (result != 0) return result;
-
-        result = AuthorComparer.Instance.Compare(x.Author, y.Author);
-
-        if (result != 0) return result;
-
-        if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
-            y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
+        if (x is UserOrigin ^ y is UserOrigin)
         {
-            result = x.Thread.AbsoluteUri.CompareTo(y.Thread.AbsoluteUri);
-
-            if (result != 0) return result;
-
-            result = PostIdComparer.Instance.Compare(x.PostId, y.PostId);
-
-            if (result != 0) return result;
+            return (x is PlanOrigin) ? -1 : 1;
         }
 
-        return 0;
+        int result = AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
+
+        if (result == 0)
+        {
+            if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
+                y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
+            {
+                result = x.Thread.AbsoluteUri.CompareTo(y.Thread.AbsoluteUri);
+
+                if (result == 0)
+                {
+                    result = PostIdComparer.Instance.Compare(x.PostId, y.PostId);
+                }
+            }
+        }
+
+        return result;
     }
 
-    public bool Equals(OriginType? x, OriginType? y)
+    public bool Equals(Origin? x, Origin? y)
     {
-        if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
+        if (x is null || y is null) return false;
 
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] OriginType obj)
+    public int GetHashCode([DisallowNull] Origin obj)
     {
         return AuthorComparer.Instance.GetHashCode(obj.Author);
     }
 }
 
-public class OriginNameComparer : IEqualityComparer<OriginType>, IComparer<OriginType>
+public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
 {
-    public static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
     public static OriginNameComparer Instance { get; } = new();
 
-    public int Compare(OriginType? x, OriginType? y)
+    public int Compare(Origin? x, Origin? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
         if (y is null) return 1;
 
-        int result = x.Category.CompareTo(y.Category);
+        if (x is UserOrigin ^ y is UserOrigin)
+        {
+            return (x is PlanOrigin) ? -1 : 1;
+        }
 
-        if (result != 0) return result;
-
-        return AuthorComparer.Instance.Compare(x.Author, y.Author);
+        return AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
     }
 
-    public bool Equals(OriginType? x, OriginType? y)
+    public bool Equals(Origin? x, Origin? y)
     {
-        if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
+        if (x is null || y is null) return false;
 
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] OriginType obj)
+    public int GetHashCode([DisallowNull] Origin obj)
     {
-        return AuthorComparer.Instance.GetHashCode(obj.Author);
+        return AuthorComparer.Instance.GetHashCode(obj.GetName());
     }
 }
+
+

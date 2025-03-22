@@ -1,6 +1,7 @@
 ﻿using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 
@@ -56,9 +57,9 @@ public class BordaNormalized : IRankVoteCounter
         // That means first place is 5x as valuable as last place, rather than 9x as valuable.
         foreach (var voter in vote.Value)
         {
-            if (voter.Key.Category == IdentityType.User && voter.Value.Marker.MarkerType == MarkerType.Rank)
+            if (voter.Key is UserOrigin && voter.Value.Marker is RankMarker)
             {
-                voteValue += (1.0 + voter.Value.Marker.MarkerValue);
+                voteValue += (1.0 + voter.Value.Marker.GetValue());
                 count++;
             }
         }

@@ -49,6 +49,8 @@ namespace NetTally.Views
         /// <param name="e">The <see cref="KeyEventArgs"/> instance containing the event data.</param>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            logger.LogTrace("Key press: {key}", e.Key);
+
             if (e.Key == Key.Z && (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
             {
                 if (manageVotesViewModel.UndoCommand.CanExecute(this))

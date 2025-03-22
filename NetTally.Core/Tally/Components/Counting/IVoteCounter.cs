@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
-using NetTally.Collections;
 using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
+using NetTally.Utility.Collections;
 
 namespace NetTally.Tally.Components.Counting;
 
@@ -63,7 +63,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="titles">The titles to display during output.</param>
     /// <param name="posts">The posts to be processed.</param>
-    void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts);
+    void ConstructVotes(IEnumerable<string> titles, IEnumerable<Post> posts);
 
     /// <summary>
     /// Normalize the formatting of a plan name.
@@ -82,7 +82,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="postID">The post ID the plan was defined in.</param>
     /// <param name="planBlock">The the vote line block that defines the plan.</param>
     /// <returns>Returns true if it was added, or false if it already exists.</returns>
-    bool AddReferencePlan(OriginType planOrigin, VoteBlockType plan);
+    bool AddReferencePlan(Origin planOrigin, VoteBlockType plan);
     /// <summary>
     /// Store a voter and their post ID.
     /// This is expecting to be called for every vote by the user,
@@ -91,20 +91,20 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="voterName">The proper name of the voter.</param>
     /// <param name="postID">The ID of their vote post.</param>
     /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
-    bool AddReferenceVoter(OriginType voter);
+    bool AddReferenceVoter(Origin voter);
 
     /// <summary>
     /// Get canonical version of the provided plan name.
     /// </summary>
     /// <param name="planName">The name of the plan being checked for.</param>
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    OriginType? GetPlanOriginByName(string? planName);
+    Origin? GetPlanOriginByName(string? planName);
     /// <summary>
     /// Get canonical version of the provided voter name.
     /// </summary>
     /// <param name="voterName">The name of the voter being checked for.</param>
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
-    OriginType? GetVoterOriginByName(string? voterName);
+    Origin? GetVoterOriginByName(string? voterName);
     /// <summary>
     /// Determine if the requested plan name exists in the current list of plans.
     /// </summary>
@@ -125,20 +125,20 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    PostToProcess? GetLastPostByAuthor(OriginType author, PostIdType maxPostId);
+    PostToProcess? GetLastPostByAuthor(Origin author, PostId maxPostId);
     /// <summary>
     /// Get the reference plan corresponding to the provided plan name.
     /// </summary>
     /// <param name="planName">The name of the plan to get.</param>
     /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-    VoteBlockType? GetReferencePlan(OriginType planOrigin);
+    VoteBlockType? GetReferencePlan(Origin planOrigin);
     IEnumerable<VoteBlockType> GetReferencePlans();
     /// <summary>
     /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    IEnumerable<VoteBlockType> GetVotesBy(OriginType voter);
+    IEnumerable<VoteBlockType> GetVotesBy(Origin voter);
     /// <summary>
     /// Get a collection of all the votes that currently have supporters.
     /// </summary>
@@ -148,19 +148,19 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// Get a list of all known voters.
     /// </summary>
     /// <returns>Returns an IEnumerable of the registered reference voters.</returns>
-    IEnumerable<OriginType> GetAllVoters();
+    IEnumerable<Origin> GetAllVoters();
     /// <summary>
     /// Gets all voters that are supporting the specified vote.
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    IEnumerable<OriginType> GetVotersFor(VoteBlockType vote);
+    IEnumerable<Origin> GetVotersFor(VoteBlockType vote);
     /// <summary>
     /// Gets all user voters that are supporting the specified vote.
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the user voter names that are supporting the given vote.</returns>
-    IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote);
+    IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote);
     /// <summary>
     /// Gets a count of the known voters.
     /// </summary>
@@ -182,7 +182,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="votePartitions">The vote blocks to be added.</param>
     /// <param name="voter">The voter.</param>
-    void AddVotes(IEnumerable<VoteBlockType> votePartitions, OriginType voter);
+    void AddVotes(IEnumerable<VoteBlockType> votePartitions, Origin voter);
     /// <summary>
     /// Merge the vote supporters from one vote into another.
     /// </summary>
@@ -204,7 +204,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="voters">The voters that will support the new voter.</param>
     /// <param name="voterToJoin">The voter to join.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    bool Join(List<OriginType> voters, OriginType voterToJoin);
+    bool Join(List<Origin> voters, Origin voterToJoin);
     /// <summary>
     /// Delete an entire vote and all associated supporters.
     /// </summary>

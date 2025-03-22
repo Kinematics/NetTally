@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NetTally.CustomEventArgs;
+using NetTally.Utility.Events;
 using NetTally.ViewModels;
 
 namespace NetTally.CLI
@@ -77,8 +77,8 @@ namespace NetTally.CLI
             Thread.Sleep(30);
 
             bool canAddQuest = mainViewModel.AddQuestCommand.CanExecute(null);
-            logger.LogTrace("Can Add Quest: {canAddQuest} (TallyIsRunning: {TallyIsRunning})",
-                canAddQuest, mainViewModel.TallyIsRunning);
+            logger.LogTrace("Can Add Quest: {canAddQuest} (IsTallyRunning: {IsTallyRunning})",
+                canAddQuest, mainViewModel.IsTallyRunning);
 
             if (canAddQuest)
             {
@@ -192,12 +192,12 @@ namespace NetTally.CLI
 
             if (e is PropertyDataChangedEventArgs<string> eData)
             {
-                if (mainViewModel.TallyIsRunning && verbose)
+                if (mainViewModel.IsTallyRunning && verbose)
                 {
                     Console.Error.Write(eData.PropertyData);
                 }
             }
-            else if (mainViewModel.TallyIsRunning == false)
+            else if (mainViewModel.IsTallyRunning == false)
             {
                 if (e != null && e.PropertyName == nameof(mainViewModel.Output))
                 {

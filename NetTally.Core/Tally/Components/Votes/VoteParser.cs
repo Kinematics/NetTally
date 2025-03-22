@@ -6,15 +6,12 @@ public static partial class VoteParser
 {
     #region Regex
     // A post with ##### at the start of one of the lines is a posting of tally results.
-    readonly static Regex tallyPostRegex = TallyPostRegex();
-    // A line solely composed of a callout to a given user is used for nomination tallying.
-    readonly static Regex nominationLineRegex = NominationLineRegex();
-
     [GeneratedRegex(@"^#####", RegexOptions.Multiline)]
-    private static partial Regex TallyPostRegex();
+    private static partial Regex TallyPostRegex { get; }
 
+    // A line solely composed of a callout to a given user is used for nomination tallying.
     [GeneratedRegex(@"^『url=""[^""]+?/members/\d+/""』@?(?<username>[^『]+)『/url』\s*$")]
-    private static partial Regex NominationLineRegex();
+    private static partial Regex NominationLineRegex { get; }
     #endregion Regex
 
     #region Public Methods
@@ -38,7 +35,7 @@ public static partial class VoteParser
     private static bool IsTallyPost(string text)
     {
         string cleanText = VoteLineParser.StripBBCode(text);
-        return tallyPostRegex.Match(cleanText).Success;
+        return TallyPostRegex.Match(cleanText).Success;
     }
 
     private static List<VoteLineType> GetVoteLines(List<string> textLines)
@@ -69,7 +66,7 @@ public static partial class VoteParser
         var parts = parsed.Value;
 
         var prefix = Prefix.Create(parts.Prefix);
-        var marker = Marker.Create(parts.Marker);
+        var marker = Markers.Create(parts.Marker);
         var task = VoteTask.Create(parts.Task);
         var content = VoteContent.Create(parts.Content);
 
@@ -81,10 +78,10 @@ public static partial class VoteParser
     private static List<VoteLineType> GetNominationLines(List<string> textLines)
     {
         var voteLines = textLines
-            .Select(t => nominationLineRegex.Match(t))
+            .Select(t => NominationLineRegex.Match(t))
             .Where(m => m.Success)
             .Select(m => VoteLine.Create(Prefix.Empty,
-                                Marker.Create("X"),
+                                Markers.Create("X"),
                                 VoteTask.Empty,
                                 VoteContent.Create(m.Groups["username"].Value)))
             .Where(v => v != null)

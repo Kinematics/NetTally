@@ -52,7 +52,7 @@
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
                     <Binding Path="HasQuests" Mode="OneWay" />
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                 </MultiBinding>
             </ComboBox.IsEnabled>
             <ComboBox.ItemContainerStyle>
@@ -80,7 +80,7 @@
                 Click="QuestOptionsButton_Click">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>
@@ -95,7 +95,7 @@
         </Button>
         <Button x:Name="GlobalOptionsButton" Content="Global Options" Margin="0,45,227,0"
                 Height="30" Width="88" HorizontalAlignment="Right" VerticalAlignment="Top"
-                IsEnabled="{Binding Path=TallyIsRunning, Mode=OneWay, Converter={StaticResource InvertBoolConverter}}"
+                IsEnabled="{Binding Path=IsTallyRunning, Mode=OneWay, Converter={StaticResource InvertBoolConverter}}"
                 Click="GlobalOptionsButton_Click">
             <Button.ToolTip>
                 <ToolTip>
@@ -113,7 +113,7 @@
                  GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </TextBox.IsEnabled>
@@ -132,7 +132,7 @@
                  GotFocus="TextEntry_GotFocus" PreviewMouseDown="TextEntry_PreviewMouseDown" MaxLines="1">
             <TextBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </TextBox.IsEnabled>
@@ -150,7 +150,7 @@
                   IsChecked="{Binding Path=SelectedQuest.CheckForLastThreadmark}">
             <CheckBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </CheckBox.IsEnabled>
@@ -169,7 +169,7 @@
                   SelectedIndex="{Binding Path=SelectedQuest.PartitionMode, Converter={StaticResource PartitionModeConverter}}">
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </ComboBox.IsEnabled>
@@ -194,7 +194,7 @@
                   SelectedIndex="{Binding Path=SelectedQuest.DisplayMode, Converter={StaticResource DisplayModeConverter}}">
             <ComboBox.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </ComboBox.IsEnabled>
@@ -218,7 +218,7 @@
                 Click="OpenManageVotesWindow_Click">
             <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource MultiBoolAndConverter}" Mode="OneWay">
-                    <Binding Path="TallyIsRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
+                    <Binding Path="IsTallyRunning" Mode="OneWay" Converter="{StaticResource InvertBoolConverter}"/>
                     <Binding Path="IsQuestSelected" Mode="OneWay" />
                 </MultiBinding>
             </Button.IsEnabled>

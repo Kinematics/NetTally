@@ -1,6 +1,7 @@
 ﻿using NetTally.Enums;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 
@@ -53,9 +54,9 @@ public class Borda : IRankVoteCounter
         // If any voter didn't vote for an option, they effectively add a 0 (rank #6) for that option.
         foreach (var voter in vote.Value)
         {
-            if (voter.Key.Category == IdentityType.User && voter.Value.Marker.MarkerType == MarkerType.Rank)
+            if (voter.Key is UserOrigin && voter.Value.Marker is RankMarker)
             {
-                voteValue += (6 - voter.Value.Marker.MarkerValue);
+                voteValue += (6 - voter.Value.Marker.GetValue());
                 count++;
             }
         }

@@ -1,4 +1,5 @@
-﻿namespace NetTally.Utility.Delegates;
+﻿namespace NetTally.Utility.Filtering;
+
 /// <summary>
 /// A predicate that adapts one type of object to work
 /// with another type.

@@ -29,82 +29,82 @@ public class ReferenceVoteTests
     #endregion Setup
 
     #region Origins
-    private static OriginType GetOrigin_Kinematics1()
+    private static Origin GetOrigin_Kinematics1()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123456);
-        int postNumber = 101;
+        var postId = PostIds.Create(123456);
+        var postNumber = PostIds.Create(101);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Atreya()
+    private static Origin GetOrigin_Atreya()
     {
-        var author = Author.Create("Atreya");
+        var author = Authors.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123457);
-        int postNumber = 102;
+        var postId = PostIds.Create(123457);
+        var postNumber = PostIds.Create(102);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Kimberly()
+    private static Origin GetOrigin_Kimberly()
     {
-        var author = Author.Create("Kimberly");
+        var author = Authors.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123458);
-        int postNumber = 103;
+        var postId = PostIds.Create(123458);
+        var postNumber = PostIds.Create(103);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Kinematics2()
+    private static Origin GetOrigin_Kinematics2()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123459);
-        int postNumber = 104;
+        var postId = PostIds.Create(123459);
+        var postNumber = PostIds.Create(104);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
     #endregion Origins
 
     #region Posts
-    private static PostType GetPostFromKinematics1(string postText)
+    private static Post GetPostFromKinematics1(string postText)
     {
         var origin = GetOrigin_Kinematics1();
-        return Post.Create(origin!, postText)!;
+        return Posting.Create(origin!, postText)!;
     }
 
-    private static PostType GetPostFromKinematics2(string postText)
+    private static Post GetPostFromKinematics2(string postText)
     {
         var origin = GetOrigin_Kinematics2();
-        return Post.Create(origin!, postText)!;
+        return Posting.Create(origin!, postText)!;
     }
 
-    private static PostType GetPostFromAtreya(string postText)
+    private static Post GetPostFromAtreya(string postText)
     {
         var origin = GetOrigin_Atreya();
-        return Post.Create(origin!, postText)!;
+        return Posting.Create(origin!, postText)!;
     }
 
-    private static PostType GetPostFromKimberly(string postText)
+    private static Post GetPostFromKimberly(string postText)
     {
         var origin = GetOrigin_Kimberly();
-        return Post.Create(origin!, postText)!;
+        return Posting.Create(origin!, postText)!;
     }
     #endregion Posts
 
@@ -155,9 +155,9 @@ public class ReferenceVoteTests
     #region Verification
     private readonly static List<string> titles = ["Verify Examples"];
 
-    private static void Verify_VotesBothSupport(PostType post1, PostType post2)
+    private static void Verify_VotesBothSupport(Post post1, Post post2)
     {
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -251,7 +251,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromAtreya(twoLine);
         var post2 = GetPostFromKimberly(refKimberly);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -272,7 +272,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(twoLine);
         var post2 = GetPostFromKinematics1(refKimberly);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -292,7 +292,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromAtreya(twoLine);
         var post2 = GetPostFromKinematics1(refKimberlyPercent);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -312,7 +312,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(implicitPlan);
         var post2 = GetPostFromAtreya(refKimberlyApprove);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -334,7 +334,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(explicitPlan);
         var post2 = GetPostFromAtreya(oneLine); // Name of plan without "Plan"
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -355,7 +355,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(twoChunkPlan);
         var post2 = GetPostFromKinematics2(oneLine); // Name of plan without "Plan"
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -376,7 +376,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(implicitPlan);
         var post2 = GetPostFromAtreya(oneLine);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -397,7 +397,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKimberly(implicitPlan);
         var post2 = GetPostFromAtreya(oneLine);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -418,7 +418,7 @@ public class ReferenceVoteTests
         var post1 = GetPostFromKinematics1(proposeBiking);
         var post2 = GetPostFromKinematics2(scoreBiking);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 

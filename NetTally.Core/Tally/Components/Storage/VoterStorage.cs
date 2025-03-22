@@ -1,5 +1,4 @@
-﻿using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.Storage;
@@ -10,7 +9,7 @@ namespace NetTally.Tally.Components.Storage;
 /// VoterStorage is a dictionary of voter origins and the vote
 /// each submitted.
 /// </summary>
-public class VoterStorage : Dictionary<OriginType, VoteBlockType>
+public class VoterStorage : Dictionary<Origin, VoteBlockType>
 {
     #region Constructors
     /// <summary>
@@ -36,7 +35,7 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// </summary>
     /// <param name="origin">The origin to compare to.</param>
     /// <returns>Returns true if the origin exists in this lookup.</returns>
-    public bool HasIdentity(OriginType origin)
+    public bool HasIdentity(Origin origin)
     {
         return ContainsKey(origin);
     }
@@ -48,9 +47,14 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the plan name can be found in this lookup.</returns>
     public bool HasPlan(string planName)
     {
-        var author = Author.Create(planName);
-        var origin = Origin.CreateOriginForName(IdentityType.Plan, author);
-        return origin != null && ContainsKey(origin);
+        var planAuthor = Authors.Create(planName);
+        return HasPlan(planAuthor);
+    }
+
+    public bool HasPlan(Author planAuthor)
+    {
+        var origin = Origins.CreatePlanNameOnly(planAuthor);
+        return ContainsKey(origin);
     }
 
     /// <summary>
@@ -60,9 +64,14 @@ public class VoterStorage : Dictionary<OriginType, VoteBlockType>
     /// <returns>Returns true if the voter name can be found in this lookup.</returns>
     public bool HasVoter(string voterName)
     {
-        var author = Author.Create(voterName);
-        var origin = Origin.CreateOriginForName(IdentityType.User, author);
-        return origin != null && ContainsKey(origin);
+        var author = Authors.Create(voterName);
+        return HasVoter(author);
+    }
+
+    public bool HasVoter(Author voterName)
+    {
+        var origin = Origins.CreateUserNameOnly(voterName);
+        return ContainsKey(origin);
     }
     #endregion Queries - Has XX?
 

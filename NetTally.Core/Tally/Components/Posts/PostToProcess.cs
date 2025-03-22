@@ -4,21 +4,21 @@ using NetTally.Tally.Components.Votes;
 namespace NetTally.Tally.Components.Posts;
 
 /// <summary>
-/// Class that encapculates a <see cref="PostType"/>, and allows
+/// Class that encapculates a <see cref="Posts.Post"/>, and allows
 /// setting mutable state describing it.
 /// </summary>
-/// <param name="post">The <see cref="PostType"/> to encapsulate.</param>
-public class PostToProcess(PostType post)
+/// <param name="post">The <see cref="Posts.Post"/> to encapsulate.</param>
+public class PostToProcess(Post post)
 {
     /// <summary>
     /// The encapsulated post.
     /// </summary>
-    public PostType Post => post;
+    public Post Post => post;
 
     /// <summary>
     /// The post's origin.
     /// </summary>
-    public OriginType Origin => post.Origin;
+    public Origin Origin => post.Origin;
 
     /// <summary>
     /// The post's vote lines.

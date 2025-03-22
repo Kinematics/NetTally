@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Extensions;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
+using NetTally.Utility.Collections;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Counting;
@@ -33,7 +33,7 @@ public static partial class VoteConstructor
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
     public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(
         Quest quest,
-        AuthorType author,
+        Author author,
         Func<VoteBlockType, PlanDescriptor> isPlanFunction,
         IEnumerable<VoteBlockType> blocks)
     {
@@ -211,7 +211,7 @@ public static partial class VoteConstructor
             // Users
             else
             {
-                PostIdType postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
+                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostIds.Zero;
 
                 PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
@@ -261,10 +261,10 @@ public static partial class VoteConstructor
 
             if (isProposedPlan)
             {
-                OriginType? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
+                Origin? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                 if (planOrigin != null)
-                    return PostIdComparer.Instance.Equals(planOrigin.PostId, post.Origin.PostId);
+                    return planOrigin.PostId == post.Origin.PostId;
             }
 
             return false;
@@ -279,7 +279,7 @@ public static partial class VoteConstructor
             workingVote.Add(blockRef);
         }
 
-        void AddReference(VoteBlockType block, MarkerData marker)
+        void AddReference(VoteBlockType block, Marker marker)
         {
             var replacementBlock = block with { Marker = marker };
             var blockRef = new VoteBlockRef(replacementBlock, true);
@@ -301,7 +301,7 @@ public static partial class VoteConstructor
     /// <param name="voteLine">The vote line to examine.</param>
     /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
     /// <returns>Returns a tuple with the discovered information.</returns>
-    private static (bool isReference, bool isPlan, bool isPinnedUser, OriginType refName)
+    private static (bool isReference, bool isPlan, bool isPinnedUser, Origin refName)
         GetReference(VoteLineType voteLine, Quest quest)
     {
         // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
@@ -316,7 +316,7 @@ public static partial class VoteConstructor
 
             if (label == "^" || label == "↑")
             {
-                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
@@ -325,20 +325,20 @@ public static partial class VoteConstructor
             else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                   || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
             {
-                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
             {
-                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 if (refPlan != null)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
 
                 // Check user names second
-                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 // Force pinning if requested.
@@ -348,13 +348,13 @@ public static partial class VoteConstructor
             else // Any unlabeled lines
             {
                 // Check user names first
-                OriginType? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 if (refUser != null && quest.DisableProxyVotes == false)
                     return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
 
-                OriginType? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
 
                 // Check to make sure the quest doesn't forbid non-labeled plan references.
                 if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
@@ -363,7 +363,7 @@ public static partial class VoteConstructor
         }
 
     noReference:
-        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.None);
+        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origins.None);
     }
     #endregion
 

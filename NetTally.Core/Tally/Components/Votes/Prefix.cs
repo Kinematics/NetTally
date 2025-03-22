@@ -33,7 +33,7 @@ public static partial class Prefix
 
         // Otherwise use the regex to filter out spaces, and include
         // alternate dashes, such as em dash or en dash.
-        int depth = IndentCharsRegex().Count(indent);
+        int depth = IndentCharsRegex.Count(indent);
 
         return CreateDepth(depth);
     }
@@ -69,5 +69,5 @@ public static partial class Prefix
     }
 
     [GeneratedRegex("[-–—]")]
-    private static partial Regex IndentCharsRegex();
+    private static partial Regex IndentCharsRegex { get; }
 }

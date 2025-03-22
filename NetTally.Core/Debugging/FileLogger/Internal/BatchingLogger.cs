@@ -5,78 +5,77 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace NetTally.Debugging.FileLogger.Internal
+namespace NetTally.Debugging.FileLogger.Internal;
+
+public class BatchingLogger : ILogger
 {
-    public class BatchingLogger : ILogger
+    private readonly BatchingLoggerProvider _provider;
+    private readonly string _category;
+
+    public BatchingLogger(BatchingLoggerProvider loggerProvider, string categoryName)
     {
-        private readonly BatchingLoggerProvider _provider;
-        private readonly string _category;
+        _provider = loggerProvider;
+        _category = categoryName;
+    }
 
-        public BatchingLogger(BatchingLoggerProvider loggerProvider, string categoryName)
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+    {
+        // NOTE: Differs from source
+        if (_provider.ScopeProvider is IExternalScopeProvider scopeProvider)
         {
-            _provider = loggerProvider;
-            _category = categoryName;
+            return scopeProvider.Push(state);
         }
 
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-        {
-            // NOTE: Differs from source
-            if (_provider.ScopeProvider is IExternalScopeProvider scopeProvider)
-            {
-                return scopeProvider.Push(state);
-            }
+        throw new InvalidOperationException("BatchingLoggerProvider is not valid.");
+    }
 
-            throw new InvalidOperationException("BatchingLoggerProvider is not valid.");
+    public bool IsEnabled(LogLevel logLevel)
+    {
+        return _provider.IsEnabled;
+    }
+
+    public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state,
+        Exception? exception, Func<TState, Exception, string> formatter)
+    {
+        if (!IsEnabled(logLevel))
+        {
+            return;
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        var builder = new StringBuilder();
+        builder.Append(timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
+        builder.Append(" [");
+        builder.Append(logLevel.ToString());
+        builder.Append("] ");
+        builder.Append(_category);
+
+        var scopeProvider = _provider.ScopeProvider;
+        if (scopeProvider != null)
         {
-            return _provider.IsEnabled;
+            scopeProvider.ForEachScope((scope, stringBuilder) =>
+            {
+                stringBuilder.Append(" => ").Append(scope);
+            }, builder);
+
+            builder.AppendLine(":");
+        }
+        else
+        {
+            builder.Append(": ");
         }
 
-        public void Log<TState>(DateTimeOffset timestamp, LogLevel logLevel, EventId eventId, TState state,
-            Exception? exception, Func<TState, Exception, string> formatter)
+        if (exception != null)
         {
-            if (!IsEnabled(logLevel))
-            {
-                return;
-            }
-
-            var builder = new StringBuilder();
-            builder.Append(timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff zzz"));
-            builder.Append(" [");
-            builder.Append(logLevel.ToString());
-            builder.Append("] ");
-            builder.Append(_category);
-
-            var scopeProvider = _provider.ScopeProvider;
-            if (scopeProvider != null)
-            {
-                scopeProvider.ForEachScope((scope, stringBuilder) =>
-                {
-                    stringBuilder.Append(" => ").Append(scope);
-                }, builder);
-
-                builder.AppendLine(":");
-            }
-            else
-            {
-                builder.Append(": ");
-            }
-
-            if (exception != null)
-            {
-                builder.AppendLine(formatter(state, exception));
-                builder.AppendLine(exception.ToString());
-            }
-
-            _provider.AddMessage(timestamp, builder.ToString());
+            builder.AppendLine(formatter(state, exception));
+            builder.AppendLine(exception.ToString());
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
-            Exception? exception, Func<TState, Exception, string> formatter)
-        {
-            Log(DateTimeOffset.Now, logLevel, eventId, state, exception, formatter);
-        }
+        _provider.AddMessage(timestamp, builder.ToString());
+    }
+
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
+        Exception? exception, Func<TState, Exception, string> formatter)
+    {
+        Log(DateTimeOffset.Now, logLevel, eventId, state, exception, formatter);
     }
 }

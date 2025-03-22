@@ -1,28 +1,22 @@
-﻿using System.Text;
-using HtmlAgilityPack;
-using Microsoft.Extensions.DependencyInjection;
+﻿using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
-using NetTally.CustomEventArgs;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
-using NetTally.Utility;
+using NetTally.Utility.Events;
+using NetTally.Utility.Linq;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
+
 public class ForumReader(
-    IServiceProvider serviceProvider,
+    ILogger<ForumReader> logger,
     ForumAdapterFactory forumAdapterFactory,
     IQuestsInfo questsInfo,
-    ILogger<ForumReader> logger) : IForumReader
+    IPageProvider pageProvider) : IForumReader
 {
-    private readonly IServiceProvider serviceProvider = serviceProvider;
-    private readonly ILogger<ForumReader> logger = logger;
-    private readonly IQuestsInfo questsInfo = questsInfo;
-    private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
-
     #region Event passing
     private void PageProvider_StatusChanged(object? sender, MessageEventArgs e)
     {
@@ -44,332 +38,166 @@ public class ForumReader(
     public event EventHandler<MessageEventArgs>? StatusChanged;
     #endregion
 
-    #region Basic Flow
-    /// <summary>
-    /// Read posts from a provided quest. Include all associated linked quests.
-    /// </summary>
-    /// <param name="quest">The quest to read.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A list of titles (one per quest) and the list of posts to be processed.</returns>
-    public async Task<(IEnumerable<string> Titles, IEnumerable<PostType> Posts)>
-        ReadQuestAsync(Quest quest, CancellationToken cancellationToken)
+    public async Task<(IEnumerable<string>, IEnumerable<Post>)> ReadQuestAsync(
+        Quest quest,
+        CancellationToken token)
     {
-        List<Quest> questsToRead = [quest, .. questsInfo.GetLinkedQuests(quest)];
+        logger.LogDebug("Reading Quest {quest}", quest.ThreadName);
 
-        logger.LogDebug("Reading quest {questName} with any linked quests. Total quests: {total}",
-            quest.DisplayName, questsToRead.Count);
-
-        // Load all posts from the base quest and all linked quests.
-        var results = await Task.WhenAll(
-                questsToRead.Select(q => GetPostsWithVotesFromQuestAsync(q, cancellationToken)))
+        var questPosts = GetQuestSources(quest)
+            .SelectAsync(q => GetPostsFromQuest(q, token), token)
             .ConfigureAwait(false);
 
-        var allTitles = results.Select(q => AddPostCountToTitle(q.Title, q.Posts));
-        var allPosts = results.SelectMany(q => q.Posts);
+        List<string> titles = [];
+        List<Post> posts = [];
 
-        if (allTitles.Any(t => t == Strings.Error))
+        await foreach (var (Title, Posts) in questPosts)
         {
-            throw new Exception("Unable to load all pages.");
+            titles.Add(Title);
+            posts.AddRange(Posts);
         }
 
-        return (allTitles, allPosts);
-    }
-
-    private static string AddPostCountToTitle(string title, List<PostType> posts)
-    {
-        StringBuilder sb = new();
-
-        sb.Append(title)
-          .Append(' ')
-          .Append(posts.Count > 0
-                ? $"[Posts: {posts.Min(p => p.Origin.ThreadPostNumber)}-{posts.Max(p => p.Origin.ThreadPostNumber)}]"
-                : "[No votes]");
-
-        return sb.ToString();
+        return (titles, posts);
     }
 
     /// <summary>
-    /// Read posts from a specific quest.
+    /// Gets a list of all quest sources associated with the specified quest.
     /// </summary>
-    /// <param name="quest">The quest to read.</param>
-    /// <param name="token">Cancellation token.</param>
-    /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)>
-        GetPostsWithVotesFromQuestAsync(Quest quest, CancellationToken token)
+    /// <param name="quest">The quest with potential alternate sources.</param>
+    /// <returns>All quest sources to be tallied.</returns>
+    public IEnumerable<Quest> GetQuestSources(Quest quest)
     {
-        logger.LogDebug("Reading posts from quest {questDisplayName} with ForumReader.",
-            quest.DisplayName);
+        return [quest, .. questsInfo.GetLinkedQuests(quest)];
+    }
 
-        using var pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
-
+    private async Task<(string Title, List<Post> Posts)> GetPostsFromQuest(
+        Quest quest,
+        CancellationToken token)
+    {
         try
         {
             pageProvider.StatusChanged += PageProvider_StatusChanged;
 
-            IForumAdapter adapter = await GetForumAdapter(quest, token)
-                .ConfigureAwait(false);
+            IForumAdapter adapter = await quest.GetForumAdapter(forumAdapterFactory, token)
+               .ConfigureAwait(ConfigureAwaitOptions.None);
 
-            return await GetPostsWithVotesAsync(quest, pageProvider, adapter, token)
-                .ConfigureAwait(false);
+            var threadInfo = await adapter.GetThreadInfoAsync(quest, pageProvider, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
+
+            logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
+                quest.DisplayName, threadInfo);
+
+            var pages = await GetPagesFromQuest(quest, adapter, threadInfo, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
+
+            var posts = pages
+                .SelectMany((p, i) => GetPostsFromPage(quest, p, i, adapter, threadInfo))
+                .ToList();
+
+            string title = CraftTitle(threadInfo, posts);
+
+            return (title, posts);
         }
-        catch (Exception e)
+        finally
         {
-            logger.LogError(e, "Error loading quest from page provider for quest {questName}.",
-                quest.DisplayName);
-            return (Strings.Error, []);
+            pageProvider.StatusChanged -= PageProvider_StatusChanged;
         }
     }
 
-    /// <summary>
-    /// Get the posts from a specific quest.
-    /// </summary>
-    /// <param name="quest">The quest to read.</param>
-    /// <param name="pageProvider">The page provider for loading pages.</param>
-    /// <param name="adapter">The forum adapter for processing pages according to
-    /// that forum's needs.</param>
-    /// <param name="token">Cancellation token.</param>
-    /// <returns>A title describing the quest and posts, plus all the valid posts found.</returns>
-    private async Task<(string Title, List<PostType> Posts)> GetPostsWithVotesAsync(
+    private async Task<IEnumerable<HtmlDocument?>> GetPagesFromQuest(
         Quest quest,
-        IPageProvider pageProvider,
         IForumAdapter adapter,
+        ThreadInfo threadInfo,
         CancellationToken token)
     {
-        // Get information about the thread, and which pages need to be loaded.
-        //(ThreadRangeType rangeInfo, ThreadInfoType threadInfo)
-        var threadData = await GetThreadInfoAsync(quest, pageProvider, adapter, token)
-            .ConfigureAwait(false);
+        var pages = GetPagesToLoad(quest, adapter, threadInfo);
 
-        if (threadData != null)
-        {
-            var pages = await ReadPagesFromQuestAsync(quest, threadData, pageProvider, adapter, token)
-                                .ConfigureAwait(false);
+        var pageLoads = pages.Select(p =>
+            pageProvider.GetHtmlDocumentAsync(
+                p.url,
+                $"Page {p.pageNum}",
+                p.cacheMode,
+                SuppressNotifications.No,
+                token));
 
-            if (pages.All(p => p != null))
-            {
-                var posts = GetPostsWithVotesFromPages(quest, pages, threadData, adapter);
-
-                return (threadData.Title, posts);
-            }
-        }
-
-        return (Strings.Error, []);
-    }
-
-    /// <summary>
-    /// Processes the provided pages to extract posts.
-    /// </summary>
-    /// <param name="pages">All pages loaded for the quest.</param>
-    /// <param name="threadInfo">Information about the thread.</param>
-    /// <param name="adapter">The forum adapter that can transform this forum's
-    /// HTML into posts we can understand.</param>
-    /// <param name="quest">The quest being read.</param>
-    /// <returns>A list of valid posts found.</returns>
-    private List<PostType> GetPostsWithVotesFromPages(
-        Quest quest,
-        IEnumerable<HtmlDocument?> pages,
-        ThreadInformationType threadInfo,
-        IForumAdapter adapter)
-    {
-        int startPage = ThreadInformation.GetStartPage(threadInfo, quest);
-
-        var posts = pages
-            .Where(p => p != null)
-            .SelectMany((p, i) => adapter.GetPosts(p!, quest, startPage + i))
-            .Where(p => KeepPost(p, quest, threadInfo))
-            .DistinctBy(p => p.Origin, OriginComparer.Instance) // remove sticky posts
-            .OrderBy(p => p.Origin.ThreadPostNumber)
-            .ToList();
-
-        logger.LogDebug("Got {Count} posts for quest {questDisplayName}.", posts.Count, quest.DisplayName);
-
-        return posts;
-    }
-    #endregion Basic Flow
-
-    #region Keep Post Filtering
-    /// <summary>
-    /// A filtering function to determine if a post is to be kept by the quest.
-    /// </summary>
-    /// <param name="post">The post to check.</param>
-    /// <param name="quest">The quest being tallied.</param>
-    /// <param name="threadInfo">Thread information to identify author posts.</param>
-    /// <returns><c>True</c> if the post should be kept, or <c>false</c> if the post should be skipped.</returns>
-    private bool KeepPost(
-        PostType post,
-        Quest quest,
-        ThreadInformationType threadInfo)
-    {
-        if (!post.HasVote)
-            return false;
-
-        if (PostIsBeforeStart(post, threadInfo) || PostIsAfterEnd(post, quest, threadInfo))
-            return false;
-
-        if (post.Origin.Author == threadInfo.Author)
-            return false;
-
-        if (AuthorComparer.Instance.Equals(post.Origin.Author, threadInfo.Author))
-        {
-            logger.LogWarning("Author compare failed but AuthorComparer passed for [{postAuthor}] vs [{threadAuthor}]",
-                post.Origin.Author, threadInfo.Author);
-            return false;
-        }
-
-        if (PostMatchesUsernameFilter(post, quest))
-            return false;
-
-        if (PostMatchesPostNumberFilter(post, quest))
-            return false;
-
-        return true;
-    }
-
-    /// <summary>
-    /// Determine if a post falls before the starting point of the tallied range.
-    /// </summary>
-    /// <param name="post">The post to check</param>
-    /// <param name="threadInfo">The tally range</param>
-    /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
-    private static bool PostIsBeforeStart(PostType post, ThreadInformationType threadInfo)
-    {
-        if (threadInfo.RangeType == ThreadRangeRangeType.ByPostNumber)
-            return post.Origin.ThreadPostNumber < threadInfo.StartPostNumber;
-
-        return post.Origin.PostId.Id < threadInfo.StartPostId.Id;
-    }
-
-    /// <summary>
-    /// Determine if a post falls after the ending point of the tallied range.
-    /// </summary>
-    /// <param name="post">The post to check</param>
-    /// <param name="quest">The quest being tallied</param>
-    /// <param name="threadInfo">The tally range</param>
-    /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
-    private static bool PostIsAfterEnd(PostType post, Quest quest, ThreadInformationType threadInfo)
-    {
-        if (quest.ReadToEndOfThread || threadInfo.RangeType == ThreadRangeRangeType.ByPostId)
-            return false;
-
-        return post.Origin.ThreadPostNumber > quest.EndPost;
-    }
-
-    private static bool PostMatchesUsernameFilter(PostType post, Quest quest)
-    {
-        return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
-    }
-
-    private static bool PostMatchesPostNumberFilter(PostType post, Quest quest)
-    {
-        return quest.UseCustomPostFilters &&
-            (quest.PostsFilter.Blocks(post.Origin.ThreadPostNumber) ||
-             quest.PostsFilter.Blocks(post.Origin.PostId.Id));
-    }
-    #endregion Keep Post Filtering
-
-    #region Forum Adapter Setup
-    /// <summary>
-    /// Helper method to get a forum adapter and sync it up with the quest.
-    /// </summary>
-    /// <param name="quest">The quest being processed.</param>
-    /// <param name="token">A cancellation token</param>
-    /// <returns>An <see cref="IForumAdapter"/> for the quest.</returns>
-    private async Task<IForumAdapter> GetForumAdapter(Quest quest, CancellationToken token)
-    {
-        IForumAdapter adapter = await forumAdapterFactory.CreateForumAdapterAsync(quest, token)
-            .ConfigureAwait(false);
-
-        SyncQuestWithForumAdapter(quest, adapter);
-
-        return adapter;
-    }
-
-    /// <summary>
-    /// Update the quest with information from the forum adapter.
-    /// </summary>
-    /// <param name="quest">The quest to sync up.</param>
-    /// <param name="adapter">The forum adapter created for the quest.</param>
-    private void SyncQuestWithForumAdapter(Quest quest, IForumAdapter adapter)
-    {
-        if (quest.PostsPerPage == 0)
-            quest.PostsPerPage = adapter.GetDefaultPostsPerPage(quest.ThreadUri);
-
-        if (adapter.HasRssThreadmarksFeed(quest.ThreadUri) == BoolEx.True &&
-            quest.UseRSSThreadmarks == BoolEx.Unknown)
-            quest.UseRSSThreadmarks = BoolEx.True;
-
-        logger.LogDebug("Quest {questDisplayName} synced with forum adapter.", quest.DisplayName);
-    }
-    #endregion Forum Adapter Setup
-
-    #region Page Loading
-    /// <summary>
-    /// Get information about the thread being read.
-    /// </summary>
-    /// <param name="quest">The quest</param>
-    /// <param name="pageProvider">The page provider to read web pages.</param>
-    /// <param name="adapter">The forum adapter for the quest.</param>
-    /// <param name="token">Cancellation token.</param>
-    /// <returns>A tuple of range information about the thread, and
-    /// title and author information about the thread.</returns>
-    private async Task<ThreadInformationType?> GetThreadInfoAsync(
-        Quest quest,
-        IPageProvider pageProvider,
-        IForumAdapter adapter,
-        CancellationToken token)
-    {
-        var infos = await adapter.GetThreadInformationAsync(quest, pageProvider, token)
-            .ConfigureAwait(false);
-
-        logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
-            quest.DisplayName, infos);
-
-        return infos;
-    }
-
-    /// <summary>
-    /// Read all the relevant pages from the quest, based on the provided
-    /// thread range information.
-    /// </summary>
-    /// <param name="quest">The quest</param>
-    /// <param name="threadInfo">Thread range data</param>
-    /// <param name="pageProvider">The page provider to read web pages.</param>
-    /// <param name="adapter">The forum adapter for the quest.</param>
-    /// <param name="token">Cancellation token.</param>
-    /// <returns>A list of all loaded documents.</returns>
-    private async Task<IEnumerable<HtmlDocument?>> ReadPagesFromQuestAsync(
-        Quest quest,
-        ThreadInformationType threadInfo,
-        IPageProvider pageProvider,
-        IForumAdapter adapter,
-        CancellationToken token)
-    {
-        int firstPage = ThreadInformation.GetStartPage(threadInfo, quest);
-        int lastPage = ThreadInformation.GetEndPage(threadInfo, quest);
-        int pageCount = lastPage - firstPage + 1;
-
-        if (pageCount < 1)
-            return [];
-
-        List<Task<HtmlDocument?>> tasks = [];
-
-        for (int pageNum = firstPage; pageNum <= lastPage; pageNum++)
-        {
-            var pageUrl = adapter.GetUrlForPage(quest, pageNum);
-            var shouldCache = pageNum == lastPage ? ShouldCache.No : ShouldCache.Yes;
-
-            tasks.Add(pageProvider.GetHtmlDocumentAsync(
-                              pageUrl, $"Page {pageNum}",
-                              CachingMode.UseCache, shouldCache,
-                              SuppressNotifications.No, token));
-        }
-
-        var finished = await Task.WhenAll(tasks)
-            .ConfigureAwait(false);
+        var finished = await Task.WhenAll(pageLoads)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
 
         logger.LogDebug("Got {Count} pages loading {questDisplayName}.", finished.Length, quest.DisplayName);
 
         return finished;
     }
-    #endregion Page Loading
+
+    private static IEnumerable<(string url, int pageNum, CachingMode cacheMode)> GetPagesToLoad(
+        Quest quest,
+        IForumAdapter adapter,
+        ThreadInfo threadInfo)
+    {
+        int firstPage = threadInfo.ThreadRange.GetStartPage();
+        int lastPage = threadInfo.ThreadRange.GetEndPage();
+        int pageCount = lastPage - firstPage + 1;
+
+        if (pageCount < 1)
+            return [];
+
+        var urls = Enumerable.Range(firstPage, pageCount)
+            .Select(pageNum => (adapter.GetUrlForPage(quest, pageNum),
+                    pageNum,
+                    pageNum == lastPage ? CachingMode.NoCache : CachingMode.ReadWrite));
+
+        return urls;
+    }
+
+
+    private static IEnumerable<Post> GetPostsFromPage(
+        Quest quest,
+        HtmlDocument? page,
+        int index,
+        IForumAdapter adapter,
+        ThreadInfo threadInfo)
+    {
+        if (page is null)
+            return [];
+
+        var posts = adapter.GetPosts(page, quest, threadInfo.ThreadRange.GetStartPage() + index)
+            .Where(p => KeepPost(p, quest, threadInfo))
+            .DistinctBy(p => p.Origin) // remove sticky posts
+            .OrderBy(p => p.Origin.PostNumber.Value);
+
+        return posts;
+    }
+
+    private static bool KeepPost(
+        Post post,
+        Quest quest,
+        ThreadInfo threadInfo)
+    {
+        if (!post.HasVote)
+            return false;
+
+        if (post.IsBeforeStart(threadInfo.ThreadRange) || post.IsAfterEnd(threadInfo.ThreadRange))
+            return false;
+
+        if (post.Origin.Author == threadInfo.Author)
+            return false;
+
+        if (post.MatchesUsernameFilter(quest))
+            return false;
+
+        if (post.MatchesPostNumberFilter(quest))
+            return false;
+
+        return true;
+    }
+
+    private static string CraftTitle(ThreadInfo threadInfo, List<Post> posts)
+    {
+        long min = posts.Min(p => p.Origin.PostNumber.Value);
+        long max = posts.Max(p => p.Origin.PostNumber.Value);
+
+        string title = $"{threadInfo.Title} [{(posts.Count > 0 ? $"Posts: {min}-{max}" : "No Votes")}]";
+
+        return title;
+    }
+
 }

@@ -33,7 +33,7 @@ public class VoteParserTests
         Assert.IsNotNull(lines);
         Assert.AreEqual(1, lines.Count);
         Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(MarkerType.Vote, lines[0].Marker.MarkerType);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.IsTrue(VoteTaskComparer.Instance.Equals(lines[0].Task, VoteTask.Empty));
         Assert.AreEqual("My vote", lines[0].Content.Content);
         Assert.AreEqual("My vote", lines[0].Content.CleanContent);
@@ -49,7 +49,7 @@ public class VoteParserTests
         Assert.IsNotNull(lines);
         Assert.AreEqual(1, lines.Count);
         Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(MarkerType.Vote, lines[0].Marker.MarkerType);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.IsTrue(VoteTaskComparer.Instance.Equals(lines[0].Task, VoteTask.Empty));
         Assert.AreEqual("My 『b』vote『/b』", lines[0].Content.Content);
         Assert.AreEqual("My vote", lines[0].Content.CleanContent);
@@ -68,7 +68,7 @@ public class VoteParserTests
         Assert.IsNotNull(lines);
         Assert.AreEqual(2, lines.Count);
         Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(MarkerType.Vote, lines[0].Marker.MarkerType);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.IsTrue(VoteTaskComparer.Instance.Equals(lines[0].Task, VoteTask.Empty));
         Assert.AreEqual("My 『b』vote『/b』", lines[0].Content.Content);
         Assert.AreEqual("My vote", lines[0].Content.CleanContent);
@@ -216,7 +216,7 @@ public class VoteParserTests
         Assert.IsNotNull(lines);
         Assert.AreEqual(2, lines.Count);
         Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(MarkerType.Vote, lines[0].Marker.MarkerType);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.IsTrue(VoteTaskComparer.Instance.Equals(lines[0].Task, VoteTask.Empty));
         Assert.AreEqual("『color=orange』Teacups『/color』", lines[1].Content.Content);
         Assert.AreEqual("Teacups", lines[1].Content.CleanContent);
@@ -236,7 +236,7 @@ public class VoteParserTests
         Assert.IsNotNull(lines);
         Assert.AreEqual(2, lines.Count);
         Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(MarkerType.Vote, lines[0].Marker.MarkerType);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.IsTrue(VoteTaskComparer.Instance.Equals(lines[0].Task, VoteTask.Empty));
         Assert.AreEqual("『color=#ff00AA』Teacups『/color』", lines[1].Content.Content);
         Assert.AreEqual("Teacups", lines[1].Content.CleanContent);
@@ -303,7 +303,7 @@ public class VoteParserTests
         Assert.AreEqual(0, line.Depth);
         Assert.IsTrue(line.HasTask);
         Assert.AreEqual("Info", line.Task.Name);
-        Assert.AreEqual(MarkerType.Vote, line.Marker.MarkerType);
+        Assert.IsTrue(line.Marker is VoteMarker);
         Assert.AreEqual("My vote", line.Content.Content);
         Assert.AreEqual("My vote", line.Content.CleanContent);
     }

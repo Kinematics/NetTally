@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
+using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Quests;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
@@ -29,45 +30,28 @@ public partial class Quest : ObservableValidator
     #region Quest Identification
     public QuestId QuestId { get; init; } = QuestId.NewQuestId();
 
-    [ObservableProperty]
-    string threadName = Strings.NewThreadEntry;
-
-    partial void OnThreadNameChanged(string? oldValue, string newValue)
+    public string ThreadName
     {
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-        if (string.IsNullOrWhiteSpace(newValue) ||
-            !Uri.IsWellFormedUriString(newValue, UriKind.Absolute))
+        get => field;
+        set
         {
-            this.threadName = oldValue!;
-            throw new ArgumentException(nameof(ThreadName));
+            if (string.IsNullOrWhiteSpace(value) ||
+                string.Compare(field, value) == 0 ||
+                !Uri.IsWellFormedUriString(value, UriKind.Absolute))
+            {
+                return;
+            }
+
+            SetProperty(ref field, value.RemoveUnsafeCharacters(), nameof(ThreadName));
+            ThreadUri = new Uri(ThreadName);
         }
+    } = Strings.NewThreadEntry;
 
-        this.threadName = newValue.RemoveUnsafeCharacters();
-
-        ThreadUri = new Uri(threadName);
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-    }
-
-
-    [ObservableProperty]
-    string displayName = Strings.NewThreadDisplayName;
-
-    /// <summary>
-    /// Ensure the display name is not null, nor has unsafe characters.
-    /// </summary>
-    /// <param name="value">The new DisplayName value.</param>
-    partial void OnDisplayNameChanged(string value)
+    public string DisplayName
     {
-#pragma warning disable MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-        if (value is null)
-        {
-            displayName = string.Empty;
-            return;
-        }
-
-        displayName = value.RemoveUnsafeCharacters().Trim();
-#pragma warning restore MVVMTK0034 // Direct field reference to [ObservableProperty] backing field
-    }
+        get => field;
+        set => SetProperty(ref field, value.RemoveUnsafeCharacters().Trim(), nameof(DisplayName));
+    } = Strings.NewThreadDisplayName;
 
     public override string ToString() => DisplayName;
 
@@ -82,17 +66,40 @@ public partial class Quest : ObservableValidator
     /// Is set when a forum adapter is created/identified.
     /// </summary>
     public ForumType ForumType { get; set; } = ForumType.Unknown;
+
+    /// <summary>
+    /// Get the forum adapter for this quest.
+    /// Updates the quest as necessary.
+    /// </summary>
+    /// <param name="adapterFactory">The adapter factory used to create forum adapters.</param>
+    /// <param name="token">A cancellation token.</param>
+    /// <returns>A <see cref="IForumAdapter"/> for this quest.</returns>
+    public async Task<IForumAdapter> GetForumAdapter(ForumAdapterFactory adapterFactory,
+        CancellationToken token)
+    {
+        IForumAdapter adapter = await adapterFactory
+            .CreateForumAdapterAsync(this, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        if (PostsPerPage == 0)
+            PostsPerPage = adapter.GetDefaultPostsPerPage(ThreadUri);
+
+        if (adapter.HasRssThreadmarksFeed(ThreadUri) == BoolEx.True && UseRSSThreadmarks == BoolEx.Unknown)
+            UseRSSThreadmarks = BoolEx.True;
+
+        return adapter;
+    }
     #endregion
 
     #region Quest Configuration Properties
 
     #region Quest configuration properties: Post numbers
     [ObservableProperty]
-    int postsPerPage = 0;
+    public partial int PostsPerPage { get; set; } = 0;
 
     [ObservableProperty]
     [Range(1, 1_000_000, ErrorMessage = "Starting post number must be at least 1")]
-    int startPost = 1;
+    public partial int StartPost { get; set; } = 1;
 
     partial void OnStartPostChanging(int value)
     {
@@ -102,7 +109,7 @@ public partial class Quest : ObservableValidator
     [ObservableProperty]
     [Range(0, 1_000_000, ErrorMessage = "Ending post number must be at least 0")]
     [NotifyPropertyChangedFor(nameof(ReadToEndOfThread))]
-    int endPost = 0;
+    public partial int EndPost { get; set; } = 0;
 
     partial void OnEndPostChanging(int value)
     {
@@ -110,10 +117,10 @@ public partial class Quest : ObservableValidator
     }
 
     [ObservableProperty]
-    bool checkForLastThreadmark;
+    public partial bool CheckForLastThreadmark { get; set; }
 
     [ObservableProperty]
-    BoolEx useRSSThreadmarks = BoolEx.Unknown;
+    public partial BoolEx UseRSSThreadmarks { get; set; } = BoolEx.Unknown;
 
     /// <summary>
     /// Boolean value indicating if the tally system should read to the end
@@ -128,13 +135,15 @@ public partial class Quest : ObservableValidator
     /// from the list of valid 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    bool useCustomThreadmarkFilters = false;
+    public partial bool UseCustomThreadmarkFilters { get; set; } = false;
+
     /// <summary>
     /// Custom threadmark filters to exclude threadmarks from the list of valid
     /// 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    string customThreadmarkFilters = string.Empty;
+    public partial string CustomThreadmarkFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the threadmark filter, based on current threadmark filter settings.
     /// </summary>
@@ -152,13 +161,15 @@ public partial class Quest : ObservableValidator
     /// from the list of valid 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    bool useCustomTaskFilters = false;
+    public partial bool UseCustomTaskFilters { get; set; } = false;
+
     /// <summary>
     /// Custom threadmark filters to exclude threadmarks from the list of valid
     /// 'last threadmark found' checks.
     /// </summary>
     [ObservableProperty]
-    string customTaskFilters = string.Empty;
+    public partial string CustomTaskFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the task filter, based on current task filter settings.
     /// </summary>
@@ -175,12 +186,14 @@ public partial class Quest : ObservableValidator
     /// Flag for whether to use custom filters to exclude specified users from the tally.
     /// </summary>
     [ObservableProperty]
-    bool useCustomUsernameFilters = false;
+    public partial bool UseCustomUsernameFilters { get; set; } = false;
+
     /// <summary>
     /// List of custom users to filter.
     /// </summary>
     [ObservableProperty]
-    string customUsernameFilters = string.Empty;
+    public partial string CustomUsernameFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the user filter, based on current user filter settings.
     /// </summary>
@@ -197,13 +210,15 @@ public partial class Quest : ObservableValidator
     /// Flag for whether to use custom filters to exclude specified posts from the tally.
     /// </summary>
     [ObservableProperty]
-    bool useCustomPostFilters = false;
+    public partial bool UseCustomPostFilters { get; set; } = false;
+
     /// <summary>
     /// List of custom posts to filter.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PostsFilter))]
-    string customPostFilters = string.Empty;
+    public partial string CustomPostFilters { get; set; } = string.Empty;
+
     /// <summary>
     /// Gets or sets the posts filter.
     /// </summary>
@@ -219,27 +234,37 @@ public partial class Quest : ObservableValidator
 
     #region Quest configuration properties: Tally processing
     [ObservableProperty]
-    PartitionMode partitionMode = PartitionMode.None;
+    public partial PartitionMode PartitionMode { get; set; } = PartitionMode.None;
+
     [ObservableProperty]
-    DisplayMode displayMode = DisplayMode.Normal;
+    public partial DisplayMode DisplayMode { get; set; } = DisplayMode.Normal;
+
     [ObservableProperty]
-    bool whitespaceAndPunctuationIsSignificant = false;
+    public partial bool WhitespaceAndPunctuationIsSignificant { get; set; } = false;
+
     [ObservableProperty]
-    bool caseIsSignificant = false;
+    public partial bool CaseIsSignificant { get; set; } = false;
+
     [ObservableProperty]
-    bool forcePlanReferencesToBeLabeled = false;
+    public partial bool ForcePlanReferencesToBeLabeled { get; set; } = false;
+
     [ObservableProperty]
-    bool forbidVoteLabelPlanNames = false;
+    public partial bool ForbidVoteLabelPlanNames { get; set; } = false;
+
     [ObservableProperty]
-    bool allowUsersToUpdatePlans = false;
+    public partial bool AllowUsersToUpdatePlans { get; set; } = false;
+
     [ObservableProperty]
-    bool disableProxyVotes = false;
+    public partial bool DisableProxyVotes { get; set; } = false;
+
     [ObservableProperty]
-    bool forcePinnedProxyVotes = false;
+    public partial bool ForcePinnedProxyVotes { get; set; } = false;
+
     [ObservableProperty]
-    bool ignoreSpoilers = false;
+    public partial bool IgnoreSpoilers { get; set; } = false;
+
     [ObservableProperty]
-    bool trimExtendedText = false;
+    public partial bool TrimExtendedText { get; set; } = false;
     #endregion Quest configuration properties: Tally processing
 
     #region Quest configuration properties: String Comparison
@@ -278,7 +303,7 @@ public partial class Quest : ObservableValidator
     /// with this one.
     /// </summary>
     [ObservableProperty]
-    public ObservableCollection<QuestId> linkedQuestIds = [];
+    public partial ObservableCollection<QuestId> LinkedQuestIds { get; set; } = [];
 
     /// <summary>
     /// Determine whether this quest is linked to the provided quest.
@@ -323,7 +348,7 @@ public partial class Quest : ObservableValidator
     /// </summary>
     /// <param name="titles">Titles to show for the quest.</param>
     /// <param name="posts">Posts to use to construct the votes.</param>
-    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<PostType> posts)
+    public void ConstructVotes(IEnumerable<string> titles, IEnumerable<Post> posts)
     {
         VoteCounter.ConstructVotes(titles, posts);
     }

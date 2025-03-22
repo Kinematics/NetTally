@@ -44,67 +44,67 @@ public class VoteCounterTests
     #endregion
 
     #region Origins
-    private static OriginType GetOrigin_Kinematics()
+    private static Origin GetOrigin_Kinematics()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123426);
-        int postNumber = 98;
+        var postId = PostIds.Create(123426);
+        var postNumber = PostIds.Create(98);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Brogatar1()
+    private static Origin GetOrigin_Brogatar1()
     {
-        var author = Author.Create("Brogatar");
+        var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123456);
-        int postNumber = 100;
+        var postId = PostIds.Create(123456);
+        var postNumber = PostIds.Create(100);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Brogatar2()
+    private static Origin GetOrigin_Brogatar2()
     {
-        var author = Author.Create("Brogatar");
+        var author = Authors.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123476);
-        int postNumber = 110;
+        var postId = PostIds.Create(123476);
+        var postNumber = PostIds.Create(110);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Madfish1()
+    private static Origin GetOrigin_Madfish1()
     {
-        var author = Author.Create("Madfish");
+        var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123460);
-        int postNumber = 101;
+        var postId = PostIds.Create(123460);
+        var postNumber = PostIds.Create(101);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Madfish2()
+    private static Origin GetOrigin_Madfish2()
     {
-        var author = Author.Create("Madfish");
+        var author = Authors.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123466);
-        int postNumber = 105;
+        var postId = PostIds.Create(123466);
+        var postNumber = PostIds.Create(105);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
@@ -175,8 +175,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText2);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -184,7 +184,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -205,8 +205,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText2);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -214,7 +214,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -236,8 +236,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText3);
-        var post2 = Post.Create(origin2, postText2);
+        var post1 = Posting.Create(origin1, postText3);
+        var post2 = Posting.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -245,7 +245,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -276,8 +276,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText2);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -285,7 +285,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -326,8 +326,8 @@ public class VoteCounterTests
 
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postTextRef);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postTextRef);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -335,7 +335,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -356,9 +356,9 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
         var origin1a = GetOrigin_Brogatar2();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText2);
-        var post3 = Post.Create(origin1a, postText2);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText2);
+        var post3 = Posting.Create(origin1a, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -368,7 +368,7 @@ public class VoteCounterTests
         Assert.IsTrue(post2.HasVote);
         Assert.IsTrue(post3.HasVote);
 
-        List<PostType> posts = [post1, post2, post3];
+        List<Post> posts = [post1, post2, post3];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -390,8 +390,8 @@ public class VoteCounterTests
 
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Post.Create(origin1, postText4);
-        var post2 = Post.Create(origin2, postTextRef);
+        var post1 = Posting.Create(origin1, postText4);
+        var post2 = Posting.Create(origin2, postTextRef);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -399,7 +399,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -423,10 +423,10 @@ public class VoteCounterTests
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Kinematics();
         var origin1a = GetOrigin_Brogatar2();
-        var post1 = Post.Create(origin1, postText5);
-        var post2 = Post.Create(origin2, postText6);
-        var post3 = Post.Create(origin3, postText6);
-        var post4 = Post.Create(origin1a, postText6);
+        var post1 = Posting.Create(origin1, postText5);
+        var post2 = Posting.Create(origin2, postText6);
+        var post3 = Posting.Create(origin3, postText6);
+        var post4 = Posting.Create(origin1a, postText6);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -441,7 +441,7 @@ public class VoteCounterTests
         quest.PartitionMode = PartitionMode.None;
         quest.AllowUsersToUpdatePlans = true;
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.ConstructVotes(titles, posts);
 
@@ -482,8 +482,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText7);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText7);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -491,7 +491,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -511,8 +511,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText8);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText8);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -520,7 +520,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -540,8 +540,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText9);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText9);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -549,7 +549,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -569,8 +569,8 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Post.Create(origin1, postText1);
-        var post2 = Post.Create(origin2, postText10);
+        var post1 = Posting.Create(origin1, postText1);
+        var post2 = Posting.Create(origin2, postText10);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -578,7 +578,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
         quest.ConstructVotes(titles, posts);
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
@@ -603,9 +603,9 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Brogatar2();
-        var post1 = Post.Create(origin1, text1);
-        var post2 = Post.Create(origin2, text2);
-        var post3 = Post.Create(origin3, text3);
+        var post1 = Posting.Create(origin1, text1);
+        var post2 = Posting.Create(origin2, text2);
+        var post3 = Posting.Create(origin3, text3);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -615,7 +615,7 @@ public class VoteCounterTests
         Assert.IsTrue(post2.HasVote);
         Assert.IsTrue(post3.HasVote);
 
-        List<PostType> posts = [post1, post2, post3];
+        List<Post> posts = [post1, post2, post3];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -644,10 +644,10 @@ public class VoteCounterTests
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Madfish2();
         var origin4 = GetOrigin_Brogatar2();
-        var post1 = Post.Create(origin1, text1);
-        var post2 = Post.Create(origin2, text2);
-        var post3 = Post.Create(origin3, text3);
-        var post4 = Post.Create(origin4, text4);
+        var post1 = Posting.Create(origin1, text1);
+        var post2 = Posting.Create(origin2, text2);
+        var post3 = Posting.Create(origin3, text3);
+        var post4 = Posting.Create(origin4, text4);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -659,7 +659,7 @@ public class VoteCounterTests
         Assert.IsTrue(post3.HasVote);
         Assert.IsTrue(post4.HasVote);
 
-        List<PostType> posts = [post1, post2, post3, post4];
+        List<Post> posts = [post1, post2, post3, post4];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -690,8 +690,8 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
 
-        var post1 = Post.Create(origin1, text1);
-        var post2 = Post.Create(origin2, text2);
+        var post1 = Posting.Create(origin1, text1);
+        var post2 = Posting.Create(origin2, text2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -699,7 +699,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);
@@ -727,8 +727,8 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
 
-        var post1 = Post.Create(origin1, text1);
-        var post2 = Post.Create(origin2, text2);
+        var post1 = Posting.Create(origin1, text1);
+        var post2 = Posting.Create(origin2, text2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
@@ -736,7 +736,7 @@ public class VoteCounterTests
         Assert.IsTrue(post1.HasVote);
         Assert.IsTrue(post2.HasVote);
 
-        List<PostType> posts = [post1, post2];
+        List<Post> posts = [post1, post2];
 
         quest.PartitionMode = PartitionMode.None;
         quest.ConstructVotes(titles, posts);

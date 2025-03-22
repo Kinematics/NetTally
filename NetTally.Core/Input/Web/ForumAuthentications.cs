@@ -1,38 +1,36 @@
 ﻿using System.Text;
 
-namespace NetTally.Web
+namespace NetTally.Web;
+
+static class ForumAuthentications
 {
-    static class ForumAuthentications
+    /// <summary>
+    /// Gets the cookie associated with the given URI, if available.
+    /// </summary>
+    /// <param name="uri">The URI.</param>
+    /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
+    /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
+    /// <exception cref="ArgumentNullException">Throws if the URI is null.</exception>
+    public static string? GetAuthorization(Uri uri)
     {
-        /// <summary>
-        /// Gets the cookie associated with the given URI, if available.
-        /// </summary>
-        /// <param name="uri">The URI.</param>
-        /// <param name="clock">The clock to use for setting the cookie expiration date.</param>
-        /// <returns>Returns a cookie if we have one for the given host.  Otherwise, null.</returns>
-        /// <exception cref="System.ArgumentNullException">Throws if the URI is null.</exception>
-        public static string? GetAuthorization(Uri uri)
+        ArgumentNullException.ThrowIfNull(uri);
+
+        string username;
+        string password;
+
+        switch (uri.Host)
         {
-            ArgumentNullException.ThrowIfNull(uri);
-
-            string username;
-            string password;
-
-            switch (uri.Host)
-            {
-                case "xf2test.sufficientvelocity.com":
-                    username = "xf2demo2019";
-                    password = "dBfbyHVvRCsYtLg846r3";
-                    break;
-                default:
-                    return null;
-            }
-
-            string encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
-            string authorization = $"Basic {encoded}";
-
-            return authorization;
+            case "xf2test.sufficientvelocity.com":
+                username = "xf2demo2019";
+                password = "dBfbyHVvRCsYtLg846r3";
+                break;
+            default:
+                return null;
         }
-    }
 
+        string encoded = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
+        string authorization = $"Basic {encoded}";
+
+        return authorization;
+    }
 }

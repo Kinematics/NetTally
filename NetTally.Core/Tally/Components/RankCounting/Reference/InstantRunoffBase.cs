@@ -60,7 +60,7 @@ public class InstantRunoffBase : IRankVoteCounter
             var voterPreferences = workingVotes
                 .SelectMany(v => v.Value)
                 .GroupBy(u => u.Key)
-                .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.MarkerValue).ToList());
+                .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.GetValue()).ToList());
 
             // Check to see if we have a winner.
             var (vote, count) = GetMostPreferredVote(voterPreferences);

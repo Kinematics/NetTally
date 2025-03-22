@@ -1,6 +1,8 @@
 ﻿using NetTally.Enums;
+using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.RankCounting.Reference;
 using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Components.Votes;
 
 namespace NetTally.Tally.Components.RankCounting;
 
@@ -99,7 +101,7 @@ public class RatedInstantRunoff : IRankVoteCounter
         var allVoters = voters1.Keys
             .Concat(voters2.Keys)
             .Distinct()
-            .Where(v => v.Category == IdentityType.User)
+            .Where(v => v is UserOrigin)
             .ToList();
 
         int count1 = 0;
@@ -121,11 +123,11 @@ public class RatedInstantRunoff : IRankVoteCounter
                 continue;
             }
 
-            if (support1.Marker.MarkerValue < support2.Marker.MarkerValue)
+            if (support1.Marker.GetValue() < support2.Marker.GetValue())
             {
                 count1++;
             }
-            else if (support2.Marker.MarkerValue < support1.Marker.MarkerValue)
+            else if (support2.Marker.GetValue() < support1.Marker.GetValue())
             {
                 count2++;
             }

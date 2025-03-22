@@ -30,84 +30,84 @@ public class VoterStorageTests
     #endregion Setup
 
     #region Origins
-    private static OriginType GetOrigin_Kinematics()
+    private static Origin GetOrigin_Kinematics()
     {
-        var author = Author.Create("Kinematics");
+        var author = Authors.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123456);
-        int postNumber = 101;
+        var postId = PostIds.Create(123456);
+        var postNumber = PostIds.Create(101);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Atreya()
+    private static Origin GetOrigin_Atreya()
     {
-        var author = Author.Create("Atreya");
+        var author = Authors.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123457);
-        int postNumber = 102;
+        var postId = PostIds.Create(123457);
+        var postNumber = PostIds.Create(102);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Kimberly()
+    private static Origin GetOrigin_Kimberly()
     {
-        var author = Author.Create("Kimberly");
+        var author = Authors.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123458);
-        int postNumber = 103;
+        var postId = PostIds.Create(123458);
+        var postNumber = PostIds.Create(103);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Biigoh()
+    private static Origin GetOrigin_Biigoh()
     {
-        var author = Author.Create("Biigoh");
+        var author = Authors.Create("Biigoh");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123459);
-        int postNumber = 104;
+        var postId = PostIds.Create(123459);
+        var postNumber = PostIds.Create(104);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    private static OriginType GetOrigin_Muramasa()
+    private static Origin GetOrigin_Muramasa()
     {
-        var author = Author.Create("Muramasa");
+        var author = Authors.Create("Muramasa");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostId.Create(123460);
-        int postNumber = 105;
+        var postId = PostIds.Create(123460);
+        var postNumber = PostIds.Create(105);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static readonly string VoteText = "[X] A line of vote text";
 
-    private static PostType GetPost(OriginType origin)
+    private static Post GetPost(Origin origin)
     {
-        return Post.Create(origin, VoteText)!;
+        return Posting.Create(origin, VoteText)!;
     }
 
-    private static VoteBlockType GetVote(PostType post)
+    private static VoteBlockType GetVote(Post post)
     {
         return VoteBlocks.GetBlocks(post.VoteLines).First();
     }
 
-    private static PostType GetPost_Kinematics()
+    private static Post GetPost_Kinematics()
     {
         return GetPost(GetOrigin_Kinematics());
     }
@@ -130,7 +130,6 @@ public class VoterStorageTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void Store_Same_Vote()
     {
         var post = GetPost_Kinematics();
@@ -138,7 +137,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         voterStorage.Add(origin, vote);
-        voterStorage.Add(origin, vote);
+        Assert.ThrowsExactly<ArgumentException>(() => voterStorage.Add(origin, vote));
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
@@ -231,8 +230,8 @@ public class VoterStorageTests
         var post = GetPost_Kinematics();
         var origin = post.Origin;
         var vote = GetVote(post);
-        string planName = "Zoom";
-        var planOrigin = Origin.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
 
         Assert.IsNotNull(planOrigin);
 
@@ -251,7 +250,7 @@ public class VoterStorageTests
         var post = GetPost_Kinematics();
         var origin = post.Origin;
         var vote = GetVote(post);
-        var simpleOrigin = Origin.CreateOriginForName(IdentityType.User, origin.Author);
+        var simpleOrigin = Origins.CreateUserNameOnly(origin.Author);
 
         Assert.IsNotNull(simpleOrigin);
 
@@ -270,11 +269,11 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origin.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
-        var simpleOrigin = Origin.CreateOriginForName(IdentityType.Plan, planOrigin.Author);
+        var simpleOrigin = Origins.CreatePlanNameOnly(planOrigin.GetName());
         Assert.IsNotNull(simpleOrigin);
 
         voterStorage.Add(planOrigin, vote);
@@ -291,8 +290,8 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origin.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();
@@ -323,8 +322,8 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
 
-        string planName = "Zoom";
-        var planOrigin = Origin.CreatePlanOrigin(origin, planName);
+        var planName = Authors.Create("Zoom");
+        var planOrigin = Origins.CreatePlan(origin, planName);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();

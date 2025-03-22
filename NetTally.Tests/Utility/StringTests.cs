@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Debugging;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Utility

@@ -50,12 +50,12 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="vote">The vote being updated.</param>
     /// <param name="supporter">The voter being added.</param>
-    internal void AddSupporterToVote(VoteBlockType vote, OriginType supporter)
+    internal void AddSupporterToVote(VoteBlockType vote, Origin supporter)
     {
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Markers.Empty };
 
             localVoters = [];
 
@@ -71,12 +71,12 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="vote">The vote being updated.</param>
     /// <param name="supporter">The voter being added.</param>
-    internal void AddSupportersToVote(VoteBlockType vote, IEnumerable<OriginType> supporters)
+    internal void AddSupportersToVote(VoteBlockType vote, IEnumerable<Origin> supporters)
     {
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Markers.Empty };
 
             localVoters = [];
 
@@ -98,7 +98,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="supporter">The voter being removed.</param>
     /// <returns>Returns <c>true</c> if the voter was removed from the vote,
     /// or <c>false</c> if the voter was not found.</returns>
-    internal bool RemoveSupporterFromVote(OriginType supporter, VoteBlockType vote)
+    internal bool RemoveSupporterFromVote(Origin supporter, VoteBlockType vote)
     {
         if (TryGetValue(vote, out var localVoters))
         {
@@ -114,7 +114,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="supporter">The voter being removed.</param>
     /// <returns>Returns <c>true</c> if the voter was removed from any votes.</returns>
-    public bool RemoveSupporterFromAllVotes(OriginType supporter)
+    public bool RemoveSupporterFromAllVotes(Origin supporter)
     {
         bool removedAny = false;
 
@@ -187,7 +187,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
             if (total == 0)
                 return MarkerType.None;
 
-            var supporterMarkers = supportingUsers.GroupBy(s => s.Value.Marker.MarkerType);
+            var supporterMarkers = supportingUsers.GroupBy(s => s.Value.Marker.Type());
 
             foreach (var supporterMarker in supporterMarkers)
             {
@@ -205,8 +205,8 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// Request a list of all voter origins currently being stored.
     /// Does not filter for plans.
     /// </summary>
-    /// <returns>Returns a list of <seealso cref="OriginType"/>s stored.</returns>
-    public IEnumerable<OriginType> GetAllVoters()
+    /// <returns>Returns a list of <seealso cref="Origin"/>s stored.</returns>
+    public IEnumerable<Origin> GetAllVoters()
     {
         return this.SelectMany(a => a.Value.Keys)
             .Distinct(OriginComparer.Instance);
@@ -217,9 +217,9 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// Does not filter for plans.
     /// </summary>
     /// <param name="vote">The vote being checked on.</param>
-    /// <returns>Returns an IEnumerable of the <see cref="OriginType"> of
+    /// <returns>Returns an IEnumerable of the <see cref="Origin"> of
     /// the supporters of the vote, if any.</returns>
-    public IEnumerable<OriginType> GetVotersFor(VoteBlockType vote)
+    public IEnumerable<Origin> GetVotersFor(VoteBlockType vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -234,9 +234,9 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// Does filter for plans.
     /// </summary>
     /// <param name="vote">The vote being checked on.</param>
-    /// <returns>Returns an IEnumerable of the <see cref="OriginType"> of
+    /// <returns>Returns an IEnumerable of the <see cref="Origin"> of
     /// the supporters of the vote, if any.</returns>
-    public IEnumerable<OriginType> GetUserVotersFor(VoteBlockType vote)
+    public IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -284,7 +284,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="voter">The voter being checked on.</param>
     /// <returns>Returns a list of all the votes that the voter supports.</returns>
-    public IEnumerable<VoteBlockType> GetVotesBy(OriginType voter)
+    public IEnumerable<VoteBlockType> GetVotesBy(Origin voter)
     {
         var result = this.SelectMany(a => a.Value)
                          .Where(a => OriginComparer.Instance.Equals(voter, a.Key))
@@ -299,7 +299,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="voter">The voter being checked.</param>
     /// <param name="vote">The vote being checked.</param>
     /// <returns>Returns true if the voter supports the specified vote.</returns>
-    public bool DoesVoterSupportVote(OriginType voter, VoteBlockType vote)
+    public bool DoesVoterSupportVote(Origin voter, VoteBlockType vote)
     {
         if (TryGetValue(vote, out var localVoters))
         {

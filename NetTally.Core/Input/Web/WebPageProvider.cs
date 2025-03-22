@@ -1,560 +1,430 @@
-﻿using System.Net;
-using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Text;
 using System.Xml.Linq;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Cache;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Extensions;
+using NetTally.Utility;
+using NetTally.Utility.Cache;
+using NetTally.Utility.Events;
 
-namespace NetTally.Web
+namespace NetTally.Web;
+
+public class WebPageProvider : IDisposable, IPageProvider
 {
-    public class WebPageProvider : PageProviderBase, IPageProvider
+    private readonly ILogger<WebPageProvider> logger;
+    private readonly IHttpClientFactory httpClientFactory;
+    private readonly CacheService cacheService;
+    private readonly IOptions<GlobalSettings> options;
+    private readonly GlobalSettings settings;
+    private readonly TimeProvider timeProvider;
+
+    private readonly Dictionary<string, string> UrlDescriptions = [];
+    private const int maxSimultaneousConnections = 4;
+    private readonly SemaphoreSlim ss = new(maxSimultaneousConnections);
+    private bool _disposed;
+
+    private HttpClient? _client;
+
+    #region Construction
+    public WebPageProvider(
+        ILogger<WebPageProvider> logger,
+        IHttpClientFactory httpClientFactory,
+        CacheService cacheService,
+        IOptions<GlobalSettings> options,
+        TimeProvider timeProvider
+        )
     {
-        #region Fields
-        private readonly HttpClient httpClient;
-        private readonly ILogger<WebPageProvider> logger;
-        private readonly TimeSpan timeout = TimeSpan.FromSeconds(7);
-        private readonly TimeSpan retryDelay = TimeSpan.FromSeconds(4);
-        const int retryLimit = 3;
+        this.logger = logger;
+        this.httpClientFactory = httpClientFactory;
+        this.cacheService = cacheService;
+        this.options = options;
+        this.settings = options.Value;
+        this.timeProvider = timeProvider;
 
-        readonly GlobalSettings inputOptions;
-        #endregion
+        RetryFailureHandler.RetryFailed += RetryFailureHandler_RetryFailed;
+    }
 
-        #region Construction, Setup, Disposal
-        public WebPageProvider(
-            HttpClientHandler handler,
-            PageCache pageCache,
-            IOptions<GlobalSettings> options,
-            ILogger<WebPageProvider> logger,
-            TimeProvider timeProvider)
-            : base(handler, pageCache, timeProvider)
+    private HttpClient GetClient(string urlString)
+    {
+        if (_client is null)
         {
-            this.inputOptions = options.Value;
-            this.logger = logger;
-            SetupHandler();
-            httpClient = SetupClient();
-        }
+            Uri uri = new(urlString);
 
-        protected override void Dispose(bool itIsSafeToAlsoFreeManagedObjects)
-        {
-            if (_disposed)
-                return;
-
-            if (itIsSafeToAlsoFreeManagedObjects)
+            _client = (uri.Host, settings.DisableWebProxy) switch
             {
-                httpClient?.Dispose();
-            }
-
-            base.Dispose(itIsSafeToAlsoFreeManagedObjects);
-        }
-
-        /// <summary>
-        /// Setup properties on the Client Handler.
-        /// </summary>
-        private void SetupHandler()
-        {
-            ClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-        }
-
-        /// <summary>
-        /// Create a new HTTP Client based on the client handler.
-        /// Setup properties on the HTTP Client.
-        /// </summary>
-        private HttpClient SetupClient()
-        {
-            // In the event of slow response probably caused by
-            // proxy lookup failures, we can turn it off here.
-            // See also: https://support.microsoft.com/en-us/help/2445570/slow-response-working-with-webdav-resources-on-windows-vista-or-windows-7
-            ClientHandler.UseProxy = !inputOptions.DisableWebProxy;
-
-            HttpClient client = new(ClientHandler)
-            {
-                Timeout = timeout
+                ("api.github.com", _) => httpClientFactory.CreateClient(ConfigValues.Github),
+                (_, true) => httpClientFactory.CreateClient(ConfigValues.NoProxy),
+                (_, false) => httpClientFactory.CreateClient(ConfigValues.WithProxy),
             };
-            client.DefaultRequestHeaders.Add("Accept", "text/html");
-            client.DefaultRequestHeaders.Add("User-Agent", UserAgent);
-            client.DefaultRequestHeaders.Add("Connection", "Keep-Alive");
 
-            // Native client handler breaks if we set the accept-encoding.
-            // It handles auto-compression on its own.
-            var handlerInfo = ClientHandler.GetType().GetTypeInfo();
-            if (handlerInfo.FullName != "ModernHttpClient.NativeMessageHandler")
-                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
-
-            // Have to set the BaseAddress for mobile client code to work properly.
-            client.BaseAddress = new Uri("http://forums.sufficientvelocity.com/");
-
-            return client;
-        }
-        #endregion
-
-        #region IPageProvider
-        /// <summary>
-        /// Asynchronously load a specific web page.
-        /// </summary>
-        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
-        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>
-        /// Returns an HTML document, if it can be loaded.
-        /// </returns>
-        public async Task<HtmlDocument?> GetHtmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
-            SuppressNotifications suppressNotifications, CancellationToken token)
-        {
-            logger.LogInformation("Requested HTML document \"{shortDescrip}\"", shortDescrip);
-            HtmlDocument? htmldoc = null;
-
-            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(content))
+            Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
+            if (cookie is not null)
             {
-                logger.LogInformation("\"{shortDescrip}\" successfully loaded from web.", shortDescrip);
-                htmldoc = new HtmlDocument();
-
-                await Task.Run(() => htmldoc.LoadHtml(content), token).ConfigureAwait(false);
-                logger.LogDebug("\"{shortDescrip}\" successfully parsed into HtmlDocument.", shortDescrip);
+                _client.DefaultRequestHeaders.Add("Cookie", $"{cookie.Name}={cookie.Value}");
             }
 
-            return htmldoc;
+            string? authorization = ForumAuthentications.GetAuthorization(uri);
+            if (authorization != null)
+            {
+                _client.DefaultRequestHeaders.Add("Authorization", authorization);
+            }
         }
 
-        /// <summary>
-        /// Gets the XML page.
-        /// </summary>
-        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
-        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns an XML document, if it can be loaded.</returns>
-        public async Task<XDocument?> GetXmlDocumentAsync(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
-            SuppressNotifications suppressNotifications, CancellationToken token)
+        return _client;
+    }
+    #endregion Construction
+
+    #region Disposal
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+            return;
+
+        if (disposing)
         {
-            logger.LogInformation("Requested XML document \"{shortDescrip}\"", shortDescrip);
-            XDocument? xmldoc = null;
-
-            string content = await GetPageContent(url, shortDescrip, caching, shouldCache, suppressNotifications, token).ConfigureAwait(false);
-
-            if (!string.IsNullOrEmpty(content))
-            {
-                logger.LogInformation("\"{shortDescrip}\" successfully loaded.", shortDescrip);
-                xmldoc = XDocument.Parse(content);
-                logger.LogDebug("\"{shortDescrip}\" successfully parsed into XDocument.", shortDescrip);
-            }
-
-            return xmldoc;
+            RetryFailureHandler.RetryFailed -= RetryFailureHandler_RetryFailed;
+            ss.Dispose();
         }
 
-        /// <summary>
-        /// Loads the HEAD of the requested URL, and returns the response URL value.
-        /// For a site that redirects some queries, this allows you to get the 'real' URL for a given short URL.
-        /// </summary>
-        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
-        /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>
-        /// Returns the URL that the response headers say we requested.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">url</exception>
-        /// <exception cref="System.ArgumentException">url</exception>
-        public async Task<string> GetRedirectUrlAsync(string url, string? shortDescrip,
-            CachingMode caching, ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+        _disposed = true;
+    }
+    #endregion Disposal
+
+    #region IPageProvider Methods
+    public async Task<HtmlDocument?> GetHtmlDocumentAsync(
+        string urlString,
+        string description,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "HTML",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        if (content is null)
         {
-            logger.LogInformation("Requested URL redirect for \"{shortDescrip}\"", shortDescrip);
-            Uri? responseUri = await GetRedirectedHeaderRequestUri(url, shortDescrip, suppressNotifications, token);
-
-            string result = responseUri?.AbsoluteUri ?? string.Empty;
-
-            if (string.IsNullOrEmpty(result))
-                logger.LogDebug("Redirect request failed for \"{shortDescrip}\".", shortDescrip);
-            else
-                logger.LogDebug("Redirect request succeeded. Using {result}", result);
-
-            return result;
-        }
-        #endregion
-
-        #region Private
-
-        /// <summary>
-        /// Gets a well-formed URI and unescaped URL based on the provided URL.
-        /// </summary>
-        /// <param name="url">The URL. Cannot be null.  Must be a well-formed URL.</param>
-        /// <returns>Returns a URI and unescaped URL.</returns>
-        /// <exception cref="System.ArgumentNullException">url</exception>
-        /// <exception cref="System.ArgumentException">url</exception>
-        private static (Uri uri, string url) GetVerifiedUrl(string url)
-        {
-            ArgumentException.ThrowIfNullOrEmpty(url);
-
-            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                throw new ArgumentException($"Url is not valid: {url}", nameof(url));
-
-            Uri uri = new(url);
-            string url2 = Uri.UnescapeDataString(url);
-
-            return (uri, url2);
+            return null;
         }
 
-        /// <summary>
-        /// Gets the cached content for the provided URL, if any, and if flagged to use caching.
-        /// </summary>
-        /// <param name="url">The URL to search for.</param>
-        /// <param name="caching">The caching mode.</param>
-        /// <returns>Returns a (bool,string) tuple of whether there was cached content found, and what it was if found.</returns>
-        private (bool found, string content) GetCachedContent(string url, CachingMode caching)
-        {
-            if (caching == CachingMode.UseCache)
-            {
-                return Cache.Get(url);
-            }
+        HtmlDocument htmldoc = new();
+        htmldoc.LoadHtml(content);
 
-            return (false, string.Empty);
+        return htmldoc;
+    }
+
+    public async Task<XDocument?> GetXmlDocumentAsync(
+        string urlString,
+        string description,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "XML",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        if (content is null)
+        {
+            return null;
         }
 
-        /// <summary>
-        /// Gets the content of the requested page.
-        /// </summary>
-        /// <param name="url">The URL to load.</param>
-        /// <param name="shortDescrip">The short description of the page (for notifications).</param>
-        /// <param name="caching">The caching mode.</param>
-        /// <param name="shouldCache">Whether the requested page should be cached.</param>
-        /// <param name="suppressNotifications">Whether to suppress notifications.</param>
-        /// <param name="token">The cancellation token.</param>
-        /// <returns>Returns the loaded resource string.</returns>
-        private async Task<string> GetPageContent(string url, string shortDescrip, CachingMode caching, ShouldCache shouldCache,
-            SuppressNotifications suppressNotifications, CancellationToken token)
+        XDocument xmlDoc = XDocument.Parse(content);
+
+        return xmlDoc;
+    }
+
+    public async Task<string?> GetJsonDocumentAsync(
+        string urlString,
+        string description,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        string? content = await GetDocumentContentAsync(
+            urlString, description, "JSON",
+            cachingMode, suppressNotifications, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        return content;
+    }
+
+    public async Task<string> GetRedirectUrlAsync(
+        string urlString,
+        string description,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        logger.LogDebug("Requested URL redirect for \"{description}\"", description);
+
+        UrlDescriptions[urlString] = description;
+
+        string? responseUri = await GetRedirectedHeaderRequestUri(urlString, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        if (string.IsNullOrEmpty(responseUri))
+            logger.LogDebug("Redirect request failed for \"{description}\".", description);
+        else
+            logger.LogDebug("Redirect request succeeded. Using {responseUri}", responseUri);
+
+        return responseUri ?? urlString;
+    }
+    #endregion IPageProvider Methods
+
+    #region Read Content
+    /// <summary>
+    /// Generic content loader function that handles checking cache, and then
+    /// loading the requested URL if no cache item is found.
+    /// </summary>
+    /// <returns>The string content of the URL, if found. Otherwise <c>null</c>.</returns>
+    private async Task<string?> GetDocumentContentAsync(
+        string urlString,
+        string description,
+        string docType,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
+            docType, description, urlString);
+
+        UrlDescriptions[urlString] = description;
+
+        if (!TryGetContentFromCache(urlString, description, cachingMode, suppressNotifications,
+            out string? content))
         {
-            var (uri, url2) = GetVerifiedUrl(url);
-
-            var (found, content) = GetCachedContent(url2, caching);
-
-            if (found)
-            {
-                NotifyStatusChange(PageRequestStatusType.LoadedFromCache, url2, shortDescrip, null, suppressNotifications);
-            }
-            else
-            {
-                content = await GetUrlContent(uri, url2, shortDescrip, shouldCache, suppressNotifications, token).ConfigureAwait(false) ?? string.Empty;
-            }
-
-            return content;
+            content = await GetContentFromWeb(urlString, description, cachingMode, suppressNotifications, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
         }
 
-        /// <summary>
-        /// Asynchronously load a specific page.
-        /// </summary>
-        /// <param name="url">The URL of the page to load.  Cannot be null.</param>
-        /// <param name="shortDescrip">A short description that can be used in status updates.  If null, no update will be given.</param>
-        /// <param name="caching">Indicator of whether to query the cache for the requested page.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <param name="shouldCache">Indicates whether the result of this page load should be cached.</param>
-        /// <returns>Returns an HTML document, if it can be loaded.</returns>
-        /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-        /// <exception cref="ArgumentException">If url is not a valid absolute url.</exception>
-        private async Task<string?> GetUrlContent(Uri uri, string url, string shortDescrip,
-            ShouldCache shouldCache, SuppressNotifications suppressNotifications, CancellationToken token)
+        return content;
+    }
+
+
+    private bool TryGetContentFromCache(
+        string urlString,
+        string description,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        [NotNullWhen(true)] out string? content)
+    {
+        if (cachingMode is CachingMode.ReadOnly or CachingMode.ReadWrite)
         {
-            string? result = null;
-            int tries = 0;
-            DateTimeOffset expires = CacheInfo.DefaultExpiration;
+            var (_, url) = GetVerifiedUrl(urlString);
 
-            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
-
-            // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
-
-            try
+            if (cacheService.TryGet(url, out content))
             {
-                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
-                if (cookie != null)
-                {
-                    ClientHandler.CookieContainer.Add(uri, cookie);
-                }
+                NotifyStatusChange(PageRequestStatusType.LoadedFromCache,
+                    urlString, description, null, suppressNotifications);
 
-                string? authorization = ForumAuthentications.GetAuthorization(uri);
-                if (authorization != null && !httpClient.DefaultRequestHeaders.Contains("Authorization"))
-                {
-                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
-                }
-
-                Task<HttpResponseMessage>? getResponseTask = null;
-
-                do
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    if (tries > 0)
-                    {
-                        // Delay any additional attempts after the first.
-                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
-
-                        // Notify the user if we're making another attempt to load the page.
-                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
-                    }
-
-                    tries++;
-
-                    try
-                    {
-                        getResponseTask = httpClient.GetAsync(uri, token).TimeoutAfter(timeout, token);
-                        logger.LogDebug("Get URI {uri} task ID: {Id}", uri, getResponseTask.Id);
-
-                        using var response = await getResponseTask.ConfigureAwait(false);
-
-                        if (response.IsSuccessStatusCode)
-                        {
-                            result = await response.Content.ReadAsStringAsync(token).ConfigureAwait(false);
-
-                            // Get expires value
-                            // Cannot get Expires value until we move to .NET Standard 2.0.
-
-                            // If we get a successful result, we're done.
-                            break;
-                        }
-                        else if (PageLoadFailed(response))
-                        {
-                            NotifyStatusChange(PageRequestStatusType.Failed, url,
-                                GetFailureMessage(response, shortDescrip, url), null, suppressNotifications);
-                            return null;
-                        }
-                        else if (PageWasMoved(response))
-                        {
-                            if (response.Content.Headers.ContentLocation is Uri contentLocation)
-                            {
-                                url = contentLocation.AbsoluteUri;
-                                uri = new Uri(url);
-                            }
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        if (token.IsCancellationRequested)
-                        {
-                            // user request
-                            throw;
-                        }
-                        else
-                        {
-                            // timeout via cancellation
-                            logger.LogDebug("Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}",
-                                shortDescrip, tries);
-                        }
-                    }
-                    catch (TimeoutException)
-                    {
-                        logger.LogDebug("Attempt to load {shortDescrip} timed out. Tries={tries}",
-                            shortDescrip, tries);
-                    }
-                    catch (HttpRequestException e)
-                    {
-                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
-                        throw;
-                    }
-
-                } while (tries < retryLimit);
-
-                logger.LogDebug("Finished getting URI {uri} task ID: {getResponseTaskId}",
-                    uri, getResponseTask?.Id ?? 0);
-
-                if (result == null && tries >= retryLimit)
-                    httpClient.CancelPendingRequests();
+                return true;
             }
-            catch (OperationCanceledException)
-            {
-                // If it's not a user-requested cancellation, generate a failure message.
-                if (!token.IsCancellationRequested)
-                {
-                    NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
-                }
+        }
 
-                throw;
-            }
-            finally
-            {
-                ss.Release();
-            }
+        content = default;
+        return false;
+    }
+
+    private async Task<string?> GetContentFromWeb(
+        string urlString,
+        string description,
+        CachingMode cachingMode,
+        SuppressNotifications suppressNotifications,
+        CancellationToken token)
+    {
+        var (_, url) = GetVerifiedUrl(urlString);
+        var client = GetClient(url);
+
+        // Limit to no more than N parallel requests
+        await ss.WaitAsync(token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        token.ThrowIfCancellationRequested();
+
+        try
+        {
+            var response = await client.GetAsync(url, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
 
             token.ThrowIfCancellationRequested();
 
-            if (result == null)
+            if (response.IsSuccessStatusCode)
             {
-                NotifyStatusChange(PageRequestStatusType.Failed, url, shortDescrip, null, suppressNotifications);
+                string result = await response.Content.ReadAsStringAsync(token)
+                    .ConfigureAwait(ConfigureAwaitOptions.None);
+
+                result = result.RemoveUnsafeCharacters().Trim();
+
+                if (!string.IsNullOrEmpty(result))
+                {
+                    if (cachingMode is CachingMode.ReadWrite or CachingMode.WriteOnly)
+                        cacheService.Add(url, result);
+
+                    NotifyStatusChange(PageRequestStatusType.Loaded,
+                        urlString, description, null, suppressNotifications);
+
+                    return result;
+                }
+
+                NotifyStatusChange(PageRequestStatusType.Failed, url,
+                    $"{description} - No content", null, suppressNotifications);
+
                 return null;
             }
 
-            if (shouldCache == ShouldCache.Yes)
-                Cache.Add(url, result, expires);
-
-            NotifyStatusChange(PageRequestStatusType.Loaded, url, shortDescrip, null, suppressNotifications);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Loads the HEAD of the requested URL, and returns the URI from the returned request header.
-        /// </summary>
-        /// <param name="url">The URL to load.</param>
-        /// <param name="shortDescrip">Short description of the page being loaded.</param>
-        /// <param name="suppressNotifications">Whether to suppress notifications.</param>
-        /// <param name="token">Cancellation token.</param>
-        /// <returns>Returns the URI, if the page is loaded. Otherwise null.</returns>
-        private async Task<Uri?> GetRedirectedHeaderRequestUri(string url, string? shortDescrip, SuppressNotifications suppressNotifications, CancellationToken token)
-        {
-            var (uri, _) = GetVerifiedUrl(url);
-
-            NotifyStatusChange(PageRequestStatusType.Requested, url, shortDescrip, null, suppressNotifications);
-
-            // Limit to no more than N parallel requests
-            await ss.WaitAsync(token).ConfigureAwait(false);
-
-            try
-            {
-                Cookie? cookie = ForumCookies.GetCookie(uri, timeProvider);
-                if (cookie != null)
-                {
-                    ClientHandler.CookieContainer.Add(uri, cookie);
-                }
-
-                string? authorization = ForumAuthentications.GetAuthorization(uri);
-                if (authorization != null)
-                {
-                    httpClient.DefaultRequestHeaders.Add("Authorization", authorization);
-                }
-
-                int tries = 0;
-
-                do
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    if (tries > 0)
-                    {
-                        // Delay any additional attempts after the first.
-                        await Task.Delay(retryDelay, token).ConfigureAwait(false);
-
-                        // Notify the user if we're re-trying to load the page.
-                        NotifyStatusChange(PageRequestStatusType.Retry, url, shortDescrip, null, suppressNotifications);
-                    }
-
-                    tries++;
-
-                    try
-                    {
-                        using HttpRequestMessage request = new(HttpMethod.Head, uri);
-
-                        // As long as we got a response (whether 200 or 404), we can extract what
-                        // the server thinks the URL should be.
-                        using HttpResponseMessage response = await httpClient.SendAsync(request, token).ConfigureAwait(false);
-
-                        return response.RequestMessage?.RequestUri;
-                    }
-                    catch (HttpRequestException e)
-                    {
-                        NotifyStatusChange(PageRequestStatusType.Error, url, shortDescrip, e, suppressNotifications);
-                        throw;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        if (token.IsCancellationRequested)
-                        {
-                            // user request
-                            throw;
-                        }
-                        else
-                        {
-                            // timeout via cancellation
-                            logger.LogDebug("Attempt to load {shortDescrip} timed out/self-cancelled (TA). Tries={tries}",
-                                shortDescrip, tries);
-                        }
-                    }
-                    catch (TimeoutException)
-                    {
-                        logger.LogDebug("Attempt to load {shortDescrip} timed out. Tries={tries}",
-                            shortDescrip, tries);
-                    }
-
-                } while (tries < retryLimit);
-            }
-            finally
-            {
-                httpClient.DefaultRequestHeaders.Remove("Authorization");
-
-                ss.Release();
-            }
+            NotifyStatusChange(PageRequestStatusType.Failed, url,
+                GetFailureMessage(response, description, url), null, suppressNotifications);
 
             return null;
         }
-        #endregion
-
-        #region Functions for load failure checks.
-        /// <summary>
-        /// Determines whether the specified HTTP response is a failure.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        /// <returns>Returns true if it's a failure response code.</returns>
-        private static bool PageLoadFailed(HttpResponseMessage response)
+        catch (OperationCanceledException e)
         {
-            return ((int)response.StatusCode >= 400 && (int)response.StatusCode < 600);
-        }
-
-        /// <summary>
-        /// Determine if the response indicated that the requested page was moved.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        /// <returns>Returns true if the page was moved.</returns>
-        private static bool PageWasMoved(HttpResponseMessage response)
-        {
-            return (response.StatusCode == HttpStatusCode.Moved ||
-                    response.StatusCode == HttpStatusCode.MovedPermanently ||
-                    response.StatusCode == HttpStatusCode.Redirect ||
-                    response.StatusCode == HttpStatusCode.TemporaryRedirect);
-        }
-
-        /// <summary>
-        /// Gets the failure message for a given response code.
-        /// </summary>
-        /// <param name="response">The response.</param>
-        /// <param name="shortDescrip">The short descrip.</param>
-        /// <param name="url">The URL.</param>
-        /// <returns></returns>
-        private string GetFailureMessage(HttpResponseMessage response, string shortDescrip, string url)
-        {
-            string failureDescrip;
-
-            if (Enum.IsDefined(typeof(HttpStatusCode), response.StatusCode))
+            // If it's not a user-requested cancellation, generate a failure message.
+            if (token.IsCancellationRequested)
             {
-                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({response.StatusCode})";
-                if (inputOptions.DebugMode)
-                    failureDescrip += $"\nURL: {url}";
+                NotifyStatusChange(PageRequestStatusType.Cancelled, url, description, e, suppressNotifications);
             }
             else
             {
-                // Fail all 400/500 level responses
-                // Includes 429 (Too Many Requests), proposed standard not in the standard enum list
-                failureDescrip = $"{shortDescrip}\nReason: {response.ReasonPhrase} ({(int)response.StatusCode})";
-                if (inputOptions.DebugMode)
-                    failureDescrip += $"\nURL: {url}";
+                NotifyStatusChange(PageRequestStatusType.Failed, url, description, e, suppressNotifications);
             }
 
-            if (response.StatusCode == HttpStatusCode.Forbidden ||
-                response.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                failureDescrip += "\nConsider contacting the site administrator.";
-            }
-
-            return failureDescrip;
+            throw;
         }
-        #endregion
+        finally
+        {
+            ss.Release();
+        }
     }
+
+    private async Task<string?> GetRedirectedHeaderRequestUri(string urlString, CancellationToken token)
+    {
+        var (uri, url) = GetVerifiedUrl(urlString);
+        var client = GetClient(url);
+
+        using HttpRequestMessage request = new(HttpMethod.Head, uri);
+
+        // As long as we got a response (whether 200 or 404), we can extract what
+        // the server thinks the URL should be.
+        using HttpResponseMessage response = await client.SendAsync(request, token)
+            .ConfigureAwait(ConfigureAwaitOptions.None);
+
+        return response.RequestMessage?.RequestUri?.AbsoluteUri;
+    }
+
+    private static (Uri uri, string url) GetVerifiedUrl(string url)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(url);
+
+        if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+            throw new ArgumentException($"Url is not valid: {url}", nameof(url));
+
+        Uri uri = new(url);
+        string url2 = Uri.UnescapeDataString(url);
+
+        return (uri, url2);
+    }
+    #endregion Read Content
+
+    #region Messaging
+    public event EventHandler<MessageEventArgs>? StatusChanged;
+
+    private void OnStatusChanged(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return;
+
+        MessageEventArgs eventArgs = new(message);
+
+        StatusChanged?.Invoke(this, eventArgs);
+    }
+
+    private void NotifyStatusChange(
+        PageRequestStatusType status,
+        string url,
+        string description,
+        Exception? e,
+        SuppressNotifications suppressNotifications)
+    {
+        string msg = status switch
+        {
+            PageRequestStatusType.Requested => $"{url}\n",
+            PageRequestStatusType.Loaded => $"{description} loaded!\n",
+            PageRequestStatusType.LoadedFromCache => $"{description} loaded from memory!\n",
+            PageRequestStatusType.Cancelled => "Tally cancelled!\n",
+            PageRequestStatusType.Retry when e is not null => $"Retrying: {description}\n>> {e.Message}\n",
+            PageRequestStatusType.Retry => $"Retrying: {description}\n",
+            PageRequestStatusType.Failed when e is not null => $"Failed to load: {description}{(settings.DebugMode ? $" ({url})" : "")}\n>> {e.Message}\n",
+            PageRequestStatusType.Failed => $"Failed to load: {description}{(settings.DebugMode ? $" ({url})" : "")}\n",
+            PageRequestStatusType.Error => $"{description}: {e?.Message ?? "(unknown error)"}\n",
+            _ => ""
+        };
+
+        logger.LogDebug("{msg}", msg);
+
+        if (suppressNotifications == SuppressNotifications.No)
+            OnStatusChanged(msg);
+    }
+
+    private void RetryFailureHandler_RetryFailed(object sender, RetryFailedEventArgs e)
+    {
+        if (!UrlDescriptions.TryGetValue(e.Url, out string? description))
+        {
+            description = e.Response.RequestMessage?.RequestUri?.AbsolutePath ?? "";
+        }
+
+        if (e.ReachedMaxRetries)
+        {
+            logger.LogDebug("Tried: {description} - Attempt {count} - Failed", description, e.RetryCount);
+            NotifyStatusChange(PageRequestStatusType.Failed, e.Url, description, e.Exception, SuppressNotifications.No);
+        }
+        else
+        {
+            logger.LogDebug("Tried: {description} - Attempt {count} - Retrying", description, e.RetryCount);
+            NotifyStatusChange(PageRequestStatusType.Retry, e.Url, description, e.Exception, SuppressNotifications.No);
+        }
+    }
+
+    /// <summary>
+    /// Gets the failure message for a given response code.
+    /// </summary>
+    /// <param name="response">The response.</param>
+    /// <param name="description">The short descrip.</param>
+    /// <param name="url">The URL.</param>
+    /// <returns></returns>
+    private string GetFailureMessage(HttpResponseMessage response, string description, string url)
+    {
+        StringBuilder failure = new();
+
+        failure.AppendLine(description);
+        failure.Append("Reason: ");
+        failure.Append(response.ReasonPhrase);
+        failure.Append(" (");
+        failure.Append((int)response.StatusCode);
+        failure.Append(')');
+        if (settings.DebugMode)
+        {
+            failure.Append("\nURL: ");
+            failure.Append(url);
+        }
+        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized)
+        {
+            failure.Append("\nConsider contacting the site administrator.");
+        }
+
+        return failure.ToString();
+    }
+    #endregion Messaging
 }

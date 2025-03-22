@@ -16,27 +16,27 @@ public class PostTests
     [TestMethod]
     public void Construct_NullOrigin_Error()
     {
-        var post = Post.Create(null!, "Some text");
+        var post = Posting.Create(null!, "Some text");
         Assert.IsNull(post);
     }
 
     [TestMethod]
     public void Construct_NullText_Error()
     {
-        var origin = Origin.None;
-        var post = Post.Create(origin, null!);
+        var origin = Origins.None;
+        var post = Posting.Create(origin, null!);
         Assert.IsNull(post);
     }
 
     [TestMethod]
     public void Compare_Same()
     {
-        var author1 = Author.Create("Kinematics");
+        var author1 = Authors.Create("Kinematics");
         Assert.IsNotNull(author1);
-        var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
+        var origin1 = Origins.CreateUserNameOnly(author1);
         Assert.IsNotNull(origin1);
-        var post1 = Post.Create(origin1, "Some text");
-        var post2 = Post.Create(origin1, "Some text");
+        var post1 = Posting.Create(origin1, "Some text");
+        var post2 = Posting.Create(origin1, "Some text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
@@ -46,9 +46,9 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentText()
     {
-        var origin = Origin.None;
-        var post1 = Post.Create(origin, "Some text");
-        var post2 = Post.Create(origin, "Some more text");
+        var origin = Origins.None;
+        var post1 = Posting.Create(origin, "Some text");
+        var post2 = Posting.Create(origin, "Some more text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
         Assert.AreNotEqual(post1, post2);
@@ -57,18 +57,18 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentOrigins()
     {
-        var author1 = Author.Create("Kinematics");
-        var author2 = Author.Create("Cammy");
+        var author1 = Authors.Create("Kinematics");
+        var author2 = Authors.Create("Cammy");
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateOriginForName(IdentityType.User, author1);
-        var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
+        var origin1 = Origins.CreateUserNameOnly(author1);
+        var origin2 = Origins.CreateUserNameOnly(author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
-        var post1 = Post.Create(origin1, "Some text");
-        var post2 = Post.Create(origin2, "Some text");
+        var post1 = Posting.Create(origin1, "Some text");
+        var post2 = Posting.Create(origin2, "Some text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
@@ -78,25 +78,25 @@ public class PostTests
     [TestMethod]
     public void Compare_DifferentOrigins2_Same()
     {
-        var author1 = Author.Create("Kinematics");
-        var author2 = Author.Create("Kinematics");
+        var author1 = Authors.Create("Kinematics");
+        var author2 = Authors.Create("Kinematics");
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateUser(author1,
+        var origin1 = Origins.CreateUser(author1,
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
-            PostId.Create(123456),
-            150,
+            PostIds.Create(123456),
+            PostIds.Create(150),
             DateTimeOffset.MinValue);
-        var origin2 = Origin.CreateOriginForName(IdentityType.User, author2);
+        var origin2 = Origins.CreateUserNameOnly(author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
         Assert.AreEqual(origin1, origin2, OriginComparer.Instance);
 
-        var post1 = Post.Create(origin1, "Some text");
-        var post2 = Post.Create(origin2, "Some text");
+        var post1 = Posting.Create(origin1, "Some text");
+        var post2 = Posting.Create(origin2, "Some text");
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 

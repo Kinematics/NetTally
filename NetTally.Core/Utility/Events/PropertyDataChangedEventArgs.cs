@@ -1,0 +1,16 @@
+﻿using System.ComponentModel;
+
+namespace NetTally.Utility.Events;
+
+/// <summary>
+/// Custom event args class for PropertyChanged events that allows passing
+/// arbitrary data along with the name of the property that changed.
+/// Primarily designed so that the changed data can be passed with the property name.
+/// </summary>
+/// <typeparam name="T">The data type being passed.</typeparam>
+/// <seealso cref="PropertyChangedEventArgs" />
+public class PropertyDataChangedEventArgs<T>(string propertyName, T propertyData)
+    : PropertyChangedEventArgs(propertyName)
+{
+    public T PropertyData { get; } = propertyData;
+}

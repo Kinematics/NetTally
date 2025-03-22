@@ -61,7 +61,7 @@ public class InstantRunoffBase : IRankVoteCounter
                 .SelectMany(v => v.Value)
                 .GroupBy(u => u.Key)
                 .ToDictionary(t => t.Key, s => s.Select(q => q.Value)
-                .OrderBy(r => r.Marker.MarkerValue)
+                .OrderBy(r => r.Marker.GetValue())
                 .ToList());
 
             // Check to see if we have a winner.

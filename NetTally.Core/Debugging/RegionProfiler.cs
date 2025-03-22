@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace NetTally;
+namespace NetTally.Debugging;
 
 /// <summary>
 /// This class describes a profiled region that can be used to
