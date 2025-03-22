@@ -8,15 +8,17 @@
 		x:Class="NetTally.Avalonia.Views.MainWindow"
 		Icon="/Assets/CheckVoteWin.ico" Title="NetTally.Avalonia"
 		d:DesignWidth="800" d:DesignHeight="450"
-		Width="1024" Height="600" MinWidth="1024" MinHeight="600"
-		ExtendClientAreaToDecorationsHint="True">
+		Width="1024" Height="600" MinWidth="1024" MinHeight="600">
 
+	<!-- ExtendClientAreaToDecorationsHint="True"
+	ExtendClientAreaChromeHints="SystemChrome"
+	-->
 	<Panel>
-		<StackPanel Orientation="Horizontal" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top">
+		<!--<StackPanel IsVisible="False" Orientation="Horizontal" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top">
 			<Image Source="/Assets/CheckVoteWin.ico" Width="20" Height="20" Margin="10,5,5,5"/>
 			<TextBlock FontSize="14" Margin="0,6,0,5" Text="{Binding Title, Mode=OneTime}"/>
-		</StackPanel>
-		<Grid Margin="0,24,0,0">
+		</StackPanel>-->
+		<Grid Margin="0,0,0,0">
 			<Button Name="AddQuestButton" Content="New"
 					Width="60" Height="30" Margin="10,45,0,0"
 					HorizontalAlignment="Left" VerticalAlignment="Top"
