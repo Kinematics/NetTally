@@ -34,6 +34,12 @@ namespace NetTally.Avalonia.Views
 
             InitializeComponent();
 
+            // Buttons that can be disabled, that we want to still show tooltips for:
+            ToolTip.SetShowOnDisabled(MergeButton, true);
+            ToolTip.SetShowOnDisabled(UndoButton, true);
+            ToolTip.SetShowOnDisabled(DeleteButton, true);
+            ToolTip.SetShowOnDisabled(JoinVotersButton, true);
+
             // Populate the context menu with known tasks.
             CreateContextMenuCommands();
 

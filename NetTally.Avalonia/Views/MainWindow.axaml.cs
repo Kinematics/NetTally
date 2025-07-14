@@ -49,6 +49,11 @@ namespace NetTally.Avalonia.Views
             // Initialize the window.
             InitializeComponent();
 
+            // Buttons that can be disabled, that we want to still show tooltips for:
+            ToolTip.SetShowOnDisabled(CancelTallyButton, true);
+            ToolTip.SetShowOnDisabled(CopyToClipboardButton, true);
+            ToolTip.SetShowOnDisabled(RemoveQuestButton, true);
+
             StartPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
             EndPost.AddHandler(PointerPressedEvent, TextBox_PointerPressed, RoutingStrategies.Tunnel);
 
