@@ -31,7 +31,7 @@ namespace NetTally.Tally.Components.Votes
         const char strikeNewline = '⦂';
 
         static readonly char[] apostrophes = ['‘', '’'];
-        static readonly char[] quotations = ['“', '〃', '”'];
+        static readonly char[] quotations = ['“', '”', '‟', '„', '❝', '❞', '〝', '〞', '〟', '〃'];
 
         // Prefix chars: dash, en-dash, em-dash
         static readonly char[] prefixChars = ['-', '–', '—'];
