@@ -200,7 +200,7 @@ public partial class XenForo1Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
@@ -438,8 +438,11 @@ public partial class XenForo1Adapter(
                     .FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
             }
 
-            return listOfThreadmarks?.Elements("li")
+            return listOfThreadmarks
+                ?.Elements("li")
                 .TraverseList(childSelector, nodeSelector, filterLambda)
+                .Where(n => n != null)
+                .Select(n => n!)
                 ?? [];
         }
         catch (ArgumentNullException e)
@@ -450,13 +453,13 @@ public partial class XenForo1Adapter(
         return [];
 
         // Local functions
-        bool filterLambda(HtmlNode n) => n != null &&
+        bool filterLambda(HtmlNode? n) => n != null &&
             ((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Allows(n.InnerText)) ||
             (!quest.UseCustomThreadmarkFilters && RegexFilter.DefaultThreadmarkFilter.Allows(n.InnerText)));
 
         static IEnumerable<HtmlNode> childSelector(HtmlNode i) => i.Element("ul")?.Elements("li") ?? [];
 
-        static HtmlNode nodeSelector(HtmlNode n) => n.Element("a");
+        static HtmlNode? nodeSelector(HtmlNode n) => n.Element("a");
     }
     #endregion Get ThreadInfoRange information
 

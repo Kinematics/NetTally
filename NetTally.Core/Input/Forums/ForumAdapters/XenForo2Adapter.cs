@@ -220,14 +220,14 @@ public partial class XenForo2Adapter(
         string mainTitle = ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
 
         string metaTitle = ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Elements("meta")
                 .Where(e => e.GetAttributeValue("property", "") == "og:title")
                 .Select(e => e.GetAttributeValue("content", ""))
@@ -258,7 +258,7 @@ public partial class XenForo2Adapter(
 
             if (navItems != null && navItems.Any())
             {
-                var lastItem = ForumPostTextConverter.CleanupWebString(navItems.Last().Element("a").InnerText.Trim());
+                var lastItem = ForumPostTextConverter.CleanupWebString(navItems.Last().Element("a")?.InnerText.Trim());
 
                 if (int.TryParse(lastItem, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out int pages))
                 {

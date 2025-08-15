@@ -229,9 +229,9 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
         if (releasePage is not null)
         {
-            var body = releasePage.DocumentNode.Element("html").Element("body");
+            var body = releasePage.DocumentNode.Element("html")?.Element("body");
 
-            var appMain = body.GetChildWithClass("application-main");
+            var appMain = body?.GetChildWithClass("application-main");
             var repoContent = appMain?.GetDescendantWithClass("repository-content");
             var releaseEntries = repoContent?.GetDescendantsWithClass("release-entry");
 

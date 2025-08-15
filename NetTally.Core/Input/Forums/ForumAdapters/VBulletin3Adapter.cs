@@ -151,7 +151,7 @@ public partial class VBulletin3Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
@@ -160,7 +160,11 @@ public partial class VBulletin3Adapter(
     {
         // If there's no pagenav div, that means there's no navigation to alternate pages,
         // which means there's only one page in the thread.
-        var pageNavDiv = page.DocumentNode.Element("html").Element("body").GetDescendantWithClass("div", "pagenav");
+        var pageNavDiv = page
+            .DocumentNode
+            .Element("html")
+            ?.Element("body")
+            ?.GetDescendantWithClass("div", "pagenav");
 
         if (pageNavDiv != null)
         {
@@ -227,7 +231,7 @@ public partial class VBulletin3Adapter(
 
     private static Author GetPostAuthor(HtmlDocument page, PostId id)
     {
-        string authorName = "";
+        string? authorName = null;
         string postAuthorDivID = $"postmenu_{id.Value}";
 
         var authorAnchor = page.GetElementbyId(postAuthorDivID).Element("a");
@@ -237,7 +241,7 @@ public partial class VBulletin3Adapter(
             // ??
             if (authorAnchor.Element("span") != null)
             {
-                authorName = authorAnchor.Element("span").InnerText;
+                authorName = authorAnchor.Element("span")?.InnerText;
             }
             else
             {

@@ -43,7 +43,7 @@ static partial class ForumPostTextConverter
 
         text = HtmlEntity.DeEntitize(text);
 
-        return text.RemoveUnsafeCharacters();
+        return text?.RemoveUnsafeCharacters() ?? "";
     }
 
     /// <summary>

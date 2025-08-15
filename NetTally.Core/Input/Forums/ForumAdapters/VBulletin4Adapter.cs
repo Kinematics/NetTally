@@ -153,7 +153,7 @@ public partial class VBulletin4Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }

@@ -155,7 +155,7 @@ public partial class VBulletin5Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
