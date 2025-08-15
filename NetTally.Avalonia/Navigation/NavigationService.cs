@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,7 +46,8 @@ namespace NetTally.Avalonia.Navigation
         /// <param name="parentWindow">The parent Window for this dialog.</param>
         /// <param name="parameters">List of paramaters to pass along to the dialog window.</param>
         /// <returns>Returns the dialog result.</returns>
-        public async Task<bool?> ShowDialogAsync<T>(Window parentWindow, params object[] parameters)
+        public async Task<bool?> ShowDialogAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] T>
+            (Window parentWindow, params object[] parameters)
             where T : Window
         {
             logger.LogDebug("Showing Dialog Window {type}", typeof(T));
