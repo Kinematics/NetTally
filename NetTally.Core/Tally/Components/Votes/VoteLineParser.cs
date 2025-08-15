@@ -134,7 +134,7 @@ namespace NetTally.Tally.Components.Votes
                         {
                             markerSB.Append(ch);
                         }
-                        else if (ch == closeBracket)
+                        else if (ch == closeBracket && markerSB.Length > 0)
                         {
                             currentState = TokenState.PostMarker;
                         }
