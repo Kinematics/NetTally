@@ -1,8 +1,11 @@
-﻿namespace NetTally.Enums;
+﻿using System.Text.Json.Serialization;
+
+namespace NetTally.Enums;
 
 /// <summary>
 /// The type of forum being read.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<ForumType>))]
 public enum ForumType
 {
     Unknown,

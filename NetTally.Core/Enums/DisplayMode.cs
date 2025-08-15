@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace NetTally.Enums;
 
 /// <summary>
 /// Enum for various modes of displaying the tally results.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<DisplayMode>))]
 public enum DisplayMode
 {
     [Description("Normal")]

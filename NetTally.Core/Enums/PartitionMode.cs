@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace NetTally.Enums;
 
 /// <summary>
 /// Enum for various partitioning modes to use for breaking votes up into components.
 /// </summary>
+[JsonConverter(typeof(JsonStringEnumConverter<PartitionMode>))]
 public enum PartitionMode
 {
     [Description("No Partitioning")]
