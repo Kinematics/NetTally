@@ -12,7 +12,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <summary>
     /// The quest the vote counter is set to track.
     /// </summary>
-    Quest Quest { set; }
+    Quest Quest { get; set; }
 
     /// <summary>
     /// The titles of the quest threads that have been tallied.
