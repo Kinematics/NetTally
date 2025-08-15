@@ -12,6 +12,7 @@
 		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>

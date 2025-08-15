@@ -10,6 +10,8 @@
 		<RollForward>LatestMajor</RollForward>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>true</ImplicitUsings>
+		<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>
