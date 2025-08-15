@@ -39,16 +39,16 @@ public partial class MainViewModel : ObservableObject
         checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
     }
 
-    public string Title => $"{ProductInfo.Name} – {ProductInfo.Version}";
+    public static string Title => $"{ProductInfo.Name} – {ProductInfo.Version}";
 
     #region Item Source Properties
     public ObservableCollection<Quest> Quests => questsInfo.Quests;
 
-    public List<string> DisplayModes { get; } = EnumExtensions.EnumDescriptionsList<DisplayMode>().ToList();
+    public List<string> DisplayModes { get; } = [.. EnumExtensions.EnumDescriptionsList<DisplayMode>()];
 
-    public List<string> PartitionModes { get; } = EnumExtensions.EnumDescriptionsList<PartitionMode>().ToList();
+    public List<string> PartitionModes { get; } = [.. EnumExtensions.EnumDescriptionsList<PartitionMode>()];
 
-    public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
+    public List<string> RankVoteCountingModes { get; } = [.. EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>()];
     #endregion Item Source Properties
 
     #region State Properties

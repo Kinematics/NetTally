@@ -182,6 +182,6 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
         if (quest.LinkedQuestIds.Count == 0)
             return [];
 
-        return Quests.Where(quest.HasLinkedQuest).ToList();
+        return [.. Quests.Where(quest.HasLinkedQuest)];
     }
 }

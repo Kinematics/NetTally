@@ -9,10 +9,11 @@
 		<OutputType>WinExe</OutputType>
 		<Nullable>enable</Nullable>
 		<DebugType>embedded</DebugType>
-		<TrimMode>copyused</TrimMode>
 		<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
 		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
-		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<IsTrimmable>false</IsTrimmable>
+		<TrimMode>copyused</TrimMode>
+		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>

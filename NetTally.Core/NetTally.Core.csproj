@@ -11,7 +11,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>true</ImplicitUsings>
 		<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
-		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+		<IsTrimmable>true</IsTrimmable>
+		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
 	</PropertyGroup>
 	<PropertyGroup>
 		<Product>NetTally</Product>

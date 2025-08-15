@@ -55,7 +55,7 @@ namespace NetTally.Avalonia.Views
         }
 
 
-        private AvaloniaTheme GetCurrentTheme()
+        private static AvaloniaTheme GetCurrentTheme()
         {
             if (App.Current!.ActualThemeVariant == ThemeVariant.Light)
                 return AvaloniaTheme.Light;
