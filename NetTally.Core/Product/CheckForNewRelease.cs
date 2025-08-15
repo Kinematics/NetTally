@@ -5,6 +5,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
+using NetTally.Utility.Json;
 using NetTally.Web;
 
 namespace NetTally.Product;
@@ -29,12 +30,6 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
     [GeneratedRegex(@"releases/tag/v?(?<tag>.+)$")]
     private static partial Regex ReleasesTagRegex { get; }
-
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
 
     public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
     {
@@ -129,7 +124,10 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         if (string.IsNullOrEmpty(json))
             return null;
 
-        var releases = JsonSerializer.Deserialize<List<GithubRelease>>(json, jsonOptions);
+        var releases = JsonSerializer.Deserialize(json,
+            GithubSourceGeneratorContext.Default.ListGithubRelease);
+
+        //var releases = JsonSerializer.Deserialize<List<GithubRelease>>(json, jsonOptions);
 
         if (releases is null)
             return null;

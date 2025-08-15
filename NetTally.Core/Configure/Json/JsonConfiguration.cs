@@ -1,9 +1,8 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Quests;
 using NetTally.Product;
+using NetTally.Utility.Json;
 
 namespace NetTally.Configure.Json;
 
@@ -15,14 +14,6 @@ internal class JsonConfiguration(
     private readonly ILogger<JsonConfiguration> logger = logger;
     private readonly IQuestsInfo questsInfo = questsInfo;
     private readonly GlobalSettings globalSettings = options.Value;
-
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        IgnoreReadOnlyProperties = true,
-        Converters = { new QuestIdJsonConverter() }
-    };
 
     /// <summary>
     /// Saves the user configuration information to the user config file(s).
@@ -38,7 +29,8 @@ internal class JsonConfiguration(
                 using var stream = File.Create(path);
 
                 // Async can fail on large saves when exiting. Use sync.
-                JsonSerializer.Serialize(stream, config, jsonOptions);
+                JsonSerializer.Serialize(stream, config,
+                    ConfigInfoSourceGeneratorContext.Default.ConfigInfo);
 
                 logger.LogDebug("Configuration saved to {path}", path);
             }
