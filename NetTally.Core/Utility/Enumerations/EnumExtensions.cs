@@ -20,10 +20,14 @@ static class EnumExtensions
     {
         string enumString = enumerationValue.ToString();
 
-        var enumInfo = enumerationValue.GetType().GetTypeInfo();
-        var enumAttribute = enumInfo.GetDeclaredField(enumString)?.GetCustomAttribute<DescriptionAttribute>();
+        string enumDescription = enumerationValue
+            .GetType()
+            .GetFields()
+            .FirstOrDefault(f => f.Name == enumString)
+            ?.GetCustomAttribute<DescriptionAttribute>()
+            ?.Description ?? enumString;
 
-        return enumAttribute?.Description ?? enumString;
+        return enumDescription;
     }
 
     /// <summary>
@@ -34,9 +38,9 @@ static class EnumExtensions
     /// <returns>Returns the enum matching the description, or the default enum value.</returns>
     public static T GetValueFromDescription<T>(string description) where T : struct, Enum
     {
-        var typeInfo = typeof(T).GetTypeInfo();
+        var enumType = typeof(T);
 
-        foreach (var fieldInfo in typeInfo.DeclaredFields)
+        foreach (var fieldInfo in enumType.GetFields())
         {
             DescriptionAttribute? fieldAttribute = fieldInfo.GetCustomAttribute<DescriptionAttribute>();
 
