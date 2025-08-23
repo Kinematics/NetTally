@@ -16,8 +16,10 @@ public class App : Application
 
     public App()
     {
+        // Initialize host
         AppX.Initialize(SetupUIServices);
 
+        // Create logger for the app.
         var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
         logger = loggerFactory.CreateLogger<App>();
 
@@ -66,7 +68,7 @@ public class App : Application
             // Add event handler for when the program exits.
             desktop.Exit += Desktop_Exit;
 
-            Views.MainWindow mainWindow = AppX.Services.GetRequiredService<Views.MainWindow>();
+            MainWindow mainWindow = AppX.Services.GetRequiredService<MainWindow>();
 
             desktop.MainWindow = mainWindow;
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;

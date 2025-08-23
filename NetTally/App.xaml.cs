@@ -26,83 +26,81 @@ using NetTally.Navigation;
 using NetTally.Product;
 using NetTally.Views;
 
-namespace NetTally
+namespace NetTally;
+
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    private readonly ILogger<App> logger;
+
+    public App()
     {
-        private readonly ILogger<App> logger;
+        // Initialize host
+        AppX.Initialize(SetupUIServices);
 
-        public App()
-        {
-            // Initialize host
-            AppX.Initialize(SetupUIServices);
+        // Create logger for the app.
+        var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
+        logger = loggerFactory.CreateLogger<App>();
 
-            // Create handlers for unhandled exceptions
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        // Create handlers for unhandled exceptions
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-            // Create logger for the app.
-            var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
-            logger = loggerFactory.CreateLogger<App>();
-        }
-
-        /// <summary>
-        /// Register UI views and navigation service.
-        /// </summary>
-        /// <param name="services">The DI service collection being built at startup.</param>
-        private void SetupUIServices(IServiceCollection services)
-        {
-            // Add NavigationService for the application.
-            services.AddSingleton<WPFNavigationService>();
-
-            // Register all the Windows of the applications.
-            services.AddTransient<MainWindow>();
-            services.AddTransient<GlobalOptions>();
-            services.AddTransient<QuestOptions>();
-            services.AddTransient<ManageVotes>();
-            services.AddTransient<ReorderTasks>();
-        }
-
-        #region Startup and Shutdown
-        private async void Application_Startup(object sender, StartupEventArgs e)
-        {
-            try
-            {
-                // Start the app
-                await AppX.AppHost.StartAsync();
-
-                logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
-
-                // Request the navigation service and create our main window.
-                var navigationService = AppX.Services.GetRequiredService<WPFNavigationService>();
-                await navigationService.ShowAsync<MainWindow>();
-            }
-            catch (Exception ex)
-            {
-                logger.LogCritical(ex, "Error during application startup");
-            }
-        }
-
-        private async void Application_Exit(object sender, ExitEventArgs e)
-        {
-            using (AppX.AppHost)
-            {
-                // Save user config
-                AppX.SaveConfiguration();
-
-                // Wait up to 5 seconds before forcing a shutdown.
-                await AppX.AppHost.StopAsync(TimeSpan.FromSeconds(5));
-            }
-        }
-        #endregion Startup and Shutdown
-
-        #region Error Handling
-        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            logger.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
-        }
-        #endregion Error Handling
+        logger.LogDebug("Application constructor completed.");
     }
+
+    /// <summary>
+    /// Register UI views and navigation service.
+    /// </summary>
+    /// <param name="services">The DI service collection being built at startup.</param>
+    private void SetupUIServices(IServiceCollection services)
+    {
+        // Add NavigationService for the application.
+        services.AddSingleton<WPFNavigationService>();
+
+        // Register all the Windows of the applications.
+        services.AddTransient<MainWindow>();
+        services.AddTransient<GlobalOptions>();
+        services.AddTransient<QuestOptions>();
+        services.AddTransient<ManageVotes>();
+        services.AddTransient<ReorderTasks>();
+    }
+
+    #region Startup and Shutdown
+    private async void Application_Startup(object sender, StartupEventArgs e)
+    {
+        try
+        {
+            // Start the app
+            await AppX.AppHost.StartAsync();
+
+            logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
+
+            // Request the navigation service and create our main window.
+            var navigationService = AppX.Services.GetRequiredService<WPFNavigationService>();
+            await navigationService.ShowAsync<MainWindow>();
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Error during application startup");
+        }
+    }
+
+    private async void Application_Exit(object sender, ExitEventArgs e)
+    {
+        using (AppX.AppHost)
+        {
+            // Save user config
+            AppX.SaveConfiguration();
+
+            // Wait up to 5 seconds before forcing a shutdown.
+            await AppX.AppHost.StopAsync(TimeSpan.FromSeconds(5));
+        }
+    }
+    #endregion Startup and Shutdown
+
+    #region Error Handling
+    private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        logger.LogCritical((Exception)e.ExceptionObject, "Unhandled exception");
+    }
+    #endregion Error Handling
 }

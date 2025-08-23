@@ -28,6 +28,7 @@ using Polly.Retry;
 namespace NetTally;
 public static class AppX
 {
+    #region Public API
     public static IHost AppHost { get; private set; } = null!;
     public static IServiceProvider Services => AppHost.Services;
 
@@ -43,6 +44,7 @@ public static class AppX
         JsonConfiguration jsonConfiguration = Services.GetRequiredService<JsonConfiguration>();
         jsonConfiguration.SaveJsonConfiguration();
     }
+    #endregion Public API
 
     #region Hosting Setup
     /// <summary>
