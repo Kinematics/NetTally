@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Enums;
 using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
 
@@ -170,42 +171,42 @@ public class MarkerTests
     public void Construct_Invalid_SingleLetter()
     {
         var marker = Marker.Create("A");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]
     public void Construct_Invalid_MultiLetter()
     {
         var marker = Marker.Create("XZ");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]
     public void Construct_Invalid_NumberLetter()
     {
         var marker = Marker.Create("2Z");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type); 
     }
 
     [TestMethod]
     public void Construct_Invalid_LetterRank()
     {
         var marker = Marker.Create("#X");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]
     public void Construct_Invalid_MixRankScore()
     {
         var marker = Marker.Create("#19%");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]
     public void Construct_Invalid_OverflowRank()
     {
         var marker = Marker.Create("#1999");
-        Assert.IsNull(marker);
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]
