@@ -289,7 +289,7 @@ public static partial class VoteConstructor
         static VoteLineType TrimLine(VoteLineType currentLine, bool trimExtendedText)
         {
             return trimExtendedText
-                ? currentLine with { Content = VoteContent.Trim(currentLine.Content) }
+                ? currentLine with { Content = currentLine.Content.Trim() }
                 : currentLine;
         }
     }
@@ -615,7 +615,7 @@ public static partial class VoteConstructor
             .Select(v => v!)
             .ToList();
 
-        static IEnumerable<VoteLineType> RecursePartitionByLineTask(VoteBlockType block, VoteTaskType task)
+        static IEnumerable<VoteLineType> RecursePartitionByLineTask(VoteBlockType block, VoteTask task)
         {
             // Hopefully depth 0, but could be spurious prefix indents
             if (block.All(a => a.Depth == block.Lines[0].Depth))
@@ -635,7 +635,7 @@ public static partial class VoteConstructor
             if (VoteBlocks.IsThisAContentBlock(block))
             {
                 var first = block.Lines[0];
-                VoteTaskType passTask = block.Task != VoteTask.Empty ? block.Task : task;
+                VoteTask passTask = block.Task != VoteTask.Empty ? block.Task : task;
 
                 return [first,
                     .. PartitionBlockForContentBlock(block, PartitionMode.ByBlockAll)

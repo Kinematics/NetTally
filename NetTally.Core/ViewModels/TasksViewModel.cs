@@ -16,7 +16,7 @@ public partial class TasksViewModel : ObservableObject
     private readonly Quest quest;
     private readonly ILogger<TasksViewModel> logger;
 
-    public ObservableCollectionExt<VoteTaskType> Tasks { get; } = [];
+    public ObservableCollectionExt<VoteTask> Tasks { get; } = [];
 
     public TasksViewModel(
         IQuestsInfo questsInfo,

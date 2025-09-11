@@ -23,7 +23,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// The list of tasks that have been recorded for the tally, whether drawn from
     /// votes as they are tallied, or manually entered by the user.
     /// </summary>
-    ObservableCollectionExt<VoteTaskType> TaskList { get; }
+    ObservableCollectionExt<VoteTask> TaskList { get; }
 
     /// <summary>
     /// Access to the vote storage system.
@@ -230,13 +230,13 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="task">The task to index.</param>
     /// <returns>The index number for ordering.</returns>
-    int TaskListIndex(VoteTaskType task);
+    int TaskListIndex(VoteTask task);
     /// <summary>
     /// Add a user-defined task to the current list of tasks.
     /// </summary>
     /// <param name="task">The task to add.</param>
     /// <returns>Returns true if the task was added, or false if it already exists.</returns>
-    bool AddUserDefinedTask(VoteTaskType task);
+    bool AddUserDefinedTask(VoteTask task);
     /// <summary>
     /// Request an update of the current task list to include any user-defined tasks.
     /// Run because the task list is cleared before each running of the tally.
@@ -254,11 +254,11 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="vote">The vote whose task is being changed.</param>
     /// <param name="task">The new task to use.</param>
     /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
-    bool ReplaceTask(VoteBlockType vote, VoteTaskType task);
+    bool ReplaceTask(VoteBlockType vote, VoteTask task);
 
     /// <summary>
     /// Replace the current list of tasks with the provided list.
     /// </summary>
     /// <param name="tasks"></param>
-    void ReplaceTasks(IEnumerable<VoteTaskType> tasks);
+    void ReplaceTasks(IEnumerable<VoteTask> tasks);
 }

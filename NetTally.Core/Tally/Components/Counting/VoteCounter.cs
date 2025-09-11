@@ -727,18 +727,18 @@ public class VoteCounter(
     #endregion
 
     #region Task properties
-    HashSet<VoteTaskType> VoteDefinedTasks { get; } = new(VoteTaskComparer.Instance);
-    HashSet<VoteTaskType> UserDefinedTasks { get; } = new(VoteTaskComparer.Instance);
-    List<VoteTaskType> OrderedVoteTaskList { get; } = [];
-    List<VoteTaskType> OrderedUserTaskList { get; } = [];
-    public ObservableCollectionExt<VoteTaskType> TaskList { get; } = [];
+    HashSet<VoteTask> VoteDefinedTasks { get; } = new(VoteTaskComparer.Instance);
+    HashSet<VoteTask> UserDefinedTasks { get; } = new(VoteTaskComparer.Instance);
+    List<VoteTask> OrderedVoteTaskList { get; } = [];
+    List<VoteTask> OrderedUserTaskList { get; } = [];
+    public ObservableCollectionExt<VoteTask> TaskList { get; } = [];
 
     /// <summary>
     /// Get the index ordering value of the provided task.
     /// </summary>
     /// <param name="task">The task to index.</param>
     /// <returns>The index number for ordering.</returns>
-    public int TaskListIndex(VoteTaskType task)
+    public int TaskListIndex(VoteTask task)
     {
         if (task == VoteTask.Empty)
             return -99;
@@ -757,7 +757,7 @@ public class VoteCounter(
     /// to the ordered task lists.
     /// </summary>
     /// <param name="task">The new task to add to the knowledge base.</param>
-    private void AddPotentialVoteTask(VoteTaskType task)
+    private void AddPotentialVoteTask(VoteTask task)
     {
         if (task == VoteTask.Empty)
         {
@@ -780,7 +780,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="task">The task to add.</param>
     /// <returns>Returns true if the task was added to the knowledge base.</returns>
-    public bool AddUserDefinedTask(VoteTaskType task)
+    public bool AddUserDefinedTask(VoteTask task)
     {
         if (UserDefinedTasks.Add(task))
         {
@@ -823,7 +823,7 @@ public class VoteCounter(
         OnPropertyChanged("Tasks");
     }
 
-    public void ReplaceTasks(IEnumerable<VoteTaskType> tasks)
+    public void ReplaceTasks(IEnumerable<VoteTask> tasks)
     {
         TaskList.Replace(tasks);
     }
@@ -834,7 +834,7 @@ public class VoteCounter(
     /// <param name="vote">The vote to update the task on.</param>
     /// <param name="task">The new task label.</param>
     /// <returns>Returns true if the task was updated.</returns>
-    public bool ReplaceTask(VoteBlockType vote, VoteTaskType task)
+    public bool ReplaceTask(VoteBlockType vote, VoteTask task)
     {
         if (VoteTaskComparer.Instance.Equals(vote.Task, task))
         {
@@ -863,7 +863,7 @@ public class VoteCounter(
     /// <param name="vote">The vote being modified.</param>
     /// <param name="task">The new task to apply to the vote.</param>
     /// <returns>Returns true if the task replacement was successfully completed.</returns>
-    private bool ReplaceTaskImplWrapper(VoteBlockType vote, VoteTaskType task)
+    private bool ReplaceTaskImplWrapper(VoteBlockType vote, VoteTask task)
     {
         if (!VoteStorage.TryGetValue(vote, out var supporters))
         {

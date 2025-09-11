@@ -8,7 +8,7 @@ namespace NetTally.Tally.Components.Votes;
 /// <param name="Marker">The voting marker.</param>
 /// <param name="Task">The task assigned to the vote line.</param>
 /// <param name="Content">The contents of the vote line.</param>
-public record VoteLineType(Prefix Prefix, Marker Marker, VoteTaskType Task, VoteContentType Content)
+public record VoteLineType(Prefix Prefix, Marker Marker, VoteTask Task, VoteContent Content)
 {
     public int Depth => Prefix.Depth;
     public bool HasTask => Task.Name.Length > 0;
@@ -30,8 +30,8 @@ public static class VoteLine
     public static VoteLineType? Create(
         Prefix? prefix,
         Marker? marker,
-        VoteTaskType? task,
-        VoteContentType? content)
+        VoteTask? task,
+        VoteContent? content)
     {
         if (prefix == null) return null;
         if (marker == null) return null;

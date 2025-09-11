@@ -11,7 +11,7 @@ namespace NetTally.Tally.Components.Votes;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
-public record VoteBlockType(ImmutableArray<VoteLineType> Lines, Marker Marker, VoteTaskType Task)
+public record VoteBlockType(ImmutableArray<VoteLineType> Lines, Marker Marker, VoteTask Task)
     : IEnumerable<VoteLineType>
 {
     public int LineCount => Lines.Length;

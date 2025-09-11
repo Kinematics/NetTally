@@ -4,41 +4,68 @@ using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Votes;
+
 /// <summary>
 /// Data type for vote content.
 /// </summary>
 /// <param name="Content">The full content of a vote line.</param>
 /// <param name="CleanContent">The content of a vote line with BBCode removed.</param>
-public record VoteContentType(string Content, string CleanContent);
+public sealed record VoteContent(string Content, string CleanContent);
 
 /// <summary>
-/// Static class for creating <see cref="VoteContentType"/> objects.
+/// Extension class for creating <see cref="VoteContent"/> objects.
 /// </summary>
-public static partial class VoteContent
+public static class VoteContentCreation
 {
-    public static VoteContentType Empty { get; } = new("", "");
-
-    public static VoteContentType? Create(string content)
+    extension(VoteContent)
     {
-        if (string.IsNullOrWhiteSpace(content))
+        /// <summary>
+        /// Default, empty content.
+        /// </summary>
+        public static VoteContent Empty => _empty;
+
+        /// <summary>
+        /// Create a new <see cref="VoteContent"/> object containing the provided text.
+        /// </summary>
+        /// <param name="content">The text content of the vote.</param>
+        /// <returns>A <see cref="VoteContent"/></returns>
+        public static VoteContent Create(string content)
         {
-            return null;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                return VoteContent.Empty;
+            }
+
+            content = content.RemoveUnsafeCharacters().Trim();
+
+            string cleanContent = VoteLineParser.StripBBCode(content);
+
+            return new VoteContent(content, cleanContent);
         }
-
-        content = content.RemoveUnsafeCharacters().Trim();
-
-        string cleanContent = VoteLineParser.StripBBCode(content);
-
-        return new VoteContentType(content, cleanContent);
     }
 
-    public static VoteContentType Trim(VoteContentType content)
-    {
-        int trimIndex = GetTrimIndexForContent(content);
+    private static readonly VoteContent _empty = new("", "");
+}
 
-        return trimIndex == 0 ?
-            content :
-            content with { CleanContent = content.CleanContent[..trimIndex] };
+/// <summary>
+/// Extension class for handling trimming of vote content.
+/// </summary>
+public static partial class VoteContentTrimming
+{
+    extension(VoteContent content)
+    {
+        /// <summary>
+        /// Trim the vote line to and estimated reasonable length.
+        /// </summary>
+        /// <returns>A new <see cref="VoteContent"/> trimmed down to a sentence or two.</returns>
+        public VoteContent Trim()
+        {
+            int trimIndex = GetTrimIndexForContent(content);
+
+            return trimIndex == 0
+                ? content
+                : content with { CleanContent = content.CleanContent[..trimIndex] };
+        }
     }
 
     [GeneratedRegex(@"(?<!\([^)]*)(((?<![pP][lL][aA][nN]\s*):(?!//))|—|(-(-+|\s+|\s*[^\p{Ll}])))")]
@@ -58,7 +85,7 @@ public static partial class VoteContent
     /// <param name="content">Content of the vote line.</param>
     /// <returns>Returns the index that marks where to remove further text,
     /// or 0 if no cutoff point is found.</returns>
-    private static int GetTrimIndexForContent(VoteContentType content)
+    private static int GetTrimIndexForContent(VoteContent content)
     {
         // If content is less than about 8 words long, don't try to trim it.
         if (content.CleanContent.Length < 50)
@@ -141,9 +168,9 @@ public static partial class VoteContent
 }
 
 /// <summary>
-/// Comparer class for <see cref="VoteContentType"/> objects.
+/// Comparer class for <see cref="VoteContent"/> objects.
 /// </summary>
-public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer<VoteContentType>
+public class VoteContentComparer : IEqualityComparer<VoteContent>, IComparer<VoteContent>
 {
     private VoteContentComparer() { }
 
@@ -156,7 +183,7 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
 
     public static VoteContentComparer Instance { get; } = new();
 
-    public int Compare(VoteContentType? x, VoteContentType? y)
+    public int Compare(VoteContent? x, VoteContent? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -168,7 +195,7 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
         return contentComparer.Compare(x.CleanContent, y.CleanContent);
     }
 
-    public bool Equals(VoteContentType? x, VoteContentType? y)
+    public bool Equals(VoteContent? x, VoteContent? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -176,7 +203,7 @@ public class VoteContentComparer : IEqualityComparer<VoteContentType>, IComparer
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] VoteContentType obj)
+    public int GetHashCode([DisallowNull] VoteContent obj)
     {
         return Agnostic.InsensitiveComparer.GetHashCode(obj.CleanContent);
     }

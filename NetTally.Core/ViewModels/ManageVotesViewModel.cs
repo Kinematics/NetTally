@@ -31,7 +31,7 @@ public partial class ManageVotesViewModel : ObservableObject
 
     public ObservableCollectionExt<VoteBlockType> AllVotesCollection { get; } = [];
     public ObservableCollectionExt<Origin> AllVotersCollection { get; } = [];
-    public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounter.TaskList;
+    public ObservableCollectionExt<VoteTask> TaskList => quest.VoteCounter.TaskList;
 
     public bool HasUndoActions => quest.VoteCounter.HasUndoActions;
     public bool HasTasks => TaskList.Count > 0;
