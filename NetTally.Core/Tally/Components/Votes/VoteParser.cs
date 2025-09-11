@@ -66,7 +66,7 @@ public static partial class VoteParser
         var parts = parsed.Value;
 
         var prefix = Prefix.Create(parts.Prefix);
-        var marker = Markers.Create(parts.Marker);
+        var marker = Marker.Create(parts.Marker);
         var task = VoteTask.Create(parts.Task);
         var content = VoteContent.Create(parts.Content);
 
@@ -81,7 +81,7 @@ public static partial class VoteParser
             .Select(t => NominationLineRegex.Match(t))
             .Where(m => m.Success)
             .Select(m => VoteLine.Create(Prefix.Empty,
-                                Markers.Create("X"),
+                                Marker.Create("X"),
                                 VoteTask.Empty,
                                 VoteContent.Create(m.Groups["username"].Value)))
             .Where(v => v != null)

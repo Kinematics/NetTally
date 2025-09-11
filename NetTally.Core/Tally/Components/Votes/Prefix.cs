@@ -1,73 +1,84 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace NetTally.Tally.Components.Votes;
+
 /// <summary>
 /// Data type to store vote indentation information.
 /// </summary>
 /// <param name="Indent">The indent string.</param>
-public record PrefixType(string Indent)
+public sealed record Prefix(string Indent)
 {
     public int Depth => Indent.Length;
 }
 
 /// <summary>
-/// Static class for creating and modifying <see cref="PrefixType"/> objects.
+/// Extension class containing factory methods for creating <see cref="Prefix"/> objects.
 /// </summary>
-public static partial class Prefix
+public static partial class PrefixCreation
 {
-    public static PrefixType Empty { get; } = new PrefixType("");
-
-    /// <summary>
-    /// Create a new prefix based on the provided text.
-    /// </summary>
-    /// <param name="indent">A string with dashes indicating a vote indent.</param>
-    /// <returns>A <see cref="PrefixType"/> containing a normalized indent string.</returns>
-    public static PrefixType Create(string indent)
+    extension(Prefix)
     {
-        if (string.IsNullOrWhiteSpace(indent))
-            return Empty;
+        /// <summary>
+        /// The default, empty, prefix.
+        /// </summary>
+        public static Prefix Empty => _empty;
 
-        // If it's already well-formatted, just use that.
-        if (indent.All(c => c == '-'))
-            return new PrefixType(indent);
+        /// <summary>
+        /// Create a new prefix based on the provided text.
+        /// </summary>
+        /// <param name="indentString">A string with dashes indicating a vote indent.</param>
+        /// <returns>A <see cref="Prefix"/> containing a normalized indent string.</returns>
+        public static Prefix Create(string indentString)
+        {
+            if (string.IsNullOrWhiteSpace(indentString))
+                return Prefix.Empty;
 
-        // Otherwise use the regex to filter out spaces, and include
-        // alternate dashes, such as em dash or en dash.
-        int depth = IndentCharsRegex.Count(indent);
+            // If it's already well-formatted, just use that.
+            if (indentString.All(c => c == '-'))
+                return new Prefix(indentString);
 
-        return CreateDepth(depth);
+            // Otherwise use the regex to filter out spaces, and include
+            // alternate dashes, such as em dash or en dash.
+            int depth = IndentCharsRegex.Count(indentString);
+
+            return new Prefix(new('-', depth));
+        }
+
+        /// <summary>
+        /// Create a new <see cref="Prefix"/> based on the specified indentation depth.
+        /// </summary>
+        /// <param name="depth">A value indicating how many -'s to use. (minimum 0)</param>
+        /// <returns>A <see cref="Prefix"/> containing a normalized indent string.</returns>
+        public static Prefix Create(int depth)
+        {
+            if (depth < 1)
+                return Prefix.Empty;
+
+            return new Prefix(new('-', depth));
+        }
     }
 
-    /// <summary>
-    /// Reduce the level of indentation by a certain amount (default 1).
-    /// </summary>
-    /// <param name="prefix">The prefix to reduce.</param>
-    /// <param name="promotionDepth">How far to reduce the prefix indentation by.
-    /// Defaults to 1. Anything less than 1 is ignored.</param>
-    /// <returns>A <see cref="PrefixType"/> with depth reduced by the requested amount.</returns>
-    public static PrefixType Reduce(PrefixType prefix, int promotionDepth = 1)
-    {
-        if (promotionDepth < 1) return prefix;
-
-        int finalDepth = Math.Max(prefix.Depth - promotionDepth, 0);
-        return CreateDepth(finalDepth);
-    }
-
-    /// <summary>
-    /// Creates a <see cref="PrefixType"/> of the specified depth, using
-    /// standard hyphens.
-    /// </summary>
-    /// <param name="depth">How many hyphens to generate in the prefix.</param>
-    /// <returns>A constructed <see cref="PrefixType"/></returns>
-    private static PrefixType CreateDepth(int depth)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(depth);
-        if (depth == 0) return Empty;
-
-        string prefix = new('-', depth);
-        return new PrefixType(prefix);
-    }
+    private static readonly Prefix _empty = new("");
 
     [GeneratedRegex("[-–—]")]
     private static partial Regex IndentCharsRegex { get; }
+}
+
+/// <summary>
+/// Extension class containing methods to manpulate a <see cref="Prefix"/>.
+/// </summary>
+public static class PrefixManipulation
+{
+    extension(Prefix prefix)
+    {
+        public Prefix Promote(int levels = 1)
+        {
+            if (levels < 1)
+                return prefix;
+
+            int newDepth = prefix.Depth - levels;
+
+            return Prefix.Create(newDepth);
+        }
+    }
 }

@@ -56,7 +56,7 @@ public class Borda : IRankVoteCounter
         {
             if (voter.Key is UserOrigin && voter.Value.Marker is RankMarker)
             {
-                voteValue += (6 - voter.Value.Marker.GetValue());
+                voteValue += (6 - voter.Value.Marker.Value);
                 count++;
             }
         }

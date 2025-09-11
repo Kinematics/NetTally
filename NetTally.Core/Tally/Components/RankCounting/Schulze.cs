@@ -43,7 +43,7 @@ public class Schulze : IRankVoteCounter
                 // Each choice matching or beating the ranks of other ranked choices is marked.
                 foreach (var otherChoice in voter.Value)
                 {
-                    if ((choice != otherChoice) && (choice.Marker.GetValue() <= otherChoice.Marker.GetValue()))
+                    if ((choice != otherChoice) && (choice.Marker.Value <= otherChoice.Marker.Value))
                     {
                         pairwisePreferences[choiceIndexes[choice], choiceIndexes[otherChoice]]++;
                     }

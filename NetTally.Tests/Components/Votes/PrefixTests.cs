@@ -91,7 +91,7 @@ public class PrefixTests
         Assert.IsNotNull(prefix);
         Assert.AreEqual(3, prefix.Depth);
 
-        var reduced = Prefix.Reduce(prefix);
+        var reduced = prefix.Promote();
         Assert.AreEqual(2, reduced.Depth);
     }
 
@@ -102,7 +102,7 @@ public class PrefixTests
         Assert.IsNotNull(prefix);
         Assert.AreEqual(1, prefix.Depth);
 
-        var reduced = Prefix.Reduce(prefix);
+        var reduced = prefix.Promote();
         Assert.AreEqual(0, reduced.Depth);
     }
 
@@ -113,7 +113,7 @@ public class PrefixTests
         Assert.IsNotNull(prefix);
         Assert.AreEqual(0, prefix.Depth);
 
-        var reduced = Prefix.Reduce(prefix);
+        var reduced = prefix.Promote();
         Assert.AreEqual(0, reduced.Depth);
     }
 
@@ -124,7 +124,7 @@ public class PrefixTests
         Assert.IsNotNull(prefix);
         Assert.AreEqual(2, prefix.Depth);
 
-        var reduced = Prefix.Reduce(prefix, 0);
+        var reduced = prefix.Promote(0);
         Assert.AreEqual(2, reduced.Depth);
     }
 
@@ -135,7 +135,7 @@ public class PrefixTests
         Assert.IsNotNull(prefix);
         Assert.AreEqual(2, prefix.Depth);
 
-        var reduced = Prefix.Reduce(prefix, -5);
+        var reduced = prefix.Promote(-5);
         Assert.AreEqual(2, reduced.Depth);
     }
 

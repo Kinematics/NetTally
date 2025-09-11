@@ -1051,7 +1051,7 @@ public class VoteCounter(
         if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;
 
-        VoteLineType firstLine = originalVoteBlock.Lines[0] with { Marker = Markers.Empty };
+        VoteLineType firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.Empty };
 
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
@@ -1070,7 +1070,7 @@ public class VoteCounter(
         // All vote lines in a plan should have MarkerType of None.
         // This allows them to be part of any comparison, and easily mesh with various output.
         var remainingLines = originalVoteBlock.Skip(1)
-            .Select(v => v with { Marker = Markers.Empty });
+            .Select(v => v with { Marker = Marker.Empty });
 
         // Stack stuff back together
         List<VoteLineType> voteLines = [firstLine, .. remainingLines];
@@ -1079,7 +1079,7 @@ public class VoteCounter(
 
         if (returnPlan != null)
         {
-            returnPlan = returnPlan with { Marker = Markers.PlanMarker };
+            returnPlan = returnPlan with { Marker = Marker.PlanMarker };
             return (planName, returnPlan);
         }
 

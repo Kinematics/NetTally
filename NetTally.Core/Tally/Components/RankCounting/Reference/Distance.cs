@@ -14,7 +14,7 @@ public class Distance : IRankVoteCounter
         var voterPreferences = taskVotes
             .SelectMany(v => v.Value)
             .GroupBy(u => u.Key)
-            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.GetValue()).ToList());
+            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.Value).ToList());
 
 
         int[,] pairwiseData = GetPairwiseData(voterPreferences, listOfChoices);
@@ -58,10 +58,10 @@ public class Distance : IRankVoteCounter
                     // Each ranked vote that has a higher rank (lower number) than each
                     // alternative has the distance between the choices added to the
                     // corresponding table entry.
-                    if ((choice != otherChoice) && (choice.Marker.GetValue() <= otherChoice.Marker.GetValue()))
+                    if ((choice != otherChoice) && (choice.Marker.Value <= otherChoice.Marker.Value))
                     {
                         data[choiceIndexes[choice], choiceIndexes[otherChoice]] +=
-                            otherChoice.Marker.GetValue() - choice.Marker.GetValue();
+                            otherChoice.Marker.Value - choice.Marker.Value;
                     }
                 }
 

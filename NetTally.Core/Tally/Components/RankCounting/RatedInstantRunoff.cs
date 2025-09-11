@@ -123,11 +123,11 @@ public class RatedInstantRunoff : IRankVoteCounter
                 continue;
             }
 
-            if (support1.Marker.GetValue() < support2.Marker.GetValue())
+            if (support1.Marker.Value < support2.Marker.Value)
             {
                 count1++;
             }
-            else if (support2.Marker.GetValue() < support1.Marker.GetValue())
+            else if (support2.Marker.Value < support1.Marker.Value)
             {
                 count2++;
             }

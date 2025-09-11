@@ -8,7 +8,7 @@ namespace NetTally.Tally.Components.Votes;
 /// <param name="Marker">The voting marker.</param>
 /// <param name="Task">The task assigned to the vote line.</param>
 /// <param name="Content">The contents of the vote line.</param>
-public record VoteLineType(PrefixType Prefix, Marker Marker, VoteTaskType Task, VoteContentType Content)
+public record VoteLineType(Prefix Prefix, Marker Marker, VoteTaskType Task, VoteContentType Content)
 {
     public int Depth => Prefix.Depth;
     public bool HasTask => Task.Name.Length > 0;
@@ -25,10 +25,10 @@ public record VoteLineType(PrefixType Prefix, Marker Marker, VoteTaskType Task, 
 public static class VoteLine
 {
     public static VoteLineType Empty { get; } =
-        new VoteLineType(Prefix.Empty, Markers.Empty, VoteTask.Empty, VoteContent.Empty);
+        new VoteLineType(Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
 
     public static VoteLineType? Create(
-        PrefixType? prefix,
+        Prefix? prefix,
         Marker? marker,
         VoteTaskType? task,
         VoteContentType? content)
@@ -46,7 +46,7 @@ public static class VoteLine
 
     public static VoteLineType Promote(VoteLineType input, int promoteDepth = 1)
     {
-        return input with { Prefix = Prefix.Reduce(input.Prefix, promoteDepth) };
+        return input with { Prefix = input.Prefix.Promote(promoteDepth) };
     }
 
     public static VoteLineType FullPromote(VoteLineType input)

@@ -15,7 +15,7 @@ public class Pairwise : IRankVoteCounter
         var voterPreferences = taskVotes
             .SelectMany(v => v.Value)
             .GroupBy(u => u.Key)
-            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.GetValue()).ToList());
+            .ToDictionary(t => t.Key, s => s.Select(q => q.Value).OrderBy(r => r.Marker.Value).ToList());
 
         int[,] pairwisePreferences = GetPairwisePreferences(voterPreferences, listOfChoices);
 
@@ -53,7 +53,7 @@ public class Pairwise : IRankVoteCounter
                 // Each choice matching or beating the ranks of other ranked choices is marked.
                 foreach (var otherChoice in rankedChoices)
                 {
-                    if ((choice != otherChoice) && (choice.Marker.GetValue() <= otherChoice.Marker.GetValue()))
+                    if ((choice != otherChoice) && (choice.Marker.Value <= otherChoice.Marker.Value))
                     {
                         pairwisePreferences[choiceIndexes[choice], choiceIndexes[otherChoice]]++;
                     }

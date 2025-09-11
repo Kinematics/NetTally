@@ -54,7 +54,7 @@ public static class VoteBlock
     /// <summary>
     /// A basic empty <see cref="VoteBlockType"/>.
     /// </summary>
-    public static VoteBlockType Empty { get; } = new VoteBlockType([], Markers.Empty, VoteTask.Empty);
+    public static VoteBlockType Empty { get; } = new VoteBlockType([], Marker.Empty, VoteTask.Empty);
 
     /// <summary>
     /// Create a vote block with the given vote lines.

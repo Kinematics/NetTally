@@ -18,10 +18,10 @@ public static class RankingCalculations
         foreach (var vote in votes.Value)
         {
             if (vote.Value.Marker is RankMarker &&
-                vote.Value.Marker.GetValue() > 0 &&
-                vote.Value.Marker.GetValue() < 10)
+                vote.Value.Marker.Value > 0 &&
+                vote.Value.Marker.Value < 10)
             {
-                voteValue += (10 - vote.Value.Marker.GetValue());
+                voteValue += (10 - vote.Value.Marker.Value);
             }
         }
 
@@ -41,10 +41,10 @@ public static class RankingCalculations
         foreach (var vote in votes.Value)
         {
             if (vote.Value.Marker is RankMarker &&
-                vote.Value.Marker.GetValue() > 0 &&
-                vote.Value.Marker.GetValue() < 10)
+                vote.Value.Marker.Value > 0 &&
+                vote.Value.Marker.Value < 10)
             {
-                voteValue += (1.0 / vote.Value.Marker.GetValue());
+                voteValue += (1.0 / vote.Value.Marker.Value);
             }
         }
 
@@ -73,10 +73,10 @@ public static class RankingCalculations
         foreach (var vote in votes.Value)
         {
             if (vote.Value.Marker is RankMarker &&
-                vote.Value.Marker.GetValue() > 0 &&
-                vote.Value.Marker.GetValue() < 10)
+                vote.Value.Marker.Value > 0 &&
+                vote.Value.Marker.Value < 10)
             {
-                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.GetValue());
+                double scaledPositiveScore = PositivePortionOf9RankScale(vote.Value.Marker.Value);
 
                 positiveScore += scaledPositiveScore;
                 negativeScore += (1.0 - scaledPositiveScore);
