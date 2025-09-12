@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Navigation;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
 using NetTally.ViewModels;
 
@@ -207,7 +208,7 @@ namespace NetTally.Views
             }
 
             // Only enable the Parition Children context menu item if it's a valid action for the vote.
-            partitionChildren.IsEnabled = HasChildLines(selectedVote);
+            partitionChildren.IsEnabled = selectedVote.HasChildLines;
 
             // Only clear a task if the vote has one.
             clearTask.IsEnabled = (selectedVote.Task != VoteTask.Empty);
@@ -265,11 +266,6 @@ namespace NetTally.Views
         private void ModifyTask(VoteBlock selectedVote, string newTask)
         {
             manageVotesViewModel.ReplaceTask(selectedVote, newTask);
-        }
-
-        private static bool HasChildLines(VoteBlock vote)
-        {
-            return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
 
         private static VoteBlock? GetSelectedVoteInContext(object? sender)

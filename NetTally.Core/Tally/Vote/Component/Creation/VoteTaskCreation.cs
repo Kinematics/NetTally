@@ -1,6 +1,8 @@
-﻿using NetTally.Utility;
+﻿using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Utility;
 
-namespace NetTally.Tally.Vote.Component;
+namespace NetTally.Tally.Vote.Component.Creation;
 
 /// <summary>
 /// Extension class for creating <see cref="VoteTask"/> objects.

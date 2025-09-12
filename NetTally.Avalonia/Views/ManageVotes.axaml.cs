@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 using NetTally.ViewModels;
@@ -85,7 +86,7 @@ namespace NetTally.Avalonia.Views
                 switch (cmdHeader)
                 {
                     case partitionChildrenString:
-                        cmd.IsEnabled = selectedVote != null && HasChildLines(selectedVote);
+                        cmd.IsEnabled = (selectedVote != null && selectedVote.HasChildLines);
                         break;
                     case clearTaskString:
                         cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.Empty;
@@ -336,11 +337,6 @@ namespace NetTally.Avalonia.Views
 
             // Clear InputBox.
             InputTextBox.Text = string.Empty;
-        }
-
-        private static bool HasChildLines(VoteBlock vote)
-        {
-            return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
         #endregion
 

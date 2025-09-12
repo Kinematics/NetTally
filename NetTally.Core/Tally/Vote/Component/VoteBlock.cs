@@ -13,8 +13,6 @@ namespace NetTally.Tally.Vote.Component;
 public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
     : IEnumerable<VoteLine>
 {
-    public int LineCount => Lines.Length;
-
     /// <summary>
     /// A mutable category (<see cref="MarkerType"/>) that this vote block can belong to.
     /// </summary>

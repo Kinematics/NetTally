@@ -2,6 +2,7 @@
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility.Linq;
 
 namespace NetTally.Tally.Components.Votes;

@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;
@@ -118,7 +119,7 @@ public class VoteConstructorVoteTests
 
         var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
-        
+
         VoteConstructor.ConfigureWorkingVote(postp, quest);
         return postp;
     }
@@ -136,7 +137,7 @@ public class VoteConstructorVoteTests
 
         var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
-        
+
         VoteConstructor.ConfigureWorkingVote(postp, quest);
         return postp;
     }
@@ -155,7 +156,7 @@ public class VoteConstructorVoteTests
 
         var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
-        
+
         VoteConstructor.ConfigureWorkingVote(postp, quest);
         return postp;
     }
@@ -177,7 +178,7 @@ public class VoteConstructorVoteTests
 
         var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
-        
+
         VoteConstructor.ConfigureWorkingVote(postp, quest);
         return postp;
     }
@@ -201,7 +202,7 @@ public class VoteConstructorVoteTests
 
         var post = Posting.Create(origin, postText)!;
         var postp = new PostToProcess(post);
-        
+
         VoteConstructor.ConfigureWorkingVote(postp, quest);
         return postp;
     }
@@ -438,11 +439,11 @@ public class VoteConstructorVoteTests
             blocks);
 
         var (name, content) = processed.First();
-        
+
         var normalized = quest.VoteCounter.NormalizePlan(name, content);
 
         Assert.IsNotNull(normalized);
-        
+
         var (normName, normContent) = normalized.Value;
 
         Assert.AreEqual(name, normName);

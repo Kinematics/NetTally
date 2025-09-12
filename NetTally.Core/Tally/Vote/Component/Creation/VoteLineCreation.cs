@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.Vote.Component;
+﻿namespace NetTally.Tally.Vote.Component.Creation;
 
 /// <summary>
 /// Extension class for creating <see cref="VoteLine"/> objects.
