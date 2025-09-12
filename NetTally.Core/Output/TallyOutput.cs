@@ -367,16 +367,16 @@ public class TallyOutput(
                 .OrderByDescending(a => a.supportCount)
                 .ThenBy(a => a.vote.Line.Content, VoteContentComparer.Instance)
                 .ToList()
-                .ForEach(a => ConstructCompactVote(a.vote, a.supportCount));
+                .ForEach(a => ConstructCompactVote(a.vote));
 
             // Handle each vote
-            void ConstructCompactVote(CompactVoteType entry, int supportCount)
+            void ConstructCompactVote(CompactVoteType entry)
             {
                 var flattened = CompactVoteTransform.Flatten(entry);
 
                 foreach (var vote in flattened)
                 {
-                    sb.AppendLine(CompactVoteDisplay.ToOutputString(vote, supportCount.ToString()));
+                    sb.AppendLine(CompactVoteDisplay.ToOutputString(vote, vote.VoterCount.ToString()));
 
                     if (displayMode != DisplayMode.CompactNoVoters)
                     {
