@@ -141,8 +141,7 @@ public partial class VBulletin4Adapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }

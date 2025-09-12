@@ -135,8 +135,7 @@ public partial class PhpBBAdapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }

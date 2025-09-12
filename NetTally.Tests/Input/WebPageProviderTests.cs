@@ -37,8 +37,7 @@ namespace NetTally.Tests.Input
                 "Test nonexistent Wiki page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNull(result);
         }
@@ -53,8 +52,7 @@ namespace NetTally.Tests.Input
                 "Test Wiki home page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -69,8 +67,7 @@ namespace NetTally.Tests.Input
                 "Test SV page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -85,8 +82,7 @@ namespace NetTally.Tests.Input
                 "Test QQ SFW page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -101,8 +97,7 @@ namespace NetTally.Tests.Input
                 "Test QQ NSFW page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -117,8 +112,7 @@ namespace NetTally.Tests.Input
                 "Test SV RSS page",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -133,8 +127,7 @@ namespace NetTally.Tests.Input
                 "Test Github API",
                 CachingMode.NoCache,
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
@@ -148,8 +141,7 @@ namespace NetTally.Tests.Input
                 "https://github.com/Kinematics/NetTally/releases/latest",
                 "Test Github API",
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.IsNotNull(result);
             Assert.IsTrue(Uri.IsWellFormedUriString(result, UriKind.Absolute));
@@ -163,40 +155,32 @@ namespace NetTally.Tests.Input
 
             List<Task<HtmlDocument?>> documents = [];
 
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/",
-                "Test SV pages, p1",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
+            List<PageRequestTest> pageRequests = [
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/",
+                "Test SV pages, p1", CachingMode.NoCache, SuppressNotifications.No),
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-2",
+                "Test SV pages, p2", CachingMode.NoCache, SuppressNotifications.No),
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-3",
+                "Test SV pages, p3", CachingMode.NoCache, SuppressNotifications.No),
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-4",
+                "Test SV pages, p4", CachingMode.NoCache, SuppressNotifications.No),
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-5",
+                "Test SV pages, p5", CachingMode.NoCache, SuppressNotifications.No),
+                new PageRequestTest("https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-6",
+                "Test SV pages, p6", CachingMode.NoCache, SuppressNotifications.No)
+                ];
 
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-2",
-                "Test SV pages, p2",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
-
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-3",
-                "Test SV pages, p3",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
-
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-4",
-                "Test SV pages, p4",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
-
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-5",
-                "Test SV pages, p5",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
-
-            documents.Add(pageProvider.GetHtmlDocumentAsync(
-                "https://forums.sufficientvelocity.com/threads/fog-on-the-horizon-arpeggio-of-blue-steel-quest.13528/page-6",
-                "Test SV pages, p6",
-                CachingMode.NoCache, SuppressNotifications.No, CancellationToken.None));
-
-            var doneDocs = await Task.WhenAll(documents);
-
-            Assert.IsNotNull(doneDocs);
-            Assert.IsTrue(doneDocs.All(d => d is not null));
+            var results = pageRequests
+                .ToAsyncEnumerable()
+                .Select((r, t) =>
+                    pageProvider.GetHtmlDocumentAsync(
+                        r.Url, r.Description, r.CachingMode, r.SuppressNotifications, t))
+                .WithCancellation(CancellationToken.None);
+                
+            await foreach (var result in results)
+            {
+                Assert.IsNotNull(result);
+            }
         }
 
         [TestMethod]
@@ -210,8 +194,7 @@ namespace NetTally.Tests.Input
                 rawURL,
                 "Test Unescape URL",
                 SuppressNotifications.No,
-                CancellationToken.None)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CancellationToken.None);
 
             Assert.AreNotEqual(rawURL, result);
             Assert.AreEqual(escapedURL, result);
@@ -229,11 +212,13 @@ namespace NetTally.Tests.Input
                "Test Escaped HTML page",
                CachingMode.NoCache,
                SuppressNotifications.No,
-               CancellationToken.None)
-               .ConfigureAwait(ConfigureAwaitOptions.None);
+               CancellationToken.None);
 
             Assert.IsNotNull(result);
         }
 
     }
 }
+
+internal record PageRequestTest(string Url, string Description,
+    CachingMode CachingMode, SuppressNotifications SuppressNotifications);

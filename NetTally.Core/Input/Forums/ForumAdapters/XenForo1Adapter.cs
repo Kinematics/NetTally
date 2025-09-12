@@ -186,8 +186,7 @@ public partial class XenForo1Adapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }
@@ -249,7 +248,7 @@ public partial class XenForo1Adapter(
         HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
             GetThreadmarksPageUrl(quest.ThreadUri), "Threadmarks",
             CachingMode.ReadWrite,
-            SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.No, token);
 
         if (threadmarksPage == null)
             return (false, ThreadRanges.None);
@@ -289,7 +288,7 @@ public partial class XenForo1Adapter(
             // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
             string fullUrl = await pageProvider.GetRedirectUrlAsync(
                 permalink.AbsoluteUri, "",
-                SuppressNotifications.Yes, token).ConfigureAwait(ConfigureAwaitOptions.None);
+                SuppressNotifications.Yes, token);
 
             if (!string.IsNullOrEmpty(fullUrl))
                 lastThreadmarkHref = fullUrl;
@@ -333,7 +332,7 @@ public partial class XenForo1Adapter(
         XDocument? rss = await pageProvider.GetXmlDocumentAsync(
             GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
             CachingMode.ReadWrite,
-            SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.No, token);
 
         if (rss == null)
         {

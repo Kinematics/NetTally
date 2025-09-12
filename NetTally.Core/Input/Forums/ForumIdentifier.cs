@@ -102,8 +102,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         try
         {
             page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
-                CachingMode.ReadWrite, SuppressNotifications.Yes, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CachingMode.ReadWrite, SuppressNotifications.Yes, token);
 
             if (token.IsCancellationRequested)
                 page = null;
