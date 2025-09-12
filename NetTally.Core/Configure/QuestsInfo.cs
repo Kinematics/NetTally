@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Counting;
 using NetTally.Utility;
 
 namespace NetTally.Configure;

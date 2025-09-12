@@ -25,15 +25,15 @@ global using VotesGroupedByTaskF = System.Linq.IGrouping<
     NetTally.Tally.Vote.Component.VoteTask,
     System.Collections.Generic.KeyValuePair<
         NetTally.Tally.Vote.Component.VoteBlock,
-        NetTally.Tally.Components.Storage.VoterStorage>>;
+        NetTally.Tally.Storage.VoterStorage>>;
 global using VoteStorageEntryF = System.Collections.Generic.KeyValuePair<
     NetTally.Tally.Vote.Component.VoteBlock,
-    NetTally.Tally.Components.Storage.VoterStorage>;
+    NetTally.Tally.Storage.VoterStorage>;
 // Enumeration of VoteStorage elements:
 global using VoteStorageType = System.Collections.Generic.IEnumerable<
     System.Collections.Generic.KeyValuePair<
         NetTally.Tally.Vote.Component.VoteBlock,
-        NetTally.Tally.Components.Storage.VoterStorage>>;
+        NetTally.Tally.Storage.VoterStorage>>;
 
 global using TextFilter = NetTally.Utility.Filtering.IItemFilter<string>;
 global using PostNumFilter = NetTally.Utility.Filtering.IAdaptingFilter<System.Range, long>;

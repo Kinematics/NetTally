@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Counting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Utility;

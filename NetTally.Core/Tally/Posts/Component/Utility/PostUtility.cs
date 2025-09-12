@@ -1,4 +1,4 @@
-﻿using NetTally.Tally.Components.Threads;
+﻿using NetTally.Tally.Threads;
 
 namespace NetTally.Tally.Posts.Component;
 

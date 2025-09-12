@@ -5,10 +5,10 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Threads;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 

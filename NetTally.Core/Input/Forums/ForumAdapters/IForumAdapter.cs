@@ -1,7 +1,7 @@
 ﻿using HtmlAgilityPack;
 using NetTally.Enums;
-using NetTally.Tally.Components.Threads;
 using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Threads;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;

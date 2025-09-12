@@ -15,7 +15,7 @@ using NetTally.Input.Forums.Reading;
 using NetTally.Output;
 using NetTally.Product;
 using NetTally.Tally;
-using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Counting;
 using NetTally.Utility.Cache;
 using NetTally.Utility.Comparers;
 using NetTally.Utility.Events;
