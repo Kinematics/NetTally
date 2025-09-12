@@ -45,7 +45,9 @@ public class ForumReader(
         logger.LogDebug("Reading Quest {quest}", quest.ThreadName);
 
         var questPosts = GetQuestSources(quest)
-            .SelectAsync(q => GetPostsFromQuest(q, token), token)
+            .ToAsyncEnumerable()
+            .Select(GetPostsFromQuest)
+            .WithCancellation(token)
             .ConfigureAwait(false);
 
         var data = QuestData.Empty;
@@ -69,7 +71,7 @@ public class ForumReader(
         return [quest, .. questsInfo.GetLinkedQuests(quest)];
     }
 
-    private async Task<QuestData> GetPostsFromQuest(
+    private async ValueTask<QuestData> GetPostsFromQuest(
         Quest quest,
         CancellationToken token)
     {
