@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using NetTally.Enums;
 
 namespace NetTally.Tally.Vote.Component;
@@ -10,6 +11,7 @@ namespace NetTally.Tally.Vote.Component;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
+[DebuggerDisplay("{DebugDisplayString}")]
 public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
     : IEnumerable<VoteLine>
 {
@@ -36,11 +38,11 @@ public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask 
     IEnumerator IEnumerable.GetEnumerator() =>
         GetEnumerator();
 
-    public override string ToString() =>
-        $"{{[{Marker.Display()}][{Task.Name}]||{Lines[0]}}}";
-
     public string ManageVotesDisplay =>
         VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
+
+    private string DebugDisplayString =>
+        $"{{[{Marker.Display()}][{Task.Name}] || {Lines[0].Content.CleanContent}}}";
 }
 
 public static class VoteBlockPredefined
