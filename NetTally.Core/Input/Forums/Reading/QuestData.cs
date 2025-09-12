@@ -54,5 +54,19 @@ public static class QuestDataExtensions
                 [.. data.Titles, .. titles],
                 [.. data.Posts, .. posts]);
         }
+
+        public QuestData CombineWith(string title)
+        {
+            return new QuestData(
+                data.Titles.Add(title),
+                data.Posts);
+        }
+
+        public QuestData CombineWith(IEnumerable<Post> posts)
+        {
+            return new QuestData(
+                data.Titles,
+                [.. data.Posts, .. posts]);
+        }
     }
 }
