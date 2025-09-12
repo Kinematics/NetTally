@@ -108,12 +108,14 @@ public static class VoterAnalysis
             return [.. storage];
         }
 
-        VoterStorageEntryF? firstEntry = GetFirstVoter(storage);
+        var distinct = storage.DistinctBy(v => v.Key, OriginComparer.Instance);
+
+        VoterStorageEntryF? firstEntry = GetFirstVoter(distinct);
 
         if (firstEntry == null)
             return [];
 
-        var orderRemaining = storage
+        var orderRemaining = distinct
             .Where(v => !OriginComparer.Instance.Equals(v.Key, firstEntry.Value.Key))
             .OrderByDescending(v => v.Value.Marker.Value)
             .ThenBy(v => v.Key, OriginComparer.Instance);
