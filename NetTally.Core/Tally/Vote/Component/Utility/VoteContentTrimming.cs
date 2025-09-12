@@ -5,7 +5,7 @@ namespace NetTally.Tally.Vote.Component;
 /// <summary>
 /// Extension class for handling trimming of vote content.
 /// </summary>
-public static partial class VoteContentUtility
+public static partial class VoteContentTrimming
 {
     extension(VoteContent content)
     {
