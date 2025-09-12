@@ -87,8 +87,8 @@ namespace NetTally.Tests.Tallying
             Assert.AreEqual(0, Quest.PostsPerPage);
             Assert.AreEqual(1, Quest.StartPost);
             Assert.AreEqual(0, Quest.EndPost);
-            Assert.AreEqual(true, Quest.ReadToEndOfThread);
-            Assert.AreEqual(false, Quest.CheckForLastThreadmark);
+            Assert.IsTrue(Quest.ReadToEndOfThread);
+            Assert.IsFalse(Quest.CheckForLastThreadmark);
 
             Assert.AreEqual(PartitionMode.None, Quest.PartitionMode);
 
