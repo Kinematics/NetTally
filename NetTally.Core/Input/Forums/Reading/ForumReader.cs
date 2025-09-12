@@ -52,10 +52,9 @@ public class ForumReader(
 
         var data = QuestData.Empty;
 
-        await foreach (var (Title, Posts) in questPosts)
+        await foreach (var questData in questPosts)
         {
-            data = data.CombineWith(Title, Posts);
-            token.ThrowIfCancellationRequested();
+            data = data.CombineWith(questData);
         }
 
         return data;
