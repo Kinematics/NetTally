@@ -106,7 +106,7 @@ public partial class VBulletin5Adapter(
     {
         var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-        if (infoPage == null) return ThreadInfos.None;
+        if (infoPage == null) return ThreadInfo.None;
 
         return GetThreadInfo(infoPage, quest);
     }
@@ -125,8 +125,8 @@ public partial class VBulletin5Adapter(
         var author = Author.Unknown; // vBulletin doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
-        var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
-        var info = ThreadInfos.Create(title, author, range);
+        var range = ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
+        var info = ThreadInfo.Create(title, author, range);
 
         return info;
     }

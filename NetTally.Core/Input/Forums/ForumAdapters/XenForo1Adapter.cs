@@ -134,10 +134,10 @@ public partial class XenForo1Adapter(
 
             var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
 
-            return ThreadInfos.Create(title, author, range);
+            return ThreadInfo.Create(title, author, range);
         }
 
-        return ThreadInfos.None;
+        return ThreadInfo.None;
     }
 
     #endregion IForumAdapter interface
@@ -172,7 +172,7 @@ public partial class XenForo1Adapter(
             }
         }
 
-        return ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, numberOfPages);
+        return ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, numberOfPages);
     }
 
     private async Task<HtmlDocument?> GetInfoPageAsync(
@@ -242,7 +242,7 @@ public partial class XenForo1Adapter(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // Load the threadmarks so that we can find the starting post page or number.
         HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
@@ -251,13 +251,13 @@ public partial class XenForo1Adapter(
             SuppressNotifications.No, token);
 
         if (threadmarksPage == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         var threadmarks = GetThreadmarksListFromPage(threadmarksPage, quest);
 
         // If there aren't any threadmarks, bail.
         if (!threadmarks.Any())
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // Threadmarks have already been filtered, so just pick the last one,
         // and get the URL for the threadmark.
@@ -265,7 +265,7 @@ public partial class XenForo1Adapter(
 
         // Make sure we found something.
         if (string.IsNullOrEmpty(lastThreadmarkHref))
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // The threadmark list might use the long version of the URL (including thread info),
         // or the short version (which only shows the post number).
@@ -279,7 +279,7 @@ public partial class XenForo1Adapter(
             var postId = PostId.Create(tmID);
 
             if (postId == null)
-                return (false, ThreadRanges.None);
+                return (false, ThreadRange.None);
 
             // The threadmark href might be a relative path, so make sure to
             // create a proper absolute path to load.
@@ -308,26 +308,26 @@ public partial class XenForo1Adapter(
 
             // If neither matched, it's post 1/page 1
             if (page == 0 && post == 0)
-                return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
+                return (true, ThreadRange.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
             var postId = PostId.Create(post);
 
             // Otherwise create a range based on the post ID.
-            return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
+            return (true, ThreadRange.CreateByPostId(postId, page, numberOfPages));
         }
 
         // Failed to find anything.
-        return (false, ThreadRanges.None);
+        return (false, ThreadRange.None);
     }
 
     private static async Task<(bool found, ThreadRange)> TryGetRSSThreadmarksRange(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null || quest.ThreadUri == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         if (quest.UseRSSThreadmarks == BoolEx.False)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         XDocument? rss = await pageProvider.GetXmlDocumentAsync(
             GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
@@ -339,11 +339,11 @@ public partial class XenForo1Adapter(
             if (quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.False;
 
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
         }
 
         if (rss.Root?.Name != "rss")
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         var channel = rss.Root.Element(XName.Get("channel", ""));
 
@@ -387,17 +387,17 @@ public partial class XenForo1Adapter(
                     // If neither matched, it's post 1/page 1
                     // Return a By Post range
                     if (page == 0 || post == 0)
-                        return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
+                        return (true, ThreadRange.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
                     var postId = PostId.Create(post);
 
                     // Otherwise create a range based on the post ID.
-                    return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
+                    return (true, ThreadRange.CreateByPostId(postId, page, numberOfPages));
                 }
             }
         }
 
-        return (false, ThreadRanges.None);
+        return (false, ThreadRange.None);
     }
 
     private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, Quest quest)

@@ -27,6 +27,6 @@ class UnknownForumAdapter(
     public Task<ThreadInfo> GetThreadInfoAsync(
         Quest _0, IPageProvider _1, CancellationToken _2)
     {
-        return Task.FromResult(ThreadInfos.None);
+        return Task.FromResult(ThreadInfo.None);
     }
 }

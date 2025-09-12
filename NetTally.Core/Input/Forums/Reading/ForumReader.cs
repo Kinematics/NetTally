@@ -156,8 +156,8 @@ public class ForumReader(
         IForumAdapter adapter,
         ThreadInfo threadInfo)
     {
-        int firstPage = threadInfo.ThreadRange.GetStartPage();
-        int lastPage = threadInfo.ThreadRange.GetEndPage();
+        int firstPage = threadInfo.ThreadRange.StartPage;
+        int lastPage = threadInfo.ThreadRange.EndPage;
         int pageCount = lastPage - firstPage + 1;
 
         if (pageCount < 1)
@@ -184,7 +184,7 @@ public class ForumReader(
         if (page is null)
             return [];
 
-        var posts = adapter.GetPosts(page, quest, threadInfo.ThreadRange.GetStartPage() + index)
+        var posts = adapter.GetPosts(page, quest, threadInfo.ThreadRange.StartPage + index)
             .Where(p => KeepPost(p, quest, threadInfo))
             .DistinctBy(p => p.Origin) // remove sticky posts
             .OrderBy(p => p.Origin.PostNumber.Value);
