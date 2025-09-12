@@ -38,7 +38,7 @@ public class ForumReader(
     public event EventHandler<MessageEventArgs>? StatusChanged;
     #endregion
 
-    public async Task<(IEnumerable<string>, IEnumerable<Post>)> ReadQuestAsync(
+    public async Task<QuestData> ReadQuestAsync(
         Quest quest,
         CancellationToken token)
     {
@@ -48,16 +48,15 @@ public class ForumReader(
             .SelectAsync(q => GetPostsFromQuest(q, token), token)
             .ConfigureAwait(false);
 
-        List<string> titles = [];
-        List<Post> posts = [];
+        var data = QuestData.Empty;
 
         await foreach (var (Title, Posts) in questPosts)
         {
-            titles.Add(Title);
-            posts.AddRange(Posts);
+            data = data.CombineWith(Title, Posts);
+            token.ThrowIfCancellationRequested();
         }
 
-        return (titles, posts);
+        return data;
     }
 
     /// <summary>
@@ -70,7 +69,7 @@ public class ForumReader(
         return [quest, .. questsInfo.GetLinkedQuests(quest)];
     }
 
-    private async Task<(string Title, List<Post> Posts)> GetPostsFromQuest(
+    private async Task<QuestData> GetPostsFromQuest(
         Quest quest,
         CancellationToken token)
     {
@@ -96,7 +95,7 @@ public class ForumReader(
 
             string title = CraftTitle(threadInfo, posts);
 
-            return (title, posts);
+            return QuestData.Create(title, posts);
         }
         finally
         {
