@@ -17,7 +17,7 @@ public interface IPageProvider : IDisposable
     /// <param name="token">Cancellation token.</param>
     /// <returns>Returns an HTML document, if it can be loaded. Otherwise <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-    Task<HtmlDocument?> GetHtmlDocumentAsync(
+    ValueTask<HtmlDocument?> GetHtmlDocumentAsync(
         string url,
         string description,
         CachingMode caching,
@@ -34,7 +34,7 @@ public interface IPageProvider : IDisposable
     /// <param name="token">Cancellation token.</param>
     /// <returns>Returns an XML document, if it can be loaded. Otherwise <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-    Task<XDocument?> GetXmlDocumentAsync(
+    ValueTask<XDocument?> GetXmlDocumentAsync(
         string url,
         string description,
         CachingMode caching,
@@ -51,7 +51,7 @@ public interface IPageProvider : IDisposable
     /// <param name="token">Cancellation token.</param>
     /// <returns>Returns the string content of the requested URL. Otherwise <c>null</c>.</returns>
     /// <exception cref="ArgumentNullException">If url is null or empty.</exception>
-    Task<string?> GetJsonDocumentAsync(
+    ValueTask<string?> GetJsonDocumentAsync(
         string url,
         string description,
         CachingMode caching,
@@ -67,7 +67,7 @@ public interface IPageProvider : IDisposable
     /// <param name="suppressNotifications">Indicates whether notification messages should be sent to output.</param>
     /// <param name="token">Cancellation token.</param>
     /// <returns>Returns the URL that the response headers say we requested.</returns>
-    Task<string> GetRedirectUrlAsync(
+    ValueTask<string> GetRedirectUrlAsync(
         string url,
         string description,
         SuppressNotifications suppressNotifications,

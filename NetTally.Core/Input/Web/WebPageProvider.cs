@@ -101,7 +101,7 @@ public class WebPageProvider : IDisposable, IPageProvider
     #endregion Disposal
 
     #region IPageProvider Methods
-    public async Task<HtmlDocument?> GetHtmlDocumentAsync(
+    public async ValueTask<HtmlDocument?> GetHtmlDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -124,7 +124,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         return htmldoc;
     }
 
-    public async Task<XDocument?> GetXmlDocumentAsync(
+    public async ValueTask<XDocument?> GetXmlDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -146,7 +146,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         return xmlDoc;
     }
 
-    public async Task<string?> GetJsonDocumentAsync(
+    public async ValueTask<string?> GetJsonDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -161,7 +161,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         return content;
     }
 
-    public async Task<string> GetRedirectUrlAsync(
+    public async ValueTask<string> GetRedirectUrlAsync(
         string urlString,
         string description,
         SuppressNotifications suppressNotifications,
