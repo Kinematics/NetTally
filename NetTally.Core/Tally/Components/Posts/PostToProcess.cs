@@ -24,7 +24,7 @@ public class PostToProcess(Post post)
     /// <summary>
     /// The post's vote lines.
     /// </summary>
-    public ImmutableArray<VoteLineType> VoteLines => post.VoteLines;
+    public ImmutableArray<VoteLine> VoteLines => post.VoteLines;
 
     /// <summary>
     /// Whether the post has any vote lines.

@@ -950,10 +950,10 @@ public class VoteCounter(
     }
 
 
-    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLineType> lines) =>
+    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLine> lines) =>
         [.. VoteBlocks.GetBlocks(lines)];
 
-    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLineType> lines) =>
+    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLine> lines) =>
         [VoteBlock.Create(lines)!];
 
     private static Func<PostToProcess, List<VoteBlockType>> PostBlocks =>
@@ -1052,7 +1052,7 @@ public class VoteCounter(
         if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;
 
-        VoteLineType firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.Empty };
+        VoteLine firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.Empty };
 
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
@@ -1074,7 +1074,7 @@ public class VoteCounter(
             .Select(v => v with { Marker = Marker.Empty });
 
         // Stack stuff back together
-        List<VoteLineType> voteLines = [firstLine, .. remainingLines];
+        List<VoteLine> voteLines = [firstLine, .. remainingLines];
 
         var returnPlan = VoteBlock.Create(voteLines);
 

@@ -35,7 +35,7 @@ public class VoteBlocksTests
     [TestMethod]
     public void GetBlocks_Empty()
     {
-        List<VoteLineType> lines = [];
+        List<VoteLine> lines = [];
 
         var blocks = VoteBlocks.GetBlocks(lines);
         Assert.IsNotNull(blocks);

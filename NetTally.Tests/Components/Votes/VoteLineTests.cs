@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Components.Votes;
 using NetTally.Tally.Vote.Components;
 
@@ -13,67 +15,62 @@ public class VoteLineTests
     }
 
     [TestMethod]
-    public void Construct_AllNull_Null()
+    public void Construct_AllNull_Exception()
     {
-        //var prefix = Prefix.Empty;
-        //var marker = Marker.Empty;
-        //var task = VoteTask.Empty;
-        //var content = VoteContent.Empty;
-
-        var line = VoteLine.Create(null, null, null, null);
-        Assert.IsNull(line);
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => VoteLine.Create(null!, null!, null!, null!));
     }
 
     [TestMethod]
-    public void Construct_PrefixNull_Null()
+    public void Construct_PrefixNull_Exception()
     {
         //var prefix = Prefix.Empty;
         var marker = Marker.Empty;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
-        var line = VoteLine.Create(null, marker, task, content);
-        Assert.IsNull(line);
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => VoteLine.Create(null!, marker, task, content));
     }
 
     [TestMethod]
-    public void Construct_MarkerNull_Null()
+    public void Construct_MarkerNull_Exception()
     {
         var prefix = Prefix.Empty;
         //var marker = Marker.Empty;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
-        var line = VoteLine.Create(prefix, null, task, content);
-        Assert.IsNull(line);
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => VoteLine.Create(prefix, null!, task, content));
     }
 
     [TestMethod]
-    public void Construct_TaskNull_Null()
+    public void Construct_TaskNull_Exception()
     {
         var prefix = Prefix.Empty;
         var marker = Marker.Empty;
         //var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
-        var line = VoteLine.Create(prefix, marker, null, content);
-        Assert.IsNull(line);
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => VoteLine.Create(prefix, marker, null!, content));
     }
 
     [TestMethod]
-    public void Construct_ContentNull_Null()
+    public void Construct_ContentNull_Exception()
     {
         var prefix = Prefix.Empty;
         var marker = Marker.Empty;
         var task = VoteTask.Empty;
         //var content = VoteContent.Empty;
 
-        var line = VoteLine.Create(prefix, marker, task, null);
-        Assert.IsNull(line);
+        Assert.ThrowsExactly<ArgumentNullException>(
+            () => VoteLine.Create(prefix, marker, task, null!));
     }
 
     [TestMethod]
-    public void Construct_ContentEmpty_Null()
+    public void Construct_ContentEmpty_Empty()
     {
         var prefix = Prefix.Empty;
         var marker = Marker.Empty;
@@ -81,7 +78,7 @@ public class VoteLineTests
         var content = VoteContent.Empty;
 
         var line = VoteLine.Create(prefix, marker, task, content);
-        Assert.IsNull(line);
+        Assert.AreEqual(VoteLine.Empty, line);
     }
 
     [TestMethod]
@@ -120,7 +117,7 @@ public class VoteLineTests
         var line = VoteLine.Create(prefix, marker, task, content);
         Assert.IsNotNull(line);
         Assert.AreEqual(1, line.Depth);
-        var line2 = VoteLine.Promote(line);
+        var line2 = line.Promote();
         Assert.AreEqual(0, line2.Depth);
     }
 
@@ -135,7 +132,7 @@ public class VoteLineTests
         var line = VoteLine.Create(prefix, marker, task, content);
         Assert.IsNotNull(line);
         Assert.AreEqual(3, line.Depth);
-        var line2 = VoteLine.FullPromote(line);
+        var line2 = line.FullPromote();
         Assert.AreEqual(0, line2.Depth);
     }
 

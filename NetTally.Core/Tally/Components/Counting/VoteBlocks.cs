@@ -34,7 +34,7 @@ public static partial class VoteBlocks
     /// </summary>
     /// <param name="lines">An enumeration of vote lines.</param>
     /// <returns>The lines are grouped together and turned into blocks.</returns>
-    public static IEnumerable<VoteBlockType> GetBlocks(IEnumerable<VoteLineType> lines)
+    public static IEnumerable<VoteBlockType> GetBlocks(IEnumerable<VoteLine> lines)
     {
         var blocks = lines.GroupAdjacentToPreviousKey(
             a => a.Prefix.Depth == 0,
@@ -170,7 +170,7 @@ public static partial class VoteBlocks
     /// <param name="line">The vote line to examine.</param>
     /// <returns>A tuple of whether the line represents a plan, and the plan's name,
     /// if any.</returns>
-    public static (PlanStatus PlanStatus, string PlanName) CheckIfPlan(VoteLineType line)
+    public static (PlanStatus PlanStatus, string PlanName) CheckIfPlan(VoteLine line)
     {
         Match m;
 
@@ -197,7 +197,7 @@ public static partial class VoteBlocks
     /// <param name="y">The second list</param>
     /// <returns>A tuple describing whether the content and the tasks are equal
     /// between the two lists.</returns>
-    public static (bool IsContentEqual, bool IsTaskEqual) AreEquivalent(List<VoteLineType> x, List<VoteLineType> y)
+    public static (bool IsContentEqual, bool IsTaskEqual) AreEquivalent(List<VoteLine> x, List<VoteLine> y)
     {
         if (x.Count == 0 && y.Count == 0)
             return (IsContentEqual: true, IsTaskEqual: false);

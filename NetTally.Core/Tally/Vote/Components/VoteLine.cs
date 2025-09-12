@@ -8,11 +8,15 @@ namespace NetTally.Tally.Vote.Components;
 /// <param name="Marker">The voting marker.</param>
 /// <param name="Task">The task assigned to the vote line.</param>
 /// <param name="Content">The contents of the vote line.</param>
-public record VoteLineType(Prefix Prefix, Marker Marker, VoteTask Task, VoteContent Content)
+public record VoteLine(Prefix Prefix, Marker Marker, VoteTask Task, VoteContent Content)
 {
     public int Depth => Prefix.Depth;
     public bool HasTask => Task.Name.Length > 0;
 
+    /// <summary>
+    /// ToString implementation to make debugging easier, by formatting the
+    /// data in an easy-to-read manner.
+    /// </summary>
     public override string ToString()
     {
         return $"{{{Prefix.Indent}[{Marker.Display()}][{Task.Name}] {Content.CleanContent}}}";
@@ -20,43 +24,80 @@ public record VoteLineType(Prefix Prefix, Marker Marker, VoteTask Task, VoteCont
 }
 
 /// <summary>
-/// Static class for creating and modifying <see cref="VoteLineType"/> objects.
+/// Extension class for creating <see cref="VoteLine"/> objects.
 /// </summary>
-public static class VoteLine
+public static class VoteLineCreation
 {
-    public static VoteLineType Empty { get; } =
-        new VoteLineType(Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
-
-    public static VoteLineType? Create(
-        Prefix? prefix,
-        Marker? marker,
-        VoteTask? task,
-        VoteContent? content)
+    extension(VoteLine)
     {
-        if (prefix == null) return null;
-        if (marker == null) return null;
-        if (task == null) return null;
-        if (content == null) return null;
+        /// <summary>
+        /// The default empty <see cref="VoteLine"/>.
+        /// </summary>
+        public static VoteLine Empty => _empty;
 
-        if (content == VoteContent.Empty) return null;
+        /// <summary>
+        /// Create a new <see cref="VoteLine"/> using the provided components.
+        /// Marker and Content must be non-empty.
+        /// </summary>
+        /// <param name="prefix">The prefix component of the vote line.</param>
+        /// <param name="marker">The marker of the vote line.</param>
+        /// <param name="task">The task of the vote line.</param>
+        /// <param name="content">The content of the vote line.</param>
+        /// <returns>A new <see cref="VoteLine"/></returns>
+        public static VoteLine Create(
+            Prefix prefix,
+            Marker marker,
+            VoteTask task,
+            VoteContent content)
+        {
+            ArgumentNullException.ThrowIfNull(prefix);
+            ArgumentNullException.ThrowIfNull(marker);
+            ArgumentNullException.ThrowIfNull(task);
+            ArgumentNullException.ThrowIfNull(content);
 
-        return new VoteLineType(prefix, marker, task, content);
+            if (content == VoteContent.Empty)
+                return VoteLine.Empty;
+
+            return new(prefix, marker, task, content);
+        }
     }
 
+    private static readonly VoteLine _empty = 
+        new (Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
+}
 
-    public static VoteLineType Promote(VoteLineType input, int promoteDepth = 1)
+/// <summary>
+/// Extension class for promoting (reducing the depth of the prefix) <see cref="VoteLine"/>s
+/// </summary>
+public static class VoteLinePromotion
+{
+    extension(VoteLine voteLine)
     {
-        return input with { Prefix = input.Prefix.Promote(promoteDepth) };
-    }
+        /// <summary>
+        /// Promote a <see cref="VoteLine"/> by a specified depth level.
+        /// </summary>
+        /// <param name="promoteDepth">The number of steps to promote the line by. Default is 1.</param>
+        /// <returns>A new version of the <see cref="VoteLine"/> after being promoted,
+        /// or the same instance of no change was made.</returns>
+        public VoteLine Promote(int promoteDepth = 1)
+        {
+            if (promoteDepth == 0)
+                return voteLine;
 
-    public static VoteLineType FullPromote(VoteLineType input)
-    {
-        if (input.Depth > 0)
-            return input with { Prefix = Prefix.Empty };
+            return voteLine with { Prefix = voteLine.Prefix.Promote(promoteDepth) };
+        }
 
-        return input;
+        /// <summary>
+        /// Maximally promote a vote line by reducing the prefix depth to 0.
+        /// </summary>
+        /// <returns>The fully promoted <see cref="VoteLine"/></returns>
+        public VoteLine FullPromote()
+        {
+            return voteLine.Promote(voteLine.Depth);
+        }
     }
 }
+
 
 public static class VoteLineDisplay
 {
@@ -64,7 +105,7 @@ public static class VoteLineDisplay
     /// Formats the current object as a string.
     /// </summary>
     /// <returns>Returns a string representing the current object.</returns>
-    public static string ToString(VoteLineType voteLine)
+    public static string ToString(VoteLine voteLine)
     {
         string task = voteLine.HasTask ? $"[{voteLine.Task.Name}]" : "";
         return $"{voteLine.Prefix.Indent}[{voteLine.Marker.Display()}]{task} {voteLine.Content.Content}";
@@ -75,7 +116,7 @@ public static class VoteLineDisplay
     /// May display a provided task instead of the innate one.
     /// </summary>
     /// <returns>Returns a string representing the current object.</returns>
-    public static string ToComparableString(VoteLineType voteLine, string? task = null)
+    public static string ToComparableString(VoteLine voteLine, string? task = null)
     {
         task ??= voteLine.Task.Name;
         task = task.Length > 0 ? $"[{task}]" : "";
@@ -89,7 +130,7 @@ public static class VoteLineDisplay
     /// <param name="marker">The optional string to use in place of the marker.</param>
     /// <param name="task">The optional string to use in place of the task.</param>
     /// <returns>Returns a string representing the current object.</returns>
-    public static string ToOverrideString(VoteLineType voteLine, string? marker = null, string? task = null)
+    public static string ToOverrideString(VoteLine voteLine, string? marker = null, string? task = null)
     {
         marker ??= voteLine.Marker.Display();
         task ??= voteLine.Task.Name;
@@ -104,7 +145,7 @@ public static class VoteLineDisplay
     /// <param name="task">The optional string to use in place of the task.</param>
     /// Will use the default task if left null.</param>
     /// <returns>Returns a string representing the current vote line.</returns>
-    public static string ToOutputString(VoteLineType voteLine, string? marker = null, string? task = null)
+    public static string ToOutputString(VoteLine voteLine, string? marker = null, string? task = null)
     {
         marker ??= voteLine.Marker.Display();
         task ??= voteLine.Task.Name;
@@ -128,13 +169,13 @@ public static class VoteLineDisplay
 }
 
 /// <summary>
-/// Comparer class for <see cref="VoteLineType"/> objects.
+/// Comparer class for <see cref="VoteLine"/> objects.
 /// </summary>
-public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteLineType>
+public class VoteLineComparer : IEqualityComparer<VoteLine>, IComparer<VoteLine>
 {
     public static VoteLineComparer Instance { get; } = new();
 
-    public int Compare(VoteLineType? x, VoteLineType? y)
+    public int Compare(VoteLine? x, VoteLine? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -147,7 +188,7 @@ public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteL
         return VoteContentComparer.Instance.Compare(x.Content, y.Content);
     }
 
-    public bool Equals(VoteLineType? x, VoteLineType? y)
+    public bool Equals(VoteLine? x, VoteLine? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -155,7 +196,7 @@ public class VoteLineComparer : IEqualityComparer<VoteLineType>, IComparer<VoteL
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] VoteLineType obj)
+    public int GetHashCode([DisallowNull] VoteLine obj)
     {
         return VoteContentComparer.Instance.GetHashCode(obj.Content);
     }

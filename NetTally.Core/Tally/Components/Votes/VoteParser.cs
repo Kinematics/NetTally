@@ -16,7 +16,7 @@ public static partial class VoteParser
     #endregion Regex
 
     #region Public Methods
-    public static List<VoteLineType> ExtractVoteLines(string text)
+    public static List<VoteLine> ExtractVoteLines(string text)
     {
         if (string.IsNullOrWhiteSpace(text) || IsTallyPost(text))
             return [];
@@ -39,7 +39,7 @@ public static partial class VoteParser
         return TallyPostRegex.Match(cleanText).Success;
     }
 
-    private static List<VoteLineType> GetVoteLines(List<string> textLines)
+    private static List<VoteLine> GetVoteLines(List<string> textLines)
     {
         var voteLines = textLines
             .Select(ParseLine)
@@ -51,14 +51,14 @@ public static partial class VoteParser
         {
             if (voteLines[0].Prefix.Depth > 0)
             {
-                voteLines[0] = VoteLine.FullPromote(voteLines[0]);
+                voteLines[0] = voteLines[0].FullPromote();
             }
         }
 
         return voteLines;
     }
 
-    private static VoteLineType? ParseLine(string t)
+    private static VoteLine? ParseLine(string t)
     {
         var parsed = VoteLineParser.ParseLineParts(t);
 
@@ -76,7 +76,7 @@ public static partial class VoteParser
         return voteLine;
     }
 
-    private static List<VoteLineType> GetNominationLines(List<string> textLines)
+    private static List<VoteLine> GetNominationLines(List<string> textLines)
     {
         var voteLines = textLines
             .Select(t => NominationLineRegex.Match(t))
@@ -85,8 +85,7 @@ public static partial class VoteParser
                                 Marker.Create("X"),
                                 VoteTask.Empty,
                                 VoteContent.Create(m.Groups["username"].Value)))
-            .Where(v => v != null)
-            .Select(v => v!)
+            .Where(v => v != VoteLine.Empty)
             .ToList();
 
         if (voteLines.Count == textLines.Count)

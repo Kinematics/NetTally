@@ -5,7 +5,7 @@ using NetTally.Utility.Linq;
 
 namespace NetTally.Tally.Components.Votes;
 public record CompactVoteType(
-    VoteLineType Line,
+    VoteLine Line,
     CompactVoteType Parent,
     List<CompactVoteType> Children,
     List<VoterStorageEntryF> Voters)
@@ -82,9 +82,9 @@ public static class CompactVote
                                 voteGroups: g));
     }
 
-    public static CompactVoteType Create(VoteLineType line,
+    public static CompactVoteType Create(VoteLine line,
         CompactVoteType? parent,
-        IEnumerable<VoteLineType> children,
+        IEnumerable<VoteLine> children,
         VoteStorageType voteGroups)
     {
         parent ??= None;
@@ -116,7 +116,7 @@ public static class CompactVote
     /// <param name="parent">The parent of the CompactVote being created.</param>
     /// <returns>Returns a compact vote built on the child line provided.</returns>
     private static CompactVoteType RecursiveCreation(
-        VoteLineType childLine,
+        VoteLine childLine,
         VoteStorageType votes,
         CompactVoteType parent)
     {
@@ -136,14 +136,14 @@ public static class CompactVote
     /// <param name="voteGroup">The collection of all votes to be considered.</param>
     /// <param name="topLevel">Whether this is a request from the top level of the vote.</param>
     /// <returns>Returns a list of all direct descendents of the provided vote line.</returns>
-    private static IEnumerable<VoteLineType> GetChildLinesOfLine(
-        VoteLineType key,
+    private static IEnumerable<VoteLine> GetChildLinesOfLine(
+        VoteLine key,
         VoteStorageType voteGroup,
         bool topLevel = false)
     {
         List<VoteStorageEntryF> voteGroupList = new(voteGroup);
-        List<VoteLineType> holding = [];
-        List<VoteLineType> tempHolding = [];
+        List<VoteLine> holding = [];
+        List<VoteLine> tempHolding = [];
 
         foreach (var (vote, voteSupport) in voteGroupList)
         {

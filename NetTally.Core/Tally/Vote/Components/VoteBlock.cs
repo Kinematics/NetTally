@@ -11,8 +11,8 @@ namespace NetTally.Tally.Vote.Components;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
-public record VoteBlockType(ImmutableArray<VoteLineType> Lines, Marker Marker, VoteTask Task)
-    : IEnumerable<VoteLineType>
+public record VoteBlockType(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
+    : IEnumerable<VoteLine>
 {
     public int LineCount => Lines.Length;
 
@@ -21,7 +21,7 @@ public record VoteBlockType(ImmutableArray<VoteLineType> Lines, Marker Marker, V
     /// </summary>
     public MarkerType Category { get; set; } = MarkerType.None;
 
-    public IEnumerator<VoteLineType> GetEnumerator()
+    public IEnumerator<VoteLine> GetEnumerator()
     {
         if (Lines.Length == 0)
             yield break;
@@ -61,9 +61,9 @@ public static class VoteBlock
     /// </summary>
     /// <param name="lines">The vote lines to add to the vote block.</param>
     /// <returns>A new <see cref="VoteBlockType"/>, or null if there were no vote lines.</returns>
-    public static VoteBlockType? Create(IEnumerable<VoteLineType> lines)
+    public static VoteBlockType? Create(IEnumerable<VoteLine> lines)
     {
-        List<VoteLineType> listOfLines = lines.ToList();
+        List<VoteLine> listOfLines = lines.ToList();
 
         if (listOfLines.Count == 0)
         {
@@ -80,7 +80,7 @@ public static class VoteBlock
     /// </summary>
     /// <param name="line">The line to add to the vote block.</param>
     /// <returns>A new <see cref="VoteBlockType"/></returns>
-    public static VoteBlockType Create(VoteLineType line)
+    public static VoteBlockType Create(VoteLine line)
     {
         return new VoteBlockType([line], line.Marker, line.Task);
     }

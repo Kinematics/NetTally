@@ -13,7 +13,7 @@ namespace NetTally.Tally.Components.Posts;
 /// <param name="Origin">Origin information on the post.</param>
 /// <param name="Text">Text contents of the post.</param>
 /// <param name="VoteLines">Any extracted vote lines from the post.</param>
-public record Post(Origin Origin, string Text, ImmutableArray<VoteLineType> VoteLines)
+public record Post(Origin Origin, string Text, ImmutableArray<VoteLine> VoteLines)
 {
     /// <summary>
     /// Whether the post has any vote lines.

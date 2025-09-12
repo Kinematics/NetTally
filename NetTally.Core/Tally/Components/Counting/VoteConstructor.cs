@@ -273,7 +273,7 @@ public static partial class VoteConstructor
 
         // Just add the vote line directly to the working vote if it's
         // not a reference, or we can't find the reference.
-        void JustAddDirectly(VoteLineType currentLine)
+        void JustAddDirectly(VoteLine currentLine)
         {
             var block = VoteBlock.Create(TrimLine(currentLine, quest.TrimExtendedText));
             var blockRef = new VoteBlockRef(block, false);
@@ -287,7 +287,7 @@ public static partial class VoteConstructor
             workingVote.Add(blockRef);
         }
 
-        static VoteLineType TrimLine(VoteLineType currentLine, bool trimExtendedText)
+        static VoteLine TrimLine(VoteLine currentLine, bool trimExtendedText)
         {
             return trimExtendedText
                 ? currentLine with { Content = currentLine.Content.Trim() }
@@ -303,7 +303,7 @@ public static partial class VoteConstructor
     /// <param name="quest">The quest being tallied.  Has configuration options that may apply.</param>
     /// <returns>Returns a tuple with the discovered information.</returns>
     private static (bool isReference, bool isPlan, bool isPinnedUser, Origin refName)
-        GetReference(VoteLineType voteLine, Quest quest)
+        GetReference(VoteLine voteLine, Quest quest)
     {
         // Ignore lines over 100 characters long. They can't be user names, and are too long for useful plan names.
         if (voteLine.Content.CleanContent.Length > 100)
@@ -427,7 +427,7 @@ public static partial class VoteConstructor
             int minDepth = block.Lines.Skip(1).Min(a => a.Prefix.Depth);
 
             var promotedLines = block.Lines.Skip(1)
-                .Select(v => VoteLine.Promote(v, minDepth))
+                .Select(v => v.Promote(minDepth))
                 .Select(VoteBlock.Create)
                 .Where(v => v != null)
                 .Select(v => v!);
@@ -444,7 +444,7 @@ public static partial class VoteConstructor
             int minDepth = block.Lines.Skip(1).Min(a => a.Prefix.Depth);
 
             var promotedLines = block.Lines.Skip(1)
-                .Select(v => VoteLine.Promote(v, minDepth));
+                .Select(v => v.Promote(minDepth));
 
             var promotedBlocks = VoteBlocks.GetBlocks(promotedLines);
 
@@ -585,7 +585,7 @@ public static partial class VoteConstructor
 
         return retaskedBlocks;
 
-        static IEnumerable<VoteLineType> Retask(VoteBlockType block, int arg2)
+        static IEnumerable<VoteLine> Retask(VoteBlockType block, int arg2)
         {
             if (block.LineCount == 0)
                 return [];
@@ -616,7 +616,7 @@ public static partial class VoteConstructor
             .Select(v => v!)
             .ToList();
 
-        static IEnumerable<VoteLineType> RecursePartitionByLineTask(VoteBlockType block, VoteTask task)
+        static IEnumerable<VoteLine> RecursePartitionByLineTask(VoteBlockType block, VoteTask task)
         {
             // Hopefully depth 0, but could be spurious prefix indents
             if (block.All(a => a.Depth == block.Lines[0].Depth))
@@ -629,7 +629,7 @@ public static partial class VoteConstructor
 
                 // If there is a replacement task, replace lines that don't have their own task.
                 return block.Select(v => v.Task == VoteTask.Empty ? v with { Task = task } : v)
-                    .Select(VoteLine.FullPromote);
+                    .Select(v => v.FullPromote());
             }
 
             // A content block creates a new task scope.
