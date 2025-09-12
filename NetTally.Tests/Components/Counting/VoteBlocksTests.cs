@@ -4,8 +4,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
@@ -21,13 +21,13 @@ public class VoteBlocksTests
 
     private static Origin GetOrigin1()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(123);
+        var postId = PostId.Create(123456);
+        var postNumber = PostId.Create(123);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
@@ -51,7 +51,7 @@ public class VoteBlocksTests
             [X] First action
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteBlocks.GetBlocks(post.VoteLines);
@@ -68,7 +68,7 @@ public class VoteBlocksTests
             -[X] With detail
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteBlocks.GetBlocks(post.VoteLines);
@@ -86,7 +86,7 @@ public class VoteBlocksTests
             [X] Second action
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteBlocks.GetBlocks(post.VoteLines);
@@ -104,7 +104,7 @@ public class VoteBlocksTests
             [X] Second action
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -122,7 +122,7 @@ public class VoteBlocksTests
             -[X] First action
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -140,7 +140,7 @@ public class VoteBlocksTests
             -[X] With detail
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -158,7 +158,7 @@ public class VoteBlocksTests
             -[X] With detail
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -177,7 +177,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -196,7 +196,7 @@ public class VoteBlocksTests
             [X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -215,7 +215,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -234,7 +234,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -251,7 +251,7 @@ public class VoteBlocksTests
             [X] Proposed Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -270,7 +270,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -289,7 +289,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -308,7 +308,7 @@ public class VoteBlocksTests
             [X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -325,7 +325,7 @@ public class VoteBlocksTests
             [X] Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -344,7 +344,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -363,7 +363,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -382,7 +382,7 @@ public class VoteBlocksTests
             [X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -400,7 +400,7 @@ public class VoteBlocksTests
             [X] Plan Stop!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -417,7 +417,7 @@ public class VoteBlocksTests
             [X] Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -436,7 +436,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -453,7 +453,7 @@ public class VoteBlocksTests
             [X] Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -472,7 +472,7 @@ public class VoteBlocksTests
             -[X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
@@ -491,7 +491,7 @@ public class VoteBlocksTests
             [X] Second step
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -508,7 +508,7 @@ public class VoteBlocksTests
             [X] Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
@@ -525,7 +525,7 @@ public class VoteBlocksTests
             [X] Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var line = post.VoteLines[0];
@@ -542,7 +542,7 @@ public class VoteBlocksTests
             [X] Proposed Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var line = post.VoteLines[0];
@@ -560,7 +560,7 @@ public class VoteBlocksTests
             [X] Plan Action!
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var line = post.VoteLines[0];
@@ -578,7 +578,7 @@ public class VoteBlocksTests
             [X] Kinematics's Plan
             """;
 
-        var post = Posting.Create(origin, text);
+        var post = Post.Create(origin, text);
         Assert.IsNotNull(post);
 
         var line = post.VoteLines[0];

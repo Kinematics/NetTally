@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Posts.Comparer;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;

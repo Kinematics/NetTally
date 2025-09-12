@@ -1,4 +1,4 @@
-﻿using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Posts.Component;
 using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Threads;
@@ -11,7 +11,7 @@ public record ThreadInfo(
 public static class ThreadInfos
 {
     public static ThreadInfo None { get; } =
-        new ThreadInfo(string.Empty, Authors.None, ThreadRanges.None);
+        new ThreadInfo(string.Empty, Author.None, ThreadRanges.None);
 
     public static ThreadInfo Create(
         string title,
@@ -20,7 +20,7 @@ public static class ThreadInfos
     {
         if (string.IsNullOrEmpty(title))
             title = Strings.UntitledThread;
-        author ??= Authors.Unknown;
+        author ??= Author.Unknown;
 
         return new ThreadInfo(title, author, threadRange);
     }

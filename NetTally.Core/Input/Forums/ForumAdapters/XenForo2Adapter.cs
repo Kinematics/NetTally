@@ -8,11 +8,12 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Utility.Async;
 using NetTally.Utility.Filtering;
 using NetTally.Web;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -242,7 +243,7 @@ public partial class XenForo2Adapter(
         var descripNode = headerNode.GetChildWithClass("div", "p-description");
         var authorNode = descripNode?.GetDescendantWithClass("a", "username");
         string authorName = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText.Trim() ?? "");
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static int GetMaxPageNumberOfThread(HtmlNode bodyNode)
@@ -313,7 +314,7 @@ public partial class XenForo2Adapter(
         {
             // Get the post ID for the threadmark
             string tmID = mShort.Groups["tmID"].Value;
-            var postId = PostIds.Create(tmID);
+            var postId = PostId.Create(tmID);
 
             if (postId == null)
                 return (false, ThreadRanges.None);
@@ -347,7 +348,7 @@ public partial class XenForo2Adapter(
             if (page == 0 && post == 0)
                 return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-            var postId = PostIds.Create(post);
+            var postId = PostId.Create(post);
 
             // Otherwise create a range based on the post ID.
             return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
@@ -442,7 +443,7 @@ public partial class XenForo2Adapter(
                     if (page == 0 && post == 0)
                         return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-                    var postId = PostIds.Create(post);
+                    var postId = PostId.Create(post);
 
                     // Otherwise create a range based on the post ID.
                     return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
@@ -516,13 +517,13 @@ public partial class XenForo2Adapter(
         var id = GetPostId(article);
         var author = GetPostAuthor(article);
         string text = GetPostText(article, quest);
-        var number = PostIds.Create(GetPostNumber(article));
+        var number = PostId.Create(GetPostNumber(article));
 
         if (inputOptions.TrackPostAuthorsUniquely)
             author = author with { Name = $"{author.Name}_{id.Value}" };
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -531,7 +532,7 @@ public partial class XenForo2Adapter(
     {
         string authorName = article.GetAttributeValue("data-author", "");
         authorName = ForumPostTextConverter.CleanupWebString(authorName);
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static PostId GetPostId(HtmlNode article)
@@ -539,7 +540,7 @@ public partial class XenForo2Adapter(
         var attribute = article.GetAttributeValue("data-content", "post-");
         var number = attribute["post-".Length..];
         var id = ForumPostTextConverter.CleanupWebString(number);
-        return PostIds.Create(id) ?? PostIds.Zero;
+        return PostId.Create(id) ?? PostId.Zero;
     }
 
     private static string GetPostText(HtmlNode article, Quest quest)

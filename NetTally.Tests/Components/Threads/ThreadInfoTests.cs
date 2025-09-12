@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Threads;
@@ -18,8 +19,8 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
-        var postId = PostIds.Create(123456);
+        var author = Author.Create(authorName);
+        var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 14;
 
@@ -38,8 +39,8 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
-        var postId = PostIds.Create(123456);
+        var author = Author.Create(authorName);
+        var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 0;
 
@@ -58,7 +59,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
+        var author = Author.Create(authorName);
         int startPost = 300;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -78,7 +79,7 @@ public class ThreadInfoTests
     {
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
+        var author = Author.Create(authorName);
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -98,7 +99,7 @@ public class ThreadInfoTests
     {
         string title = "";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
+        var author = Author.Create(authorName);
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
@@ -144,7 +145,7 @@ public class ThreadInfoTests
 
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
+        var author = Author.Create(authorName);
         int pagesInThread = 25;
 
         var threadRange = ThreadRanges.CreateByRange(quest.StartPost, endPost, quest.PostsPerPage, pagesInThread);
@@ -164,8 +165,8 @@ public class ThreadInfoTests
 
         string title = "Jupiter Hop";
         string authorName = "Jack";
-        var author = Authors.Create(authorName);
-        var postId = PostIds.Create(123456);
+        var author = Author.Create(authorName);
+        var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 25;
 

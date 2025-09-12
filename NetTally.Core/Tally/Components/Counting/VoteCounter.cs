@@ -4,8 +4,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Storage;
+using NetTally.Tally.Posts.Comparer;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
@@ -164,7 +166,7 @@ public class VoteCounter(
             // - New plan is more than one line (ie: not simply re-voting for the existing version)
             // - Content of the plan is different
 
-            if (updateOrigin.Source() != Origins.None &&
+            if (updateOrigin.Source() != Origin.None &&
                 OriginComparer.Instance.Equals(updateOrigin.Source(), currentOrigin.Source()) &&
                 PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
                 plan.LineCount > 1 &&
@@ -244,7 +246,7 @@ public class VoteCounter(
         if (string.IsNullOrEmpty(planName))
             return null;
 
-        var author = Authors.Create(planName);
+        var author = Author.Create(planName);
 
         return GetOriginByPlanAuthor(author);
     }
@@ -259,7 +261,7 @@ public class VoteCounter(
         if (string.IsNullOrEmpty(voterName))
             return null;
 
-        var author = Authors.Create(voterName);
+        var author = Author.Create(voterName);
 
         return GetOriginByUserAuthor(author);
     }
@@ -272,14 +274,14 @@ public class VoteCounter(
     /// <returns>The existing origin, if it exists, or null.</returns>
     private Origin? GetOriginByUserAuthor(Author author)
     {
-        var namedOrigin = Origins.CreateUserNameOnly(author);
+        var namedOrigin = Origin.CreateUserNameOnly(author);
 
         return GetReferenceOrigin(namedOrigin);
     }
 
     private Origin? GetOriginByPlanAuthor(Author author)
     {
-        var namedOrigin = Origins.CreatePlanNameOnly(author);
+        var namedOrigin = Origin.CreatePlanNameOnly(author);
 
         return GetReferenceOrigin(namedOrigin);
     }
@@ -332,7 +334,7 @@ public class VoteCounter(
         {
             return Posts
                 .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Author, p.Origin.Author) &&
-                            (maxPostId == PostIds.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
+                            (maxPostId == PostId.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
 
         }
@@ -1005,7 +1007,7 @@ public class VoteCounter(
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origins.CreatePlan(p.Origin, Authors.Create(a.Name))))
+                              Origin: Origin.CreatePlan(p.Origin, Author.Create(a.Name))))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))

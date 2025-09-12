@@ -6,9 +6,10 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Web;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -121,7 +122,7 @@ public partial class VBulletin5Adapter(
     private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // vBulletin doesn't show thread authors
+        var author = Author.Unknown; // vBulletin doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
         var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
@@ -193,14 +194,14 @@ public partial class VBulletin5Adapter(
 
         var id = GetPostId(li);
         var author = GetPostAuthor(li);
-        var number = PostIds.Create(GetPostNumber(li));
+        var number = PostId.Create(GetPostNumber(li));
         string text = GetPostText(li, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)
             author = author with { Name = $"{author.Name}_{id.Value}" };
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -208,7 +209,7 @@ public partial class VBulletin5Adapter(
     private static PostId GetPostId(HtmlNode li)
     {
         string id = li.GetAttributeValue("data-node-id", "");
-        return PostIds.Create(id) ?? PostIds.Zero;
+        return PostId.Create(id) ?? PostId.Zero;
     }
 
     private static Author GetPostAuthor(HtmlNode li)
@@ -221,7 +222,7 @@ public partial class VBulletin5Adapter(
         if (authorNode != null)
             author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
-        return Authors.Create(author);
+        return Author.Create(author);
     }
 
     private static int GetPostNumber(HtmlNode li)

@@ -4,7 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
@@ -34,73 +35,73 @@ public class VoteConstructorVoteTests
     }
     #endregion
 
-    #region Origins
+    #region Origin
     private static Origin GetOrigin_Kinematics1()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(10);
+        var postId = PostId.Create(123456);
+        var postNumber = PostId.Create(10);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Kinematics2()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(124456);
-        var postNumber = PostIds.Create(30);
+        var postId = PostId.Create(124456);
+        var postNumber = PostId.Create(30);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Karma1()
     {
-        var author = Authors.Create("Karma1");
+        var author = Author.Create("Karma1");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123457);
-        var postNumber = PostIds.Create(11);
+        var postId = PostId.Create(123457);
+        var postNumber = PostId.Create(11);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Quincy()
     {
-        var author = Authors.Create("Quincy");
+        var author = Author.Create("Quincy");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123458);
-        var postNumber = PostIds.Create(12);
+        var postId = PostId.Create(123458);
+        var postNumber = PostId.Create(12);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Muramasa()
     {
-        var author = Authors.Create("Muramasa");
+        var author = Author.Create("Muramasa");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(9321568);
-        var postNumber = PostIds.Create(8816);
+        var postId = PostId.Create(9321568);
+        var postNumber = PostId.Create(8816);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
-    #endregion Origins
+    #endregion Origin
 
     #region Sample Posts
 
@@ -117,7 +118,7 @@ public class VoteConstructorVoteTests
             [x] Loot the boxes
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -135,7 +136,7 @@ public class VoteConstructorVoteTests
             [x] Loot the boxes
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -154,7 +155,7 @@ public class VoteConstructorVoteTests
             [x] And catch them in the act.
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -176,7 +177,7 @@ public class VoteConstructorVoteTests
             -[x] Light conversation. No need for serious precog questions right now.
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -200,7 +201,7 @@ public class VoteConstructorVoteTests
             -[x] Light conversation. No need for serious precog questions right now.
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -219,7 +220,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -238,7 +239,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);
@@ -257,7 +258,7 @@ public class VoteConstructorVoteTests
             -[x] Return home
             """;
 
-        var post = Posting.Create(origin, postText)!;
+        var post = Post.Create(origin, postText)!;
         var postp = new PostToProcess(post);
 
         VoteConstructor.ConfigureWorkingVote(postp, quest);

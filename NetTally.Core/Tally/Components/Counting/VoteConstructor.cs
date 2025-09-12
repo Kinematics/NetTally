@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
@@ -214,7 +214,7 @@ public static partial class VoteConstructor
             // Users
             else
             {
-                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostIds.Zero;
+                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
 
                 PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
@@ -366,7 +366,7 @@ public static partial class VoteConstructor
         }
 
     noReference:
-        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origins.None);
+        return (isReference: false, isPlan: false, isPinnedUser: false, refName: Origin.None);
     }
     #endregion
 

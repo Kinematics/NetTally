@@ -4,7 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;
@@ -27,13 +28,13 @@ public class VoteConstructorPlanTests
 
     private static Origin GetOrigin1()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(123);
+        var postId = PostId.Create(123456);
+        var postNumber = PostId.Create(123);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
@@ -51,7 +52,7 @@ public class VoteConstructorPlanTests
             [x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -78,7 +79,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -106,7 +107,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -135,7 +136,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -162,7 +163,7 @@ public class VoteConstructorPlanTests
             [x] Base Plan Cyclops
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(1, post.VoteLineCount);
@@ -191,7 +192,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(3, post.VoteLineCount);
@@ -223,7 +224,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(4, post.VoteLineCount);
@@ -255,7 +256,7 @@ public class VoteConstructorPlanTests
             [x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -283,7 +284,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -312,7 +313,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -339,7 +340,7 @@ public class VoteConstructorPlanTests
             [x] Plan Cyclops
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(1, post.VoteLineCount);
@@ -368,7 +369,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(3, post.VoteLineCount);
@@ -400,7 +401,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(4, post.VoteLineCount);
@@ -432,7 +433,7 @@ public class VoteConstructorPlanTests
             [x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -460,7 +461,7 @@ public class VoteConstructorPlanTests
             -[x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -488,7 +489,7 @@ public class VoteConstructorPlanTests
             [x] Line 2
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(2, post.VoteLineCount);
@@ -515,7 +516,7 @@ public class VoteConstructorPlanTests
                 [x] Plan Cyclops
                 """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(1, post.VoteLineCount);
@@ -544,7 +545,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(3, post.VoteLineCount);
@@ -573,7 +574,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(3, post.VoteLineCount);
@@ -605,7 +606,7 @@ public class VoteConstructorPlanTests
             [x] Extra
             """;
 
-        var post = Posting.Create(origin, postText);
+        var post = Post.Create(origin, postText);
         Assert.IsNotNull(post);
         Assert.IsTrue(post.HasVote);
         Assert.AreEqual(4, post.VoteLineCount);

@@ -5,9 +5,10 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Web;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -114,7 +115,7 @@ public partial class PhpBBAdapter(
     private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // PhpBB doesn't show thread authors
+        var author = Author.Unknown; // PhpBB doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
         var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
@@ -213,14 +214,14 @@ public partial class PhpBBAdapter(
 
         var id = GetPostId(div);
         var author = GetPostAuthor(div);
-        var number = PostIds.Create(postNumber);
+        var number = PostId.Create(postNumber);
         string text = GetPostText(div, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)
             author = author with { Name = $"{author.Name}_{id.Value}" };
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -228,9 +229,9 @@ public partial class PhpBBAdapter(
     private static PostId GetPostId(HtmlNode div)
     {
         var idString = div.Id["p".Length..];
-        var id = PostIds.Create(idString);
+        var id = PostId.Create(idString);
 
-        return id ?? PostIds.Zero;
+        return id ?? PostId.Zero;
     }
 
     private static Author GetPostAuthor(HtmlNode div)
@@ -243,7 +244,7 @@ public partial class PhpBBAdapter(
 
         string authorName = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
 
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static string GetPostText(HtmlNode div, Quest quest)

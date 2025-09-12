@@ -1,4 +1,4 @@
-﻿using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Posts.Component;
 using NetTally.Utility.Events;
 
 namespace NetTally.Input.Forums.Reading;

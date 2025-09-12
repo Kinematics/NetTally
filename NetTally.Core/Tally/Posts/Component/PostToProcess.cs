@@ -2,13 +2,13 @@
 using NetTally.Tally.Components.Votes;
 using NetTally.Tally.Vote.Component;
 
-namespace NetTally.Tally.Components.Posts;
+namespace NetTally.Tally.Posts.Component;
 
 /// <summary>
-/// Class that encapculates a <see cref="Posts.Post"/>, and allows
+/// Class that encapculates a <see cref="Post.Component.Post"/>, and allows
 /// setting mutable state describing it.
 /// </summary>
-/// <param name="post">The <see cref="Posts.Post"/> to encapsulate.</param>
+/// <param name="post">The <see cref="Post.Component.Post"/> to encapsulate.</param>
 public class PostToProcess(Post post)
 {
     /// <summary>

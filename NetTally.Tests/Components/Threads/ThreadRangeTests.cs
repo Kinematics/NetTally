@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 
 namespace NetTally.Tests.Components.Threads;
 [TestClass]
@@ -15,7 +16,7 @@ public class ThreadRangeTests
     [TestMethod]
     public void Create_ByPostId_Empty()
     {
-        var postId = PostIds.Create(12345);
+        var postId = PostId.Create(12345);
         var range = ThreadRanges.CreateByPostId(postId, 0, 0);
 
         Assert.IsNotNull(range);
@@ -30,7 +31,7 @@ public class ThreadRangeTests
     [TestMethod]
     public void Create_ByPostId_Simple()
     {
-        var postId = PostIds.Create(12345);
+        var postId = PostId.Create(12345);
         var range = ThreadRanges.CreateByPostId(postId, 5, 10);
 
         Assert.IsNotNull(range);
@@ -42,7 +43,7 @@ public class ThreadRangeTests
     [TestMethod]
     public void Create_ByStartOfRange_Simple()
     {
-        var postId = PostIds.Create(12345);
+        var postId = PostId.Create(12345);
         var range = ThreadRanges.CreateByStartOfRange(123, 25, 10);
 
         Assert.IsNotNull(range);
@@ -58,7 +59,7 @@ public class ThreadRangeTests
     [TestMethod]
     public void Create_ByRange_NoEnd()
     {
-        var postId = PostIds.Create(12345);
+        var postId = PostId.Create(12345);
         var range = ThreadRanges.CreateByRange(123, 0, 25, 10);
 
         Assert.IsNotNull(range);
@@ -74,7 +75,7 @@ public class ThreadRangeTests
     [TestMethod]
     public void Create_ByRange_Range()
     {
-        var postId = PostIds.Create(12345);
+        var postId = PostId.Create(12345);
         var range = ThreadRanges.CreateByRange(123, 180, 25, 10);
 
         Assert.IsNotNull(range);

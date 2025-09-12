@@ -1,4 +1,6 @@
-﻿using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Posts.Comparer;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.Components.Storage;
@@ -47,13 +49,13 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
     /// <returns>Returns true if the plan name can be found in this lookup.</returns>
     public bool HasPlan(string planName)
     {
-        var planAuthor = Authors.Create(planName);
+        var planAuthor = Author.Create(planName);
         return HasPlan(planAuthor);
     }
 
     public bool HasPlan(Author planAuthor)
     {
-        var origin = Origins.CreatePlanNameOnly(planAuthor);
+        var origin = Origin.CreatePlanNameOnly(planAuthor);
         return ContainsKey(origin);
     }
 
@@ -64,13 +66,13 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
     /// <returns>Returns true if the voter name can be found in this lookup.</returns>
     public bool HasVoter(string voterName)
     {
-        var author = Authors.Create(voterName);
+        var author = Author.Create(voterName);
         return HasVoter(author);
     }
 
     public bool HasVoter(Author voterName)
     {
-        var origin = Origins.CreateUserNameOnly(voterName);
+        var origin = Origin.CreateUserNameOnly(voterName);
         return ContainsKey(origin);
     }
     #endregion Queries - Has XX?

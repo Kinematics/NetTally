@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Posts.Comparer;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;
@@ -31,52 +33,52 @@ public class ReferenceVoteTests
     #region Origins
     private static Origin GetOrigin_Kinematics1()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(101);
+        var postId = PostId.Create(123456);
+        var postNumber = PostId.Create(101);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Atreya()
     {
-        var author = Authors.Create("Atreya");
+        var author = Author.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123457);
-        var postNumber = PostIds.Create(102);
+        var postId = PostId.Create(123457);
+        var postNumber = PostId.Create(102);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Kimberly()
     {
-        var author = Authors.Create("Kimberly");
+        var author = Author.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123458);
-        var postNumber = PostIds.Create(103);
+        var postId = PostId.Create(123458);
+        var postNumber = PostId.Create(103);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Kinematics2()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123459);
-        var postNumber = PostIds.Create(104);
+        var postId = PostId.Create(123459);
+        var postNumber = PostId.Create(104);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
@@ -86,25 +88,25 @@ public class ReferenceVoteTests
     private static Post GetPostFromKinematics1(string postText)
     {
         var origin = GetOrigin_Kinematics1();
-        return Posting.Create(origin!, postText)!;
+        return Post.Create(origin!, postText)!;
     }
 
     private static Post GetPostFromKinematics2(string postText)
     {
         var origin = GetOrigin_Kinematics2();
-        return Posting.Create(origin!, postText)!;
+        return Post.Create(origin!, postText)!;
     }
 
     private static Post GetPostFromAtreya(string postText)
     {
         var origin = GetOrigin_Atreya();
-        return Posting.Create(origin!, postText)!;
+        return Post.Create(origin!, postText)!;
     }
 
     private static Post GetPostFromKimberly(string postText)
     {
         var origin = GetOrigin_Kimberly();
-        return Posting.Create(origin!, postText)!;
+        return Post.Create(origin!, postText)!;
     }
     #endregion Posts
 

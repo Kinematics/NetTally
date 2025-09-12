@@ -5,9 +5,10 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
 using NetTally.Web;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -117,7 +118,7 @@ public partial class VBulletin3Adapter(
     private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // vBulletin doesn't show thread authors
+        var author = Author.Unknown; // vBulletin doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
         var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
@@ -209,14 +210,14 @@ public partial class VBulletin3Adapter(
 
         var id = GetPostId(table);
         var author = GetPostAuthor(page, id);
-        var number = PostIds.Create(GetPostNumber(page, id));
+        var number = PostId.Create(GetPostNumber(page, id));
         string text = GetPostText(page, id, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)
             author = author with { Name = $"{author.Name}_{id.Value}" };
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -224,9 +225,9 @@ public partial class VBulletin3Adapter(
     private static PostId GetPostId(HtmlNode table)
     {
         var idString = table.Id["post".Length..];
-        var id = PostIds.Create(idString);
+        var id = PostId.Create(idString);
 
-        return id ?? PostIds.Zero;
+        return id ?? PostId.Zero;
     }
 
     private static Author GetPostAuthor(HtmlDocument page, PostId id)
@@ -251,7 +252,7 @@ public partial class VBulletin3Adapter(
 
         authorName = ForumPostTextConverter.CleanupWebString(authorName);
 
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static string GetPostText(HtmlDocument page, PostId id, Quest quest)

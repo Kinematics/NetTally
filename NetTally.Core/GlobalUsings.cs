@@ -4,21 +4,21 @@
 // List of VoterStorage elements (ordered):
 global using OrderedVoterStorageF = System.Collections.Generic.List<
     System.Collections.Generic.KeyValuePair<
-        NetTally.Tally.Components.Posts.Origin,
+        NetTally.Tally.Posts.Component.Origin,
         NetTally.Tally.Vote.Component.VoteBlock>>;
 // Individual dictionary element from VoterStorageF:
 global using VoterStorageEntryF = System.Collections.Generic.KeyValuePair<
-    NetTally.Tally.Components.Posts.Origin,
+    NetTally.Tally.Posts.Component.Origin,
     NetTally.Tally.Vote.Component.VoteBlock>;
 // Enumeration of VoterStorage elements:
 global using VoterStorageType = System.Collections.Generic.IEnumerable<
     System.Collections.Generic.KeyValuePair<
-        NetTally.Tally.Components.Posts.Origin,
+        NetTally.Tally.Posts.Component.Origin,
         NetTally.Tally.Vote.Component.VoteBlock>>;
 // Dictionary lookup of votes by each voter
 global using VotesByVoterF =
     System.Collections.Generic.Dictionary<
-        NetTally.Tally.Components.Posts.Origin,
+        NetTally.Tally.Posts.Component.Origin,
         System.Collections.Generic.List<NetTally.Tally.Vote.Component.VoteBlock>>;
 // Grouping of VoteStorage elements by task:
 global using VotesGroupedByTaskF = System.Linq.IGrouping<

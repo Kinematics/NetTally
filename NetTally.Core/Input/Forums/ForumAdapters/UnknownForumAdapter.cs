@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Threads;
+using NetTally.Tally.Posts.Component;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;

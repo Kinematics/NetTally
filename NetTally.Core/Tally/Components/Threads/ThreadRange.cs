@@ -1,4 +1,4 @@
-﻿using NetTally.Tally.Components.Posts;
+﻿using NetTally.Tally.Posts.Component;
 
 namespace NetTally.Tally.Components.Threads;
 
@@ -12,7 +12,7 @@ public abstract record ThreadRange()
 }
 
 /// <summary>
-/// A range of posts that start with a <see cref="Posts.PostId"/>.
+/// A range of posts that start with a <see cref="Posts.Component.PostId"/>.
 /// </summary>
 /// <param name="PostId">The starting post in the range.</param>
 /// <param name="StartPage">The starting page to read.</param>

@@ -2,7 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
+using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
@@ -22,13 +23,13 @@ public class VotePartitioningTests
     #region Data
     private static Origin GetOrigin_Kinematics()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(10);
+        var postId = PostId.Create(123456);
+        var postNumber = PostId.Create(10);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
         return origin!;
     }
@@ -64,7 +65,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -80,7 +81,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -96,7 +97,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -112,7 +113,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -128,7 +129,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
@@ -144,7 +145,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLineTask_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -160,7 +161,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLineTask_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -176,7 +177,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLineTask_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -192,7 +193,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLineTask_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -208,7 +209,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLineTask_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
@@ -224,7 +225,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -243,7 +244,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -259,7 +260,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -275,7 +276,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -291,7 +292,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
@@ -307,7 +308,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -326,7 +327,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -342,7 +343,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -358,7 +359,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -374,7 +375,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
@@ -390,7 +391,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -409,7 +410,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -425,7 +426,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -444,7 +445,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -460,7 +461,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
@@ -479,7 +480,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.None;
@@ -499,7 +500,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLine;
@@ -515,7 +516,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlock;
@@ -534,7 +535,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
@@ -550,7 +551,7 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
+        var post = Post.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
         Assert.IsNotNull(post);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
