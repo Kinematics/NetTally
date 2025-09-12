@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Counting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Processing;
 using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 

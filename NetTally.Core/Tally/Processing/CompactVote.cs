@@ -5,12 +5,12 @@ using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility.Linq;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Processing;
 public record CompactVoteType(
     VoteLine Line,
     CompactVoteType Parent,
     List<CompactVoteType> Children,
-    List<VoterStorageEntryF> Voters)
+    OrderedVoterStorageF Voters)
 {
     public int VoterCount { get; set; }
 }
@@ -156,7 +156,7 @@ public static class CompactVote
             {
                 for (int i = index + 1; i < vote.LineCount; i++)
                 {
-                    if (vote.Lines[i].Depth > key.Depth || (topLevel && vote.Lines[i].Depth == 0))
+                    if (vote.Lines[i].Depth > key.Depth || topLevel && vote.Lines[i].Depth == 0)
                     {
                         tempHolding.Add(vote.Lines[i]);
                     }

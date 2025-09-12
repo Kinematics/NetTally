@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
 
-namespace NetTally.Tally.Components.Votes
+namespace NetTally.Tally.Parsing
 {
     public static partial class VoteString
     {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
-using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Vote.Component;
 
-namespace NetTally.Tally.Posts.Component;
+namespace NetTally.Tally.Processing;
 
 /// <summary>
 /// Class that encapculates a <see cref="Post.Component.Post"/>, and allows

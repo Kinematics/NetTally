@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Parsing;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;

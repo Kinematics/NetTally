@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Input.Forums;
-using NetTally.Tally.Components.Counting;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Tallying

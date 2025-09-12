@@ -3,7 +3,7 @@ using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Parsing;
 public static partial class VoteParser
 {
     #region Regex

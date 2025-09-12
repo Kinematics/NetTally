@@ -1,13 +1,12 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Tally.Counting;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility.Collections;
 using NetTally.Utility.Linq;
 
-namespace NetTally.Tally.Components.Counting;
+namespace NetTally.Tally.Processing;
 
 /// <summary>
 /// Static class for functions to analyze blocks of vote lines.

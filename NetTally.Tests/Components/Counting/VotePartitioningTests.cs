@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
-using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Processing;
 using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
@@ -141,7 +141,7 @@ public class VotePartitioningTests
         Assert.AreEqual(1, votes.Count);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
-        
+
     [TestMethod]
     public void SingleLineTask_Partitioning_None()
     {
@@ -304,7 +304,7 @@ public class VotePartitioningTests
         Assert.AreEqual(2, votes.Count);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
-        
+
     [TestMethod]
     public void TwoLineTask_Partitioning_None()
     {

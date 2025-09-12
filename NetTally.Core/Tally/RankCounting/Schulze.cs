@@ -1,5 +1,4 @@
-﻿using NetTally.Tally.Components.Votes;
-using NetTally.Tally.Storage;
+﻿using NetTally.Tally.Storage;
 using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.RankCounting;
