@@ -109,13 +109,13 @@ public class ForumReader(
         ThreadInfo threadInfo,
         CancellationToken token)
     {
-        var pages = GetPagesToLoad(quest, adapter, threadInfo);
+        var requestedPages = GetPagesToLoad(quest, adapter, threadInfo);
 
-        var pageLoads = pages.Select(p =>
+        var pageLoads = requestedPages.Select(p =>
             pageProvider.GetHtmlDocumentAsync(
-                p.url,
-                $"Page {p.pageNum}",
-                p.cacheMode,
+                p.Url,
+                $"Page {p.PageNumber}",
+                p.CacheMode,
                 SuppressNotifications.No,
                 token));
 
@@ -127,7 +127,7 @@ public class ForumReader(
         return finished;
     }
 
-    private static IEnumerable<(string url, int pageNum, CachingMode cacheMode)> GetPagesToLoad(
+    private static IEnumerable<PageRequestInfo> GetPagesToLoad(
         Quest quest,
         IForumAdapter adapter,
         ThreadInfo threadInfo)
@@ -140,7 +140,9 @@ public class ForumReader(
             return [];
 
         var urls = Enumerable.Range(firstPage, pageCount)
-            .Select(pageNum => (adapter.GetUrlForPage(quest, pageNum),
+            .Select(pageNum =>
+                PageRequestInfo.Create(
+                    adapter.GetUrlForPage(quest, pageNum),
                     pageNum,
                     pageNum == lastPage ? CachingMode.NoCache : CachingMode.ReadWrite));
 
@@ -198,5 +200,4 @@ public class ForumReader(
 
         return title;
     }
-
 }
