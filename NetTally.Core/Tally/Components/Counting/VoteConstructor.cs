@@ -32,13 +32,13 @@ public static partial class VoteConstructor
     /// <param name="asBlocks">Whether to break up the post's vote lines into blocks.</param>
     /// <param name="isPlanFunction">The function to run on the vote blocks.</param>
     /// <returns>Returns all blocks of vote lines that are considered to be part of a plan. Includes the plan name.</returns>
-    public static Dictionary<string, VoteBlockType> PreprocessPostGetPlans(
+    public static Dictionary<string, VoteBlock> PreprocessPostGetPlans(
         Quest quest,
         Author author,
-        Func<VoteBlockType, PlanDescriptor> isPlanFunction,
-        IEnumerable<VoteBlockType> blocks)
+        Func<VoteBlock, PlanDescriptor> isPlanFunction,
+        IEnumerable<VoteBlock> blocks)
     {
-        Dictionary<string, VoteBlockType> plans = new(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, VoteBlock> plans = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (var block in blocks)
         {
@@ -64,7 +64,7 @@ public static partial class VoteConstructor
     /// <param name="votes">Returns any votes from the post if the post was processed.</param>
     /// <returns><c>True</c> if the post was processed, or <c>false</c> if it was not.</returns>
     public static bool TryProcessPostGetVotes(PostToProcess post, Quest quest,
-        out List<VoteBlockType> votes)
+        out List<VoteBlock> votes)
     {
         votes = [];
 
@@ -130,7 +130,7 @@ public static partial class VoteConstructor
     /// <param name="block">The block of vote lines to check. The first line determines the task.</param>
     /// <param name="quest">The quest being tallied.</param>
     /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
-    private static bool DoesTaskFilterPass(VoteBlockType block, Quest quest)
+    private static bool DoesTaskFilterPass(VoteBlock block, Quest quest)
     {
         return quest.UseCustomTaskFilters
             ? quest.TaskFilter.Allows(block.Task.Name)
@@ -256,7 +256,7 @@ public static partial class VoteConstructor
         //////////////////////////////////////////
 
         // Local function to handle determining if the block is part of a Proposed Plan or not.
-        bool IsProposedPlan(VoteBlockType block)
+        bool IsProposedPlan(VoteBlock block)
         {
             var (isProposedPlan, isImplicit, proposedPlanName) = VoteBlocks.IsBlockAProposedPlan(block);
 
@@ -280,7 +280,7 @@ public static partial class VoteConstructor
             workingVote.Add(blockRef);
         }
 
-        void AddReference(VoteBlockType block, Marker marker)
+        void AddReference(VoteBlock block, Marker marker)
         {
             var replacementBlock = block with { Marker = marker };
             var blockRef = new VoteBlockRef(replacementBlock, true);
@@ -377,12 +377,12 @@ public static partial class VoteConstructor
     /// <param name="block">The block defining the plan.</param>
     /// <param name="partitionMode">The current partitioning mode.</param>
     /// <returns>Returns a collection of VoteLineBlocks, extracted from the plan.</returns>
-    public static IEnumerable<VoteBlockType> PartitionPlan(VoteBlockType block, PartitionMode partitionMode)
+    public static IEnumerable<VoteBlock> PartitionPlan(VoteBlock block, PartitionMode partitionMode)
     {
         return PartitionBlock(block, partitionMode, asPlan: true);
     }
 
-    public static IEnumerable<VoteBlockType> PartitionChildren(VoteBlockType vote)
+    public static IEnumerable<VoteBlock> PartitionChildren(VoteBlock vote)
     {
         // Break vote block into child blocks and return them.
         return PartitionBlock(vote, PartitionMode.ByBlockAll);
@@ -395,7 +395,7 @@ public static partial class VoteConstructor
     /// <param name="block">The block to partition.</param>
     /// <param name="partitionMode">The partitioning mode.</param>
     /// <returns>A list of vote blocks.</returns>
-    private static IEnumerable<VoteBlockType> PartitionBlock(VoteBlockType block, PartitionMode partitionMode, bool asPlan = false)
+    private static IEnumerable<VoteBlock> PartitionBlock(VoteBlock block, PartitionMode partitionMode, bool asPlan = false)
     {
         // If we're not partitioning, we have no work to do.
         if (partitionMode == PartitionMode.None)
@@ -417,8 +417,8 @@ public static partial class VoteConstructor
         }
     }
 
-    private static IEnumerable<VoteBlockType> PartitionBlockForContentBlock(
-        VoteBlockType block,
+    private static IEnumerable<VoteBlock> PartitionBlockForContentBlock(
+        VoteBlock block,
         PartitionMode partitionMode)
     {
         // By Line only needs to skip the first line, and take the rest after promoting.
@@ -455,12 +455,12 @@ public static partial class VoteConstructor
         throw new ArgumentOutOfRangeException(nameof(partitionMode), $"Unknown partition mode: {partitionMode}");
     }
 
-    private static IEnumerable<VoteBlockType> PartitionBlockForNonContentBlock(
-        VoteBlockType block,
+    private static IEnumerable<VoteBlock> PartitionBlockForNonContentBlock(
+        VoteBlock block,
         PartitionMode partitionMode,
         bool asPlan = false)
     {
-        List<VoteBlockType> partitions = [];
+        List<VoteBlock> partitions = [];
         int skipLines = asPlan ? 1 : 0;
 
         // By Line is simple.
@@ -501,7 +501,7 @@ public static partial class VoteConstructor
     /// <param name="post">The post whose vote is being partitioned.</param>
     /// <param name="partitionMode">The partition mode to use.</param>
     /// <returns>Returns the partitions that are to be counted.</returns>
-    private static List<VoteBlockType> PartitionPost(PostToProcess post, PartitionMode partitionMode)
+    private static List<VoteBlock> PartitionPost(PostToProcess post, PartitionMode partitionMode)
     {
         return partitionMode switch
         {
@@ -520,7 +520,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post">The post whose vote is being partitioned.</param>
     /// <returns>Returns the partitions that are to be counted.</returns>
-    private static List<VoteBlockType> PartitionPostByNone(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByNone(PostToProcess post)
     {
         var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
         var block = VoteBlock.Create(collated);
@@ -537,7 +537,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post">The post with the vote to be partitioned.</param>
     /// <returns>Returns a list of vote blocks.</returns>
-    private static List<VoteBlockType> PartitionPostByLine(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByLine(PostToProcess post)
     {
         var partitionedLines = post.WorkingVote
             .SelectMany(v => v.VoteBlock)
@@ -553,7 +553,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post">The post with the vote to be partitioned.</param>
     /// <returns>Returns a list of vote blocks.</returns>
-    private static List<VoteBlockType> PartitionPostByBlock(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByBlock(PostToProcess post)
     {
         // References don't get partitioned further. Non-references need to be grouped.
         var grouped = post.WorkingVote.GroupAdjacentBySimilarKey(b => b.IsReference);
@@ -570,7 +570,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post"></param>
     /// <returns></returns>
-    private static List<VoteBlockType> PartitionPostByLineTask2(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByLineTask2(PostToProcess post)
     {
         var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
 
@@ -585,7 +585,7 @@ public static partial class VoteConstructor
 
         return retaskedBlocks;
 
-        static IEnumerable<VoteLine> Retask(VoteBlockType block, int arg2)
+        static IEnumerable<VoteLine> Retask(VoteBlock block, int arg2)
         {
             if (block.LineCount == 0)
                 return [];
@@ -601,7 +601,7 @@ public static partial class VoteConstructor
     /// </summary>
     /// <param name="post"></param>
     /// <returns></returns>
-    private static List<VoteBlockType> PartitionPostByLineTask3(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByLineTask3(PostToProcess post)
     {
         var voteLines = post.WorkingVote
             .SelectMany(v => v.VoteBlock);
@@ -616,7 +616,7 @@ public static partial class VoteConstructor
             .Select(v => v!)
             .ToList();
 
-        static IEnumerable<VoteLine> RecursePartitionByLineTask(VoteBlockType block, VoteTask task)
+        static IEnumerable<VoteLine> RecursePartitionByLineTask(VoteBlock block, VoteTask task)
         {
             // Hopefully depth 0, but could be spurious prefix indents
             if (block.All(a => a.Depth == block.Lines[0].Depth))

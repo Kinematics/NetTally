@@ -7,11 +7,11 @@ namespace NetTally.Tally.Components.Storage;
 public class MergeData
 {
     public UndoActionType UndoActionType { get; }
-    public VoteBlockType FromVote { get; }
-    public VoteBlockType ToVote { get; }
-    public List<VoteBlockType> ToVotes { get; }
+    public VoteBlock FromVote { get; }
+    public VoteBlock ToVote { get; }
+    public List<VoteBlock> ToVotes { get; }
 
-    public MergeData(VoteBlockType fromVote, VoteBlockType toVote, UndoActionType actionType)
+    public MergeData(VoteBlock fromVote, VoteBlock toVote, UndoActionType actionType)
     {
         FromVote = fromVote;
         ToVote = toVote;
@@ -19,7 +19,7 @@ public class MergeData
         UndoActionType = actionType;
     }
 
-    public MergeData(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes, UndoActionType actionType)
+    public MergeData(VoteBlock fromVote, IEnumerable<VoteBlock> toVotes, UndoActionType actionType)
     {
         FromVote = fromVote;
         ToVote = fromVote;
@@ -59,7 +59,7 @@ public class MergeRecords
     /// <param name="fromRecord">The original vote string.</param>
     /// <param name="toRecord">The revised vote string.</param>
     /// <param name="partitionMode">The partition mode.</param>
-    public void AddMergeRecord(VoteBlockType fromRecord, VoteBlockType toRecord,
+    public void AddMergeRecord(VoteBlock fromRecord, VoteBlock toRecord,
         UndoActionType actionType, PartitionMode partitionMode)
     {
         var merges = GetMergesFor(partitionMode);
@@ -75,7 +75,7 @@ public class MergeRecords
     /// <param name="fromRecord">The original vote string.</param>
     /// <param name="toRecord">The revised vote string.</param>
     /// <param name="partitionMode">The partition mode.</param>
-    public void AddMergeRecord(VoteBlockType fromRecord, IEnumerable<VoteBlockType> toRecords,
+    public void AddMergeRecord(VoteBlock fromRecord, IEnumerable<VoteBlock> toRecords,
         UndoActionType actionType, PartitionMode partitionMode)
     {
         var merges = GetMergesFor(partitionMode);

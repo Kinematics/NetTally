@@ -34,7 +34,7 @@ public static partial class VoteBlocks
     /// </summary>
     /// <param name="lines">An enumeration of vote lines.</param>
     /// <returns>The lines are grouped together and turned into blocks.</returns>
-    public static IEnumerable<VoteBlockType> GetBlocks(IEnumerable<VoteLine> lines)
+    public static IEnumerable<VoteBlock> GetBlocks(IEnumerable<VoteLine> lines)
     {
         var blocks = lines.GroupAdjacentToPreviousKey(
             a => a.Prefix.Depth == 0,
@@ -54,7 +54,7 @@ public static partial class VoteBlocks
     /// </summary>
     /// <param name="block">The lines to examine.</param>
     /// <returns><c>True</c> if the lines represent a content block. Otherwise <c>false</c>.</returns>
-    public static bool IsThisAContentBlock(VoteBlockType block)
+    public static bool IsThisAContentBlock(VoteBlock block)
     {
         if (block.LineCount < 2)
             return false;
@@ -76,7 +76,7 @@ public static partial class VoteBlocks
     /// <param name="block">The vote block to examine.</param>
     /// <returns>A descriptor indicating whether the block is a plan, whether
     /// it's implicit, and what its name is.</returns>
-    public static PlanDescriptor IsBlockAProposedPlan(VoteBlockType block)
+    public static PlanDescriptor IsBlockAProposedPlan(VoteBlock block)
     {
         if (block.LineCount == 0)
             return PlanDescriptor.None;
@@ -98,7 +98,7 @@ public static partial class VoteBlocks
     /// <param name="block">The vote block to examine.</param>
     /// <returns>A descriptor indicating whether the block is a plan, whether
     /// it's implicit, and what its name is.</returns>
-    public static PlanDescriptor IsBlockAnExplicitPlan(VoteBlockType block)
+    public static PlanDescriptor IsBlockAnExplicitPlan(VoteBlock block)
     {
         if (block.LineCount == 0)
             return PlanDescriptor.None;
@@ -121,7 +121,7 @@ public static partial class VoteBlocks
     /// <param name="block">The vote block to examine.</param>
     /// <returns>A descriptor indicating whether the block is a plan, whether
     /// it's implicit, and what its name is.</returns>
-    public static PlanDescriptor IsBlockAnImplicitPlan(VoteBlockType block)
+    public static PlanDescriptor IsBlockAnImplicitPlan(VoteBlock block)
     {
         if (block.LineCount > 1)
         {
@@ -147,7 +147,7 @@ public static partial class VoteBlocks
     /// <param name="block">The vote block to examine.</param>
     /// <returns>A descriptor indicating whether the block is a plan, whether
     /// it's implicit, and what its name is.</returns>
-    public static PlanDescriptor IsBlockASingleLinePlan(VoteBlockType block)
+    public static PlanDescriptor IsBlockASingleLinePlan(VoteBlock block)
     {
         if (block.LineCount == 0)
             return PlanDescriptor.None;

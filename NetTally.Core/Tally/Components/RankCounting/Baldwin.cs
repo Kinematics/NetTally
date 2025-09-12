@@ -21,7 +21,7 @@ public class Baldwin : InstantRunoffBase
     /// </summary>
     /// <param name="localRankings">The vote rankings.</param>
     /// <returns>Returns the vote string for the least preferred vote.</returns>
-    protected override VoteBlockType GetLeastPreferredChoice(VoteStorage votes)
+    protected override VoteBlock GetLeastPreferredChoice(VoteStorage votes)
     {
         var rankedVotes = from vote in votes
                           select new { rating = (Vote: vote, Calc: RankingCalculations.LowerWilsonRankingScore(vote)) };

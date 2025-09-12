@@ -67,9 +67,9 @@ public class Schulze : IRankVoteCounter
     /// </summary>
     /// <param name="listOfChoices">The list of choices.</param>
     /// <returns>Returns a dictionary of choices vs list index.</returns>
-    private static Dictionary<VoteBlockType, int> GetChoicesIndexes(IEnumerable<VoteBlockType> listOfChoices)
+    private static Dictionary<VoteBlock, int> GetChoicesIndexes(IEnumerable<VoteBlock> listOfChoices)
     {
-        Dictionary<VoteBlockType, int> choiceIndexes = [];
+        Dictionary<VoteBlock, int> choiceIndexes = [];
 
         int index = 0;
         foreach (var choice in listOfChoices)
@@ -151,7 +151,7 @@ public class Schulze : IRankVoteCounter
     /// <param name="listOfChoices">The list of choices.</param>
     /// <returns>Returns a list of </returns>
     private List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
-        GetResultsInOrder(int[,] winningPaths, Dictionary<VoteBlockType, VoterStorage> listOfChoices)
+        GetResultsInOrder(int[,] winningPaths, Dictionary<VoteBlock, VoterStorage> listOfChoices)
     {
         int count = listOfChoices.Count;
 

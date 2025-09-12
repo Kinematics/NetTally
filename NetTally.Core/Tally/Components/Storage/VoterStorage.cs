@@ -9,7 +9,7 @@ namespace NetTally.Tally.Components.Storage;
 /// VoterStorage is a dictionary of voter origins and the vote
 /// each submitted.
 /// </summary>
-public class VoterStorage : Dictionary<Origin, VoteBlockType>
+public class VoterStorage : Dictionary<Origin, VoteBlock>
 {
     #region Constructors
     /// <summary>

@@ -17,7 +17,7 @@ public class Coombs : InstantRunoffBase
     /// </summary>
     /// <param name="localRankings">The vote rankings.</param>
     /// <returns>Returns the vote string for the least preferred vote.</returns>
-    protected override VoteBlockType GetLeastPreferredChoice(VotesByVoterF voterPreferences)
+    protected override VoteBlock GetLeastPreferredChoice(VotesByVoterF voterPreferences)
     {
         return voterPreferences.GroupBy(v => v.Value.Last()) // lowest rankings
             .MaxBy(r => r.Count())    // least preferred

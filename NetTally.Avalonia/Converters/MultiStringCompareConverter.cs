@@ -46,13 +46,13 @@ namespace NetTally.Avalonia.Converters
 
         private static bool CompareVoteLineBlockValues(IList<object?> values, bool inverted)
         {
-            if (!values.All(v => v is VoteBlockType))
+            if (!values.All(v => v is VoteBlock))
                 return false;
 
             return inverted ^
-                (values[0] is VoteBlockType first &&
+                (values[0] is VoteBlock first &&
                  values.All(v =>
-                    v is VoteBlockType value &&
+                    v is VoteBlock value &&
                     VoteBlockComparer.Instance.Equals(value, first)));
         }
 

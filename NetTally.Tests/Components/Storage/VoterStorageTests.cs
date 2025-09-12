@@ -103,7 +103,7 @@ public class VoterStorageTests
         return Posting.Create(origin, VoteText)!;
     }
 
-    private static VoteBlockType GetVote(Post post)
+    private static VoteBlock GetVote(Post post)
     {
         return VoteBlocks.GetBlocks(post.VoteLines).First();
     }

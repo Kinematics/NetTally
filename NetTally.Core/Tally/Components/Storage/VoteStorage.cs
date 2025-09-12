@@ -5,7 +5,7 @@ using NetTally.Tally.Vote.Components;
 
 namespace NetTally.Tally.Components.Storage;
 
-public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
+public class VoteStorage : Dictionary<VoteBlock, VoterStorage>
 {
     const double CategoryThreshold = 0.83;
     bool dirty = false;
@@ -32,7 +32,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="copyFrom">The <see cref="VoteStorage"/> object to copy.</param>
     /// <returns>A deep copy of the provided <see cref="VoteStorage"/> object.</returns>
-    public static VoteStorage CopyFrom(Dictionary<VoteBlockType, VoterStorage> copyFrom)
+    public static VoteStorage CopyFrom(Dictionary<VoteBlock, VoterStorage> copyFrom)
     {
         var copy = new VoteStorage();
 
@@ -51,7 +51,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="vote">The vote being updated.</param>
     /// <param name="supporter">The voter being added.</param>
-    internal void AddSupporterToVote(VoteBlockType vote, Origin supporter)
+    internal void AddSupporterToVote(VoteBlock vote, Origin supporter)
     {
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
@@ -72,7 +72,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="vote">The vote being updated.</param>
     /// <param name="supporter">The voter being added.</param>
-    internal void AddSupportersToVote(VoteBlockType vote, IEnumerable<Origin> supporters)
+    internal void AddSupportersToVote(VoteBlock vote, IEnumerable<Origin> supporters)
     {
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
@@ -99,7 +99,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="supporter">The voter being removed.</param>
     /// <returns>Returns <c>true</c> if the voter was removed from the vote,
     /// or <c>false</c> if the voter was not found.</returns>
-    internal bool RemoveSupporterFromVote(Origin supporter, VoteBlockType vote)
+    internal bool RemoveSupporterFromVote(Origin supporter, VoteBlock vote)
     {
         if (TryGetValue(vote, out var localVoters))
         {
@@ -164,8 +164,8 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// Request a list of all votes currently in storage.
     /// All votes will be updated with the current Category value before being returned.
     /// </summary>
-    /// <returns>Returns an IEnumerable of <seealso cref="VoteBlockType"/> votes stored.</returns>
-    public IEnumerable<VoteBlockType> GetAllVotes()
+    /// <returns>Returns an IEnumerable of <seealso cref="VoteBlock"/> votes stored.</returns>
+    public IEnumerable<VoteBlock> GetAllVotes()
     {
         if (dirty)
         {
@@ -220,7 +220,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="vote">The vote being checked on.</param>
     /// <returns>Returns an IEnumerable of the <see cref="Origin"> of
     /// the supporters of the vote, if any.</returns>
-    public IEnumerable<Origin> GetVotersFor(VoteBlockType vote)
+    public IEnumerable<Origin> GetVotersFor(VoteBlock vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -237,7 +237,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="vote">The vote being checked on.</param>
     /// <returns>Returns an IEnumerable of the <see cref="Origin"> of
     /// the supporters of the vote, if any.</returns>
-    public IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote)
+    public IEnumerable<Origin> GetUserVotersFor(VoteBlock vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -254,7 +254,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="vote">The vote being checked on.</param>
     /// <returns>Returns the supporters for the vote, if found. Otherwise null.</returns>
     /// TODO: Rename GetStorageFor
-    public VoterStorage? GetSupportersFor(VoteBlockType vote)
+    public VoterStorage? GetSupportersFor(VoteBlock vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -270,7 +270,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="vote">The vote being checked on.</param>
     /// <returns>Returns the number of users supporting a vote,
     /// or 0 if the vote is not found.</returns>
-    public int GetUserSupportCountFor(VoteBlockType vote)
+    public int GetUserSupportCountFor(VoteBlock vote)
     {
         if (TryGetValue(vote, out var supporters))
         {
@@ -285,7 +285,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="voter">The voter being checked on.</param>
     /// <returns>Returns a list of all the votes that the voter supports.</returns>
-    public IEnumerable<VoteBlockType> GetVotesBy(Origin voter)
+    public IEnumerable<VoteBlock> GetVotesBy(Origin voter)
     {
         var result = this.SelectMany(a => a.Value)
                          .Where(a => OriginComparer.Instance.Equals(voter, a.Key))
@@ -300,7 +300,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// <param name="voter">The voter being checked.</param>
     /// <param name="vote">The vote being checked.</param>
     /// <returns>Returns true if the voter supports the specified vote.</returns>
-    public bool DoesVoterSupportVote(Origin voter, VoteBlockType vote)
+    public bool DoesVoterSupportVote(Origin voter, VoteBlock vote)
     {
         if (TryGetValue(vote, out var localVoters))
         {
@@ -316,7 +316,7 @@ public class VoteStorage : Dictionary<VoteBlockType, VoterStorage>
     /// </summary>
     /// <param name="searchVote">The vote that we're trying to get the actual key for.</param>
     /// <returns>Returns the vote matching the vote provided, or null if not found.</returns>
-    public VoteBlockType? GetVoteMatching(VoteBlockType searchVote)
+    public VoteBlock? GetVoteMatching(VoteBlock searchVote)
     {
         return Keys.FirstOrDefault(k => VoteBlockComparer.Instance.Equals(k, searchVote));
     }

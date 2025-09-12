@@ -798,7 +798,7 @@ public class TallyOutput(
     /// Add an individual voter line, with permalink.
     /// </summary>
     /// <param name="voter">The voter to add.</param>
-    private void AddVoter(Origin voter, VoteBlockType? vote, MarkerType marker = MarkerType.None)
+    private void AddVoter(Origin voter, VoteBlock? vote, MarkerType marker = MarkerType.None)
     {
         string markerToDisplay;
         if (voter is PlanOrigin)

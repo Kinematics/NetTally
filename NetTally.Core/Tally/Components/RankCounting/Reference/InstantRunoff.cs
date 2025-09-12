@@ -16,7 +16,7 @@ public class InstantRunoff : InstantRunoffBase
     /// </summary>
     /// <param name="localRankings">The vote rankings.</param>
     /// <returns>Returns the vote string for the least preferred vote.</returns>
-    protected override VoteBlockType GetLeastPreferredChoice(
+    protected override VoteBlock GetLeastPreferredChoice(
         VotesByVoterF voterPreferences)
     {
         return voterPreferences.GroupBy(v => v.Value.First()) // highest rankings

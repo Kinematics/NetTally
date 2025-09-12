@@ -71,8 +71,8 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="originalPlanName">The original name of the plan.</param>
     /// <param name="originalVoteBlock">The original vote block.</param>
     /// <returns>A normalized version of the name and vote block contents.</returns>
-    (string Name, VoteBlockType Contents)?
-        NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock);
+    (string Name, VoteBlock Contents)?
+        NormalizePlan(string originalPlanName, VoteBlock originalVoteBlock);
 
     /// <summary>
     /// Store a plan's information to allow it to be looked up by plan name or post ID.
@@ -82,7 +82,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="postID">The post ID the plan was defined in.</param>
     /// <param name="planBlock">The the vote line block that defines the plan.</param>
     /// <returns>Returns true if it was added, or false if it already exists.</returns>
-    bool AddReferencePlan(Origin planOrigin, VoteBlockType plan);
+    bool AddReferencePlan(Origin planOrigin, VoteBlock plan);
     /// <summary>
     /// Store a voter and their post ID.
     /// This is expecting to be called for every vote by the user,
@@ -131,19 +131,19 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="planName">The name of the plan to get.</param>
     /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-    VoteBlockType? GetReferencePlan(Origin planOrigin);
-    IEnumerable<VoteBlockType> GetReferencePlans();
+    VoteBlock? GetReferencePlan(Origin planOrigin);
+    IEnumerable<VoteBlock> GetReferencePlans();
     /// <summary>
     /// Get a list of all vote blocks supported by a specified voter (which may be a plan name).
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    IEnumerable<VoteBlockType> GetVotesBy(Origin voter);
+    IEnumerable<VoteBlock> GetVotesBy(Origin voter);
     /// <summary>
     /// Get a collection of all the votes that currently have supporters.
     /// </summary>
     /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
-    IEnumerable<VoteBlockType> GetAllVotes();
+    IEnumerable<VoteBlock> GetAllVotes();
     /// <summary>
     /// Get a list of all known voters.
     /// </summary>
@@ -154,13 +154,13 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    IEnumerable<Origin> GetVotersFor(VoteBlockType vote);
+    IEnumerable<Origin> GetVotersFor(VoteBlock vote);
     /// <summary>
     /// Gets all user voters that are supporting the specified vote.
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the user voter names that are supporting the given vote.</returns>
-    IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote);
+    IEnumerable<Origin> GetUserVotersFor(VoteBlock vote);
     /// <summary>
     /// Gets a count of the known voters.
     /// </summary>
@@ -182,21 +182,21 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="votePartitions">The vote blocks to be added.</param>
     /// <param name="voter">The voter.</param>
-    void AddVotes(IEnumerable<VoteBlockType> votePartitions, Origin voter);
+    void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin voter);
     /// <summary>
     /// Merge the vote supporters from one vote into another.
     /// </summary>
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVote">The destination vote.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    bool Merge(VoteBlockType fromVote, VoteBlockType toVote);
+    bool Merge(VoteBlock fromVote, VoteBlock toVote);
     /// <summary>
     /// Transfer the vote supporters from one vote into several other votes.
     /// </summary>
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVotes">The destination votes.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    bool Split(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes);
+    bool Split(VoteBlock fromVote, IEnumerable<VoteBlock> toVotes);
     /// <summary>
     /// Shift support by various voters from their original vote to any votes
     /// supported by a specified target voter.
@@ -210,7 +210,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="vote">The vote to delete.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    bool Delete(VoteBlockType vote);
+    bool Delete(VoteBlock vote);
     /// <summary>
     /// Undo a prior Merge, Join, or Delete action.
     /// </summary>
@@ -254,7 +254,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="vote">The vote whose task is being changed.</param>
     /// <param name="task">The new task to use.</param>
     /// <returns>Returns true if the task was successfully changed and the vote records updated.</returns>
-    bool ReplaceTask(VoteBlockType vote, VoteTask task);
+    bool ReplaceTask(VoteBlock vote, VoteTask task);
 
     /// <summary>
     /// Replace the current list of tasks with the provided list.

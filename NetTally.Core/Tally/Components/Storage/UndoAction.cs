@@ -14,7 +14,7 @@ public class UndoAction
     bool undone = false;
 
     public UndoAction(UndoActionType actionType, VoteStorage currentState,
-        VoteBlockType? storageVote = null)
+        VoteBlock? storageVote = null)
     {
         ActionType = actionType;
 
@@ -26,7 +26,7 @@ public class UndoAction
         // to our storage collection.
         if (storageVote != null)
         {
-            var storedVote = VoteBlock.Clone(storageVote);
+            var storedVote = storageVote.Clone();
             storage.TryGetValue(storageVote, out VoterStorage? storedVoteSupporters);
             storage.Remove(storageVote);
             if (storedVoteSupporters != null)
@@ -46,7 +46,7 @@ public class UndoAction
         // Remove pass - Remove all current votes or supporters that are not
         // in the archived version of the vote repository.
 
-        HashSet<VoteBlockType> voteRemovals = [];
+        HashSet<VoteBlock> voteRemovals = [];
 
         foreach (var (currentVote, currentSupporters) in currentVotes)
         {

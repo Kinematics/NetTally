@@ -72,7 +72,7 @@ public class InstantRunoffBase : IRankVoteCounter
                 return (fullVote, count);
             }
 
-            VoteBlockType leastPreferredChoice;
+            VoteBlock leastPreferredChoice;
 
             // If not, eliminate the least preferred option and try again.
             if (LeastPreferredChecksFullVotes)
@@ -97,7 +97,7 @@ public class InstantRunoffBase : IRankVoteCounter
     /// </summary>
     /// <param name="voterRankings">The list of voters and their rankings of each option.</param>
     /// <returns>Returns a collection of Choice/Count objects.</returns>
-    private static (VoteBlockType vote, int count) GetMostPreferredVote(
+    private static (VoteBlock vote, int count) GetMostPreferredVote(
         VotesByVoterF voterPreferences)
     {
         var highestRankings = voterPreferences.GroupBy(v => v.Value.First());
@@ -118,7 +118,7 @@ public class InstantRunoffBase : IRankVoteCounter
     /// </summary>
     /// <param name="voterPreferences">This version takes the voter preferences collection.</param>
     /// <returns>Returns the vote that is least preferred.</returns>
-    protected virtual VoteBlockType GetLeastPreferredChoice(
+    protected virtual VoteBlock GetLeastPreferredChoice(
         VotesByVoterF voterPreferences)
     {
         throw new NotImplementedException();
@@ -130,7 +130,7 @@ public class InstantRunoffBase : IRankVoteCounter
     /// </summary>
     /// <param name="voterPreferences">This version takes the vote storage collection.</param>
     /// <returns>Returns the vote that is least preferred.</returns>
-    protected virtual VoteBlockType GetLeastPreferredChoice(VoteStorage votes)
+    protected virtual VoteBlock GetLeastPreferredChoice(VoteStorage votes)
     {
         throw new NotImplementedException();
     }

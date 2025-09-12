@@ -38,16 +38,16 @@ public class Pairwise : IRankVoteCounter
     /// <param name="voterRankings">The voter rankings.</param>
     /// <param name="listOfChoices">The list of choices.</param>
     /// <returns>Returns a filled-in preferences array.</returns>
-    private static int[,] GetPairwisePreferences(VotesByVoterF voterRankings, List<VoteBlockType> listOfChoices)
+    private static int[,] GetPairwisePreferences(VotesByVoterF voterRankings, List<VoteBlock> listOfChoices)
     {
         int[,] pairwisePreferences = new int[listOfChoices.Count, listOfChoices.Count];
 
-        Dictionary<VoteBlockType, int> choiceIndexes = GetChoicesIndexes(listOfChoices);
+        Dictionary<VoteBlock, int> choiceIndexes = GetChoicesIndexes(listOfChoices);
 
         foreach (var voter in voterRankings)
         {
-            IEnumerable<VoteBlockType> rankedChoices = voter.Value.Where(v => v.Marker is RankMarker);
-            IEnumerable<VoteBlockType> unrankedChoices = listOfChoices.Except(rankedChoices);
+            IEnumerable<VoteBlock> rankedChoices = voter.Value.Where(v => v.Marker is RankMarker);
+            IEnumerable<VoteBlock> unrankedChoices = listOfChoices.Except(rankedChoices);
 
             foreach (var choice in rankedChoices)
             {
@@ -109,7 +109,7 @@ public class Pairwise : IRankVoteCounter
     /// <param name="listOfChoices">The list of choices.</param>
     /// <returns>Returns a list of </returns>
     private static List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
-        GetResultsInOrder(int[,] winningPaths, List<VoteBlockType> listOfChoices, VoteStorage taskVotes)
+        GetResultsInOrder(int[,] winningPaths, List<VoteBlock> listOfChoices, VoteStorage taskVotes)
     {
         var availableIndexes = Enumerable.Range(0, listOfChoices.Count);
 

@@ -11,7 +11,7 @@ namespace NetTally.Tally.Vote.Components;
 /// <param name="Lines">The vote lines being tracked.</param>
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
-public record VoteBlockType(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
+public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
     : IEnumerable<VoteLine>
 {
     public int LineCount => Lines.Length;
@@ -47,72 +47,80 @@ public record VoteBlockType(ImmutableArray<VoteLine> Lines, Marker Marker, VoteT
 }
 
 /// <summary>
-/// Static class to create and modify <see cref="VoteBlockType"/> objects.
+/// Extension class for the creation of <see cref="VoteBlock"/> objects.
 /// </summary>
-public static class VoteBlock
+public static class VoteBlockCreation
 {
-    /// <summary>
-    /// A basic empty <see cref="VoteBlockType"/>.
-    /// </summary>
-    public static VoteBlockType Empty { get; } = new VoteBlockType([], Marker.Empty, VoteTask.Empty);
-
-    /// <summary>
-    /// Create a vote block with the given vote lines.
-    /// </summary>
-    /// <param name="lines">The vote lines to add to the vote block.</param>
-    /// <returns>A new <see cref="VoteBlockType"/>, or null if there were no vote lines.</returns>
-    public static VoteBlockType? Create(IEnumerable<VoteLine> lines)
+    extension(VoteBlock)
     {
-        List<VoteLine> listOfLines = lines.ToList();
+        public static VoteBlock Empty => _empty;
 
-        if (listOfLines.Count == 0)
+        /// <summary>
+        /// Create a <see cref="VoteBlock"> with the given <see cref="VoteLine">s.
+        /// </summary>
+        /// <param name="lines">The vote lines to add to the vote block.</param>
+        /// <returns>A new <see cref="VoteBlock"/></returns>
+        public static VoteBlock Create(IEnumerable<VoteLine> lines)
         {
-            return null;
+            List<VoteLine> listOfLines = [.. lines];
+
+            if (listOfLines.Count == 0)
+            {
+                return VoteBlock.Empty;
+            }
+
+            return new VoteBlock([.. listOfLines],
+                                     listOfLines[0].Marker,
+                                     listOfLines[0].Task);
         }
 
-        return new VoteBlockType([.. listOfLines],
-                                 listOfLines[0].Marker,
-                                 listOfLines[0].Task);
+        /// <summary>
+        /// Create a <see cref="VoteBlock"> with the given <see cref="VoteLine">.
+        /// </summary>
+        /// <param name="line">The vote line to add to the vote block.</param>
+        /// <returns>A new <see cref="VoteBlock"/></returns>
+        public static VoteBlock Create(VoteLine line)
+        {
+            return new VoteBlock([line], line.Marker, line.Task);
+        }
+
+        /// <summary>
+        /// Create a <see cref="VoteBlock"/> containing all the vote lines of
+        /// the provided <see cref="VoteBlock"/>s.
+        /// </summary>
+        /// <param name="blocks">A collection of <see cref="VoteBlock"/>s that will
+        /// be used as the source for this one.</param>
+        /// <returns>A new <see cref="VoteBlock"/>.</returns>
+        public static VoteBlock Create(IEnumerable<VoteBlock> blocks)
+        {
+            var lines = blocks.SelectMany(x => x.Lines);
+            return Create(lines);
+        }
     }
 
-    /// <summary>
-    /// Create a vote block with the given vote line.
-    /// </summary>
-    /// <param name="line">The line to add to the vote block.</param>
-    /// <returns>A new <see cref="VoteBlockType"/></returns>
-    public static VoteBlockType Create(VoteLine line)
+    extension (VoteBlock voteBlock)
     {
-        return new VoteBlockType([line], line.Marker, line.Task);
+        /// <summary>
+        /// Create a deep copy of the provided <see cref="VoteBlock"/>.
+        /// </summary>
+        /// <returns>A <see cref="VoteBlock"/> will all the same lines,
+        /// marker, and task as the original.</returns>
+        public VoteBlock Clone()
+        {
+            return new VoteBlock([.. voteBlock.Lines], voteBlock.Marker, voteBlock.Task);
+        }
     }
 
-    /// <summary>
-    /// Create a vote block containing all the vote lines of the provided vote blocks.
-    /// </summary>
-    /// <param name="blocks">A collection of vote blocks that will be used as the source for this one.</param>
-    /// <returns>A new <see cref="VoteBlockType"/>, or null if there were no vote lines.</returns>
-    public static VoteBlockType? Create(IEnumerable<VoteBlockType> blocks)
-    {
-        var lines = blocks.SelectMany(x => x.Lines);
-        return Create(lines);
-    }
-
-    /// <summary>
-    /// Create a deep copy of the provided vote block.
-    /// </summary>
-    /// <param name="block">The vote block to copy.</param>
-    /// <returns>A <see cref="VoteBlockType"/> will all the same lines, marker, and task as the original.</returns>
-    public static VoteBlockType Clone(VoteBlockType block)
-    {
-        return new VoteBlockType([.. block.Lines], block.Marker, block.Task);
-    }
+    private static readonly VoteBlock _empty = new([], Marker.Empty, VoteTask.Empty);
 }
 
+
 /// <summary>
-/// Display class for <see cref="VoteBlockType"/> objects.
+/// Display class for <see cref="VoteBlock"/> objects.
 /// </summary>
 public static class VoteBlockDisplay
 {
-    public static string ToString(VoteBlockType block)
+    public static string ToString(VoteBlock block)
     {
         return block.Lines
             .Select((a, b) => b == 0
@@ -121,7 +129,7 @@ public static class VoteBlockDisplay
             .Aggregate((a, b) => $"{a}\n{b}");
     }
 
-    public static string ToOutputString(VoteBlockType block, string? marker = null, string? subMarker = null)
+    public static string ToOutputString(VoteBlock block, string? marker = null, string? subMarker = null)
     {
         return block.Lines
             .Select((a, b) => b == 0
@@ -130,12 +138,12 @@ public static class VoteBlockDisplay
             .Aggregate((a, b) => $"{a}\n{b}");
     }
 
-    public static string ToManageVotesString(VoteBlockType block)
+    public static string ToManageVotesString(VoteBlock block)
     {
         return ToOutputString(block, marker: "", subMarker: "");
     }
 
-    public static string ToComparableString(VoteBlockType block)
+    public static string ToComparableString(VoteBlock block)
     {
         return block.Lines
             .Select((a, b) => b == 0
@@ -146,13 +154,13 @@ public static class VoteBlockDisplay
 }
 
 /// <summary>
-/// Comparer class for <see cref="VoteBlockType"/> objects.
+/// Comparer class for <see cref="VoteBlock"/> objects.
 /// </summary>
-public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<VoteBlockType>
+public class VoteBlockComparer : IEqualityComparer<VoteBlock>, IComparer<VoteBlock>
 {
     public static VoteBlockComparer Instance { get; } = new();
 
-    public int Compare(VoteBlockType? x, VoteBlockType? y)
+    public int Compare(VoteBlock? x, VoteBlock? y)
     {
         if (ReferenceEquals(x, y)) return 0;
         if (x is null) return -1;
@@ -184,7 +192,7 @@ public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<Vot
         return firstDiff;
     }
 
-    public bool Equals(VoteBlockType? x, VoteBlockType? y)
+    public bool Equals(VoteBlock? x, VoteBlock? y)
     {
         if (x is null || y is null) return false;
         if (ReferenceEquals(x, y)) return true;
@@ -192,7 +200,7 @@ public class VoteBlockComparer : IEqualityComparer<VoteBlockType>, IComparer<Vot
         return Compare(x, y) == 0;
     }
 
-    public int GetHashCode([DisallowNull] VoteBlockType obj)
+    public int GetHashCode([DisallowNull] VoteBlock obj)
     {
         return VoteLineComparer.Instance.GetHashCode(obj.Lines[0]);
     }

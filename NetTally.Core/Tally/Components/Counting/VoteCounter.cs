@@ -144,7 +144,7 @@ public class VoteCounter(
     /// <param name="updateOrigin">The <see cref="Origin"/> key we are attempting to update.</param>
     /// <param name="plan">The vote block being updated/added.</param>
     /// <returns></returns>
-    public bool AddReferencePlan(Origin updateOrigin, VoteBlockType plan)
+    public bool AddReferencePlan(Origin updateOrigin, VoteBlock plan)
     {
         // If it doesn't exist, we can just add it.
         if (ReferenceOrigins.Add(updateOrigin))
@@ -167,7 +167,7 @@ public class VoteCounter(
                 OriginComparer.Instance.Equals(updateOrigin.Source(), currentOrigin.Source()) &&
                 PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
                 plan.LineCount > 1 &&
-                ReferencePlans.TryGetValue(currentOrigin, out VoteBlockType? currentPlan) &&
+                ReferencePlans.TryGetValue(currentOrigin, out VoteBlock? currentPlan) &&
                 !VoteBlockComparer.Instance.Equals(plan, currentPlan))
             {
                 ReferenceOrigins.Remove(currentOrigin);
@@ -358,12 +358,12 @@ public class VoteCounter(
     /// </summary>
     /// <param name="planName">The name of the plan to get.</param>
     /// <returns>Returns the reference plan, if found. Otherwise null.</returns>
-    public VoteBlockType? GetReferencePlan(Origin planOrigin)
+    public VoteBlock? GetReferencePlan(Origin planOrigin)
     {
         return ReferencePlans.GetValueOrDefault(planOrigin);
     }
 
-    public IEnumerable<VoteBlockType> GetReferencePlans()
+    public IEnumerable<VoteBlock> GetReferencePlans()
     {
         return ReferencePlans.Select(p => p.Value);
     }
@@ -373,7 +373,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="voterName">The name of the voter or plan being requested.</param>
     /// <returns>Returns a list of all vote blocks supported by the specified voter or plan.</returns>
-    public IEnumerable<VoteBlockType> GetVotesBy(Origin voter) => VoteStorage.GetVotesBy(voter);
+    public IEnumerable<VoteBlock> GetVotesBy(Origin voter) => VoteStorage.GetVotesBy(voter);
 
     /// <summary>
     /// Gets a count of the known voters.
@@ -388,7 +388,7 @@ public class VoteCounter(
     /// Get a collection of all the votes that currently have supporters.
     /// </summary>
     /// <returns>Returns an IEnumerable of the currently stored vote blocks.</returns>
-    public IEnumerable<VoteBlockType> GetAllVotes() => VoteStorage.GetAllVotes();
+    public IEnumerable<VoteBlock> GetAllVotes() => VoteStorage.GetAllVotes();
 
     /// <summary>
     /// Get a list of all known voters.
@@ -401,7 +401,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    public IEnumerable<Origin> GetVotersFor(VoteBlockType vote) =>
+    public IEnumerable<Origin> GetVotersFor(VoteBlock vote) =>
         VoteStorage.GetVotersFor(vote);
 
     /// <summary>
@@ -409,7 +409,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="vote">The vote to check on.</param>
     /// <returns>Returns an IEnumerable of the voter names that are supporting the given vote.</returns>
-    public IEnumerable<Origin> GetUserVotersFor(VoteBlockType vote) =>
+    public IEnumerable<Origin> GetUserVotersFor(VoteBlock vote) =>
         VoteStorage.GetUserVotersFor(vote);
     #endregion
 
@@ -420,7 +420,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
     /// <param name="voter">The voter for this vote.</param>
-    public void AddVotes(IEnumerable<VoteBlockType> votePartitions, Origin voter)
+    public void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin voter)
     {
         if (!votePartitions.Any())
             return;
@@ -446,7 +446,7 @@ public class VoteCounter(
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVote">The destination vote.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Merge(VoteBlockType fromVote, VoteBlockType toVote)
+    public bool Merge(VoteBlock fromVote, VoteBlock toVote)
     {
         UndoBuffer.Push(new UndoAction(UndoActionType.Merge, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVote, UndoActionType.Merge, Quest.PartitionMode);
@@ -472,7 +472,7 @@ public class VoteCounter(
     /// <param name="fromVote">The vote being merged.</param>
     /// <param name="toVote">The vote being merged into.</param>
     /// <returns>Returns true if there was a successful merge.</returns>
-    private bool MergeImplWrapper(VoteBlockType fromVote, VoteBlockType toVote)
+    private bool MergeImplWrapper(VoteBlock fromVote, VoteBlock toVote)
     {
         if (fromVote == toVote)
             return false;
@@ -503,7 +503,7 @@ public class VoteCounter(
     /// <param name="fromSupport">The support block for the from vote.</param>
     /// <param name="toSupport">The support block for the to vote.</param>
     /// <returns>Returns true if any supporters were successfully added to the to block.</returns>
-    private static bool MergeImpl(VoteBlockType toVote,
+    private static bool MergeImpl(VoteBlock toVote,
         VoterStorage fromSupport, VoterStorage toSupport)
     {
         bool merged = false;
@@ -528,7 +528,7 @@ public class VoteCounter(
     /// <param name="fromVote">The originating vote.</param>
     /// <param name="toVotes">The destination votes.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Split(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes)
+    public bool Split(VoteBlock fromVote, IEnumerable<VoteBlock> toVotes)
     {
         UndoBuffer.Push(new UndoAction(UndoActionType.Split, VoteStorage));
         UserMerges.AddMergeRecord(fromVote, toVotes, UndoActionType.Split, Quest.PartitionMode);
@@ -547,7 +547,7 @@ public class VoteCounter(
         return merged;
     }
 
-    private bool SplitImplWrapper(VoteBlockType fromVote, IEnumerable<VoteBlockType> toVotes)
+    private bool SplitImplWrapper(VoteBlock fromVote, IEnumerable<VoteBlock> toVotes)
     {
         if (!VoteStorage.TryGetValue(fromVote, out var fromSupport))
         {
@@ -648,7 +648,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="vote">The vote to delete.</param>
     /// <returns>Returns true if successfully completed.</returns>
-    public bool Delete(VoteBlockType vote)
+    public bool Delete(VoteBlock vote)
     {
         bool removed = false;
 
@@ -835,7 +835,7 @@ public class VoteCounter(
     /// <param name="vote">The vote to update the task on.</param>
     /// <param name="task">The new task label.</param>
     /// <returns>Returns true if the task was updated.</returns>
-    public bool ReplaceTask(VoteBlockType vote, VoteTask task)
+    public bool ReplaceTask(VoteBlock vote, VoteTask task)
     {
         if (VoteTaskComparer.Instance.Equals(vote.Task, task))
         {
@@ -843,7 +843,7 @@ public class VoteCounter(
         }
 
         UndoBuffer.Push(new UndoAction(UndoActionType.ReplaceTask, VoteStorage, vote));
-        VoteBlockType originalVote = VoteBlock.Clone(vote);
+        VoteBlock originalVote = vote.Clone();
 
         if (ReplaceTaskImplWrapper(vote, task))
         {
@@ -864,7 +864,7 @@ public class VoteCounter(
     /// <param name="vote">The vote being modified.</param>
     /// <param name="task">The new task to apply to the vote.</param>
     /// <returns>Returns true if the task replacement was successfully completed.</returns>
-    private bool ReplaceTaskImplWrapper(VoteBlockType vote, VoteTask task)
+    private bool ReplaceTaskImplWrapper(VoteBlock vote, VoteTask task)
     {
         if (!VoteStorage.TryGetValue(vote, out var supporters))
         {
@@ -950,22 +950,22 @@ public class VoteCounter(
     }
 
 
-    public static List<VoteBlockType> GetVoteBlocks(IEnumerable<VoteLine> lines) =>
+    public static List<VoteBlock> GetVoteBlocks(IEnumerable<VoteLine> lines) =>
         [.. VoteBlocks.GetBlocks(lines)];
 
-    public static List<VoteBlockType> GetVoteAsBlock(IEnumerable<VoteLine> lines) =>
+    public static List<VoteBlock> GetVoteAsBlock(IEnumerable<VoteLine> lines) =>
         [VoteBlock.Create(lines)!];
 
-    private static Func<PostToProcess, List<VoteBlockType>> PostBlocks =>
+    private static Func<PostToProcess, List<VoteBlock>> PostBlocks =>
         (p) => GetVoteBlocks(p.VoteLines);
 
-    private static Func<PostToProcess, List<VoteBlockType>> PostAsBlock =>
+    private static Func<PostToProcess, List<VoteBlock>> PostAsBlock =>
         (p) => GetVoteAsBlock(p.VoteLines);
 
     // Either split the vote into blocks, or encapsulate the vote into an enumerable
     // so that it can be treated the same way.
-    static readonly List<(Func<PostToProcess, List<VoteBlockType>> postToBlocks,
-                          Func<VoteBlockType, PlanDescriptor> isPlanFunction)>
+    static readonly List<(Func<PostToProcess, List<VoteBlock>> postToBlocks,
+                          Func<VoteBlock, PlanDescriptor> isPlanFunction)>
         planProcesses =
         [
             (postToBlocks: PostBlocks, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
@@ -1022,7 +1022,7 @@ public class VoteCounter(
         // Handle processing each post and adding votes if successful.
         bool VP(PostToProcess post, Quest quest)
         {
-            if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes))
+            if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlock> votes))
             {
                 AddVotes(votes, post.Origin);
                 return true;
@@ -1035,7 +1035,7 @@ public class VoteCounter(
         void ForceVP(PostToProcess post, Quest quest)
         {
             post.ForceProcess = true;
-            VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlockType> votes);
+            VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlock> votes);
             AddVotes(votes, post.Origin);
         }
     }
@@ -1046,8 +1046,8 @@ public class VoteCounter(
     /// </summary>
     /// <param name="plan">The plan to examine.</param>
     /// <returns>Returns the original plan, or the modified plan if it used "Base Plan".</returns>
-    public (string Name, VoteBlockType Contents)?
-        NormalizePlan(string originalPlanName, VoteBlockType originalVoteBlock)
+    public (string Name, VoteBlock Contents)?
+        NormalizePlan(string originalPlanName, VoteBlock originalVoteBlock)
     {
         if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;

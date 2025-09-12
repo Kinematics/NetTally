@@ -102,7 +102,7 @@ namespace NetTally.Avalonia.Views
             }
         }
 
-        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
+        private static VoteBlock? GetSelectedVoteInContext(object? sender)
         {
             ContextMenu? cm =
                 (sender as ContextMenu) ??
@@ -111,7 +111,7 @@ namespace NetTally.Avalonia.Views
             if (cm != null &&
                 cm.Parent is Popup popup &&
                 popup.Parent is ListBox listBox &&
-                listBox.SelectedItem is VoteBlockType selectedVote)
+                listBox.SelectedItem is VoteBlock selectedVote)
             {
                 return selectedVote;
             }
@@ -195,7 +195,7 @@ namespace NetTally.Avalonia.Views
         const string partitionChildrenString = "Partition Children";
         const string clearTaskString = "Clear Task";
         const string reorderTasksString = "Re-Order Tasks";
-        VoteBlockType? selectedVote;
+        VoteBlock? selectedVote;
 
 
         /// <summary>
@@ -337,7 +337,7 @@ namespace NetTally.Avalonia.Views
             InputTextBox.Text = string.Empty;
         }
 
-        private static bool HasChildLines(VoteBlockType vote)
+        private static bool HasChildLines(VoteBlock vote)
         {
             return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }

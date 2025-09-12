@@ -68,7 +68,7 @@ namespace NetTally.Views
         MenuItem partitionChildren = default!;
         private readonly Separator separator = new();
         private readonly List<MenuItem> ContextMenuTasks = [];
-        VoteBlockType? selectedVoteForNewTask;
+        VoteBlock? selectedVoteForNewTask;
 
         /// <summary>
         /// Create the command menu items for the context menu.
@@ -199,7 +199,7 @@ namespace NetTally.Views
                 return;
             }
 
-            if (listBox.SelectedItem is not VoteBlockType selectedVote)
+            if (listBox.SelectedItem is not VoteBlock selectedVote)
             {
                 e.Handled = true;
                 return;
@@ -261,17 +261,17 @@ namespace NetTally.Views
                 manageVotesViewModel.PartitionChildren(selectedVote);
         }
 
-        private void ModifyTask(VoteBlockType selectedVote, string newTask)
+        private void ModifyTask(VoteBlock selectedVote, string newTask)
         {
             manageVotesViewModel.ReplaceTask(selectedVote, newTask);
         }
 
-        private static bool HasChildLines(VoteBlockType vote)
+        private static bool HasChildLines(VoteBlock vote)
         {
             return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
         }
 
-        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
+        private static VoteBlock? GetSelectedVoteInContext(object? sender)
         {
             if (sender is MenuItem mi)
             {
@@ -279,7 +279,7 @@ namespace NetTally.Views
                 {
                     if (cm.PlacementTarget is ListBox listBox)
                     {
-                        if (listBox.SelectedItem is VoteBlockType selectedVote)
+                        if (listBox.SelectedItem is VoteBlock selectedVote)
                         {
                             return selectedVote;
                         }
