@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
@@ -88,16 +89,23 @@ public class ForumReader(
             logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
                 quest.DisplayName, threadInfo);
 
-            var pages = await GetPagesFromQuest(quest, adapter, threadInfo, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+            QuestData questData = QuestData.Empty;
 
-            var posts = pages
-                .SelectMany((p, i) => GetPostsFromPage(quest, p, i, adapter, threadInfo))
-                .ToList();
+            await foreach (var page in GetPagesFromQuest(quest, adapter, threadInfo, token))
+            {
+                questData = questData.CombineWith(GetPostsFromPage(
+                    quest,
+                    page.HtmlDocument,
+                    page.RequestInfo.PageNumber,
+                    adapter,
+                    threadInfo));
+            }
 
-            string title = FormatTitle(threadInfo, posts);
+            string title = FormatTitle(threadInfo, questData.Posts);
 
-            return QuestData.Create(title, posts);
+            questData = questData.CombineWith(title);
+
+            return questData;
         }
         finally
         {
@@ -105,28 +113,42 @@ public class ForumReader(
         }
     }
 
-    private async Task<HtmlDocument?[]> GetPagesFromQuest(
+    private async IAsyncEnumerable<PageRequestData> GetPagesFromQuest(
         Quest quest,
         IForumAdapter adapter,
         ThreadInfo threadInfo,
+        [EnumeratorCancellation] CancellationToken token)
+    {
+        var pages = GetPagesToLoad(quest, adapter, threadInfo)
+            .ToAsyncEnumerable()
+            .Select(GetPage)
+            .WithCancellation(token)
+            .ConfigureAwait(false);
+
+        await foreach (var pageData in pages)
+        {
+            if (pageData != null)
+            {
+                yield return pageData;
+            }
+        }
+    }
+
+    private async ValueTask<PageRequestData?> GetPage(
+        PageRequestInfo pageRequestInfo,
         CancellationToken token)
     {
-        var requestedPages = GetPagesToLoad(quest, adapter, threadInfo);
+        var document = await pageProvider.GetHtmlDocumentAsync(
+                    pageRequestInfo.Url,
+                    $"Page {pageRequestInfo.PageNumber}",
+                    pageRequestInfo.CacheMode,
+                    SuppressNotifications.No,
+                    token);
 
-        var pageLoads = requestedPages.Select(p =>
-            pageProvider.GetHtmlDocumentAsync(
-                p.Url,
-                $"Page {p.PageNumber}",
-                p.CacheMode,
-                SuppressNotifications.No,
-                token));
+        if (document is null)
+            return null;
 
-        var finished = await Task.WhenAll(pageLoads)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
-
-        logger.LogDebug("Got {Count} pages loading {questDisplayName}.", finished.Length, quest.DisplayName);
-
-        return finished;
+        return new PageRequestData(pageRequestInfo, document);
     }
 
     private static IEnumerable<PageRequestInfo> GetPagesToLoad(
@@ -201,7 +223,7 @@ public class ForumReader(
         return true;
     }
 
-    private static string FormatTitle(ThreadInfo threadInfo, List<Post> posts)
+    private static string FormatTitle(ThreadInfo threadInfo, IList<Post> posts)
     {
         long min = posts.Min(p => p.Origin.PostNumber.Value);
         long max = posts.Max(p => p.Origin.PostNumber.Value);
