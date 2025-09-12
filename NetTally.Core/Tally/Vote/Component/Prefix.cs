@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.Vote.Components;
+﻿namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Data type to store vote indentation information.

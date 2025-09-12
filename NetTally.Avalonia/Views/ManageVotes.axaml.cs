@@ -11,7 +11,7 @@ using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
 using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 using NetTally.ViewModels;

@@ -5,7 +5,7 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.Components.Votes;
 using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility.Collections;
 
 namespace NetTally.ViewModels;

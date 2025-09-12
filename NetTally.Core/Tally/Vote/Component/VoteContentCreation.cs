@@ -1,7 +1,7 @@
 ﻿using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
 
-namespace NetTally.Tally.Vote.Components;
+namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Extension class for creating <see cref="VoteContent"/> objects.

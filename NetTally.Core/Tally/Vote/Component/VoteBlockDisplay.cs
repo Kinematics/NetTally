@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.Vote.Components;
+﻿namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Display class for <see cref="VoteBlock"/> objects.

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.Vote.Components;
+﻿namespace NetTally.Tally.Vote.Component;
 
 public abstract record Marker();
 

@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Enums;
 using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;

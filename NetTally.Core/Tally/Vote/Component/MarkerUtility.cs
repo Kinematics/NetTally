@@ -1,7 +1,7 @@
 ﻿using NetTally.Enums;
 using NetTally.Utility;
 
-namespace NetTally.Tally.Vote.Components;
+namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Extension class that provides extensions to <see cref="Marker"/> objects

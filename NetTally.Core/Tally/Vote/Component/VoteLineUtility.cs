@@ -1,4 +1,4 @@
-﻿namespace NetTally.Tally.Vote.Components;
+﻿namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Extension class for promoting (reducing the depth of the prefix) <see cref="VoteLine"/>s

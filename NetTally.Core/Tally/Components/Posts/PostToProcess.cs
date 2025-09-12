@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using NetTally.Tally.Components.Votes;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.Components.Posts;
 

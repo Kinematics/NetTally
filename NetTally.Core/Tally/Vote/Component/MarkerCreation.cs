@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace NetTally.Tally.Vote.Components;
+namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Extension class for <see cref="Marker"/> creation.

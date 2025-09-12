@@ -7,7 +7,7 @@ using NetTally.Tally.Components.Counting;
 using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.Votes;
 using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 

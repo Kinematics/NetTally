@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Components.Votes;
 using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tests.Components.Votes;
 [TestClass]

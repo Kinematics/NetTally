@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
 namespace NetTally.Tally.Components.Votes;

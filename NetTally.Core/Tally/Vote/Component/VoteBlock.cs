@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using NetTally.Enums;
 
-namespace NetTally.Tally.Vote.Components;
+namespace NetTally.Tally.Vote.Component;
 
 /// <summary>
 /// Data type for a set of vote lines that can be processed as a block.

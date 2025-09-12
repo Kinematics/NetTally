@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Tally.Components.Threads;
 using NetTally.Tally.Components.Votes;
-using NetTally.Tally.Vote.Components;
+using NetTally.Tally.Vote.Component;
 using NetTally.Utility.Comparers;
 
 namespace NetTally.Tally.Components.Posts;
