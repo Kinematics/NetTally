@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System.Collections.ObjectModel;
+using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Enums;
@@ -6,7 +7,6 @@ using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Threads;
 using NetTally.Utility.Events;
-using NetTally.Utility.Linq;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.Reading;
@@ -38,6 +38,12 @@ public class ForumReader(
     public event EventHandler<MessageEventArgs>? StatusChanged;
     #endregion
 
+    /// <summary>
+    /// Reads quest data from the sources specified by the provided quest.
+    /// </summary>
+    /// <param name="quest">The quest to read.</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A collection of found quest data.</returns>
     public async Task<QuestData> ReadQuestAsync(
         Quest quest,
         CancellationToken token)
@@ -60,12 +66,7 @@ public class ForumReader(
         return data;
     }
 
-    /// <summary>
-    /// Gets a list of all quest sources associated with the specified quest.
-    /// </summary>
-    /// <param name="quest">The quest with potential alternate sources.</param>
-    /// <returns>All quest sources to be tallied.</returns>
-    public IEnumerable<Quest> GetQuestSources(Quest quest)
+    private ReadOnlyCollection<Quest> GetQuestSources(Quest quest)
     {
         return [quest, .. questsInfo.GetLinkedQuests(quest)];
     }
@@ -94,7 +95,7 @@ public class ForumReader(
                 .SelectMany((p, i) => GetPostsFromPage(quest, p, i, adapter, threadInfo))
                 .ToList();
 
-            string title = CraftTitle(threadInfo, posts);
+            string title = FormatTitle(threadInfo, posts);
 
             return QuestData.Create(title, posts);
         }
@@ -104,7 +105,7 @@ public class ForumReader(
         }
     }
 
-    private async Task<IEnumerable<HtmlDocument?>> GetPagesFromQuest(
+    private async Task<HtmlDocument?[]> GetPagesFromQuest(
         Quest quest,
         IForumAdapter adapter,
         ThreadInfo threadInfo,
@@ -169,6 +170,14 @@ public class ForumReader(
         return posts;
     }
 
+    /// <summary>
+    /// Perform checks on all the different conditions that would cause
+    /// us to want to discard the post in question from the tally.
+    /// </summary>
+    /// <param name="post">The post to check.</param>
+    /// <param name="quest">The quest the post is for.</param>
+    /// <param name="threadInfo">Information about the thread tally range.</param>
+    /// <returns><c>true</c> if the post should be kept. Otherwise <c>false</c>.</returns>
     private static bool KeepPost(
         Post post,
         Quest quest,
@@ -192,7 +201,7 @@ public class ForumReader(
         return true;
     }
 
-    private static string CraftTitle(ThreadInfo threadInfo, List<Post> posts)
+    private static string FormatTitle(ThreadInfo threadInfo, List<Post> posts)
     {
         long min = posts.Min(p => p.Origin.PostNumber.Value);
         long max = posts.Max(p => p.Origin.PostNumber.Value);
