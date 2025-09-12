@@ -8,11 +8,6 @@ public static class VoteLineCreation
     extension(VoteLine)
     {
         /// <summary>
-        /// The default empty <see cref="VoteLine"/>.
-        /// </summary>
-        public static VoteLine Empty => _empty;
-
-        /// <summary>
         /// Create a new <see cref="VoteLine"/> using the provided components.
         /// Marker and Content must be non-empty.
         /// </summary>
@@ -38,7 +33,4 @@ public static class VoteLineCreation
             return new(prefix, marker, task, content);
         }
     }
-
-    private static readonly VoteLine _empty = 
-        new (Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
 }

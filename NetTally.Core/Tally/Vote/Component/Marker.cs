@@ -14,14 +14,14 @@ public sealed record NoMarker() : Marker;
 
 public sealed record PlanMarker() : Marker;
 
-//public static partial class MarkerPredefined
-//{
-//    extension(Marker)
-//    {
-//        public static Marker Empty => _empty;
-//        public static Marker PlanMarker => _planMarker;
-//    }
+public static class MarkerPredefined
+{
+    extension(Marker)
+    {
+        public static Marker Empty => _empty;
+        public static Marker PlanMarker => _planMarker;
+    }
 
-//    private static readonly Marker _empty = new NoMarker();
-//    private static readonly Marker _planMarker = new PlanMarker();
-//}
+    private static readonly Marker _empty = new NoMarker();
+    private static readonly Marker _planMarker = new PlanMarker();
+}

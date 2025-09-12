@@ -42,3 +42,13 @@ public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask 
     public string ManageVotesDisplay =>
         VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
 }
+
+public static class VoteBlockPredefined
+{
+    extension(VoteBlock)
+    {
+        public static VoteBlock Empty => _empty;
+    }
+
+    private static readonly VoteBlock _empty = new([], Marker.Empty, VoteTask.Empty);
+}

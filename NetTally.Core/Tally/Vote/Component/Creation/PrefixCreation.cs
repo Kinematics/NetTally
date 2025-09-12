@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.Vote.Component.Creation;
 
@@ -9,10 +10,6 @@ public static partial class PrefixCreation
 {
     extension(Prefix)
     {
-        /// <summary>
-        /// The default, empty, prefix.
-        /// </summary>
-        public static Prefix Empty => _empty;
 
         /// <summary>
         /// Create a new prefix based on the provided text.
@@ -48,8 +45,6 @@ public static partial class PrefixCreation
             return new Prefix(new('-', depth));
         }
     }
-
-    private static readonly Prefix _empty = new("");
 
     [GeneratedRegex("[-–—]")]
     private static partial Regex IndentCharsRegex { get; }

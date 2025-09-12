@@ -9,9 +9,6 @@ public static partial class MarkerCreation
 {
     extension(Marker)
     {
-        public static Marker Empty => _empty;
-        public static Marker PlanMarker => _planMarker;
-
         /// <summary>
         /// Create a new <see cref="Marker"/> based on the provided text.
         /// Invalid values will return a <see cref="NoMarker"/> type.
@@ -52,9 +49,6 @@ public static partial class MarkerCreation
             return Marker.Empty;
         }
     }
-
-    private static readonly Marker _empty = new NoMarker();
-    private static readonly Marker _planMarker = new PlanMarker();
 
     [GeneratedRegex(@"^(?<marker>(?<vote>[xX✓✔✗✘Х☒☑])|(?<rank>#)?(?<value>[0-9]{1,3})(?<score>%)?|(?<approval>[-+]))$")]
     private static partial Regex MarkerRegex { get; }

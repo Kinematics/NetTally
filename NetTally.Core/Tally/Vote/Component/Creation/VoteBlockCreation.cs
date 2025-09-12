@@ -10,8 +10,6 @@ public static class VoteBlockCreation
 {
     extension(VoteBlock)
     {
-        public static VoteBlock Empty => _empty;
-
         /// <summary>
         /// Create a <see cref="VoteBlock"> with the given <see cref="VoteLine">s.
         /// </summary>
@@ -67,6 +65,4 @@ public static class VoteBlockCreation
             return new VoteBlock([.. voteBlock.Lines], voteBlock.Marker, voteBlock.Task);
         }
     }
-
-    private static readonly VoteBlock _empty = new([], Marker.Empty, VoteTask.Empty);
 }

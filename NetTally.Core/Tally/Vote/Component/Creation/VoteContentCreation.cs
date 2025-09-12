@@ -13,11 +13,6 @@ public static class VoteContentCreation
     extension(VoteContent)
     {
         /// <summary>
-        /// Default, empty content.
-        /// </summary>
-        public static VoteContent Empty => _empty;
-
-        /// <summary>
         /// Create a new <see cref="VoteContent"/> object containing the provided text.
         /// </summary>
         /// <param name="content">The text content of the vote.</param>
@@ -36,6 +31,4 @@ public static class VoteContentCreation
             return new VoteContent(content, cleanContent);
         }
     }
-
-    private static readonly VoteContent _empty = new("", "");
 }
