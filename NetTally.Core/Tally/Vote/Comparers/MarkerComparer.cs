@@ -6,9 +6,9 @@ namespace NetTally.Tally.Vote.Comparers;
 /// <summary>
 /// Comparer class for <see cref="Marker"/> objects.
 /// </summary>
-public class MarkersComparer : IEqualityComparer<Marker>, IComparer<Marker>
+public class MarkerComparer : IEqualityComparer<Marker>, IComparer<Marker>
 {
-    public static MarkersComparer Instance { get; } = new();
+    public static MarkerComparer Instance { get; } = new();
 
     public int Compare(Marker? x, Marker? y)
     {
