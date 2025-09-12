@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Vote.Components;
 
 namespace NetTally.Converters
 {

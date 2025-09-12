@@ -2,7 +2,7 @@
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 
 /// <summary>
 /// Data type to store a vote task.

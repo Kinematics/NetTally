@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using NetTally.Enums;
 using NetTally.Utility;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 
 
 public abstract record Marker();

@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using NetTally.Enums;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 
 /// <summary>
 /// Data type for a set of vote lines that can be processed as a block.

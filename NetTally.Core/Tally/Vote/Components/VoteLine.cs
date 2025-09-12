@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 /// <summary>
 /// Data type for vote lines.
 /// </summary>

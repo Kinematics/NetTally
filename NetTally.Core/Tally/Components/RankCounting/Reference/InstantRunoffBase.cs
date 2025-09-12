@@ -1,5 +1,6 @@
 ﻿using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Vote.Components;
 
 namespace NetTally.Tally.Components.RankCounting.Reference;
 

@@ -10,6 +10,7 @@ using NetTally.Tally.Components.Posts;
 using NetTally.Tally.Components.RankCounting;
 using NetTally.Tally.Components.Storage;
 using NetTally.Tally.Components.Votes;
+using NetTally.Tally.Vote.Components;
 using NetTally.Utility;
 
 namespace NetTally.Output;

@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 
 /// <summary>
 /// Data type to store vote indentation information.

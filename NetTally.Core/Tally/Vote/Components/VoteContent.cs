@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
+using NetTally.Tally.Components.Votes;
 using NetTally.Utility;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Tally.Components.Votes;
+namespace NetTally.Tally.Vote.Components;
 
 /// <summary>
 /// Data type for vote content.
