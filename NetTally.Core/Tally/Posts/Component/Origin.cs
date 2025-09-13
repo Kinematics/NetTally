@@ -3,11 +3,7 @@
 namespace NetTally.Tally.Posts.Component;
 
 public abstract record Origin(Author Author, Uri Thread, Uri Permalink,
-    PostId PostId, PostId PostNumber, DateTimeOffset Timestamp)
-{
-    public bool IsUser => this is UserOrigin;
-    public bool IsPlan => this is PlanOrigin;
-}
+    PostId PostId, PostId PostNumber, DateTimeOffset Timestamp);
 
 public sealed record UserOrigin(Author Author, Uri Thread, Uri Permalink,
     PostId PostId, PostId PostNumber, DateTimeOffset Timestamp)

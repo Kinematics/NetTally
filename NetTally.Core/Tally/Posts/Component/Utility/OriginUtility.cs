@@ -10,6 +10,20 @@ public static class OriginUtility
     extension(Origin origin)
     {
         /// <summary>
+        /// Determine if the <see cref="Origin"/> object is a user type.
+        /// </summary>
+        public bool IsUser => origin.Map(
+            userOrigin => true,
+            planOrigin => false);
+
+        /// <summary>
+        /// Determine if the <see cref="Origin"/> object is a plan type.
+        /// </summary>
+        public bool IsPlan => origin.Map(
+            userOrigin => false,
+            planOrigin => true);
+
+        /// <summary>
         /// Get the appropriate <see cref="Author"/> based on the type of <see cref="Origin"/>.
         /// <see cref="UserOrigin"/> returns the Author. <see cref="PlanOrigin"/> returns the PlanName.
         /// </summary>
