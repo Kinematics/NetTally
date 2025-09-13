@@ -32,7 +32,7 @@ public static class PostIdCreation
         public static PostId? Create(string id)
         {
             if (string.IsNullOrEmpty(id))
-                return PostId.Zero;
+                return null;
 
             if (long.TryParse(id, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long idValue))
             {
@@ -43,7 +43,7 @@ public static class PostIdCreation
                 };
             }
 
-            return PostId.Zero;
+            return null;
         }
     }
 }
