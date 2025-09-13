@@ -1,4 +1,8 @@
 ﻿namespace NetTally.Tally.Threads;
+
+/// <summary>
+/// Extension class to get the start and end pages from a <see cref="ThreadRange"/>.
+/// </summary>
 internal static class ThreadRangePages
 {
     extension(ThreadRange threadRange)
@@ -19,6 +23,10 @@ internal static class ThreadRangePages
 
 }
 
+/// <summary>
+/// Extension class to handle mapping of different behavior to each
+/// type of <see cref="ThreadRange"/>.
+/// </summary>
 internal static class ThreadRangeMapping
 {
     extension(ThreadRange threadRange)
