@@ -17,7 +17,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
         if (x is null) return -1;
         if (y is null) return 1;
 
-        return Agnostic.CaseInsensitiveComparer.Compare(x, y);
+        return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name);
     }
 
     public bool Equals(Author? x, Author? y)
@@ -25,7 +25,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
         if (ReferenceEquals(x, y)) return true;
         if (x is null || y is null) return false;
 
-        return Agnostic.CaseInsensitiveComparer.Compare(x, y) == 0;
+        return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name) == 0;
     }
 
     public int GetHashCode([DisallowNull] Author obj)
