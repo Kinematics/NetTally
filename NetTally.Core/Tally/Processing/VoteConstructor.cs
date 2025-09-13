@@ -153,10 +153,12 @@ public static partial class VoteConstructor
 
         // Proposed plans are skipped entirely, if this is the original post that proposed the plan.
         // Keep everything else, flattening the blocks back into a simple list of vote lines.
+
         var validVoteLines = VoteBlocks
             .GetBlocks(post.VoteLines)
             .Where(b => !IsProposedPlan(b))
-            .SelectMany(a => a).ToList();
+            .SelectMany(a => a)
+            .ToList();
 
         for (int i = 0; i < validVoteLines.Count; i++)
         {
@@ -526,7 +528,7 @@ public static partial class VoteConstructor
         var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
         var block = VoteBlock.Create(collated);
 
-        if (block == null)
+        if (block == VoteBlock.Empty)
             return [];
 
         return [block];
