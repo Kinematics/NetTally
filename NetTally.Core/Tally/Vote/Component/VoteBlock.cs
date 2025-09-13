@@ -12,7 +12,7 @@ namespace NetTally.Tally.Vote.Component;
 /// <param name="Marker">The marker that the block as a whole has.</param>
 /// <param name="Task">The task that the block as a whole has.</param>
 [DebuggerDisplay("{DebugDisplayString}")]
-public record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
+public sealed record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, VoteTask Task)
     : IEnumerable<VoteLine>
 {
     /// <summary>

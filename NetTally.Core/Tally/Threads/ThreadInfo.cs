@@ -2,7 +2,7 @@
 
 namespace NetTally.Tally.Threads;
 
-public record ThreadInfo(
+public sealed record ThreadInfo(
     string Title,
     Author Author,
     ThreadRange ThreadRange);

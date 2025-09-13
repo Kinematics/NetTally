@@ -6,7 +6,7 @@ using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility.Linq;
 
 namespace NetTally.Tally.Processing;
-public record CompactVoteType(
+public sealed record CompactVoteType(
     VoteLine Line,
     CompactVoteType Parent,
     List<CompactVoteType> Children,

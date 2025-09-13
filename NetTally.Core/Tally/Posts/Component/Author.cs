@@ -6,7 +6,7 @@ namespace NetTally.Tally.Posts.Component;
 /// Data type for the author of a post.
 /// </summary>
 /// <param name="Name">The name of the author.</param>
-public record Author(string Name);
+public sealed record Author(string Name);
 
 public static class PredefinedAuthors
 {
