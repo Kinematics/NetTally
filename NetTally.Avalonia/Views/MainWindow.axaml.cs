@@ -77,7 +77,7 @@ namespace NetTally.Avalonia.Views
             if (hostEnvironment.IsDevelopment())
                 return;
 
-            ApplyTheme(globalSettings.ThemeVariant);
+            ApplyTheme(globalSettings.AvaloniaThemeVariant);
 
             mainViewModel.CheckForNewRelease();
         }

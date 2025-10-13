@@ -42,7 +42,7 @@ namespace NetTally.Avalonia.Views
                 logger.LogDebug("Global options were saved.");
                 Close();
             }
-            else if (e.PropertyName == nameof(globalOptionsViewModel.ThemeVariant))
+            else if (e.PropertyName == nameof(globalOptionsViewModel.AvaloniaThemeVariant))
             {
                 ApplyRequestedTheme();
             }
@@ -67,13 +67,13 @@ namespace NetTally.Avalonia.Views
         private void ApplyRequestedTheme()
         {
             var current = GetCurrentTheme();
-            if (current == globalOptionsViewModel.ThemeVariant)
+            if (current == globalOptionsViewModel.AvaloniaThemeVariant)
                 return;
 
             logger.LogDebug("Requested a change in theme from {before} to {after}",
-                current, globalOptionsViewModel.ThemeVariant);
+                current, globalOptionsViewModel.AvaloniaThemeVariant);
 
-            App.Current!.RequestedThemeVariant = globalOptionsViewModel.ThemeVariant switch
+            App.Current!.RequestedThemeVariant = globalOptionsViewModel.AvaloniaThemeVariant switch
             {
                 AvaloniaTheme.Light => ThemeVariant.Light,
                 AvaloniaTheme.Dark => ThemeVariant.Dark,
