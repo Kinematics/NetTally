@@ -19,7 +19,7 @@ public static class AuthorCreation
             if (string.IsNullOrEmpty(name))
                 return Author.None;
 
-            return new Author(name);
+            return new NamedAuthor(name);
         }
     }
 }

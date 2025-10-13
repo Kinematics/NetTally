@@ -1,12 +1,9 @@
-﻿using NetTally.Utility;
+﻿namespace NetTally.Tally.Posts.Component;
 
-namespace NetTally.Tally.Posts.Component;
-
-/// <summary>
-/// Data type for the author of a post.
-/// </summary>
-/// <param name="Name">The name of the author.</param>
-public sealed record Author(string Name);
+public abstract record Author();
+public sealed record NamedAuthor(string Name) : Author;
+public sealed record UnknownAuthor() : Author;
+public sealed record NoAuthor() : Author;
 
 public static class PredefinedAuthors
 {
@@ -16,6 +13,6 @@ public static class PredefinedAuthors
         public static Author Unknown => _unknown;
     }
 
-    private static readonly Author _none = new("");
-    private static readonly Author _unknown = new(Strings.UnknownAuthor);
+    private static readonly Author _none = new NoAuthor();
+    private static readonly Author _unknown = new UnknownAuthor();
 }
