@@ -42,6 +42,9 @@
         <CheckBox x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0"
                   IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
+        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
+                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
 
         <Label x:Name="labelOutput" Content="Output" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,117,0,0"/>
         <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers"
@@ -51,17 +54,16 @@
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,165,0,0"
                   IsChecked="{Binding Path=DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelNetworking" Content="Networking" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
+        <Label x:Name="labelNetworking" Content="Networking" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="10,190,0,0"/>
         <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,218,0,0"
                   IsChecked="{Binding Path=DisableWebProxy}" />
 
-        <Label x:Name="labelDebugging" Content="Debugging" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
-        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
-                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
-                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
+        <Label x:Name="labelDebugging" Content="Debugging" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="9,238,0,0"/>
         <CheckBox x:Name="debugMode" Content="Debug Mode"
-                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,238,0,0"
+                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,269,0,0"
                   IsChecked="{Binding Path=DebugMode}" />
 
         <!-- External Tooltip Descriptions -->
