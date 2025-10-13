@@ -18,10 +18,10 @@ public static class MarkerPredefined
 {
     extension(Marker)
     {
-        public static Marker Empty => _empty;
-        public static Marker PlanMarker => _planMarker;
+        public static Marker Empty => noMarker;
+        public static Marker PlanMarker => planMarker;
     }
 
-    private static readonly Marker _empty = new NoMarker();
-    private static readonly Marker _planMarker = new PlanMarker();
+    private static readonly Marker noMarker = new NoMarker();
+    private static readonly Marker planMarker = new PlanMarker();
 }

@@ -7,13 +7,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Utility.HtmlNodes;
-using NetTally.Utility.Async;
-using NetTally.Utility.Filtering;
-using NetTally.Web;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Threads;
+using NetTally.Utility.Async;
+using NetTally.Utility.Filtering;
+using NetTally.Utility.HtmlNodes;
+using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -518,7 +519,9 @@ public partial class XenForo2Adapter(
         var number = PostId.Create(GetPostNumber(article));
 
         if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
 
         var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
         var post = Post.Create(origin, text);

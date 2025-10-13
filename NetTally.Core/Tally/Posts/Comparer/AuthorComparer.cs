@@ -13,11 +13,20 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
 
     public int Compare(Author? x, Author? y)
     {
-        if (ReferenceEquals(x, y)) return 0;
-        if (x is null) return -1;
-        if (y is null) return 1;
-
-        return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name);
+        return (x, y) switch
+        {
+            (null, null) => 0,
+            (null, _) => -1,
+            (_, null) => 1,
+            (NoAuthor, NoAuthor) => 0,
+            (UnknownAuthor, UnknownAuthor) => 0,
+            (NoAuthor, _) => -1,
+            (_, NoAuthor) => 1,
+            (UnknownAuthor, _) => -1,
+            (_, UnknownAuthor) => 1,
+            (NamedAuthor xa, NamedAuthor ya) => Agnostic.CaseInsensitiveComparer.Compare(xa.Name, ya.Name),
+            _ => throw new ArgumentException("Unknown author types. Cannot compare.")
+        };
     }
 
     public bool Equals(Author? x, Author? y)
@@ -25,7 +34,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
         if (ReferenceEquals(x, y)) return true;
         if (x is null || y is null) return false;
 
-        return Agnostic.CaseInsensitiveComparer.Compare(x.Name, y.Name) == 0;
+        return Compare(x, y) == 0;
     }
 
     public int GetHashCode([DisallowNull] Author obj)

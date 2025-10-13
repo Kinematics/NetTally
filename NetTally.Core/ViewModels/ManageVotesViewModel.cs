@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Tally.Posts.Comparer;
 using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
@@ -194,7 +195,7 @@ public partial class ManageVotesViewModel : ObservableObject
 
         bool matchAnyVoter = GetVotersForVote(vote)
                     .Any(v => CultureInfo.InvariantCulture.CompareInfo
-                        .IndexOf(v.Author.Name, filter, CompareOptions.IgnoreCase) >= 0);
+                        .IndexOf(v.Author.DisplayName, filter, CompareOptions.IgnoreCase) >= 0);
 
         return matchVote || matchAnyVoter;
     }

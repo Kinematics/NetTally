@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
 using NetTally.Tally.Posts.Component;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
@@ -47,7 +48,7 @@ public static partial class VoteConstructor
 
             if (isPlan &&
                 !(isImplicit && quest.ForbidVoteLabelPlanNames) &&
-                IsValidPlanName(planName, author.Name, quest) &&
+                IsValidPlanName(planName, author.DisplayName, quest) &&
                 DoesTaskFilterPass(block, quest))
             {
                 plans[planName] = block;

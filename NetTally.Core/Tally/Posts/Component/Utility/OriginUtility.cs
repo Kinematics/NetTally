@@ -1,4 +1,5 @@
-﻿using NetTally.Utility;
+﻿using NetTally.Tally.Posts.Component.Utility;
+using NetTally.Utility;
 
 namespace NetTally.Tally.Posts.Component;
 
@@ -49,8 +50,8 @@ public static class OriginUtility
         /// <param name="origin"></param>
         /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
         public string GetBBCodeLink() => origin.Map(
-            userOrigin => $"[url=\"{userOrigin.Permalink}\"]{userOrigin.Author.Name}[/url]",
-            planOrigin => $"[url=\"{planOrigin.Permalink}\"]{Strings.PlanNameMarker}{planOrigin.PlanName.Name}[/url]");
+            userOrigin => $"[url=\"{userOrigin.Permalink}\"]{userOrigin.Author.DisplayName}[/url]",
+            planOrigin => $"[url=\"{planOrigin.Permalink}\"]{Strings.PlanNameMarker}{planOrigin.PlanName.DisplayName}[/url]");
     }
 }
 

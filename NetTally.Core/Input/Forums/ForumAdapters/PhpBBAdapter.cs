@@ -9,6 +9,7 @@ using NetTally.Web;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Threads;
+using NetTally.Tally.Posts.Component.Utility;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -212,12 +213,14 @@ public partial class PhpBBAdapter(
             return null;
 
         var id = GetPostId(div);
-        var author = GetPostAuthor(div);
+        Author author = GetPostAuthor(div);
         var number = PostId.Create(postNumber);
         string text = GetPostText(div, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
 
         var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
         var post = Post.Create(origin, text);

@@ -1,4 +1,5 @@
-﻿using NetTally.Tally.Threads;
+﻿using NetTally.Tally.Posts.Component.Utility;
+using NetTally.Tally.Threads;
 
 namespace NetTally.Tally.Posts.Component;
 
@@ -61,7 +62,7 @@ public static class PostUtility
         /// <returns><c>True</c> if the username filter matches. Otherwise <c>false</c>.</returns>
         public bool MatchesUsernameFilter(Quest quest)
         {
-            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.Name);
+            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Author.DisplayName);
         }
 
         /// <summary>
