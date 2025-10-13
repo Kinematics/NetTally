@@ -76,7 +76,7 @@ public partial class GlobalOptionsViewModel : ObservableObject
     }
 
     // Options list
-    public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
+    public List<string> RankVoteCountingModes { get; } = [.. EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>()];
 
     // Vote options
     [ObservableProperty]
