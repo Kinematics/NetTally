@@ -10,7 +10,7 @@
 		<RollForward>LatestMajor</RollForward>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>true</ImplicitUsings>
-		<EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+		<EnableConfigurationBindingGenerator>false</EnableConfigurationBindingGenerator>
 		<IsTrimmable>false</IsTrimmable>
 		<EnableTrimAnalyzer>false</EnableTrimAnalyzer>
 	</PropertyGroup>
