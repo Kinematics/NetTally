@@ -60,8 +60,7 @@ public partial class VBulletin4Adapter(
     /// <returns>Returns a URL for the page requested.</returns>
     public string GetUrlForPage(Quest quest, int page)
     {
-        if (page < 1)
-            throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
         // http://forums.militarytimes.com/showthread.php/9961-Furlough
         // http://forums.militarytimes.com/showthread.php/9961-Furlough/page2

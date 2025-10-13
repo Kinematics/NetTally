@@ -9,8 +9,7 @@ namespace NetTally.Tests
     {
         public static async Task<string?> Read(string filename)
         {
-            if (string.IsNullOrEmpty(filename))
-                throw new ArgumentNullException(nameof(filename));
+            ArgumentNullException.ThrowIfNullOrEmpty(filename);
 
             FileInfo fi = new FileInfo(filename);
 
@@ -37,10 +36,8 @@ namespace NetTally.Tests
 
         public static async Task Write(string filename, string content)
         {
-            if (string.IsNullOrEmpty(filename))
-                throw new ArgumentNullException(nameof(filename));
-            if (string.IsNullOrEmpty(content))
-                throw new ArgumentNullException(nameof(content));
+            ArgumentNullException.ThrowIfNullOrEmpty(filename);
+            ArgumentNullException.ThrowIfNullOrEmpty(content);
 
             FileInfo fi = new FileInfo(filename);
 

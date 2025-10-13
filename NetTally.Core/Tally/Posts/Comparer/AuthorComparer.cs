@@ -25,7 +25,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
             (UnknownAuthor, _) => -1,
             (_, UnknownAuthor) => 1,
             (NamedAuthor xa, NamedAuthor ya) => Agnostic.CaseInsensitiveComparer.Compare(xa.Name, ya.Name),
-            _ => throw new ArgumentException("Unknown author types. Cannot compare.")
+            _ => throw new ArgumentException("Unknown Author types. Cannot compare.")
         };
     }
 

@@ -57,10 +57,7 @@ public class FileLoggerOptions : BatchingLoggerOptions
         get { return _fileName; }
         set
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ArgumentException(nameof(value));
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(value);
             _fileName = value;
         }
     }

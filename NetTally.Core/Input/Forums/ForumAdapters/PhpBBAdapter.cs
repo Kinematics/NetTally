@@ -61,8 +61,7 @@ public partial class PhpBBAdapter(
     /// <returns>Returns a URL for the page requested.</returns>
     public string GetUrlForPage(Quest quest, int page)
     {
-        if (page < 1)
-            throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
         int skipPosts = quest.PostsPerPage * (page - 1);
 

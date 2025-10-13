@@ -36,10 +36,8 @@ namespace Microsoft.Extensions.Logging
         /// <param name="configure">Configure an instance of the <see cref="FileLoggerOptions" /> to set logging options</param>
         public static ILoggingBuilder AddFile(this ILoggingBuilder builder, Action<FileLoggerOptions> configure)
         {
-            if (configure == null)
-            {
-                throw new ArgumentNullException(nameof(configure));
-            }
+            ArgumentNullException.ThrowIfNull(configure);
+
             builder.AddFile();
             builder.Services.Configure(configure);
 
