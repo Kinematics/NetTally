@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
 using NetTally.Tally.Vote.Comparers;
@@ -126,7 +127,7 @@ public class VoterStorageTests
         voterStorage.Add(origin, vote);
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -141,7 +142,7 @@ public class VoterStorageTests
         Assert.ThrowsExactly<ArgumentException>(() => voterStorage.Add(origin, vote));
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -156,7 +157,7 @@ public class VoterStorageTests
         voterStorage[origin] = vote;
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -171,7 +172,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(added);
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -187,7 +188,7 @@ public class VoterStorageTests
 
         Assert.IsFalse(added);
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -203,7 +204,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(removed);
         Assert.IsFalse(voterStorage.HasIdentity(origin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(0, voterStorage.Count);
     }
 
@@ -221,7 +222,7 @@ public class VoterStorageTests
         Assert.IsTrue(removed);
         Assert.IsTrue(VoteBlockComparer.Instance.Equals(vote, removedVote));
         Assert.IsFalse(voterStorage.HasIdentity(origin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(0, voterStorage.Count);
     }
 
@@ -240,7 +241,7 @@ public class VoterStorageTests
 
         Assert.IsFalse(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasIdentity(planOrigin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.IsTrue(voterStorage.HasPlan(planName));
         Assert.AreEqual(1, voterStorage.Count);
     }
@@ -259,7 +260,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasIdentity(simpleOrigin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -308,11 +309,11 @@ public class VoterStorageTests
         voterStorage.Add(user5, vote);
 
         Assert.IsTrue(voterStorage.HasPlan(planName));
-        Assert.IsTrue(voterStorage.HasVoter(origin.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user2.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user3.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user4.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user5.Author.Name));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user2.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user3.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user4.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user5.Author.DisplayName));
         Assert.AreEqual(6, voterStorage.Count);
     }
 
@@ -341,11 +342,11 @@ public class VoterStorageTests
         voterStorage.Add(user5, vote);
 
         Assert.IsTrue(voterStorage.HasPlan(planName));
-        Assert.IsFalse(voterStorage.HasVoter(origin.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user2.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user3.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user4.Author.Name));
-        Assert.IsTrue(voterStorage.HasVoter(user5.Author.Name));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user2.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user3.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user4.Author.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user5.Author.DisplayName));
         Assert.AreEqual(5, voterStorage.Count);
     }
 }

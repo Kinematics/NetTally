@@ -2,6 +2,7 @@
 using NetTally.Tally.Posts.Comparer;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 
 namespace NetTally.Tests.Components.Posts;
 [TestClass]
@@ -38,28 +39,28 @@ public class AuthorTests
     public void Construct_SpaceEnd_Trimmed()
     {
         var author = Author.Create("Kinematics     ");
-        Assert.AreEqual("Kinematics", author.Name);
+        Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
     [TestMethod]
     public void Construct_SpaceAround_Trimmed()
     {
         var author = Author.Create("  Kinematics     ");
-        Assert.AreEqual("Kinematics", author.Name);
+        Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
     [TestMethod]
     public void Construct_Unsafe_Cleaned()
     {
         var author = Author.Create("Kinema\u200btics");
-        Assert.AreEqual("Kinematics", author.Name);
+        Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
     [TestMethod]
     public void Construct_UTF_Normal()
     {
         var author = Author.Create("KinematicsΩ°");
-        Assert.AreEqual("KinematicsΩ°", author.Name);
+        Assert.AreEqual("KinematicsΩ°", author.DisplayName);
     }
 
     [TestMethod]

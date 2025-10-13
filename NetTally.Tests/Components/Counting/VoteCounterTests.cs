@@ -7,6 +7,7 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Vote.Component;
 using NetTally.Utility;
 
@@ -196,8 +197,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
 
@@ -228,7 +229,7 @@ public class VoteCounterTests
 
         quest.VoteCounter.Reset();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
         Assert.AreEqual(0, allVotes.Count);
     }
@@ -257,8 +258,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
         var vote1 = quest.VoteCounter.GetVotesBy(origin1).ToList();
@@ -301,7 +302,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
         Assert.AreEqual(4, allVotes.Count);
         Assert.AreEqual(1, allVotes[0].LineCount);
@@ -313,7 +314,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
         Assert.AreEqual(2, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
@@ -346,8 +347,8 @@ public class VoteCounterTests
         Assert.AreEqual(1, allVotes.Count);
         Assert.AreEqual(3, allVotes[0].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
 
@@ -380,8 +381,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
     [TestMethod]
@@ -412,8 +413,8 @@ public class VoteCounterTests
         Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
     }
 
@@ -457,7 +458,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounter.GetReferencePlans().ToList();
+        plans = [.. quest.VoteCounter.GetReferencePlans()];
 
         Assert.AreEqual(1, plans.Count);
         Assert.AreEqual("Add this to your list of experiments for today.",
@@ -468,7 +469,7 @@ public class VoteCounterTests
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounter.GetReferencePlans().ToList();
+        plans = [.. quest.VoteCounter.GetReferencePlans()];
 
         Assert.AreEqual(1, plans.Count);
         Assert.AreEqual("Alchemy structure",
@@ -503,8 +504,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
     [TestMethod]
@@ -532,8 +533,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
     [TestMethod]
@@ -561,8 +562,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
     [TestMethod]
@@ -588,8 +589,8 @@ public class VoteCounterTests
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
     #endregion Callouts as proxies
 
@@ -629,8 +630,8 @@ public class VoteCounterTests
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
 
     [TestMethod]
@@ -677,8 +678,8 @@ public class VoteCounterTests
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
     }
     #endregion Future references
 
@@ -709,8 +710,8 @@ public class VoteCounterTests
 
         Assert.AreEqual(1, allVotes.Count);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
 
         var vote1 = allVotes[0];
         var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
@@ -746,8 +747,8 @@ public class VoteCounterTests
 
         Assert.AreEqual(2, allVotes.Count);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.DisplayName));
 
         var vote1 = allVotes[0];
         var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();

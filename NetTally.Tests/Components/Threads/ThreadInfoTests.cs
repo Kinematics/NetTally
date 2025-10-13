@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Threads;
 using NetTally.Utility;
 
@@ -29,7 +30,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
-        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(authorName, threadInfo.Author.DisplayName);
         Assert.AreEqual(pageNumberOfStartPost, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(pagesInThread, threadInfo.ThreadRange.EndPage);
     }
@@ -49,7 +50,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
-        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(authorName, threadInfo.Author.DisplayName);
         Assert.AreEqual(5, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(1, threadInfo.ThreadRange.EndPage);
     }
@@ -69,7 +70,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
-        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(authorName, threadInfo.Author.DisplayName);
         Assert.AreEqual(10, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(14, threadInfo.ThreadRange.EndPage);
     }
@@ -89,7 +90,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(title, threadInfo.Title);
-        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(authorName, threadInfo.Author.DisplayName);
         Assert.AreEqual(1, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(14, threadInfo.ThreadRange.EndPage);
     }
@@ -109,7 +110,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
-        Assert.AreEqual(authorName, threadInfo.Author.Name);
+        Assert.AreEqual(authorName, threadInfo.Author.DisplayName);
         Assert.AreEqual(1, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(14, threadInfo.ThreadRange.EndPage);
     }
@@ -128,7 +129,7 @@ public class ThreadInfoTests
 
         Assert.IsNotNull(threadInfo);
         Assert.AreEqual(Strings.UntitledThread, threadInfo.Title);
-        Assert.AreEqual(Strings.UnknownAuthor, threadInfo.Author.Name);
+        Assert.IsTrue(threadInfo.Author is UnknownAuthor);
         Assert.AreEqual(1, threadInfo.ThreadRange.StartPage);
         Assert.AreEqual(14, threadInfo.ThreadRange.EndPage);
     }

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Tally.Posts.Comparer;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Tally.Posts.Component.Utility;
 
 namespace NetTally.Tests.Components.Posts;
 
@@ -105,7 +106,7 @@ public class OriginTests2
         PlanOrigin? asPlanOrigin = planOrigin as PlanOrigin;
         Assert.IsNotNull(asPlanOrigin);
 
-        Assert.AreEqual(planName, asPlanOrigin.PlanName.Name);
+        Assert.AreEqual(planName, asPlanOrigin.PlanName.DisplayName);
     }
 
     [TestMethod]
