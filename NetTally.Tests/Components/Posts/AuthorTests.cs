@@ -77,7 +77,7 @@ public class AuthorTests
         var author1 = Author.Create("Kinematics");
         var author2 = Author.Create("Kinematics");
 
-        Assert.IsTrue(AuthorComparer.Instance.Equals(author1, author2));
+        Assert.AreEqual(author1, author2, AuthorComparer.Instance);
     }
 
     [TestMethod]
@@ -87,7 +87,7 @@ public class AuthorTests
         var author1 = Author.Create("Kinematics");
         var author2 = Author.Create("kinematics");
 
-        Assert.IsTrue(AuthorComparer.Instance.Equals(author1, author2));
+        Assert.AreEqual(author1, author2, AuthorComparer.Instance);
     }
 
     [TestMethod]
@@ -97,7 +97,7 @@ public class AuthorTests
         var author1 = Author.Create("Kinematics");
         var author2 = Author.Create("KINEMATICS");
 
-        Assert.IsTrue(AuthorComparer.Instance.Equals(author1, author2));
+        Assert.AreEqual(author1, author2, AuthorComparer.Instance);
     }
 
     [TestMethod]
@@ -107,7 +107,7 @@ public class AuthorTests
         var author1 = Author.Create("KinematicsΩ");
         var author2 = Author.Create("KINEMATICSΩ");
 
-        Assert.IsTrue(AuthorComparer.Instance.Equals(author1, author2));
+        Assert.AreEqual(author1, author2, AuthorComparer.Instance);
     }
 
     [TestMethod]
@@ -117,7 +117,7 @@ public class AuthorTests
         var author1 = Author.Create("Kinematicsω");
         var author2 = Author.Create("KINEMATICSΩ");
 
-        Assert.IsTrue(AuthorComparer.Instance.Equals(author1, author2));
+        Assert.AreEqual(author1, author2, AuthorComparer.Instance);
     }
 
     [TestMethod]
