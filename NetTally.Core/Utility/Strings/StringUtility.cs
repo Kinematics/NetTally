@@ -9,13 +9,10 @@ public static partial class StringUtility
     #region Plan names
     /// <summary>
     /// Magic character (currently ◈, \u25C8) to mark a named voter as a plan rather than a user.
+    /// Prepends (if necessary) the plan name marker character to the basic name.
     /// </summary>
-
-    /// <summary>
-    /// Check if the provided name starts with the plan name marker.
-    /// </summary>
-    /// <param name="name">The name to check.</param>
-    /// <returns>Returns true if the name starts with the plan name marker.</returns>
+    /// <param name="name">The basic name to adjust.</param>
+    /// <returns>The name with the plan name marker attached.</returns>
     public static string MakePlanName(this string name)
     {
         if (string.IsNullOrEmpty(name))
