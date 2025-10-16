@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums;
-using NetTally.Utility;
 
 namespace NetTally.Tests.Tallying
 {

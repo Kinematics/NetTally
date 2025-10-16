@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Tally.Counting;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Vote.Component;
-using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;
 [TestClass]

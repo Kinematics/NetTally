@@ -1,4 +1,4 @@
-﻿using NetTally.Utility;
+﻿using NetTally.Configure;
 
 namespace NetTally.Tally.Vote.Component;
 public static class MarkerDisplay

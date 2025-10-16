@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Posts.Component.Utility;
@@ -8,7 +9,6 @@ using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
-using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Storage;
 

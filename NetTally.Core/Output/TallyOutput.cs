@@ -15,7 +15,6 @@ using NetTally.Tally.Storage;
 using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
-using NetTally.Utility;
 
 namespace NetTally.Output;
 

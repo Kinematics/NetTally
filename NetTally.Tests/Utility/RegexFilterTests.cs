@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Utility;
+using NetTally.Configure;
 using NetTally.Utility.Filtering;
 
 namespace NetTally.Tests.Utility

@@ -1,5 +1,5 @@
-﻿using NetTally.Tally.Posts.Component;
-using NetTally.Utility;
+﻿using NetTally.Configure;
+using NetTally.Tally.Posts.Component;
 
 namespace NetTally.Tally.Threads;
 

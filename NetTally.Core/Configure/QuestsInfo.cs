@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Tally.Counting;
-using NetTally.Utility;
 
 namespace NetTally.Configure;
 

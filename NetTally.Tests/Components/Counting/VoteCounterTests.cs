@@ -9,7 +9,6 @@ using NetTally.Tally.Posts.Component;
 using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Posts.Component.Utility;
 using NetTally.Tally.Vote.Component;
-using NetTally.Utility;
 
 namespace NetTally.Tests.Components.Counting;
 

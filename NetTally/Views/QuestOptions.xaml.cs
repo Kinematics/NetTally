@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using NetTally.Utility;
+using NetTally.Configure;
 using NetTally.ViewModels;
 
 namespace NetTally.Views

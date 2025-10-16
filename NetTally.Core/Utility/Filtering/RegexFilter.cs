@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using NetTally.Configure;
 
 namespace NetTally.Utility.Filtering;
 

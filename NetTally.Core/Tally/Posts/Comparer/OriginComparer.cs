@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using NetTally.Configure;
 using NetTally.Tally.Posts.Component;
-using NetTally.Utility;
 
 namespace NetTally.Tally.Posts.Comparer;
 
