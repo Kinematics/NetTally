@@ -20,7 +20,5 @@ public static partial class Strings
 
     public const string ExampleHostUrl = "http://www.example.com/";
 
-    public const string Error = "Error";
-
     public const string UntitledThread = "~Untitled~";
 }
