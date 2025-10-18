@@ -1,7 +1,10 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using NetTally.Utility;
+
+using static NetTally.Configure.Strings;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
@@ -101,9 +104,31 @@ static partial class ForumPostTextConverter
     #region Private Support Functions
     static readonly char[] newlineChars = ['\r', '\n'];
     const string normalNewline = "\r\n";
-    const char openStrike = '❰';
-    const char closeStrike = '❱';
-    const char strikeNewline = '⦂';
+
+    static readonly string openItalics = $"{OpenBBCode}i{CloseBBCode}";
+    static readonly string closeItalics = $"{OpenBBCode}/i{CloseBBCode}";
+    static readonly string openBold = $"{OpenBBCode}b{CloseBBCode}";
+    static readonly string closeBold = $"{OpenBBCode}/b{CloseBBCode}";
+    static readonly string openUnderline = $"{OpenBBCode}u{CloseBBCode}";
+    static readonly string closeUnderline = $"{OpenBBCode}/u{CloseBBCode}";
+    static readonly string openQuickSpoilers = $"{OpenBBCode}qs{CloseBBCode}";
+    static readonly string closeQuickSpoilers = $"{OpenBBCode}/qs{CloseBBCode}";
+
+    static readonly string urlTemplate = $"{OpenBBCode}url=\"{{0}}\"{CloseBBCode}";
+    static readonly string colorTemplate = $"{OpenBBCode}color=\"{{0}}\"{CloseBBCode}";
+    static readonly string imageTemplate = $"{OpenBBCode}url=\"{{0}}\"{CloseBBCode}<Image>{OpenBBCode}/url{CloseBBCode}";
+
+    static readonly string closeUrl = $"{OpenBBCode}/url{CloseBBCode}";
+    static readonly string closeColor = $"{OpenBBCode}/color{CloseBBCode}";
+
+    extension(string template)
+    {
+        string FormatWith(string prm)
+        {
+            string result = FormattableStringFactory.Create(template, prm).ToString();
+            return result;
+        }
+    }
 
     /// <summary>
     /// Extracts post text as a string from the provided HTML node.
@@ -148,19 +173,19 @@ static partial class ForumPostTextConverter
                     sb.Append(normalNewline);
                     break;
                 case "i":
-                    sb.Append("『i』");
+                    sb.Append(openItalics);
                     ExtractPostTextString(child, exclude, sb, host);
-                    sb.Append("『/i』");
+                    sb.Append(closeItalics);
                     break;
                 case "b":
-                    sb.Append("『b』");
+                    sb.Append(openBold);
                     ExtractPostTextString(child, exclude, sb, host);
-                    sb.Append("『/b』");
+                    sb.Append(closeBold);
                     break;
                 case "u":
-                    sb.Append("『u』");
+                    sb.Append(openUnderline);
                     ExtractPostTextString(child, exclude, sb, host);
-                    sb.Append("『/u』");
+                    sb.Append(closeUnderline);
                     break;
                 case "span":
                     string spanStyle = child.GetAttributeValue("style", "");
@@ -169,16 +194,16 @@ static partial class ForumPostTextConverter
                     // Struck-through text is entirely skipped.
                     if (spanStrikeRegex.Match(spanStyle).Success)
                     {
-                        sb.Append(openStrike);
+                        sb.Append(OpenStrike);
                         ExtractPostTextString(child, exclude, sb, host);
-                        sb.Append(closeStrike);
+                        sb.Append(CloseStrike);
                     }
                     else if (spanSpoilerRegex.Match(spanClass).Success)
                     {
                         // Keep quick spoilers.
-                        sb.Append("『qs』");
+                        sb.Append(openQuickSpoilers);
                         ExtractPostTextString(child, exclude, sb, host);
-                        sb.Append("『/qs』");
+                        sb.Append(closeQuickSpoilers);
                     }
                     else
                     {
@@ -186,9 +211,9 @@ static partial class ForumPostTextConverter
                         Match m = spanColorRegex.Match(spanStyle);
                         if (m.Success)
                         {
-                            sb.Append($"『color={m.Groups["color"].Value}』");
+                            sb.Append(colorTemplate.FormatWith(m.Groups["color"].Value));
                             ExtractPostTextString(child, exclude, sb, host);
-                            sb.Append("『/color』");
+                            sb.Append(closeColor);
                         }
                         else
                         {
@@ -198,9 +223,9 @@ static partial class ForumPostTextConverter
                     }
                     break;
                 case "a":
-                    sb.Append($"『url=\"{Uri.UnescapeDataString(child.GetAttributeValue("href", ""))}\"』");
+                    sb.Append(urlTemplate.FormatWith(Uri.UnescapeDataString(child.GetAttributeValue("href", ""))));
                     ExtractPostTextString(child, exclude, sb, host);
-                    sb.Append("『/url』");
+                    sb.Append(closeUrl);
                     break;
                 case "img":
                     string srcUrl = child.GetAttributeValue("data-url", "");
@@ -227,7 +252,7 @@ static partial class ForumPostTextConverter
                         }
                     }
 
-                    sb.Append($"『url=\"{imgHref}\"』<Image>『/url』");
+                    sb.Append(imageTemplate.FormatWith(imgHref));
                     break;
                 case "div":
                     // Recurse into divs (typically spoilers).
@@ -259,7 +284,7 @@ static partial class ForumPostTextConverter
                     sb.Append(input[bufferStart..c]);
 
                     if (strikeState)
-                        sb.Append(strikeNewline);
+                        sb.Append(StrikeNewLine);
                     else
                         sb.Append(normalNewline);
 
@@ -272,11 +297,11 @@ static partial class ForumPostTextConverter
                 newlineState = false;
             }
 
-            if (ch == openStrike)
+            if (ch == OpenStrike)
             {
                 strikeState = true;
             }
-            else if (ch == closeStrike)
+            else if (ch == CloseStrike)
             {
                 strikeState = false;
             }

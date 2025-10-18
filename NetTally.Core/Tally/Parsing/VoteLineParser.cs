@@ -2,6 +2,8 @@
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 
+using static NetTally.Configure.Strings;
+
 namespace NetTally.Tally.Parsing
 {
     public static class VoteLineParser
@@ -19,8 +21,6 @@ namespace NetTally.Tally.Parsing
             Strike,
         }
 
-        const char openBBCode = '『';
-        const char closeBBCode = '』';
         const char openBracket = '[';
         const char closeBracket = ']';
         const char openParen = '(';
@@ -28,9 +28,6 @@ namespace NetTally.Tally.Parsing
         const char whitespace = ' ';
         const char xBox = '☒';
         const char checkBox = '☑';
-        const char openStrike = '❰';
-        const char closeStrike = '❱';
-        const char strikeNewline = '⦂';
 
         static readonly char[] apostrophes = ['‘', '’'];
         static readonly char[] quotations = ['“', '”', '‟', '„', '❝', '❞', '〝', '〞', '〟', '〃'];
@@ -87,7 +84,7 @@ namespace NetTally.Tally.Parsing
                             markerSB.Append(ch);
                             currentState = TokenState.PostMarker;
                         }
-                        else if (ch == openBBCode)
+                        else if (ch == OpenBBCode)
                         {
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
@@ -116,7 +113,7 @@ namespace NetTally.Tally.Parsing
                             markerSB.Append(ch);
                             currentState = TokenState.PostMarker;
                         }
-                        else if (ch == openBBCode)
+                        else if (ch == OpenBBCode)
                         {
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
@@ -139,7 +136,7 @@ namespace NetTally.Tally.Parsing
                         {
                             currentState = TokenState.PostMarker;
                         }
-                        else if (ch == openBBCode)
+                        else if (ch == OpenBBCode)
                         {
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
@@ -162,13 +159,13 @@ namespace NetTally.Tally.Parsing
                             state.Push(currentState);
                             currentState = TokenState.Task;
                         }
-                        else if (ch == openBBCode && taskSB.Length == 0)
+                        else if (ch == OpenBBCode && taskSB.Length == 0)
                         {
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
                             tempContent.Append(ch);
                         }
-                        else if (ch == openStrike)
+                        else if (ch == OpenStrike)
                         {
                             tempContent.Append("『s』");
                             state.Push(currentState);
@@ -188,12 +185,12 @@ namespace NetTally.Tally.Parsing
                         {
                             currentState = state.Pop();
                         }
-                        else if (ch == openBBCode)
+                        else if (ch == OpenBBCode)
                         {
                             state.Push(currentState);
                             currentState = TokenState.BBCode;
                         }
-                        else if (ch == openStrike)
+                        else if (ch == OpenStrike)
                         {
                             state.Push(currentState);
                             currentState = TokenState.Strike;
@@ -210,7 +207,7 @@ namespace NetTally.Tally.Parsing
                             tempContent.Clear();
                         }
 
-                        if (ch == openStrike)
+                        if (ch == OpenStrike)
                         {
                             tempContent.Append("『s』");
                             state.Push(currentState);
@@ -234,19 +231,19 @@ namespace NetTally.Tally.Parsing
                         {
                             tempContent.Append(ch);
                         }
-                        if (ch == closeBBCode)
+                        if (ch == CloseBBCode)
                         {
                             currentState = state.Pop();
                         }
                         break;
                     case TokenState.Strike:
                         // Strike-through text is only preserved in the content area
-                        if (ch == closeStrike)
+                        if (ch == CloseStrike)
                         {
                             tempContent.Append("『/s』");
                             currentState = state.Pop();
                         }
-                        else if (ch == strikeNewline)
+                        else if (ch == StrikeNewLine)
                         {
                             // If we hit embedded newlines, bail out entirely.
                             // Take whatever's been done up to that point.
@@ -306,7 +303,7 @@ namespace NetTally.Tally.Parsing
                 switch (currentState)
                 {
                     case TokenState.None:
-                        if (ch == openBBCode)
+                        if (ch == OpenBBCode)
                         {
                             if (bufferOn)
                             {
@@ -318,7 +315,7 @@ namespace NetTally.Tally.Parsing
                         }
                         break;
                     case TokenState.BBCode:
-                        if (ch == closeBBCode)
+                        if (ch == CloseBBCode)
                         {
                             currentState = state.Pop();
                             startBuffer = c + 1;
