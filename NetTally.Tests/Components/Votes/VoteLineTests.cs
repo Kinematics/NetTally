@@ -111,7 +111,7 @@ public class VoteLineTests
     public void Construct_Promote_One()
     {
         var prefix = Prefix.Create("-");
-        var marker = Marker.Empty;
+        var marker = Marker.Create("X");
         var task = VoteTask.Empty;
         var content = VoteContent.Create("A line of stuff");
 
@@ -126,7 +126,7 @@ public class VoteLineTests
     public void Construct_Promote_Full()
     {
         var prefix = Prefix.Create("---");
-        var marker = Marker.Empty;
+        var marker = Marker.Create("X");
         var task = VoteTask.Empty;
         var content = VoteContent.Create("A line of stuff");
 
