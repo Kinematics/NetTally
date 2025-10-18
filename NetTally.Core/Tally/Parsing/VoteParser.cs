@@ -43,9 +43,8 @@ public static partial class VoteParser
     private static List<VoteLine> GetVoteLines(List<string> textLines)
     {
         var voteLines = textLines
-            .Select(ParseLine)
-            .Where(a => a != null)
-            .Select(a => a!)
+            .Select(t => VoteLineParser.ParseLineParts(t))
+            .Where(a => a != VoteLine.Empty)
             .ToList();
 
         if (voteLines.Count > 0)
@@ -57,24 +56,6 @@ public static partial class VoteParser
         }
 
         return voteLines;
-    }
-
-    private static VoteLine? ParseLine(string t)
-    {
-        var parsed = VoteLineParser.ParseLineParts(t);
-
-        if (parsed == null) return null;
-
-        var parts = parsed.Value;
-
-        var prefix = Prefix.Create(parts.Prefix);
-        var marker = Marker.Create(parts.Marker);
-        var task = VoteTask.Create(parts.Task);
-        var content = VoteContent.Create(parts.Content);
-
-        var voteLine = VoteLine.Create(prefix, marker, task, content);
-
-        return voteLine;
     }
 
     private static List<VoteLine> GetNominationLines(List<string> textLines)

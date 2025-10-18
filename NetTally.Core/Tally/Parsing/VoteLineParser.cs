@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using NetTally.Tally.Vote.Component;
+using NetTally.Tally.Vote.Component.Creation;
 
 namespace NetTally.Tally.Parsing
 {
@@ -41,11 +43,10 @@ namespace NetTally.Tally.Parsing
         static readonly char[] newlineChars = ['\r', '\n'];
 
 
-        public static (string Prefix, string Marker, string Task, string Content)?
-            ParseLineParts(ReadOnlySpan<char> line)
+        public static VoteLine ParseLineParts(ReadOnlySpan<char> line)
         {
             if (line.Length == 0)
-                return null;
+                return VoteLine.Empty;
 
             StringBuilder prefixSB = new();
             StringBuilder markerSB = new();
@@ -265,13 +266,16 @@ namespace NetTally.Tally.Parsing
 
         doneExamining:
 
-            if (currentState == TokenState.Content)
-            {
-                string content = VoteString.NormalizeContentBBCode(contentSB.ToString());
-                return (prefixSB.ToString(), markerSB.ToString(), taskSB.ToString(), content);
-            }
+            Prefix prefix = Prefix.Create(prefixSB.Length);
+            Marker marker = Marker.Create(markerSB.ToString());
+            VoteTask voteTask = VoteTask.Create(taskSB.ToString());
 
-            return null;
+            string content = VoteString.NormalizeContentBBCode(contentSB.ToString());
+            VoteContent voteContent = VoteContent.Create(content);
+            
+            VoteLine voteLine = VoteLine.Create(prefix, marker, voteTask, voteContent);
+
+            return voteLine;
         }
 
         /// <summary>
