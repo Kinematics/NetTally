@@ -266,6 +266,9 @@ namespace NetTally.Tally.Parsing
 
         doneExamining:
 
+            if (currentState == TokenState.Content && tempContent.Length > 0)
+                contentSB.Append(tempContent);
+
             Prefix prefix = Prefix.Create(prefixSB.Length);
             Marker marker = Marker.Create(markerSB.ToString());
             VoteTask voteTask = VoteTask.Create(taskSB.ToString());
