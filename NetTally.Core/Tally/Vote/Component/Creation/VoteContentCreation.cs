@@ -28,6 +28,8 @@ public static class VoteContentCreation
 
             string cleanContent = VoteLineParser.StripBBCode(content);
 
+            cleanContent = cleanContent.Trim();
+
             return new VoteContent(content, cleanContent);
         }
     }
