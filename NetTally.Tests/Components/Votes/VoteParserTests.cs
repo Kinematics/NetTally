@@ -4,6 +4,8 @@ using NetTally.Tally.Vote.Comparers;
 using NetTally.Tally.Vote.Component;
 using NetTally.Tally.Vote.Component.Creation;
 
+using static NetTally.Configure.Strings;
+
 namespace NetTally.Tests.Components.Votes;
 [TestClass]
 public class VoteParserTests
@@ -14,7 +16,9 @@ public class VoteParserTests
         TestStartup.ConfigureServices();
     }
 
+    #region Non-Votes
     [TestMethod]
+    [TestCategory("NonVote")]
     public void Parse_Empty_NonVote()
     {
         string text = string.Empty;
@@ -26,6 +30,19 @@ public class VoteParserTests
     }
 
     [TestMethod]
+    [TestCategory("NonVote")]
+    public void ParseParts_Empty_NonVote()
+    {
+        string text = string.Empty;
+
+        var voteLine = VoteLineParser.ParseLineParts(text);
+
+        Assert.IsNotNull(voteLine);
+        Assert.AreEqual(VoteLine.Empty, voteLine, VoteLineComparer.Instance);
+    }
+
+    [TestMethod]
+    [TestCategory("NonVote")]
     public void Parse_Text_NonVote()
     {
         string text = """
@@ -39,6 +56,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
+    [TestCategory("NonVote")]
     public void Parse_EmptyLine_NonVote()
     {
         string text = """
@@ -54,6 +72,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
+    [TestCategory("NonVote")]
     public void Parse_Dashes_NonVote()
     {
         string text = """
@@ -67,7 +86,8 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void Parse_BrokenMarkerBracket_NonVote()
+    [TestCategory("NonVote")]
+    public void Parse_BrokenMarkerBracketOpen_NonVote()
     {
         string text = """
             ---[
@@ -81,67 +101,82 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void Parse_Prefix_FirstLineStripped()
+    [TestCategory("NonVote")]
+    public void Parse_BrokenMarkerBracketClosed_NonVote()
     {
         string text = """
-            - - [x] What I want to vote for
+            ---[x
+            ] Stuff
             """;
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
-        Assert.AreEqual(0, lines[0].Depth);
+        Assert.AreEqual(0, lines.Count);
     }
 
     [TestMethod]
-    public void Parse_PrefixMultiline_OnlyFirstLineStripped()
+    [TestCategory("NonVote")]
+    public void Parse_NoContent_NonVote()
     {
         string text = """
-            --[x] What I want to vote for
-            --[x] What else I want to vote for
+            ---[x]
             """;
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
-        Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(2, lines[1].Depth);
+        Assert.AreEqual(0, lines.Count);
     }
 
     [TestMethod]
-    public void Parse_PrefixWithWhitespace_WhitespaceIgnored()
+    [TestCategory("NonVote")]
+    public void Parse_PostedTally_NonVote()
     {
         string text = """
-            - - [x] What I want to vote for
-            - - [x] What else I want to vote for
-            """;
+                Someone posted a tally:
+                『color=Transparent』##### NetTally『/color』
+                [X] A count of votes
+                """;
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
-        Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(2, lines[1].Depth);
+        Assert.AreEqual(0, lines.Count);
     }
 
     [TestMethod]
-    public void Parse_PrefixWithEarlyWhitespace_WhitespaceIgnored()
+    [TestCategory("NonVote")]
+    public void Parse_PostedTallyWithBBCode_NonVote()
     {
         string text = """
-            - - [x] What I want to vote for
-             - - [x] What else I want to vote for
+                Someone posted a tally:
+                『color=Transparent』#『b』####『/b』 NetTally『/color』
+                [X] A count of votes
+                """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(0, lines.Count);
+    }
+
+    [TestMethod]
+    [TestCategory("NonVote")]
+    public void Parse_Joke_NonVote()
+    {
+        string text = """
+            ---[jk] Kill them all
             """;
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
-        Assert.AreEqual(0, lines[0].Depth);
-        Assert.AreEqual(2, lines[1].Depth);
+        Assert.AreEqual(0, lines.Count);
     }
+    #endregion Non-Votes
 
+    #region Valid Votes
     [TestMethod]
     public void Parse_Basic_VoteLine()
     {
@@ -207,6 +242,68 @@ public class VoteParserTests
     }
 
     [TestMethod]
+    public void Parse_Prefix_PrefixStripped()
+    {
+        string text = """
+            - - [x] What I want to vote for
+            """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+    }
+
+    [TestMethod]
+    public void Parse_PrefixMultiline_FirstPrefixStripped()
+    {
+        string text = """
+            --[x] What I want to vote for
+            --[x] What else I want to vote for
+            """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(2, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.AreEqual(2, lines[1].Depth);
+    }
+
+    [TestMethod]
+    public void Parse_PrefixWithWhitespace_WhitespaceIgnored()
+    {
+        string text = """
+            - - [x] What I want to vote for
+            - - [x] What else I want to vote for
+            """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(2, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.AreEqual(2, lines[1].Depth);
+    }
+
+    [TestMethod]
+    public void Parse_PrefixWithEarlyWhitespace_WhitespaceIgnored()
+    {
+        string text = """
+            - - [x] What I want to vote for
+             - - [x] What else I want to vote for
+            """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(2, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.AreEqual(2, lines[1].Depth);
+    }
+
+    [TestMethod]
     public void Parse_CleanBold_BoldRetained()
     {
         string text = "[x] My 『b』vote『/b』";
@@ -219,6 +316,86 @@ public class VoteParserTests
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
         Assert.AreEqual("My 『b』vote『/b』", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_BoldNotask_BoldRetained_SpacesTrimmed()
+    {
+        string text = "[x] 『b』 My vote『/b』";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("『b』 My vote『/b』", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_ImproperBoldInPrefix1_BoldRemoved()
+    {
+        string text = "『b』[x] My vote『/b』";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My vote", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_ImproperBoldInPrefix2_BoldRemoved()
+    {
+        string text = "--『b』[x] My vote『/b』";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My vote", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_ImproperBoldInMarker_BoldRemoved()
+    {
+        string text = "[『b』x] My vote『/b』";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My vote", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_ImproperBoldInTask_BoldRemoved()
+    {
+        string text = "[x][『b』one] My vote『/b』";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual("one", lines[0].Task.Name);
+        Assert.AreEqual("My vote", lines[0].Content.Content);
         Assert.AreEqual("My vote", lines[0].Content.CleanContent);
     }
 
@@ -242,33 +419,82 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void Parse_PostedTally_NonVote()
+    public void Parse_StrikeContent_StrikeRetained()
     {
-        string text = """
-                Someone posted a tally:
-                『color=Transparent』##### NetTally『/color』
-                [X] A count of votes
-                """;
+        string text = $"[x] My {OpenStrike}vote{CloseStrike}";
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My 『s』vote『/s』", lines[0].Content.Content);
+        Assert.AreEqual("My vote", lines[0].Content.CleanContent);
     }
 
     [TestMethod]
-    public void Parse_PostedTallyWithBold_NonVote()
+    public void Parse_InitialStrikeContent_StrikeRetained()
     {
-        string text = """
-                Someone posted a tally:
-                『color=Transparent』#『b』####『/b』 NetTally『/color』
-                [X] A count of votes
-                """;
+        string text = $"[x] {OpenStrike}Not{CloseStrike} Today!";
 
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("『s』Not『/s』 Today!", lines[0].Content.Content);
+        Assert.AreEqual("Not Today!", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_StrikeContentNotClosed_ContentRemoved()
+    {
+        string text = $"[x] My {OpenStrike}vote";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My", lines[0].Content.Content);
+        Assert.AreEqual("My", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_StrikeContentNewLines_AbandonStruckContent()
+    {
+        string text = $"[x] My {OpenStrike}vote{StrikeNewLine} for water {CloseStrike}";
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("My", lines[0].Content.Content);
+        Assert.AreEqual("My", lines[0].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void Parse_StrikeTask_StrikeRemoved()
+    {
+        string text = $"[x][{OpenStrike}vote{CloseStrike}] Stuff";
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(1, lines.Count);
+        Assert.AreEqual(0, lines[0].Depth);
+        Assert.IsTrue(lines[0].Marker is VoteMarker);
+        Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
+        Assert.AreEqual("Stuff", lines[0].Content.Content);
+        Assert.AreEqual("Stuff", lines[0].Content.CleanContent);
     }
 
     [TestMethod]
@@ -307,36 +533,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void Nomination_Fail()
-    {
-        string text = """
-                Tentative vote idea:
-                『url="https://forums.sufficientvelocity.com/members/4076/"』@Kinematics『/url』
-                『url="https://forums.sufficientvelocity.com/members/4078/"』@TheInnerHollow『/url』
-                """;
-
-        var lines = VoteParser.ExtractVoteLines(text);
-
-        Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
-    }
-
-    [TestMethod]
-    public void Nomination_Pass()
-    {
-        string text = """
-                『url="https://forums.sufficientvelocity.com/members/4076/"』@Kinematics『/url』
-                『url="https://forums.sufficientvelocity.com/members/4078/"』@TheInnerHollow『/url』
-                """;
-
-        var lines = VoteParser.ExtractVoteLines(text);
-
-        Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
-    }
-
-    [TestMethod]
-    public void ParseVoteLines_Complex()
+    public void Parse_MultilineVote_Complex()
     {
         string text = """
                 [90%] Line 1
@@ -353,7 +550,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void ParseVoteLines_UnbalancedBBCode()
+    public void Parse_UnbalancedBBCode_StripBBCode()
     {
         string text = """
                 What do you think they'll be doing now?
@@ -370,7 +567,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void ParseVoteLine_CleanColorNamed()
+    public void Parse_CleanColorNamed_KeepColor()
     {
         string text = """
             What do you think they'll be doing now?
@@ -390,7 +587,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void ParseVoteLine_CleanColorHex()
+    public void Parse_CleanColorHex_KeepColor()
     {
         string text = """
             What do you think they'll be doing now?
@@ -407,6 +604,19 @@ public class VoteParserTests
         Assert.AreEqual(VoteTask.Empty, lines[0].Task, VoteTaskComparer.Instance);
         Assert.AreEqual("『color=#ff00AA』Teacups『/color』", lines[1].Content.Content);
         Assert.AreEqual("Teacups", lines[1].Content.CleanContent);
+    }
+
+    [TestMethod]
+    public void ParseParts_EmbeddedNewLine_Normal()
+    {
+        // Should never be able to happen, but make sure it gets ignored.
+        string text = "[x] A vote with\n a newline";
+
+        var voteLine = VoteLineParser.ParseLineParts(text);
+
+        Assert.IsNotNull(voteLine);
+        Assert.AreNotEqual(VoteLine.Empty, voteLine, VoteLineComparer.Instance);
+        Assert.AreEqual("A vote with a newline", voteLine.Content.CleanContent);
     }
 
     [TestMethod]
@@ -438,7 +648,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void StrikeThroughContent_Keep()
+    public void StrikeThroughContent_KeepStrike()
     {
         string text = """
             Considering:
@@ -457,7 +667,7 @@ public class VoteParserTests
     }
 
     [TestMethod]
-    public void ParseVoteLine_ParenTask()
+    public void Parse_ParenTask_FindTask()
     {
         string text = "[x](Info) My vote";
 
@@ -475,4 +685,35 @@ public class VoteParserTests
         Assert.AreEqual("My vote", line.Content.CleanContent);
     }
 
+    [TestMethod]
+    [TestCategory("Nominations")]
+    public void Nomination_Fail()
+    {
+        string text = """
+                Tentative vote idea:
+                『url="https://forums.sufficientvelocity.com/members/4076/"』@Kinematics『/url』
+                『url="https://forums.sufficientvelocity.com/members/4078/"』@TheInnerHollow『/url』
+                """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(0, lines.Count);
+    }
+
+    [TestMethod]
+    [TestCategory("Nominations")]
+    public void Nomination_Pass()
+    {
+        string text = """
+                『url="https://forums.sufficientvelocity.com/members/4076/"』@Kinematics『/url』
+                『url="https://forums.sufficientvelocity.com/members/4078/"』@TheInnerHollow『/url』
+                """;
+
+        var lines = VoteParser.ExtractVoteLines(text);
+
+        Assert.IsNotNull(lines);
+        Assert.AreEqual(2, lines.Count);
+    }
+    #endregion Valid Votes
 }
