@@ -14,6 +14,12 @@ public static partial class Strings
     public const string ScoreMarker = "%";
     public const string RankMarker = "#";
 
+    public const char OpenBBCode = '『';
+    public const char CloseBBCode = '』';
+    public const char OpenStrike = '❰';
+    public const char CloseStrike = '❱';
+    public const char StrikeNewLine = '⦂';
+
     public const string OmakeFilter = @"\bomake\b";
     public const string NewThreadEntry = "https://www.example.com/threads/fake-thread.00000";
     public const string NewThreadDisplayName = "~Placeholder~";
