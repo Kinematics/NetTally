@@ -1,4 +1,5 @@
 ﻿using NetTally.Models.Creation;
+using NetTally.Models.Mapping;
 using NetTally.Models.Posts;
 using NetTally.Models.Utility;
 

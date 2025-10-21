@@ -1,6 +1,6 @@
 ﻿using NetTally.Models.Posts;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Mapping;
 
 static class AuthorMapping
 {

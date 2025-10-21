@@ -1,6 +1,6 @@
 ﻿using NetTally.Models.Posts;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Mapping;
 
 /// <summary>
 /// Class containing mapping function for subclasses of <see cref="Origin"/> objects.

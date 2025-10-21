@@ -1,4 +1,5 @@
 ﻿using NetTally.Enums;
+using NetTally.Models.Mapping;
 using NetTally.Models.Votes;
 
 namespace NetTally.Models.Utility;

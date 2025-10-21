@@ -1,5 +1,6 @@
 ﻿using NetTally.Configure;
 using NetTally.Models.Display;
+using NetTally.Models.Mapping;
 using NetTally.Models.Utility;
 using NetTally.Models.Votes;
 
