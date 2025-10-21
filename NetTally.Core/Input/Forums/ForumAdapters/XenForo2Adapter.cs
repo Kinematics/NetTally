@@ -15,6 +15,7 @@ using NetTally.Utility.Async;
 using NetTally.Utility.Filtering;
 using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 

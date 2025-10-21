@@ -1,4 +1,5 @@
 ﻿using NetTally.Models.Creation;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 
 namespace NetTally.Models.Creation;
@@ -30,7 +31,7 @@ public static class VoteLineCreation
             ArgumentNullException.ThrowIfNull(task);
             ArgumentNullException.ThrowIfNull(content);
 
-            if (content == VoteContent.Empty || marker == Marker.Empty)
+            if (content == VoteContent.Empty || marker == Marker.None)
                 return VoteLine.Empty;
 
             return new(prefix, marker, task, content);

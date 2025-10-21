@@ -7,6 +7,7 @@ using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.Models.Comparers;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 using NetTally.Models.Behavior;
 using NetTally.Navigation;

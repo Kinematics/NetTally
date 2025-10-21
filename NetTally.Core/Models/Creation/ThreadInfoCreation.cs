@@ -1,5 +1,6 @@
 ﻿using NetTally.Configure;
 using NetTally.Models.Creation;
+using NetTally.Models.Defaults;
 using NetTally.Models.Posts;
 using NetTally.Models.Threads;
 

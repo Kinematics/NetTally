@@ -4,6 +4,7 @@ using NetTally.Models.Display;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Utility.Linq;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Processing;
 

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using NetTally.Models.Creation;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 
 using static NetTally.Configure.Strings;

@@ -16,6 +16,7 @@ using NetTally.Models.Votes;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 using NetTally.ViewModels;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Avalonia.Views
 {

@@ -6,6 +6,7 @@ using NetTally.Models.Votes;
 using NetTally.Tally.Parsing;
 
 using static NetTally.Configure.Strings;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tests.Components.Votes;
 

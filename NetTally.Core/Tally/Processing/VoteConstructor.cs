@@ -7,6 +7,7 @@ using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Utility.Collections;
 using NetTally.Utility.Comparers;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Processing;
 

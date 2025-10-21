@@ -3,6 +3,7 @@ using NetTally.Models.Comparers;
 using NetTally.Models.Creation;
 using NetTally.Models.Posts;
 using NetTally.Models.Behavior;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tests.Components.Posts;
 

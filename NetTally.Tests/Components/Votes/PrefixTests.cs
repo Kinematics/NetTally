@@ -2,6 +2,7 @@
 using NetTally.Models.Creation;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tests.Components.Votes;
 

@@ -6,6 +6,7 @@ using NetTally.Models.Display;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Tally.Parsing;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tests.Components.Votes;
 
@@ -29,7 +30,7 @@ public class VoteLineTests
     public void Construct_PrefixNull_Exception()
     {
         //var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
@@ -53,7 +54,7 @@ public class VoteLineTests
     public void Construct_TaskNull_Exception()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         //var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
@@ -65,7 +66,7 @@ public class VoteLineTests
     public void Construct_ContentNull_Exception()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         //var content = VoteContent.Empty;
 
@@ -77,7 +78,7 @@ public class VoteLineTests
     public void Construct_ContentEmpty_Empty()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         var content = VoteContent.Empty;
 
@@ -89,7 +90,7 @@ public class VoteLineTests
     public void Construct_Basic_Normal()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         var content = VoteContent.Create("A line of stuff");
 
@@ -101,7 +102,7 @@ public class VoteLineTests
     public void Construct_Promote_None()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         var content = VoteContent.Create("A line of stuff");
 
@@ -144,7 +145,7 @@ public class VoteLineTests
     public void Construct_Compare_Same()
     {
         var prefix = Prefix.Empty;
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         var task = VoteTask.Empty;
         var content = VoteContent.Create("A line of stuff");
 

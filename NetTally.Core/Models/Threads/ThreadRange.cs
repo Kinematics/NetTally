@@ -25,14 +25,3 @@ public sealed record ThreadRangeById(PostId PostId, int StartPage, int PagesInTh
 public sealed record ThreadRangeByPosts(int StartPostNumber, int EndPostNumber,
     int PostsPerPage, int PagesInThread) : ThreadRange;
 
-public static class PredefinedThreadRange
-{
-    extension(ThreadRange)
-    {
-        public static ThreadRange None => _none;
-    }
-
-    private static readonly ThreadRange _none =
-        new ThreadRangeByPosts(0, 0, 20, 1);
-}
-

@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Votes;
+﻿using NetTally.Models.Defaults;
+using NetTally.Models.Votes;
 
 namespace NetTally.Tally.RankCounting.Reference;
 

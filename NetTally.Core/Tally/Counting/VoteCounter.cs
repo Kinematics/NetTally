@@ -7,6 +7,7 @@ using NetTally.Enums;
 using NetTally.Models.Behavior;
 using NetTally.Models.Comparers;
 using NetTally.Models.Creation;
+using NetTally.Models.Defaults;
 using NetTally.Models.Posts;
 using NetTally.Models.Votes;
 using NetTally.Tally.Processing;
@@ -1055,7 +1056,7 @@ public class VoteCounter(
         if (originalVoteBlock.LineCount == 0 || string.IsNullOrEmpty(originalPlanName))
             return null;
 
-        VoteLine firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.Empty };
+        VoteLine firstLine = originalVoteBlock.Lines[0] with { Marker = Marker.None };
 
         var (planType, planName) = VoteBlocks.CheckIfPlan(firstLine);
 
@@ -1074,7 +1075,7 @@ public class VoteCounter(
         // All vote lines in a plan should have MarkerType of None.
         // This allows them to be part of any comparison, and easily mesh with various output.
         var remainingLines = originalVoteBlock.Skip(1)
-            .Select(v => v with { Marker = Marker.Empty });
+            .Select(v => v with { Marker = Marker.None });
 
         // Stack stuff back together
         List<VoteLine> voteLines = [firstLine, .. remainingLines];

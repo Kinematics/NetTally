@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models.Defaults;
 using NetTally.Models.Posts;
 using NetTally.Models.Threads;
 using NetTally.Web;

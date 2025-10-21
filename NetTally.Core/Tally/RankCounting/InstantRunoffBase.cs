@@ -1,4 +1,5 @@
 ﻿using NetTally.Models.Behavior;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 using NetTally.Tally.Storage;
 

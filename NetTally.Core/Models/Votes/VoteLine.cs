@@ -15,14 +15,3 @@ public sealed record VoteLine(Prefix Prefix, Marker Marker, VoteTask Task, VoteC
 {
     private string DebugDisplayString => $"{{ {Prefix.Indent}[{Marker.Display()}][{Task.Name}] {Content.CleanContent} }}";
 }
-
-public static class VoteLinePredefined
-{
-    extension(VoteLine)
-    {
-        public static VoteLine Empty => _empty;
-    }
-
-    private static readonly VoteLine _empty =
-        new(Prefix.Empty, Marker.Empty, VoteTask.Empty, VoteContent.Empty);
-}

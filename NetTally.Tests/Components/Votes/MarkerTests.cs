@@ -6,6 +6,7 @@ using NetTally.Models.Creation;
 using NetTally.Models.Display;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tests.Components.Votes;
 
@@ -21,7 +22,7 @@ public class MarkerTests
     [TestMethod]
     public void Check_Empty()
     {
-        var marker = Marker.Empty;
+        var marker = Marker.None;
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is NoMarker);
     }
@@ -358,7 +359,7 @@ public class MarkerTests
         var marker = Marker.Create("95%");
         Assert.IsNotNull(marker);
 
-        Assert.AreNotEqual(Marker.Empty, marker);
+        Assert.AreNotEqual(Marker.None, marker);
     }
 
     [TestMethod]
@@ -448,7 +449,7 @@ public class MarkerTests
         var marker = Marker.Create("95%");
         Assert.IsNotNull(marker);
 
-        Assert.AreEqual(Marker.Empty, marker, MarkerComparer.Instance);
+        Assert.AreEqual(Marker.None, marker, MarkerComparer.Instance);
     }
 
     [TestMethod]

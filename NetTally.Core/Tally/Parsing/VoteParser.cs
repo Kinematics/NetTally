@@ -3,6 +3,7 @@ using NetTally.Models.Creation;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Utility;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Parsing;
 

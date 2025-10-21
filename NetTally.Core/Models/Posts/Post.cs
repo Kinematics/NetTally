@@ -10,13 +10,3 @@ namespace NetTally.Models.Posts;
 /// <param name="Text">Text contents of the post.</param>
 /// <param name="VoteLines">Any extracted vote lines from the post.</param>
 public sealed record Post(Origin Origin, string Text, ImmutableArray<VoteLine> VoteLines);
-
-public static class PredefinedPosts
-{
-    extension(Post)
-    {
-        public static Post None => _none;
-    }
-
-    private static readonly Post _none = new(Origin.None, "", []);
-}

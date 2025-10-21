@@ -3,6 +3,7 @@ using NetTally.Models.Comparers;
 using NetTally.Models.Posts;
 using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Storage;
 
@@ -57,7 +58,7 @@ public class VoteStorage : Dictionary<VoteBlock, VoterStorage>
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Marker.None };
 
             localVoters = [];
 
@@ -78,7 +79,7 @@ public class VoteStorage : Dictionary<VoteBlock, VoterStorage>
         // If the vote isn't already in storage, create a new instance.
         if (!TryGetValue(vote, out var localVoters))
         {
-            var referenceVote = vote with { Marker = Marker.Empty };
+            var referenceVote = vote with { Marker = Marker.None };
 
             localVoters = [];
 

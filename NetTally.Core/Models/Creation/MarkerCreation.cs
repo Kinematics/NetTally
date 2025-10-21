@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 
 namespace NetTally.Models.Creation;
@@ -20,7 +21,7 @@ public static partial class MarkerCreation
         public static Marker Create(string? markerText)
         {
             if (string.IsNullOrWhiteSpace(markerText))
-                return Marker.Empty;
+                return Marker.None;
 
             markerText = markerText.Trim();
 
@@ -30,7 +31,7 @@ public static partial class MarkerCreation
             {
                 // Can't have rank and score valid at the same time
                 if (m.Groups["rank"].Success && m.Groups["score"].Success)
-                    return Marker.Empty;
+                    return Marker.None;
 
                 return true switch
                 {
@@ -47,7 +48,7 @@ public static partial class MarkerCreation
                 };
             }
 
-            return Marker.Empty;
+            return Marker.None;
         }
     }
 

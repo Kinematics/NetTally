@@ -10,6 +10,7 @@ using NetTally.Models.Threads;
 using NetTally.Models.Behavior;
 using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
+using NetTally.Models.Defaults;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 
