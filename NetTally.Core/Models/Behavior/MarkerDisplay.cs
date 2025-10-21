@@ -1,9 +1,9 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Display;
+using NetTally.Models.Behavior;
 using NetTally.Models.Mapping;
 using NetTally.Models.Votes;
 
-namespace NetTally.Models.Display;
+namespace NetTally.Models.Behavior;
 
 public static class MarkerDisplay
 {

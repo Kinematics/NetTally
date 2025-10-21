@@ -4,17 +4,16 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
-using NetTally.Models.Comparers;
-using NetTally.Models.Display;
-using NetTally.Models.Posts;
 using NetTally.Models.Behavior;
+using NetTally.Models.Comparers;
+using NetTally.Models.Defaults;
+using NetTally.Models.Posts;
 using NetTally.Models.Votes;
 using NetTally.Product;
 using NetTally.Tally.Counting;
 using NetTally.Tally.Processing;
 using NetTally.Tally.RankCounting;
 using NetTally.Tally.Storage;
-using NetTally.Models.Defaults;
 
 namespace NetTally.Output;
 

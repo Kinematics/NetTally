@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Defaults;
-using NetTally.Models.Display;
-using NetTally.Models.Votes;
+﻿using NetTally.Models.Votes;
 
 namespace NetTally.Models.Defaults;
 

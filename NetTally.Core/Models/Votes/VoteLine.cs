@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-using NetTally.Models.Display;
-using NetTally.Models.Votes;
+using NetTally.Models.Behavior;
 
 namespace NetTally.Models.Votes;
 /// <summary>

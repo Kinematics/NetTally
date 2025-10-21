@@ -2,8 +2,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using NetTally.Enums;
-using NetTally.Models.Display;
-using NetTally.Models.Votes;
+using NetTally.Models.Behavior;
 
 namespace NetTally.Models.Votes;
 

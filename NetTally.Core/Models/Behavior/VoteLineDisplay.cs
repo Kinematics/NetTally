@@ -1,6 +1,6 @@
 ﻿using NetTally.Models.Votes;
 
-namespace NetTally.Models.Display;
+namespace NetTally.Models.Behavior;
 
 public static class VoteLineDisplay
 {
