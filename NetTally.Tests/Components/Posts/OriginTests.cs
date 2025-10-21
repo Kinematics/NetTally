@@ -32,9 +32,11 @@ public class OriginTests2
         string permalinkUrl = "https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809";
         Uri permalink = new(permalinkUrl);
         long postIdNumber = 2236809;
-        PostId postId = PostId.Create(postIdNumber);
+        PostId? postId = PostId.Create(postIdNumber);
+        Assert.IsNotNull(postId);
         int threadSeqNumber = 2490;
-        PostNumber postNumber = PostNumber.Create(threadSeqNumber);
+        PostNumber? postNumber = PostNumber.Create(threadSeqNumber);
+        Assert.IsNotNull(postNumber);
         DateTimeOffset timestamp = DateTimeOffset.Now;
 
         return (authorName, author, threadUrl, thread, permalinkUrl, permalink,
@@ -151,7 +153,7 @@ public class OriginTests2
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp) = GetDefaults1();
 
-        PostId postId2 = PostId.Create(postIdNumber + 1);
+        PostId? postId2 = PostId.Create(postIdNumber + 1);
 
         var origin1 = Origin.CreateUser(author, thread, permalink, postId, postNumber, timestamp);
         var origin2 = Origin.CreateUser(author, thread, permalink, postId2, postNumber, timestamp);

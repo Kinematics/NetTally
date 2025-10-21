@@ -18,8 +18,11 @@ public static class ThreadRangeCreation
         /// <param name="startPage">The page on which the post was found.</param>
         /// <param name="pagesInThread">How many pages there are in the thread.</param>
         /// <returns></returns>
-        public static ThreadRange CreateByPostId(PostId postId, int startPage, int pagesInThread)
+        public static ThreadRange? CreateByPostId(PostId? postId, int startPage, int pagesInThread)
         {
+            if (postId is null)
+                return null;
+
             if (startPage < 1)
                 startPage = 1;
             if (pagesInThread < 1)
@@ -41,14 +44,15 @@ public static class ThreadRangeCreation
             if (startPost < 1)
                 startPost = 1;
             var startPostNumber = PostNumber.Create(startPost);
-            if (startPostNumber is null)
-                return null;
 
             return CreateByStartOfRange(startPostNumber, postsPerPage, pagesInThread);
         }
 
-        public static ThreadRange CreateByStartOfRange(PostNumber startPost, int postsPerPage, int pagesInThread)
+        public static ThreadRange? CreateByStartOfRange(PostNumber? startPost, int postsPerPage, int pagesInThread)
         {
+            if (startPost is null)
+                return null;
+
             if (postsPerPage < 1)
                 postsPerPage = 20;
             if (pagesInThread < 1)
@@ -84,8 +88,11 @@ public static class ThreadRangeCreation
             return CreateByRange(startPostNumber, endPostNumber, postsPerPage, pagesInThread);
         }
 
-        public static ThreadRange? CreateByRange(PostNumber startPost, PostNumber endPost, int postsPerPage, int pagesInThread)
+        public static ThreadRange? CreateByRange(PostNumber? startPost, PostNumber? endPost, int postsPerPage, int pagesInThread)
         {
+            if (startPost is null || endPost is null)
+                return null;
+
             if (endPost == PostNumber.Zero)
                 return CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
 

@@ -17,10 +17,10 @@ public static class PostNumberCreation
         /// </summary>
         /// <param name="id">The post number.</param>
         /// <returns>A <see cref="PostNumber"/> if a positive value was provided. Otherwise returns <see cref="Zero"/></returns>
-        public static PostNumber Create(long id)
+        public static PostNumber? Create(long id)
         {
             if (id < 1)
-                return PostNumber.Zero;
+                return null;
 
             return new PostNumber(id);
         }

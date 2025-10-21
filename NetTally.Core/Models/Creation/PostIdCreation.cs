@@ -17,10 +17,10 @@ public static class PostIdCreation
         /// </summary>
         /// <param name="id">The numeric ID value.</param>
         /// <returns>A <see cref="PostId"/> if a positive value was provided. Otherwise returns <see cref="Zero"/></returns>
-        public static PostId Create(long id)
+        public static PostId? Create(long id)
         {
             if (id < 1)
-                return PostId.Zero;
+                return null;
 
             return new PostId(id);
         }
@@ -39,11 +39,8 @@ public static class PostIdCreation
 
             if (long.TryParse(id, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long idValue))
             {
-                return idValue switch
-                {
-                    > 0 => new PostId(idValue),
-                    _ => PostId.Zero
-                };
+                if (idValue > 0)
+                    return new PostId(idValue);
             }
 
             return null;

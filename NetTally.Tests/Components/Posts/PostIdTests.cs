@@ -15,30 +15,31 @@ public class PostIdTests
     }
 
     [TestMethod]
-    public void Construct_Zero_Zero()
+    public void Construct_Zero_Null()
     {
         var postId = PostId.Create(0);
-        Assert.AreEqual(PostId.Zero, postId);
+        Assert.IsNull(postId);
     }
 
     [TestMethod]
-    public void Construct_Negative1_Zero()
+    public void Construct_Negative1_Null()
     {
         var postId = PostId.Create(-1);
-        Assert.AreEqual(PostId.Zero, postId);
+        Assert.IsNull(postId);
     }
 
     [TestMethod]
-    public void Construct_Negative2_Zero()
+    public void Construct_Negative2_Null()
     {
         var postId = PostId.Create(-102366);
-        Assert.AreEqual(PostId.Zero, postId);
+        Assert.IsNull(postId);
     }
 
     [TestMethod]
     public void Construct_Positive_Normal()
     {
         var postId = PostId.Create(102366);
+        Assert.IsNotNull(postId);
         Assert.AreEqual(102366, postId.Value);
     }
 
@@ -72,11 +73,10 @@ public class PostIdTests
     }
 
     [TestMethod]
-    public void Construct_String_Zero()
+    public void Construct_ZeroString_Null()
     {
         var postId = PostId.Create("0");
-        Assert.IsNotNull(postId);
-        Assert.AreEqual(PostId.Zero, postId);
+        Assert.IsNull(postId);
     }
 
     [TestMethod]
@@ -88,14 +88,14 @@ public class PostIdTests
     }
 
     [TestMethod]
-    public void Construct_String_Negative()
+    public void Construct_NegativeString_Null()
     {
         var postId = PostId.Create("-102366");
         Assert.IsNull(postId);
     }
 
     [TestMethod]
-    public void Construct_String_NegativeComma()
+    public void Construct_NegativeString_Comma_Null()
     {
         var postId = PostId.Create("-102,366");
         Assert.IsNull(postId);
