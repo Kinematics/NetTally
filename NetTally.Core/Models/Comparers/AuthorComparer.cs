@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using NetTally.Models.Behavior;
 using NetTally.Models.Posts;
 using NetTally.Utility.Comparers;
 
@@ -25,7 +26,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
             (UnknownAuthor, _) => -1,
             (_, UnknownAuthor) => 1,
             (NamedAuthor xa, NamedAuthor ya) => Agnostic.CaseInsensitiveComparer.Compare(xa.Name, ya.Name),
-            _ => throw new ArgumentException("Unknown Author types. Cannot compare.")
+            _ => throw new NotImplementedException($"Unknown Author types: {x.GetType()}, {y.GetType()}")
         };
     }
 
@@ -39,7 +40,7 @@ public class AuthorComparer : IEqualityComparer<Author>, IComparer<Author>
 
     public int GetHashCode([DisallowNull] Author obj)
     {
-        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj);
+        return Agnostic.CaseInsensitiveComparer.GetHashCode(obj.DisplayName);
     }
 }
 
