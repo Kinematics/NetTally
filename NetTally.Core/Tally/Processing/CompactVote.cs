@@ -145,7 +145,7 @@ public static class CompactVote
         VoteStorageType voteGroup,
         bool topLevel = false)
     {
-        List<VoteStorageEntryF> voteGroupList = new(voteGroup);
+        List<VoteStorageEntryF> voteGroupList = [.. voteGroup];
         List<VoteLine> holding = [];
         List<VoteLine> tempHolding = [];
 

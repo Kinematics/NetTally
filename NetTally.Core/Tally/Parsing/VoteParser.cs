@@ -40,7 +40,7 @@ public static partial class VoteParser
     private static bool IsTallyPost(string text)
     {
         string cleanText = VoteLineParser.StripBBCode(text);
-        return TallyPostRegex.Match(cleanText).Success;
+        return TallyPostRegex.IsMatch(cleanText);
     }
 
     private static List<VoteLine> GetVoteLines(List<string> textLines)

@@ -503,7 +503,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2, MarkerComparer.Instance);
-        Assert.IsTrue(MarkerComparer.Instance.Compare(marker1, marker2) == -1);
+        Assert.AreEqual(-1, MarkerComparer.Instance.Compare(marker1, marker2));
     }
 
     [TestMethod]
@@ -515,7 +515,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2, MarkerComparer.Instance);
-        Assert.IsTrue(MarkerComparer.Instance.Compare(marker1, marker2) == 1);
+        Assert.AreEqual(1, MarkerComparer.Instance.Compare(marker1, marker2));
     }
 
     [TestMethod]
@@ -527,7 +527,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2, MarkerComparer.Instance);
-        Assert.IsTrue(MarkerComparer.Instance.Compare(marker1, marker2) == -1);
+        Assert.AreEqual(-1, MarkerComparer.Instance.Compare(marker1, marker2));
     }
 
     [TestMethod]
@@ -539,6 +539,6 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2, MarkerComparer.Instance);
-        Assert.IsTrue(MarkerComparer.Instance.Compare(marker1, marker2) == 1);
+        Assert.AreEqual(1, MarkerComparer.Instance.Compare(marker1, marker2));
     }
 }

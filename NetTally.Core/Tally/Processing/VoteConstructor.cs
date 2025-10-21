@@ -550,7 +550,7 @@ public static partial class VoteConstructor
             .Where(v => v != null)
             .Select(v => v!);
 
-        return partitionedLines.ToList();
+        return [.. partitionedLines];
     }
 
     /// <summary>
@@ -567,7 +567,7 @@ public static partial class VoteConstructor
             ? g.Select(v => v.VoteBlock)
             : VoteBlocks.GetBlocks(g.SelectMany(v => v.VoteBlock)));
 
-        return partitioned.ToList();
+        return [.. partitioned];
     }
 
     /// <summary>
