@@ -96,7 +96,7 @@ public partial class VBulletin3Adapter(
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    public async Task<ThreadInfo> GetThreadInfoAsync(
+    public async Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token)
@@ -116,7 +116,7 @@ public partial class VBulletin3Adapter(
     /// </summary>
     /// <param name="page">A web page from a forum that this adapter can handle.</param>
     /// <returns>Returns thread information that can be gleaned from that page.</returns>
-    private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
+    private static ThreadInfo? GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
         var author = Author.Unknown; // vBulletin doesn't show thread authors

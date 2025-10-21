@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Threads;
+﻿using NetTally.Models.Posts;
+using NetTally.Models.Threads;
 
 namespace NetTally.Models.Defaults;
 
@@ -10,6 +11,6 @@ public static class ThreadRangeDefaults
     }
 
     private static readonly ThreadRange _none =
-        new ThreadRangeByPosts(0, 0, 20, 1);
+        new ThreadRangeByPostRange(PostNumber.Zero, PostNumber.Zero, 20, 1);
 }
 

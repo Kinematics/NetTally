@@ -35,8 +35,11 @@ public static class QuestDataExtensions
 {
     extension(QuestData data)
     {
-        public QuestData CombineWith(QuestData other)
+        public QuestData CombineWith(QuestData? other)
         {
+            if (other is null)
+                return data;
+
             return new QuestData(
                 [.. data.Titles, .. other.Titles],
                 [.. data.Posts, .. other.Posts]);

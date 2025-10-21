@@ -140,7 +140,7 @@ public class ThreadInfoTests
         Assert.AreEqual(14, threadInfo.ThreadRange.EndPage);
     }
 
-    private static (ThreadInfo ThreadInfo, Quest Quest) GetStandardInfoByPostNumber(
+    private static (ThreadInfo? ThreadInfo, Quest Quest) GetStandardInfoByPostNumber(
         int endPost)
     {
         Quest quest = new()
@@ -162,7 +162,7 @@ public class ThreadInfoTests
         return (threadInfo, quest);
     }
 
-    private static (ThreadInfo ThreadInfo, Quest Quest) GetStandardInfoByPostId()
+    private static (ThreadInfo? ThreadInfo, Quest Quest) GetStandardInfoByPostId()
     {
         Quest quest = new()
         {

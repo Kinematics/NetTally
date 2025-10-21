@@ -30,9 +30,10 @@ public static class PostUtility
         {
             return threadRange switch
             {
-                ThreadRangeById range => post.Origin.PostId.Value < range.PostId.Value,
-                ThreadRangeByPosts range => post.Origin.PostNumber.Value < range.StartPostNumber,
-                _ => throw new InvalidOperationException("Unknown ThreadRange type.")
+                ThreadRangeByStartingId range => post.Origin.PostId < range.StartingPostId,
+                ThreadRangeByStartingPost range => post.Origin.PostNumber < range.StartPostNumber,
+                ThreadRangeByPostRange range => post.Origin.PostNumber < range.StartPostNumber,
+                _ => throw new NotImplementedException($"Unknown ThreadRange type: {threadRange.GetType()}")
             };
         }
 
@@ -47,9 +48,9 @@ public static class PostUtility
         {
             return threadRange switch
             {
-                ThreadRangeById => false,
-                ThreadRangeByPosts range when range.EndPostNumber == 0 => false,
-                ThreadRangeByPosts range => post.Origin.PostNumber.Value > range.EndPostNumber,
+                ThreadRangeByStartingId => false,
+                ThreadRangeByStartingPost => false,
+                ThreadRangeByPostRange range => post.Origin.PostNumber > range.EndPostNumber,
                 _ => throw new InvalidOperationException("Unknown ThreadRange type.")
             };
         }

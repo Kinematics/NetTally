@@ -121,7 +121,7 @@ public partial class XenForo1Adapter(
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    public async Task<ThreadInfo> GetThreadInfoAsync(
+    public async Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token)
@@ -153,7 +153,7 @@ public partial class XenForo1Adapter(
     /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
     /// <param name="token">The cancellation token to check for cancellation requests.</param>
     /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-    private async Task<ThreadRange> GetRangeInfoAsync(
+    private async Task<ThreadRange?> GetRangeInfoAsync(
             Quest quest,
             IPageProvider pageProvider,
             int numberOfPages,
@@ -240,7 +240,7 @@ public partial class XenForo1Adapter(
     #endregion Get Page Information
 
     #region Get ThreadInfoRange information
-    private async Task<(bool, ThreadRange)> TryGetThreadmarksRange(
+    private async Task<(bool, ThreadRange?)> TryGetThreadmarksRange(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null)
@@ -322,7 +322,7 @@ public partial class XenForo1Adapter(
         return (false, ThreadRange.None);
     }
 
-    private static async Task<(bool found, ThreadRange)> TryGetRSSThreadmarksRange(
+    private static async Task<(bool found, ThreadRange?)> TryGetRSSThreadmarksRange(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null || quest.ThreadUri == null)

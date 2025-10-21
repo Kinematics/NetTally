@@ -87,6 +87,13 @@ public class ForumReader(
             var threadInfo = await adapter.GetThreadInfoAsync(quest, pageProvider, token)
                 .ConfigureAwait(ConfigureAwaitOptions.None);
 
+            if (threadInfo is null)
+            {
+                logger.LogDebug("No thread information acquired for {questDisplayName}.",
+                    quest.DisplayName);
+                return QuestData.Empty;
+            }
+
             logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
                 quest.DisplayName, threadInfo);
 

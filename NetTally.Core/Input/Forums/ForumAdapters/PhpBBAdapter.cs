@@ -94,7 +94,7 @@ public partial class PhpBBAdapter(
     }
 
 
-    public async Task<ThreadInfo>
+    public async Task<ThreadInfo?>
         GetThreadInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
     {
         var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
@@ -113,7 +113,7 @@ public partial class PhpBBAdapter(
     /// <param name="page">A web page from a forum that this adapter can handle.</param>
     /// <param name="quest">The quest we're getting info for.</param>
     /// <returns>Returns thread information that can be gleaned from that page.</returns>
-    private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
+    private static ThreadInfo? GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
         var author = Author.Unknown; // PhpBB doesn't show thread authors

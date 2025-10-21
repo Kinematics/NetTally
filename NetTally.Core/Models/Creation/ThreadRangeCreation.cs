@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Posts;
+﻿using NetTally.Models.Defaults;
+using NetTally.Models.Posts;
 using NetTally.Models.Threads;
 
 namespace NetTally.Models.Creation;
@@ -24,7 +25,7 @@ public static class ThreadRangeCreation
             if (pagesInThread < 1)
                 pagesInThread = 1;
 
-            return new ThreadRangeById(postId, startPage, pagesInThread);
+            return new ThreadRangeByStartingId(postId, startPage, pagesInThread);
         }
 
         /// <summary>
@@ -35,16 +36,25 @@ public static class ThreadRangeCreation
         /// <param name="postsPerPage">How many posts are available per page.</param>
         /// <param name="pagesInThread">How many pages there are in the thread.</param>
         /// <returns></returns>
-        public static ThreadRange CreateByStartOfRange(int startPost, int postsPerPage, int pagesInThread)
+        public static ThreadRange? CreateByStartOfRange(int startPost, int postsPerPage, int pagesInThread)
         {
             if (startPost < 1)
                 startPost = 1;
+            var startPostNumber = PostNumber.Create(startPost);
+            if (startPostNumber is null)
+                return null;
+
+            return CreateByStartOfRange(startPostNumber, postsPerPage, pagesInThread);
+        }
+
+        public static ThreadRange CreateByStartOfRange(PostNumber startPost, int postsPerPage, int pagesInThread)
+        {
             if (postsPerPage < 1)
                 postsPerPage = 20;
             if (pagesInThread < 1)
                 pagesInThread = 1;
 
-            return new ThreadRangeByPosts(startPost, 0, postsPerPage, pagesInThread);
+            return new ThreadRangeByStartingPost(startPost, postsPerPage, pagesInThread);
         }
 
         /// <summary>
@@ -56,18 +66,35 @@ public static class ThreadRangeCreation
         /// <param name="postsPerPage"></param>
         /// <param name="pagesInThread"></param>
         /// <returns></returns>
-        public static ThreadRange CreateByRange(int startPost, int endPost, int postsPerPage, int pagesInThread)
+        public static ThreadRange? CreateByRange(int startPost, int endPost, int postsPerPage, int pagesInThread)
         {
             if (startPost < 1)
                 startPost = 1;
-            if (endPost < 0)
-                endPost = 0;
+            var startPostNumber = PostNumber.Create(startPost);
+            if (startPostNumber is null)
+                return null;
+
+            if (endPost < 1)
+                return CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+
+            var endPostNumber = PostNumber.Create(endPost);
+            if (endPostNumber is null)
+                return null;
+
+            return CreateByRange(startPostNumber, endPostNumber, postsPerPage, pagesInThread);
+        }
+
+        public static ThreadRange? CreateByRange(PostNumber startPost, PostNumber endPost, int postsPerPage, int pagesInThread)
+        {
+            if (endPost == PostNumber.Zero)
+                return CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
+
             if (postsPerPage < 1)
                 postsPerPage = 20;
             if (pagesInThread < 1)
                 pagesInThread = 1;
 
-            return new ThreadRangeByPosts(startPost, endPost, postsPerPage, pagesInThread);
+            return new ThreadRangeByPostRange(startPost, endPost, postsPerPage, pagesInThread);
         }
     }
 }

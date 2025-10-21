@@ -22,10 +22,10 @@ public class ThreadRangeTests
         var range = ThreadRangeCreation.CreateByPostId(postId, 0, 0);
 
         Assert.IsNotNull(range);
-        Assert.IsTrue(range is ThreadRangeById);
-        var idRange = range as ThreadRangeById;
+        Assert.IsTrue(range is ThreadRangeByStartingId);
+        var idRange = range as ThreadRangeByStartingId;
         Assert.IsNotNull(idRange);
-        Assert.AreEqual(postId, idRange.PostId);
+        Assert.AreEqual(postId, idRange.StartingPostId);
         Assert.AreEqual(1, range.StartPage);
         Assert.AreEqual(1, range.EndPage);
     }
@@ -37,7 +37,7 @@ public class ThreadRangeTests
         var range = ThreadRangeCreation.CreateByPostId(postId, 5, 10);
 
         Assert.IsNotNull(range);
-        Assert.IsTrue(range is ThreadRangeById);
+        Assert.IsTrue(range is ThreadRangeByStartingId);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(10, range.EndPage);
     }
@@ -49,11 +49,10 @@ public class ThreadRangeTests
         var range = ThreadRangeCreation.CreateByStartOfRange(123, 25, 10);
 
         Assert.IsNotNull(range);
-        Assert.IsTrue(range is ThreadRangeByPosts);
-        var postsRange = range as ThreadRangeByPosts;
+        Assert.IsTrue(range is ThreadRangeByStartingPost);
+        var postsRange = range as ThreadRangeByStartingPost;
         Assert.IsNotNull(postsRange);
-        Assert.AreEqual(123, postsRange.StartPostNumber);
-        Assert.AreEqual(0, postsRange.EndPostNumber);
+        Assert.IsTrue(postsRange.StartPostNumber == 123);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(10, range.EndPage);
     }
@@ -65,11 +64,10 @@ public class ThreadRangeTests
         var range = ThreadRangeCreation.CreateByRange(123, 0, 25, 10);
 
         Assert.IsNotNull(range);
-        Assert.IsTrue(range is ThreadRangeByPosts);
-        var postsRange = range as ThreadRangeByPosts;
+        Assert.IsTrue(range is ThreadRangeByStartingPost);
+        var postsRange = range as ThreadRangeByStartingPost;
         Assert.IsNotNull(postsRange);
-        Assert.AreEqual(123, postsRange.StartPostNumber);
-        Assert.AreEqual(0, postsRange.EndPostNumber);
+        Assert.IsTrue(postsRange.StartPostNumber == 123);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(10, range.EndPage);
     }
@@ -81,11 +79,11 @@ public class ThreadRangeTests
         var range = ThreadRangeCreation.CreateByRange(123, 180, 25, 10);
 
         Assert.IsNotNull(range);
-        Assert.IsTrue(range is ThreadRangeByPosts);
-        var postsRange = range as ThreadRangeByPosts;
+        Assert.IsTrue(range is ThreadRangeByPostRange);
+        var postsRange = range as ThreadRangeByPostRange;
         Assert.IsNotNull(postsRange);
-        Assert.AreEqual(123, postsRange.StartPostNumber);
-        Assert.AreEqual(180, postsRange.EndPostNumber);
+        Assert.IsTrue(postsRange.StartPostNumber == 123);
+        Assert.IsTrue(postsRange.EndPostNumber == 180);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(8, range.EndPage);
     }

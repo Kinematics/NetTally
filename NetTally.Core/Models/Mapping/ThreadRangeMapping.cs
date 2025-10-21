@@ -11,15 +11,14 @@ internal static class ThreadRangeMapping
     extension(ThreadRange threadRange)
     {
         public T Map<T>(
-            Func<ThreadRangeById, T> idMap,
-            Func<ThreadRangeByPosts, T> postMap)
-        {
-            return threadRange switch
+            Func<ThreadRangeByStartingId, T> startIdMap,
+            Func<ThreadRangeByPostRange, T> postRangeMap,
+            Func<ThreadRangeByStartingPost, T> startPostMap) => threadRange switch
             {
-                ThreadRangeById idRange => idMap(idRange),
-                ThreadRangeByPosts postRange => postMap(postRange),
-                _ => throw new InvalidOperationException("Unknown Thread Range type.")
+                ThreadRangeByStartingId idRange => startIdMap(idRange),
+                ThreadRangeByPostRange postRange => postRangeMap(postRange),
+                ThreadRangeByStartingPost postRange => startPostMap(postRange),
+                _ => throw new NotImplementedException($"Unknown Thread Range type: {threadRange.GetType()}")
             };
-        }
     }
 }
