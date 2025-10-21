@@ -22,10 +22,7 @@ public static class PostCreation
         /// <returns>A <see cref="Post"/> containing the post information.</returns>
         public static Post? Create(Origin? origin, string text)
         {
-            if (origin is null)
-                return null;
-
-            if (string.IsNullOrEmpty(text))
+            if (origin is null || string.IsNullOrEmpty(text))
                 return null;
 
             var voteLines = VoteParser.ExtractVoteLines(text);
@@ -44,7 +41,7 @@ public static class PostCreation
         {
             var post = Create(origin, text);
 
-            if (post == Post.None || post is null)
+            if (post is null || post == Post.None)
                 return null;
 
             return new PostToProcess(post);
