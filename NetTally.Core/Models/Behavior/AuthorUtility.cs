@@ -1,5 +1,6 @@
 ﻿using NetTally.Models.Behavior;
 using NetTally.Models.Creation;
+using NetTally.Models.Defaults;
 using NetTally.Models.Mapping;
 using NetTally.Models.Posts;
 
@@ -11,8 +12,8 @@ public static class AuthorUtility
     {
         public Author Rename(string input) => author.Map(
                 namedAuthor => namedAuthor with { Name = input },
-                unknownAuthor => Author.Create(input),
-                noAuthor => Author.Create(input));
+                unknownAuthor => Author.Create(input) ?? Author.Unknown,
+                noAuthor => Author.Create(input) ?? Author.None);
 
         public string DisplayName => author.Map(
                 namedAuthor => namedAuthor.Name,

@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Creation;
-using NetTally.Models.Defaults;
-using NetTally.Models.Posts;
+﻿using NetTally.Models.Posts;
 using NetTally.Utility;
 
 namespace NetTally.Models.Creation;
@@ -11,16 +9,20 @@ public static class AuthorCreation
     {
         /// <summary>
         /// Create a new <see cref="Author"/> with the given name.
+        /// Unsafe characters are removed, and the name is trimmed.
         /// </summary>
         /// <param name="name">The name of the author.</param>
-        /// <returns>An <see cref="Author"/>. If no name is provided, 
-        /// returns <see cref="Author.None"/></returns>
-        public static Author Create(string name)
+        /// <returns>An <see cref="Author"/>. If no valid name is provided, 
+        /// returns <c>null</c>.</returns>
+        public static Author? Create(string? name)
         {
+            if (name is null)
+                return null;
+
             name = name.RemoveUnsafeCharacters().Trim();
 
             if (string.IsNullOrEmpty(name))
-                return Author.None;
+                return null;
 
             return new NamedAuthor(name);
         }

@@ -18,26 +18,26 @@ public class AuthorTests
 
     [TestMethod]
     [TestCategory("Creation")]
-    public void Construct_Null_None()
+    public void Construct_Null_Null()
     {
-        var author = Author.Create(null!);
-        Assert.AreEqual(Author.None, author);
+        var author = Author.Create(null);
+        Assert.IsNull(author);
     }
 
     [TestMethod]
     [TestCategory("Creation")]
-    public void Construct_Empty_None()
+    public void Construct_Empty_Null()
     {
         var author = Author.Create("");
-        Assert.AreEqual(Author.None, author);
+        Assert.IsNull(author);
     }
 
     [TestMethod]
     [TestCategory("Creation")]
-    public void Construct_Space_None()
+    public void Construct_Space_Null()
     {
         var author = Author.Create("     ");
-        Assert.AreEqual(Author.None, author);
+        Assert.IsNull(author);
     }
 
     [TestMethod]
@@ -45,6 +45,7 @@ public class AuthorTests
     public void Construct_SpaceEnd_Trimmed()
     {
         var author = Author.Create("Kinematics     ");
+        Assert.IsNotNull(author);
         Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
@@ -53,6 +54,7 @@ public class AuthorTests
     public void Construct_SpaceAround_Trimmed()
     {
         var author = Author.Create("  Kinematics     ");
+        Assert.IsNotNull(author);
         Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
@@ -61,6 +63,7 @@ public class AuthorTests
     public void Construct_Unsafe_Cleaned()
     {
         var author = Author.Create("Kinema\u200btics");
+        Assert.IsNotNull(author);
         Assert.AreEqual("Kinematics", author.DisplayName);
     }
 
@@ -69,6 +72,7 @@ public class AuthorTests
     public void Construct_UTF_Normal()
     {
         var author = Author.Create("KinematicsΩ°");
+        Assert.IsNotNull(author);
         Assert.AreEqual("KinematicsΩ°", author.DisplayName);
     }
 
@@ -267,7 +271,8 @@ public class AuthorTests
     public void CompareNoneToNamed_LessThan()
     {
         Author author1 = Author.None;
-        Author author2 = Author.Create("Kinematics");
+        Author? author2 = Author.Create("Kinematics");
+        Assert.IsNotNull(author2);
 
         Assert.AreNotEqual(author1, author2, AuthorComparer.Instance);
         Assert.AreEqual(-1, AuthorComparer.Instance.Compare(author1, author2));
@@ -277,8 +282,9 @@ public class AuthorTests
     [TestCategory("Comparison")]
     public void CompareNamedToNone_GreaterThan()
     {
-        Author author1 = Author.Create("Kinematics");
+        Author? author1 = Author.Create("Kinematics");
         Author author2 = Author.None;
+        Assert.IsNotNull(author1);
 
         Assert.AreNotEqual(author1, author2, AuthorComparer.Instance);
         Assert.AreEqual(1, AuthorComparer.Instance.Compare(author1, author2));
@@ -300,7 +306,8 @@ public class AuthorTests
     public void CompareUnknownToNamed_LessThan()
     {
         Author author1 = Author.Unknown;
-        Author author2 = Author.Create("Kinematics");
+        Author? author2 = Author.Create("Kinematics");
+        Assert.IsNotNull(author2);
 
         Assert.AreNotEqual(author1, author2, AuthorComparer.Instance);
         Assert.AreEqual(-1, AuthorComparer.Instance.Compare(author1, author2));
@@ -310,8 +317,9 @@ public class AuthorTests
     [TestCategory("Comparison")]
     public void CompareNamedToUnknown_GreaterThan()
     {
-        Author author1 = Author.Create("Kinematics");
+        Author? author1 = Author.Create("Kinematics");
         Author author2 = Author.Unknown;
+        Assert.IsNotNull(author1);
 
         Assert.AreNotEqual(author1, author2, AuthorComparer.Instance);
         Assert.AreEqual(1, AuthorComparer.Instance.Compare(author1, author2));

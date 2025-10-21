@@ -25,6 +25,7 @@ public class ThreadInfoTests
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 14;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -45,6 +46,7 @@ public class ThreadInfoTests
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 0;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -65,6 +67,7 @@ public class ThreadInfoTests
         int startPost = 300;
         int postsPerPage = 30;
         int pagesInThread = 14;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -85,6 +88,7 @@ public class ThreadInfoTests
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -105,6 +109,7 @@ public class ThreadInfoTests
         int startPost = 0;
         int postsPerPage = 30;
         int pagesInThread = 14;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -149,6 +154,7 @@ public class ThreadInfoTests
         string authorName = "Jack";
         var author = Author.Create(authorName);
         int pagesInThread = 25;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByRange(quest.StartPost, endPost, quest.PostsPerPage, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);
@@ -171,6 +177,7 @@ public class ThreadInfoTests
         var postId = PostId.Create(123456);
         int pageNumberOfStartPost = 5;
         int pagesInThread = 25;
+        Assert.IsNotNull(author);
 
         var threadRange = ThreadRangeCreation.CreateByPostId(postId, pageNumberOfStartPost, pagesInThread);
         var threadInfo = ThreadInfo.Create(title, author, threadRange);

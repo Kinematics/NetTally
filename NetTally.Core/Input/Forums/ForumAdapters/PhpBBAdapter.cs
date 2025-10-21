@@ -213,9 +213,12 @@ public partial class PhpBBAdapter(
             return null;
 
         var id = GetPostId(div);
-        Author author = GetPostAuthor(div);
+        Author? author = GetPostAuthor(div);
         var number = PostNumber.Create(postNumber);
         string text = GetPostText(div, quest);
+
+        if (author is null)
+            return null;
 
         if (inputOptions.TrackPostAuthorsUniquely)
         {
@@ -236,7 +239,7 @@ public partial class PhpBBAdapter(
         return id ?? PostId.Zero;
     }
 
-    private static Author GetPostAuthor(HtmlNode div)
+    private static Author? GetPostAuthor(HtmlNode div)
     {
         HtmlNode? inner = div.GetChildWithClass("div", "inner");
         HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");

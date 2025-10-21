@@ -208,6 +208,9 @@ public partial class VBulletin4Adapter(
         var number = PostNumber.Create(GetPostNumber(page, id));
         string text = GetPostText(li, id, quest);
 
+        if (author is null)
+            return null;
+
         if (inputOptions.TrackPostAuthorsUniquely)
         {
             author = author.Rename($"{author.DisplayName}_{id.Value}");
@@ -225,7 +228,7 @@ public partial class VBulletin4Adapter(
         return PostId.Create(id) ?? PostId.Zero;
     }
 
-    private static Author GetPostAuthor(HtmlNode li)
+    private static Author? GetPostAuthor(HtmlNode li)
     {
         string author = "";
 

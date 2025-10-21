@@ -148,8 +148,11 @@ public class VoteCounter(
     /// <param name="updateOrigin">The <see cref="Origin"/> key we are attempting to update.</param>
     /// <param name="plan">The vote block being updated/added.</param>
     /// <returns></returns>
-    public bool AddReferencePlan(Origin updateOrigin, VoteBlock plan)
+    public bool AddReferencePlan(Origin? updateOrigin, VoteBlock plan)
     {
+        if (updateOrigin == null)
+            return false;
+
         // If it doesn't exist, we can just add it.
         if (ReferenceOrigins.Add(updateOrigin))
         {
@@ -244,10 +247,10 @@ public class VoteCounter(
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
     public Origin? GetPlanOriginByName(string? planName)
     {
-        if (string.IsNullOrEmpty(planName))
-            return null;
-
         var author = Author.Create(planName);
+
+        if (author == null)
+            return null;
 
         return GetOriginByPlanAuthor(author);
     }
@@ -259,10 +262,10 @@ public class VoteCounter(
     /// <returns>Returns the reference version of the requested name, or null if not found.</returns>
     public Origin? GetVoterOriginByName(string? voterName)
     {
-        if (string.IsNullOrEmpty(voterName))
-            return null;
-
         var author = Author.Create(voterName);
+
+        if (author == null)
+            return null;
 
         return GetOriginByUserAuthor(author);
     }
@@ -292,8 +295,11 @@ public class VoteCounter(
     /// </summary>
     /// <param name="namedOrigin">An origin with a named author, either user or plan.</param>
     /// <returns>An origin stored in our reference pool, if found. Otherwise null.</returns>
-    private Origin? GetReferenceOrigin(Origin namedOrigin)
+    private Origin? GetReferenceOrigin(Origin? namedOrigin)
     {
+        if (namedOrigin is null)
+            return null;
+
         if (ReferenceOrigins.TryGetValue(namedOrigin, out Origin? actualOrigin))
         {
             return actualOrigin;
@@ -424,9 +430,9 @@ public class VoteCounter(
     /// </summary>
     /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
     /// <param name="voter">The voter for this vote.</param>
-    public void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin voter)
+    public void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin? voter)
     {
-        if (!votePartitions.Any())
+        if (!votePartitions.Any() || voter is null)
             return;
 
         // Remove the voter from any existing votes

@@ -53,9 +53,13 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
         return HasPlan(planAuthor);
     }
 
-    public bool HasPlan(Author planAuthor)
+    public bool HasPlan(Author? planAuthor)
     {
         var origin = Origin.CreatePlanNameOnly(planAuthor);
+
+        if (origin is null)
+            return false;
+
         return ContainsKey(origin);
     }
 
@@ -70,9 +74,12 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
         return HasVoter(author);
     }
 
-    public bool HasVoter(Author voterName)
+    public bool HasVoter(Author? voterName)
     {
         var origin = Origin.CreateUserNameOnly(voterName);
+
+        if (origin is null) return false;
+
         return ContainsKey(origin);
     }
     #endregion Queries - Has XX?

@@ -131,7 +131,7 @@ public partial class XenForo1Adapter(
         if (page != null)
         {
             string title = GetPageTitle(page);
-            var author = GetPageAuthor(page);
+            var author = GetPageAuthor(page) ?? Author.Unknown;
             int pages = GetMaxPageNumberOfThread(page);
 
             var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
@@ -207,7 +207,7 @@ public partial class XenForo1Adapter(
                 ?.InnerText);
     }
 
-    private static Author GetPageAuthor(HtmlDocument page)
+    private static Author? GetPageAuthor(HtmlDocument page)
     {
         // Find a common parent for other data
         HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
@@ -485,6 +485,9 @@ public partial class XenForo1Adapter(
         string text = GetPostText(li, quest);
         var number = PostNumber.Create(GetPostNumber(li));
 
+        if (author is null)
+            return null;
+
         if (inputOptions.TrackPostAuthorsUniquely)
         {
             author = author.Rename($"{author.DisplayName}_{id.Value}");
@@ -496,7 +499,7 @@ public partial class XenForo1Adapter(
         return post;
     }
 
-    private static Author GetPostAuthor(HtmlNode li)
+    private static Author? GetPostAuthor(HtmlNode li)
     {
         string authorName = li.GetAttributeValue("data-author", "");
         authorName = ForumPostTextConverter.CleanupWebString(authorName);

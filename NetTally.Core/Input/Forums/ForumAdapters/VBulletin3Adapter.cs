@@ -213,6 +213,9 @@ public partial class VBulletin3Adapter(
         var number = PostNumber.Create(GetPostNumber(page, id));
         string text = GetPostText(page, id, quest);
 
+        if (author is null)
+            return null;
+
         if (inputOptions.TrackPostAuthorsUniquely)
         {
             author = author.Rename($"{author.DisplayName}_{id.Value}");
@@ -232,7 +235,7 @@ public partial class VBulletin3Adapter(
         return id ?? PostId.Zero;
     }
 
-    private static Author GetPostAuthor(HtmlDocument page, PostId id)
+    private static Author? GetPostAuthor(HtmlDocument page, PostId id)
     {
         string? authorName = null;
         string postAuthorDivID = $"postmenu_{id.Value}";

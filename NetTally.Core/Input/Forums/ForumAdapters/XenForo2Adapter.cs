@@ -133,7 +133,7 @@ public partial class XenForo2Adapter(
         {
             var (headerNode, bodyNode) = GetPageInfoNodes(page);
             string title = GetPageTitle(page);
-            var author = GetPageAuthor(headerNode);
+            var author = GetPageAuthor(headerNode) ?? Author.Unknown;
             int pages = GetMaxPageNumberOfThread(bodyNode);
 
             var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
@@ -239,7 +239,7 @@ public partial class XenForo2Adapter(
         return string.IsNullOrEmpty(metaTitle) ? mainTitle : metaTitle;
     }
 
-    private static Author GetPageAuthor(HtmlNode headerNode)
+    private static Author? GetPageAuthor(HtmlNode headerNode)
     {
         var descripNode = headerNode.GetChildWithClass("div", "p-description");
         var authorNode = descripNode?.GetDescendantWithClass("a", "username");
@@ -519,6 +519,9 @@ public partial class XenForo2Adapter(
         string text = GetPostText(article, quest);
         var number = PostNumber.Create(GetPostNumber(article));
 
+        if (author is null)
+            return null;
+
         if (inputOptions.TrackPostAuthorsUniquely)
         {
             author = author.Rename($"{author.DisplayName}_{id.Value}");
@@ -530,7 +533,7 @@ public partial class XenForo2Adapter(
         return post;
     }
 
-    private static Author GetPostAuthor(HtmlNode article)
+    private static Author? GetPostAuthor(HtmlNode article)
     {
         string authorName = article.GetAttributeValue("data-author", "");
         authorName = ForumPostTextConverter.CleanupWebString(authorName);
