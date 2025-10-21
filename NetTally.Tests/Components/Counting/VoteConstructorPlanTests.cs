@@ -34,7 +34,7 @@ public class VoteConstructorPlanTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
-        var postNumber = PostId.Create(123);
+        var postNumber = PostNumber.Create(123);
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 

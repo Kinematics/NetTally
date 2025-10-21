@@ -21,7 +21,7 @@ public class OriginTests2
 
     private static (string authorName, Author author, string threadUrl, Uri thread,
         string permalinkUrl, Uri permalink, long postIdNumber, PostId postId,
-        int threadSeqNumber, PostId postNumber, DateTimeOffset timestamp)
+        int threadSeqNumber, PostNumber postNumber, DateTimeOffset timestamp)
         GetDefaults1()
     {
         string authorName = "Kinematics";
@@ -33,7 +33,7 @@ public class OriginTests2
         long postIdNumber = 2236809;
         PostId postId = PostId.Create(postIdNumber);
         int threadSeqNumber = 2490;
-        PostId postNumber = PostId.Create(threadSeqNumber);
+        PostNumber postNumber = PostNumber.Create(threadSeqNumber);
         DateTimeOffset timestamp = DateTimeOffset.Now;
 
         return (authorName, author, threadUrl, thread, permalinkUrl, permalink,

@@ -90,7 +90,7 @@ public class PostTests
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
             PostId.Create(123456),
-            PostId.Create(150),
+            PostNumber.Create(150),
             DateTimeOffset.MinValue);
         var origin2 = Origin.CreateUserNameOnly(author2);
         Assert.IsNotNull(origin1);

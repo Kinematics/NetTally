@@ -205,7 +205,7 @@ public partial class VBulletin4Adapter(
 
         var id = GetPostId(li);
         var author = GetPostAuthor(li);
-        var number = PostId.Create(GetPostNumber(page, id));
+        var number = PostNumber.Create(GetPostNumber(page, id));
         string text = GetPostText(li, id, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)

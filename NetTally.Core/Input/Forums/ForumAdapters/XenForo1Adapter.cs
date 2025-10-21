@@ -483,7 +483,7 @@ public partial class XenForo1Adapter(
         var id = GetPostId(li);
         var author = GetPostAuthor(li);
         string text = GetPostText(li, quest);
-        var number = PostId.Create(GetPostNumber(li));
+        var number = PostNumber.Create(GetPostNumber(li));
 
         if (inputOptions.TrackPostAuthorsUniquely)
         {

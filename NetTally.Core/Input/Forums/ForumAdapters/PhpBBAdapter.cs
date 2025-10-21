@@ -214,7 +214,7 @@ public partial class PhpBBAdapter(
 
         var id = GetPostId(div);
         Author author = GetPostAuthor(div);
-        var number = PostId.Create(postNumber);
+        var number = PostNumber.Create(postNumber);
         string text = GetPostText(div, quest);
 
         if (inputOptions.TrackPostAuthorsUniquely)

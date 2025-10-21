@@ -39,7 +39,7 @@ public class ReferenceVoteTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123456);
-        var postNumber = PostId.Create(101);
+        var postNumber = PostNumber.Create(101);
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -52,7 +52,7 @@ public class ReferenceVoteTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123457);
-        var postNumber = PostId.Create(102);
+        var postNumber = PostNumber.Create(102);
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -65,7 +65,7 @@ public class ReferenceVoteTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123458);
-        var postNumber = PostId.Create(103);
+        var postNumber = PostNumber.Create(103);
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 
@@ -78,7 +78,7 @@ public class ReferenceVoteTests
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
         var postId = PostId.Create(123459);
-        var postNumber = PostId.Create(104);
+        var postNumber = PostNumber.Create(104);
 
         var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
 

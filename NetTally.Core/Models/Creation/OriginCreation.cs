@@ -11,7 +11,7 @@ public static class OriginCreation
 {
     extension(Origin)
     {
-        public static Origin? CreateUser(Author author, Uri thread, Uri permalink, PostId postId, PostId postNumber) =>
+        public static Origin? CreateUser(Author author, Uri thread, Uri permalink, PostId postId, PostNumber postNumber) =>
             CreateUser(author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue);
 
         public static Origin? CreateUser(
@@ -19,7 +19,7 @@ public static class OriginCreation
             Uri thread,
             Uri permalink,
             PostId postId,
-            PostId postNumber,
+            PostNumber postNumber,
             DateTimeOffset timestamp)
         {
             if (author == Author.None)
