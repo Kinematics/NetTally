@@ -1,8 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
 
 namespace NetTally.Tests.Components.Posts;
+
 [TestClass]
 public class PostIdTests
 {

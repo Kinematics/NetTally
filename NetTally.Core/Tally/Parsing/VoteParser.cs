@@ -1,9 +1,11 @@
 ﻿using System.Text.RegularExpressions;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Models.Creation;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 using NetTally.Utility;
 
 namespace NetTally.Tally.Parsing;
+
 public static partial class VoteParser
 {
     #region Regex

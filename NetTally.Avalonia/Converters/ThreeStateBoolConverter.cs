@@ -1,7 +1,7 @@
-﻿using Avalonia.Data.Converters;
-using NetTally.Enums;
-using System;
+﻿using System;
 using System.Globalization;
+using Avalonia.Data.Converters;
+using NetTally.Enums;
 
 namespace NetTally.Avalonia.Converters;
 

@@ -1,11 +1,14 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Models.Comparers;
+using NetTally.Models.Creation;
+using NetTally.Models.Display;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 
 namespace NetTally.Tests.Components.Votes;
+
 [TestClass]
 public class MarkerTests
 {
@@ -187,7 +190,7 @@ public class MarkerTests
     public void Construct_Invalid_NumberLetter()
     {
         var marker = Marker.Create("2Z");
-        Assert.AreEqual(MarkerType.None, marker.Type); 
+        Assert.AreEqual(MarkerType.None, marker.Type);
     }
 
     [TestMethod]

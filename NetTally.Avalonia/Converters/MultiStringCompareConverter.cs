@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia.Data.Converters;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
+using NetTally.Models.Comparers;
+using NetTally.Models.Votes;
 
 namespace NetTally.Avalonia.Converters
 {

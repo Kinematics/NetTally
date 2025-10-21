@@ -2,12 +2,13 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Models.Creation;
+using NetTally.Models.Display;
+using NetTally.Models.Posts;
 using NetTally.Tally.Processing;
-using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tests.Components.Counting;
+
 [TestClass]
 public class VotePartitioningTests
 {

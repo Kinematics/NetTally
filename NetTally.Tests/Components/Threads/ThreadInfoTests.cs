@@ -1,11 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
-using NetTally.Tally.Posts.Component.Utility;
-using NetTally.Tally.Threads;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Threads;
+using NetTally.Models.Utility;
 
 namespace NetTally.Tests.Components.Threads;
+
 [TestClass]
 public class ThreadInfoTests
 {

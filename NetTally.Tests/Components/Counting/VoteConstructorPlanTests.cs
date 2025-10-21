@@ -4,9 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Utility;
 using NetTally.Tally.Counting;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
 using NetTally.Tally.Processing;
 
 namespace NetTally.Tests.Components.Counting;

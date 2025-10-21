@@ -4,11 +4,13 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Posts.Comparer;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Models.Comparers;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Utility;
 
 namespace NetTally.Tests.Components.Counting;
+
 [TestClass]
 public class ReferenceVoteTests
 {

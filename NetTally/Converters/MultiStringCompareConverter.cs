@@ -2,8 +2,8 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
+using NetTally.Models.Comparers;
+using NetTally.Models.Votes;
 
 namespace NetTally.Converters
 {
@@ -46,7 +46,7 @@ namespace NetTally.Converters
             if (!values.All(v => v is VoteBlock))
                 return false;
 
-            return inverted ^ 
+            return inverted ^
                 (values[0] is VoteBlock first &&
                  values.All(v =>
                     v is VoteBlock value &&

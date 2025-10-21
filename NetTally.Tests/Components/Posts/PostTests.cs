@@ -1,10 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Posts.Comparer;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
+using NetTally.Models.Comparers;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
 
 namespace NetTally.Tests.Components.Posts;
+
 [TestClass]
 public class PostTests
 {

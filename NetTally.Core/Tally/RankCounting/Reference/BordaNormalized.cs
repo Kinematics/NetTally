@@ -1,8 +1,8 @@
-﻿using NetTally.Tally.Posts.Comparer;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.RankCounting;
+﻿using NetTally.Models.Comparers;
+using NetTally.Models.Posts;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 using NetTally.Tally.Storage;
-using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.RankCounting.Reference;
 

@@ -26,6 +26,7 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 
 namespace NetTally;
+
 public static class AppX
 {
     #region Public API

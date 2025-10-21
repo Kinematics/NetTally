@@ -1,8 +1,8 @@
 ﻿using NetTally.Enums;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Votes;
 using NetTally.Tally.Counting;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
 
 namespace NetTally.Tally.Storage;
 

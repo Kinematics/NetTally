@@ -1,10 +1,12 @@
 ﻿using NetTally.Enums;
-using NetTally.Tally.Posts.Comparer;
-using NetTally.Tally.Posts.Component;
+using NetTally.Models.Comparers;
+using NetTally.Models.Posts;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 using NetTally.Tally.RankCounting.Reference;
-using NetTally.Tally.Vote.Component;
 
 namespace NetTally.Tally.Storage;
+
 public static class VoterAnalysis
 {
     #region Queries - Counts

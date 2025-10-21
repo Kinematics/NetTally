@@ -1,6 +1,6 @@
 ﻿using System.Text;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Models.Creation;
+using NetTally.Models.Votes;
 
 using static NetTally.Configure.Strings;
 
@@ -272,7 +272,7 @@ namespace NetTally.Tally.Parsing
 
             string content = VoteString.NormalizeContentBBCode(contentSB.ToString());
             VoteContent voteContent = VoteContent.Create(content);
-            
+
             VoteLine voteLine = VoteLine.Create(prefix, marker, voteTask, voteContent);
 
             return voteLine;

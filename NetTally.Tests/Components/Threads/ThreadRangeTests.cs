@@ -1,9 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
-using NetTally.Tally.Threads;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Threads;
 
 namespace NetTally.Tests.Components.Threads;
+
 [TestClass]
 public class ThreadRangeTests
 {

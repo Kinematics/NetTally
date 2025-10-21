@@ -176,7 +176,7 @@ namespace NetTally.Tests.Input
                     pageProvider.GetHtmlDocumentAsync(
                         r.Url, r.Description, r.CachingMode, r.SuppressNotifications, t))
                 .WithCancellation(CancellationToken.None);
-                
+
             await foreach (var result in results)
             {
                 Assert.IsNotNull(result);

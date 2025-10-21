@@ -1,8 +1,7 @@
 ﻿using System.Diagnostics;
+using NetTally.Models.Votes;
 using NetTally.Tally.RankCounting.Reference;
 using NetTally.Tally.Storage;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
 
 namespace NetTally.Tally.RankCounting;
 

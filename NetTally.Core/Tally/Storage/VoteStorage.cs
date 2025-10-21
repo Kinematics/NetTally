@@ -1,9 +1,8 @@
 ﻿using NetTally.Enums;
-using NetTally.Tally.Posts.Comparer;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Models.Comparers;
+using NetTally.Models.Posts;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 
 namespace NetTally.Tally.Storage;
 

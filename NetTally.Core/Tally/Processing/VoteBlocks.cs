@@ -1,8 +1,9 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
+using NetTally.Models.Comparers;
+using NetTally.Models.Creation;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 using NetTally.Utility.Collections;
 using NetTally.Utility.Linq;
 

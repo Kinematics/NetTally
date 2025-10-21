@@ -27,7 +27,7 @@ public class AvaloniaNavigationService(IServiceProvider serviceProvider, ILogger
         try
         {
             T window = serviceProvider.GetRequiredService<T>();
-            
+
             window.Show();
         }
         catch (Exception e)

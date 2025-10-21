@@ -1,11 +1,14 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Models.Comparers;
+using NetTally.Models.Creation;
+using NetTally.Models.Display;
+using NetTally.Models.Utility;
+using NetTally.Models.Votes;
 using NetTally.Tally.Parsing;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
 
 namespace NetTally.Tests.Components.Votes;
+
 [TestClass]
 public class VoteLineTests
 {

@@ -70,7 +70,7 @@ namespace NetTally.Avalonia.Views
 
             if (Design.IsDesignMode)
                 return;
-                
+
             if (hostEnvironment is null)
                 return;
 
@@ -273,7 +273,8 @@ namespace NetTally.Avalonia.Views
             if (OperatingSystem.IsWindows())
             {
                 Process.Start(new ProcessStartInfo("cmd",
-                    $"/c start {hyperlink}") { CreateNoWindow = true });
+                    $"/c start {hyperlink}")
+                { CreateNoWindow = true });
             }
 
         }

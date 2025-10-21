@@ -1,6 +1,7 @@
 ﻿using NetTally.Enums;
 
 namespace NetTally.Input.Forums.Reading;
+
 public record PageRequestInfo(string Url, int PageNumber, CachingMode CacheMode);
 
 public static class PageRequestInfoCreation

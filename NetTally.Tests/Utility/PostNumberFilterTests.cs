@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NetTally.Tests.Utility;
+
 [TestClass]
 public class PostNumberFilterTests
 {

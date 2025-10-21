@@ -35,7 +35,7 @@ namespace NetTally.Converters
             return value switch
             {
                 null => BoolEx.Unknown,
-                bool b => (object)(b ? BoolEx.True : BoolEx.False),
+                bool b => b ? BoolEx.True : BoolEx.False,
                 _ => throw new ArgumentException("Value is not a bool."),
             };
         }

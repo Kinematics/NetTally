@@ -5,8 +5,9 @@ using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Threads;
+using NetTally.Models.Posts;
+using NetTally.Models.Threads;
+using NetTally.Models.Utility;
 using NetTally.Utility.Events;
 using NetTally.Web;
 

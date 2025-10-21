@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace NetTally.Tally.Counting;
+
 public class VoteCounterFactory(IServiceProvider serviceProvider)
 {
     private readonly IServiceProvider serviceProvider = serviceProvider;

@@ -4,12 +4,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models.Creation;
+using NetTally.Models.Posts;
+using NetTally.Models.Threads;
+using NetTally.Models.Utility;
 using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
-using NetTally.Tally.Posts.Component;
-using NetTally.Tally.Posts.Component.Creation;
-using NetTally.Tally.Threads;
-using NetTally.Tally.Posts.Component.Utility;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 

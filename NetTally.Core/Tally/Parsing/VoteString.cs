@@ -16,7 +16,7 @@ namespace NetTally.Tally.Parsing
 
         // Regex for any closing BBCode tag.
         [GeneratedRegex(@"^『/(b|i|u|color)』")]
-        private static partial Regex CloseBBCodeRegex { get;  }
+        private static partial Regex CloseBBCodeRegex { get; }
         #endregion
 
         #region Cleanup functions

@@ -6,10 +6,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
+using NetTally.Models.Comparers;
+using NetTally.Models.Votes;
+using NetTally.Models.Utility;
 using NetTally.Navigation;
-using NetTally.Tally.Vote.Comparers;
-using NetTally.Tally.Vote.Component;
-using NetTally.Tally.Vote.Component.Creation;
 using NetTally.Utility;
 using NetTally.ViewModels;
 

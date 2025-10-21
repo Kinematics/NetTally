@@ -1,7 +1,8 @@
 ﻿using System.Collections.Immutable;
-using NetTally.Tally.Posts.Component;
+using NetTally.Models.Posts;
 
 namespace NetTally.Input.Forums.Reading;
+
 public record QuestData(ImmutableList<string> Titles, ImmutableList<Post> Posts);
 
 public static class PredefinedQuestData
