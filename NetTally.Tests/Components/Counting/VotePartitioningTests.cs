@@ -4,7 +4,6 @@ using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Models.Behavior;
 using NetTally.Models.Creation;
-using NetTally.Models.Display;
 using NetTally.Models.Posts;
 using NetTally.Tally.Processing;
 
