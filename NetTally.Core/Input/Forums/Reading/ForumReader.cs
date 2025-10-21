@@ -7,7 +7,7 @@ using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Models.Posts;
 using NetTally.Models.Threads;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Utility.Events;
 using NetTally.Web;
 

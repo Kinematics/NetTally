@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Models.Creation;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Utility;
 

@@ -8,7 +8,7 @@ using NetTally.Enums;
 using NetTally.Models.Creation;
 using NetTally.Models.Display;
 using NetTally.Models.Posts;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 
 namespace NetTally.Tests.Components.Counting;
 

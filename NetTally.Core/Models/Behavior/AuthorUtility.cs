@@ -1,9 +1,9 @@
-﻿using NetTally.Models.Creation;
+﻿using NetTally.Models.Behavior;
+using NetTally.Models.Creation;
 using NetTally.Models.Mapping;
 using NetTally.Models.Posts;
-using NetTally.Models.Utility;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Behavior;
 
 public static class AuthorUtility
 {

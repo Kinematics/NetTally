@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using NetTally.Configure;
 using NetTally.Models.Posts;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 
 namespace NetTally.Models.Comparers;
 

@@ -1,7 +1,7 @@
-﻿using NetTally.Models.Utility;
+﻿using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Behavior;
 
 public static class VoteBlockUtility
 {

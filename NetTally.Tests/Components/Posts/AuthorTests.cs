@@ -2,7 +2,7 @@
 using NetTally.Models.Comparers;
 using NetTally.Models.Creation;
 using NetTally.Models.Posts;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 
 namespace NetTally.Tests.Components.Posts;
 

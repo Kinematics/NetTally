@@ -1,8 +1,9 @@
 ﻿using NetTally.Enums;
+using NetTally.Models.Behavior;
 using NetTally.Models.Mapping;
 using NetTally.Models.Votes;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Behavior;
 
 /// <summary>
 /// Extension class that provides extensions to <see cref="Marker"/> objects

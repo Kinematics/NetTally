@@ -8,7 +8,7 @@ using NetTally.Enums;
 using NetTally.Models.Creation;
 using NetTally.Models.Posts;
 using NetTally.Models.Threads;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
 

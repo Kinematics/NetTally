@@ -1,8 +1,8 @@
-﻿using NetTally.Models.Creation;
-using NetTally.Models.Utility;
+﻿using NetTally.Models.Behavior;
+using NetTally.Models.Creation;
 using NetTally.Models.Votes;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Behavior;
 
 /// <summary>
 /// Extension class containing methods to manpulate a <see cref="Prefix"/>.

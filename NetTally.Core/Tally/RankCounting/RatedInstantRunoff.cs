@@ -1,5 +1,5 @@
 ﻿using NetTally.Models.Posts;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Tally.RankCounting.Reference;
 using NetTally.Tally.Storage;
 

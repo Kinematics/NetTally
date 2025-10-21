@@ -1,6 +1,6 @@
 ﻿using NetTally.Models.Votes;
 
-namespace NetTally.Models.Utility;
+namespace NetTally.Models.Behavior;
 
 /// <summary>
 /// Extension class for promoting (reducing the depth of the prefix) <see cref="VoteLine"/>s

@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Models.Creation;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 
 namespace NetTally.Tests.Components.Votes;

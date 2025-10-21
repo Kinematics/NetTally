@@ -5,7 +5,7 @@ using NetTally.Configure;
 using NetTally.Models.Comparers;
 using NetTally.Models.Creation;
 using NetTally.Models.Posts;
-using NetTally.Models.Utility;
+using NetTally.Models.Behavior;
 using NetTally.Models.Votes;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
