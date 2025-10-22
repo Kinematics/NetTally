@@ -1,5 +1,4 @@
-﻿using NetTally.Models.Behavior;
-using NetTally.Models.Mapping;
+﻿using NetTally.Models.Mapping;
 using NetTally.Models.Posts;
 using NetTally.Models.Threads;
 

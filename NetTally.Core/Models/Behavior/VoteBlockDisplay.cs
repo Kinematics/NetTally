@@ -1,5 +1,4 @@
-﻿using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+﻿using NetTally.Models.Votes;
 
 namespace NetTally.Models.Behavior;
 

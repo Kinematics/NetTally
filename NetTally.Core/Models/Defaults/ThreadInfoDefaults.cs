@@ -1,5 +1,4 @@
-﻿using NetTally.Models.Defaults;
-using NetTally.Models.Posts;
+﻿using NetTally.Models.Posts;
 using NetTally.Models.Threads;
 
 namespace NetTally.Models.Defaults;
