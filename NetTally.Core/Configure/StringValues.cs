@@ -25,6 +25,10 @@ public static partial class Strings
     public const string NewThreadDisplayName = "~Placeholder~";
 
     public const string ExampleHostUrl = "http://www.example.com/";
+    public static readonly Uri ExampleUri = new(ExampleHostUrl);
 
     public const string UntitledThread = "~Untitled~";
+    public const string UnknownAuthor = "⟦Unknown⟧";
+    public const string NoAuthor = "⟦None⟧";
+    public const string NoTask = "⟦NONE⟧";
 }

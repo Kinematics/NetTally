@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Behavior;
+﻿using NetTally.Configure;
+using NetTally.Models.Behavior;
 using NetTally.Models.Creation;
 using NetTally.Models.Defaults;
 using NetTally.Models.Mapping;
@@ -12,7 +13,7 @@ public static class AuthorDisplay
     {
         public string DisplayName => author.Map(
                 namedAuthor => namedAuthor.Name,
-                unknownAuthor => "⟦Unknown⟧",
-                noAuthor => "⟦None⟧");
+                unknownAuthor => Strings.UnknownAuthor,
+                noAuthor => Strings.NoAuthor);
     }
 }

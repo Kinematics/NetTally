@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Defaults;
+﻿using NetTally.Configure;
+using NetTally.Models.Defaults;
 using NetTally.Models.Votes;
 
 namespace NetTally.Models.Behavior;
@@ -12,5 +13,9 @@ public static class VoteTaskDisplay
         public string BracketedDisplay => voteTask == VoteTask.None ?
             "" :
             $"[{voteTask.Name}]";
+
+        public string HeaderDisplay => voteTask == VoteTask.None ?
+            Strings.NoTask :
+            voteTask.Name;
     }
 }

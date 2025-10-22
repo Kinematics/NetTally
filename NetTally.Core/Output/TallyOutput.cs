@@ -42,8 +42,6 @@ public class TallyOutput(
     /// Get the double line break.  There are no alternate versions right now.
     /// </summary>
     private readonly string doubleLineBreak = "<==========================================================>";
-
-    const string NoTask = "【NONE】";
     #endregion
 
     #region Delegates
@@ -568,11 +566,7 @@ public class TallyOutput(
     #region Components for handling individual additions to the display.
     private void AddTaskInfo(VotesGroupedByTaskF task)
     {
-        string taskName = VoteTaskComparer.Instance.Equals(task.Key, VoteTask.None)
-            ? NoTask
-            : task.Key.Name;
-
-        AddTaskLabel(taskName);
+        AddTaskLabel(task.Key.HeaderDisplay);
         AddTaskVoterCount(task);
         sb.AppendLine();
     }

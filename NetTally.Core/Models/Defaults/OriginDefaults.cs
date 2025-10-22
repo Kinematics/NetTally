@@ -1,5 +1,4 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Defaults;
 using NetTally.Models.Posts;
 
 namespace NetTally.Models.Defaults;
@@ -11,10 +10,8 @@ public static class OriginDefaults
         public static Origin None => _none;
     }
 
-    static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
-
     private static readonly Origin _none = new UserOrigin(Author.None,
-        ExampleUri, ExampleUri, PostId.None, PostNumber.None, DateTimeOffset.MinValue);
+        Strings.ExampleUri, Strings.ExampleUri, PostId.None, PostNumber.None, DateTimeOffset.MinValue);
 }
 
 

@@ -7,7 +7,6 @@ namespace NetTally.Models.Comparers;
 
 public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 {
-    static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
     public static OriginComparer Instance { get; } = new();
 
     public int Compare(Origin? x, Origin? y)
@@ -25,8 +24,8 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
         if (result == 0)
         {
-            if (x.Thread.AbsoluteUri != ExampleUri.AbsoluteUri &&
-                y.Thread.AbsoluteUri != ExampleUri.AbsoluteUri)
+            if (x.Thread.AbsoluteUri != Strings.ExampleUri.AbsoluteUri &&
+                y.Thread.AbsoluteUri != Strings.ExampleUri.AbsoluteUri)
             {
                 result = x.Thread.AbsoluteUri.CompareTo(y.Thread.AbsoluteUri);
 
