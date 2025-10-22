@@ -15,20 +15,16 @@ static partial class ForumPostTextConverter
 {
     #region Regex
     // Regex for colors in a span's style
-    static readonly Regex spanColorRegex = SpanColorRegex();
-    // Regex for strike-through in a span's style
-    static readonly Regex spanStrikeRegex = SpanStrikeRegex();
-    // Regex for quick spoilers in a span's class
-    static readonly Regex spanSpoilerRegex = SpanSpoilerRegex();
-
     [GeneratedRegex(@"\bcolor\s*:\s*(?<color>#[0-9a-f]+|\w+)", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex SpanColorRegex();
+    private static partial Regex SpanColorRegex { get; }
 
+    // Regex for strike-through in a span's style
     [GeneratedRegex(@"text-decoration:\s*line-through", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex SpanStrikeRegex();
+    private static partial Regex SpanStrikeRegex { get; }
 
+    // Regex for quick spoilers in a span's class
     [GeneratedRegex(@"bbc-spoiler", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex SpanSpoilerRegex();
+    private static partial Regex SpanSpoilerRegex { get; }
     #endregion Regex
 
     #region Public Functions
@@ -192,13 +188,13 @@ static partial class ForumPostTextConverter
                     string spanClass = child.GetAttributeValue("class", "");
 
                     // Struck-through text is entirely skipped.
-                    if (spanStrikeRegex.Match(spanStyle).Success)
+                    if (SpanStrikeRegex.Match(spanStyle).Success)
                     {
                         sb.Append(OpenStrike);
                         ExtractPostTextString(child, exclude, sb, host);
                         sb.Append(CloseStrike);
                     }
-                    else if (spanSpoilerRegex.Match(spanClass).Success)
+                    else if (SpanSpoilerRegex.Match(spanClass).Success)
                     {
                         // Keep quick spoilers.
                         sb.Append(openQuickSpoilers);
@@ -208,7 +204,7 @@ static partial class ForumPostTextConverter
                     else
                     {
                         // Keep any COLOR styles.
-                        Match m = spanColorRegex.Match(spanStyle);
+                        Match m = SpanColorRegex.Match(spanStyle);
                         if (m.Success)
                         {
                             sb.Append(colorTemplate.FormatWith(m.Groups["color"].Value));
