@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.RegularExpressions;
-using NetTally.Configure;
 
 namespace NetTally.Utility;
 
@@ -21,7 +20,7 @@ public static partial class StringUtility
         if (name.IsPlanName())
             return name;
 
-        return $"{Strings.PlanNameMarker}{name}";
+        return $"{Configure.Strings.PlanNameMarker}{name}";
     }
 
     /// <summary>
@@ -34,7 +33,7 @@ public static partial class StringUtility
         if (string.IsNullOrEmpty(name))
             return false;
 
-        return (name[0] == Strings.PlanNameMarkerChar);
+        return (name[0] == Configure.Strings.PlanNameMarkerChar);
     }
     #endregion
 

@@ -43,5 +43,5 @@ public sealed record VoteBlock(ImmutableArray<VoteLine> Lines, Marker Marker, Vo
         VoteBlockDisplay.ToOutputString(this, marker: "", subMarker: "");
 
     private string DebugDisplayString =>
-        $"{{[{Marker.Display()}][{Task.Name}] || {Lines[0].Content.CleanContent}}}";
+        $"{{[{Marker.Display}][{Task.Name}] || {Lines[0].Content.CleanContent}}}";
 }

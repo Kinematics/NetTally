@@ -258,7 +258,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -271,7 +271,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -285,7 +285,7 @@ public class VoteLineTests
 
         Assert.AreEqual(2, voteLines.Count);
 
-        Assert.AreEqual("--[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[1]));
+        Assert.AreEqual("--[X] A line of stuff", voteLines[1].DisplayOutput());
     }
 
     [TestMethod]
@@ -298,7 +298,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -311,7 +311,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[X][Reward] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X][Reward] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -324,7 +324,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[#7] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[#7] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -337,7 +337,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[77%] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[77%] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -350,7 +350,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[X] A line of stuff", VoteLineDisplay.ToOutputString(voteLines[0]));
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
 
     [TestMethod]
@@ -363,7 +363,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+        Assert.AreEqual("[] A line of stuff", voteLines[0].DisplayComparable());
     }
 
     [TestMethod]
@@ -377,7 +377,7 @@ public class VoteLineTests
 
         Assert.AreEqual(2, voteLines.Count);
 
-        Assert.AreEqual("-[] With other stuff", VoteLineDisplay.ToComparableString(voteLines[1]));
+        Assert.AreEqual("-[] With other stuff", voteLines[1].DisplayComparable());
     }
 
     [TestMethod]
@@ -390,7 +390,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+        Assert.AreEqual("[] A line of stuff", voteLines[0].DisplayComparable());
     }
 
     [TestMethod]
@@ -403,7 +403,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[][Today] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+        Assert.AreEqual("[][Today] A line of stuff", voteLines[0].DisplayComparable());
     }
 
     [TestMethod]
@@ -416,7 +416,7 @@ public class VoteLineTests
 
         Assert.AreEqual(1, voteLines.Count);
 
-        Assert.AreEqual("[][Today] A line of stuff", VoteLineDisplay.ToComparableString(voteLines[0]));
+        Assert.AreEqual("[][Today] A line of stuff", voteLines[0].DisplayComparable());
     }
 
 }

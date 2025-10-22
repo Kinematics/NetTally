@@ -195,10 +195,10 @@ public static class CompactVoteDisplay
     /// <returns>Returns a string representing the current object.</returns>
     public static string ToString(CompactVoteType compactVote)
     {
-        string starting = VoteLineDisplay.ToString(compactVote.Line);
+        string starting = compactVote.Line.Display();
 
         return compactVote.Children
-            .Select(s => VoteLineDisplay.ToString(s.Line))
+            .Select(s => s.Line.Display())
             .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
@@ -208,10 +208,10 @@ public static class CompactVoteDisplay
     /// <returns>Returns a string representing the current object.</returns>
     public static string ToComparableString(CompactVoteType compactVote)
     {
-        string starting = VoteLineDisplay.ToComparableString(compactVote.Line);
+        string starting = compactVote.Line.DisplayComparable();
 
         return compactVote.Children
-            .Select(s => VoteLineDisplay.ToComparableString(s.Line))
+            .Select(s => s.Line.DisplayComparable())
             .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
@@ -227,10 +227,10 @@ public static class CompactVoteDisplay
         string? marker = null,
         string? task = null)
     {
-        string starting = VoteLineDisplay.ToOverrideString(compactVote.Line, marker, task);
+        string starting = compactVote.Line.Display(marker, task);
 
         return compactVote.Children
-            .Select(s => VoteLineDisplay.ToOverrideString(s.Line, marker, task))
+            .Select(s => s.Line.Display(marker, task))
             .Aggregate(starting, (a, b) => $"{a}\n{b}");
     }
 
@@ -246,7 +246,7 @@ public static class CompactVoteDisplay
         string? marker = null,
         string? task = null)
     {
-        return VoteLineDisplay.ToOverrideString(compactVote.Line, marker, task);
+        return compactVote.Line.Display(marker, task);
         // don't display children
     }
 }

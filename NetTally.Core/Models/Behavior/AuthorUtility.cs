@@ -14,10 +14,5 @@ public static class AuthorUtility
                 namedAuthor => namedAuthor with { Name = input },
                 unknownAuthor => Author.Create(input) ?? Author.Unknown,
                 noAuthor => Author.Create(input) ?? Author.None);
-
-        public string DisplayName => author.Map(
-                namedAuthor => namedAuthor.Name,
-                unknownAuthor => "⟦Unknown⟧",
-                noAuthor => "⟦None⟧");
     }
 }

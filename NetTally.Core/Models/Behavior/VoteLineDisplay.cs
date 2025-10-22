@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Votes;
+﻿using NetTally.Configure;
+using NetTally.Models.Votes;
 
 namespace NetTally.Models.Behavior;
 
@@ -6,72 +7,41 @@ public static class VoteLineDisplay
 {
     extension(VoteLine voteLine)
     {
-        public bool HasTask => voteLine.Task.Name.Length > 0;
+        /// <summary>
+        /// Gets the raw vote line formatted as a string.
+        /// </summary>
+        /// <param name="markerOverride">An optional override of the marker value.</param>
+        /// <param name="taskOverride">An optional override of the task value.</param>
+        public string Display(string? markerOverride = null, string? taskOverride = null) =>
+            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content}";
+
+        /// <summary>
+        /// Get the vote line formatted as a string suitable for comparing.
+        /// Uses the clean content, and no marker.
+        /// </summary>
+        /// <param name="taskOverride">An optional override of the task value.</param>
+        public string DisplayComparable(string? taskOverride = null) =>
+            $"{voteLine.Prefix.Indent}[]{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.CleanContent}";
+
+        /// <summary>
+        /// Gets the vote line formatted as a string, with BBCode punctuation properly substituted in.
+        /// </summary>
+        /// <param name="markerOverride">An optional override of the marker value.</param>
+        /// <param name="taskOverride">An optional override of the task value.</param>
+        public string DisplayOutput(string? markerOverride = null, string ? taskOverride = null) =>
+            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content.FormatBBCode}";
     }
 
-    /// <summary>
-    /// Formats the current object as a string.
-    /// </summary>
-    /// <returns>Returns a string representing the current object.</returns>
-    public static string ToString(VoteLine voteLine)
+    extension (string? str)
     {
-        string task = voteLine.HasTask ? $"[{voteLine.Task.Name}]" : "";
-        return $"{voteLine.Prefix.Indent}[{voteLine.Marker.Display()}]{task} {voteLine.Content.Content}";
-    }
+        /// <summary>
+        /// Put the provided string in brackets.
+        /// </summary>
+        string? Bracket => str is not null && str.Length > 0 ? $"[{str}]" : null;
 
-    /// <summary>
-    /// Creates a string that displays the cleaned content, and without any particular marker.
-    /// May display a provided task instead of the innate one.
-    /// </summary>
-    /// <returns>Returns a string representing the current object.</returns>
-    public static string ToComparableString(VoteLine voteLine, string? task = null)
-    {
-        task ??= voteLine.Task.Name;
-        task = task.Length > 0 ? $"[{task}]" : "";
-        return $"{voteLine.Prefix.Indent}[]{task} {voteLine.Content.CleanContent}";
-    }
-
-    /// <summary>
-    /// Creates a string that displays the full vote line content, using the specified marker
-    /// and task instead of the intrinsic ones.
-    /// </summary>
-    /// <param name="marker">The optional string to use in place of the marker.</param>
-    /// <param name="task">The optional string to use in place of the task.</param>
-    /// <returns>Returns a string representing the current object.</returns>
-    public static string ToOverrideString(VoteLine voteLine, string? marker = null, string? task = null)
-    {
-        marker ??= voteLine.Marker.Display();
-        task ??= voteLine.Task.Name;
-        task = task.Length > 0 ? $"[{task}]" : "";
-        return $"{voteLine.Prefix.Indent}[{marker}]{task} {voteLine.Content.Content}";
-    }
-
-    /// <summary>
-    /// Formats a vote line for output, with optional override marker and task.
-    /// </summary>
-    /// <param name="marker">The optional string to use in place of the marker.</param>
-    /// <param name="task">The optional string to use in place of the task.</param>
-    /// Will use the default task if left null.</param>
-    /// <returns>Returns a string representing the current vote line.</returns>
-    public static string ToOutputString(VoteLine voteLine, string? marker = null, string? task = null)
-    {
-        marker ??= voteLine.Marker.Display();
-        task ??= voteLine.Task.Name;
-        task = task.Length > 0 ? $"[{task}]" : "";
-        string content = FormatBBCodeForOutput(voteLine.Content.Content);
-        return $"{voteLine.Prefix.Indent}[{marker}]{task} {content}";
-    }
-
-    /// <summary>
-    /// Function to convert placeholder symbols in a vote line to BBCode brackets.
-    /// </summary>
-    /// <param name="input">An input string.</param>
-    /// <returns>The string with any 『』 brackets converted to [].</returns>
-    private static string FormatBBCodeForOutput(string input)
-    {
-        string output = input.Replace('『', '[');
-        output = output.Replace('』', ']');
-
-        return output;
+        /// <summary>
+        /// Convert custom BBCode punctuation back to normal output form.
+        /// </summary>
+        string? FormatBBCode => str?.Replace(Strings.OpenBBCode, '[').Replace(Strings.CloseBBCode, ']');
     }
 }

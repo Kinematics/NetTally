@@ -17,22 +17,12 @@ internal static class ThreadRangePages
             fullPostRange => GetPageNumberOfPost(fullPostRange.StartPostNumber, fullPostRange.PostsPerPage, fullPostRange.PagesInThread),
             startPostRange => GetPageNumberOfPost(startPostRange.StartPostNumber, startPostRange.PostsPerPage, startPostRange.PagesInThread));
 
-        //public int EndPage => threadRange.Map(
-        //    idRange => idRange.PagesInThread,
-        //    postRange => postRange.EndPostNumber == 0
-        //        ? postRange.PagesInThread
-        //        : Math.Min(GetPageNumberOfPost(postRange.EndPostNumber, postRange.PostsPerPage), postRange.PagesInThread));
-
         public int EndPage => threadRange.Map(
             idRange => idRange.PagesInThread,
             fullPostRange => GetPageNumberOfPost(fullPostRange.EndPostNumber, fullPostRange.PostsPerPage, fullPostRange.PagesInThread),
             startPostRange => startPostRange.PagesInThread);
     }
 
-    private static int GetPageNumberOfPost(int postNumber, int postsPerPage) =>
-        (postNumber - 1) / postsPerPage + 1;
-
     private static int GetPageNumberOfPost(PostNumber postNumber, int postsPerPage, int pagesInThread) =>
         Math.Clamp((int)(postNumber.Value - 1) / postsPerPage + 1, 1, pagesInThread);
-
 }

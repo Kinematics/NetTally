@@ -810,7 +810,7 @@ public class TallyOutput(
         else if (marker == MarkerType.Rank && (vote is null))
             markerToDisplay = Strings.NonVotingMarker;
         else if (vote is not null)
-            markerToDisplay = vote.Marker.Display();
+            markerToDisplay = vote.Marker.Display;
         else
             markerToDisplay = Strings.UnknownMarker;
 

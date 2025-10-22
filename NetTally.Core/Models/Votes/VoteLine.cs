@@ -12,5 +12,5 @@ namespace NetTally.Models.Votes;
 [DebuggerDisplay("{DebugDisplayString}")]
 public sealed record VoteLine(Prefix Prefix, Marker Marker, VoteTask Task, VoteContent Content)
 {
-    private string DebugDisplayString => $"{{ {Prefix.Indent}[{Marker.Display()}][{Task.Name}] {Content.CleanContent} }}";
+    private string DebugDisplayString => $"{{ {Prefix.Indent}[{Marker.Display}][{Task.Name}] {Content.CleanContent} }}";
 }

@@ -12,8 +12,8 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? VoteLineDisplay.ToOverrideString(a, block.Marker.Display(), block.Task.Name)
-                : VoteLineDisplay.ToString(a))
+                ? a.Display(block.Marker.Display, block.Task.Name)
+                : a.Display())
             .Aggregate((a, b) => $"{a}\n{b}");
     }
 
@@ -21,8 +21,8 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? VoteLineDisplay.ToOutputString(a, marker, block.Task.Name)
-                : VoteLineDisplay.ToOutputString(a, subMarker))
+                ? a.DisplayOutput(marker, block.Task.Name)
+                : a.DisplayOutput(subMarker))
             .Aggregate((a, b) => $"{a}\n{b}");
     }
 
@@ -35,8 +35,8 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? VoteLineDisplay.ToComparableString(a, block.Task.Name)
-                : VoteLineDisplay.ToComparableString(a))
+                ? a.DisplayComparable(block.Task.Name)
+                : a.DisplayComparable())
             .Aggregate((a, b) => $"{a}\r\n{b}");
     }
 }

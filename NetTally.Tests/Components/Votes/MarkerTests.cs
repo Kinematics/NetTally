@@ -56,7 +56,7 @@ public class MarkerTests
         var marker = Marker.PlanMarker;
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is PlanMarker);
-        Assert.AreEqual(Strings.PlanNameMarker, marker.Display());
+        Assert.AreEqual(Strings.PlanNameMarker, marker.Display);
     }
 
     [TestMethod]
@@ -72,7 +72,7 @@ public class MarkerTests
     {
         var marker = Marker.Create("X");
         Assert.IsNotNull(marker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -106,7 +106,7 @@ public class MarkerTests
         var marker = Marker.Create("x");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -115,7 +115,7 @@ public class MarkerTests
         var marker = Marker.Create("✓");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class MarkerTests
         var marker = Marker.Create("✔");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -133,7 +133,7 @@ public class MarkerTests
         var marker = Marker.Create("✗");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -142,7 +142,7 @@ public class MarkerTests
         var marker = Marker.Create("✘");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -151,7 +151,7 @@ public class MarkerTests
         var marker = Marker.Create("Х");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -160,7 +160,7 @@ public class MarkerTests
         var marker = Marker.Create("☒");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -169,7 +169,7 @@ public class MarkerTests
         var marker = Marker.Create("☑");
         Assert.IsNotNull(marker);
         Assert.IsTrue(marker is VoteMarker);
-        Assert.AreEqual("X", marker.Display());
+        Assert.AreEqual("X", marker.Display);
     }
 
     [TestMethod]
@@ -222,7 +222,7 @@ public class MarkerTests
         if (marker is ApprovalMarker approval)
         {
             Assert.IsTrue(approval.Approve);
-            Assert.AreEqual("+", marker.Display());
+            Assert.AreEqual("+", marker.Display);
             Assert.AreEqual(80, marker.Value);
             Assert.IsTrue(marker.IsPositive);
         }
@@ -240,7 +240,7 @@ public class MarkerTests
         if (marker is ApprovalMarker approval)
         {
             Assert.IsFalse(approval.Approve);
-            Assert.AreEqual("-", marker.Display());
+            Assert.AreEqual("-", marker.Display);
             Assert.AreEqual(20, marker.Value);
             Assert.IsFalse(marker.IsPositive);
         }

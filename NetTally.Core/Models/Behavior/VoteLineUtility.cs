@@ -1,4 +1,5 @@
-﻿using NetTally.Models.Votes;
+﻿using NetTally.Models.Defaults;
+using NetTally.Models.Votes;
 
 namespace NetTally.Models.Behavior;
 
@@ -9,6 +10,8 @@ public static class VoteLineUtility
 {
     extension(VoteLine voteLine)
     {
+        public bool HasTask => voteLine.Task != VoteTask.None;
+
         public int Depth => voteLine.Prefix.Depth;
 
         /// <summary>
