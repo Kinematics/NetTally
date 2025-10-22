@@ -19,9 +19,7 @@ public static partial class VoteConstructor
     #region Regexes
     // A regex to extract potential references from a vote line.
     [GeneratedRegex(@"^(?<label>(?:\^|↑)(?=\s*\w)|(?:(?:(?:base|proposed)\s*)?plan\b)(?=\s*:?\s*\S))?\s*:?\s*@?(?<reference>.+)", RegexOptions.IgnoreCase, "en-US")]
-    private static partial Regex ReferenceRegex();
-
-    static readonly Regex referenceNameRegex = ReferenceRegex();
+    private static partial Regex ReferenceNameRegex { get; }
     #endregion Regexes
 
     #region General public processing functions
@@ -314,7 +312,7 @@ public static partial class VoteConstructor
         if (voteLine.Content.CleanContent.Length > 100)
             goto noReference;
 
-        Match m = referenceNameRegex.Match(voteLine.Content.CleanContent);
+        Match m = ReferenceNameRegex.Match(voteLine.Content.CleanContent);
         if (m.Success)
         {
             string label = m.Groups["label"].Value;

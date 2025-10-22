@@ -6,13 +6,12 @@ namespace NetTally.Utility.Filtering;
 /// </summary>
 public static partial class PostNumberFilter
 {
-    private static readonly Regex postFilterRegex = PostFilterRegex();
     private static readonly char[] separator = [','];
     private static readonly Range FailRange = new(0, 0);
 
     [GeneratedRegex(@"^((?<range>(?<r1>\d+)\s*-\s*(?<r2>\d+))|(?<num>\d+))$",
         RegexOptions.ExplicitCapture, 50)]
-    private static partial Regex PostFilterRegex();
+    private static partial Regex PostFilterRegex { get; }
 
     public static PostNumFilter AlwaysAllow =>
         AdaptingListFilter<Range, long>.AlwaysAllow;
@@ -41,7 +40,7 @@ public static partial class PostNumberFilter
 
         var ranges = value
             .Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(s => postFilterRegex.Match(s))
+            .Select(s => PostFilterRegex.Match(s))
             .Where(m => m.Success)
             .Select(ConvertToRange)
             .Where(r => r.Start.Value != FailRange.Start.Value);

@@ -18,17 +18,17 @@ public static partial class VoteBlocks
     // Check for a vote line that marks a portion of the user's post as a proposed/base plan.
     [GeneratedRegex(@"(base|proposed)\s*plan((:|\s)+)(?<planname>.+)",
         RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
-    private static partial Regex ProposedPlanRegex();
+    private static partial Regex ProposedPlanRegex { get; }
 
     // Check for a plan reference. "Plan: Dwarf Raid"
     [GeneratedRegex(@"^plan(:|\s)+◈?@?(?<planname>.+)\.?$",
         RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
-    private static partial Regex AnyPlanRegex();
+    private static partial Regex AnyPlanRegex { get; }
 
     // Check for a plan reference, alternate format. "Arkatekt's Plan"
     [GeneratedRegex(@"^(?<planname>.+?)'s\s+plan$",
         RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture, "en-US")]
-    private static partial Regex AltPlanRegex();
+    private static partial Regex AltPlanRegex { get; }
     #endregion Plan Name Regexes
 
     /// <summary>
@@ -176,15 +176,15 @@ public static partial class VoteBlocks
     {
         Match m;
 
-        m = ProposedPlanRegex().Match(line.Content.CleanContent);
+        m = ProposedPlanRegex.Match(line.Content.CleanContent);
         if (m.Success)
             return (PlanStatus.Proposed, m.Groups["planname"].Value.Trim());
 
-        m = AnyPlanRegex().Match(line.Content.CleanContent);
+        m = AnyPlanRegex.Match(line.Content.CleanContent);
         if (m.Success)
             return (PlanStatus.Plan, m.Groups["planname"].Value.Trim());
 
-        m = AltPlanRegex().Match(line.Content.CleanContent);
+        m = AltPlanRegex.Match(line.Content.CleanContent);
         if (m.Success)
             return (PlanStatus.Plan, m.Groups["planname"].Value.Trim());
 

@@ -324,13 +324,13 @@ public partial class QuestOptionsViewModel : ObservableObject
 
     [GeneratedRegex(@"^(?<base>.+?)(?:&?page[-=]?\d+)?(?:&p=?\d+)?(?:(?<!showthread\.php)\?[^#]*)?(?:#[^/]*)?(?:unread)?$",
         RegexOptions.None, 50)]
-    private static partial Regex PageNumberRegex();
+    private static partial Regex PageNumberRegex { get; }
 
     private static string CleanupThreadName(string url)
     {
         url = url.RemoveUnsafeCharacters();
 
-        Match m = PageNumberRegex().Match(url);
+        Match m = PageNumberRegex.Match(url);
         if (m.Success)
             url = m.Groups["base"].Value;
 
@@ -338,14 +338,14 @@ public partial class QuestOptionsViewModel : ObservableObject
     }
 
     [GeneratedRegex(@"(?:showthread\.php\?)?(?:t=)?(?<displayName>[^/]+)(/|#[^/]*)?$", RegexOptions.None, 50)]
-    private static partial Regex DisplayNameRegex();
+    private static partial Regex DisplayNameRegex { get; }
 
     private static string GetDisplayNameFromUrl(string url)
     {
         if (string.IsNullOrEmpty(url))
             return string.Empty;
 
-        Match m = DisplayNameRegex().Match(url);
+        Match m = DisplayNameRegex.Match(url);
         if (m.Success)
             return m.Groups["displayName"].Value;
         else
