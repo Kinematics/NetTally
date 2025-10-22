@@ -6,9 +6,9 @@ public static class VoteLineDefaults
 {
     extension(VoteLine)
     {
-        public static VoteLine Empty => _empty;
+        public static VoteLine None => _none;
     }
 
-    private static readonly VoteLine _empty =
-        new(Prefix.Empty, Marker.None, VoteTask.Empty, VoteContent.Empty);
+    private static readonly VoteLine _none =
+        new(Prefix.None, Marker.None, VoteTask.None, VoteContent.None);
 }

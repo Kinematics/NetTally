@@ -212,7 +212,7 @@ public partial class ManageVotes : Window
         partitionChildren.IsEnabled = selectedVote.HasChildLines;
 
         // Only clear a task if the vote has one.
-        clearTask.IsEnabled = (selectedVote.Task != VoteTask.Empty);
+        clearTask.IsEnabled = (selectedVote.Task != VoteTask.None);
 
         // Only enable Reorder Tasks if we have tasks to reorder
         reorderTasks.IsEnabled = manageVotesViewModel.HasTasks;

@@ -67,7 +67,7 @@ public sealed record CompactVoteType(
 
 public static class CompactVote
 {
-    public static CompactVoteType None { get; } = new CompactVoteType(VoteLine.Empty, null!, [], []);
+    public static CompactVoteType None { get; } = new CompactVoteType(VoteLine.None, null!, [], []);
 
     /// <summary>
     /// Get a list of compact voter information from the provided votes.

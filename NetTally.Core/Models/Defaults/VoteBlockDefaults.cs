@@ -9,5 +9,5 @@ public static class VoteBlockDefaults
         public static VoteBlock Empty => _empty;
     }
 
-    private static readonly VoteBlock _empty = new([], Marker.None, VoteTask.Empty);
+    private static readonly VoteBlock _empty = new([], Marker.None, VoteTask.None);
 }

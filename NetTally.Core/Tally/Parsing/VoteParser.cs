@@ -47,7 +47,7 @@ public static partial class VoteParser
     {
         var voteLines = textLines
             .Select(t => VoteLineParser.ParseLineParts(t))
-            .Where(a => a != VoteLine.Empty)
+            .Where(a => a != VoteLine.None)
             .ToList();
 
         if (voteLines.Count > 0)
@@ -66,11 +66,11 @@ public static partial class VoteParser
         var voteLines = textLines
             .Select(t => NominationLineRegex.Match(t))
             .Where(m => m.Success)
-            .Select(m => VoteLine.Create(Prefix.Empty,
+            .Select(m => VoteLine.Create(Prefix.None,
                                 Marker.Create("X"),
-                                VoteTask.Empty,
+                                VoteTask.None,
                                 VoteContent.Create(m.Groups["username"].Value)))
-            .Where(v => v != VoteLine.Empty)
+            .Where(v => v != VoteLine.None)
             .ToList();
 
         if (voteLines.Count == textLines.Count)

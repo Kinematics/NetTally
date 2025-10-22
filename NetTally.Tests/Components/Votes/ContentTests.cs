@@ -18,21 +18,21 @@ public class ContentTests
     public void Construct_Null_Error()
     {
         var content = VoteContent.Create(null!);
-        Assert.AreEqual(VoteContent.Empty, content);
+        Assert.AreEqual(VoteContent.None, content);
     }
 
     [TestMethod]
     public void Construct_Empty_Error()
     {
         var content = VoteContent.Create("");
-        Assert.AreEqual(VoteContent.Empty, content);
+        Assert.AreEqual(VoteContent.None, content);
     }
 
     [TestMethod]
     public void Construct_Whitespace_Error()
     {
         var content = VoteContent.Create("    ");
-        Assert.AreEqual(VoteContent.Empty, content);
+        Assert.AreEqual(VoteContent.None, content);
     }
 
     [TestMethod]

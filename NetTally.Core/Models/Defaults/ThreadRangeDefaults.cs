@@ -11,6 +11,6 @@ public static class ThreadRangeDefaults
     }
 
     private static readonly ThreadRange _none =
-        new ThreadRangeByPostRange(PostNumber.Zero, PostNumber.Zero, 20, 1);
+        new ThreadRangeByPostRange(PostNumber.None, PostNumber.None, 20, 1);
 }
 

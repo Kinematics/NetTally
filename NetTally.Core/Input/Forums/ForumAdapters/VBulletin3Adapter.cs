@@ -232,7 +232,7 @@ public partial class VBulletin3Adapter(
         var idString = table.Id["post".Length..];
         var id = PostId.Create(idString);
 
-        return id ?? PostId.Zero;
+        return id ?? PostId.None;
     }
 
     private static Author? GetPostAuthor(HtmlDocument page, PostId id)

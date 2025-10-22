@@ -509,7 +509,7 @@ public partial class XenForo1Adapter(
     private static PostId GetPostId(HtmlNode li)
     {
         string id = li.Id["post-".Length..];
-        return PostId.Create(id) ?? PostId.Zero;
+        return PostId.Create(id) ?? PostId.None;
     }
 
     private static string GetPostText(HtmlNode li, Quest quest)

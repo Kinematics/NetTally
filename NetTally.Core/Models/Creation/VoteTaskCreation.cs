@@ -20,7 +20,7 @@ public static class VoteTaskCreation
         public static VoteTask Create(string task)
         {
             if (string.IsNullOrWhiteSpace(task))
-                return VoteTask.Empty;
+                return VoteTask.None;
 
             task = task.RemoveUnsafeCharacters().Trim();
 

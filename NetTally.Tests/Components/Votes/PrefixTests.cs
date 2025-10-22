@@ -20,7 +20,7 @@ public class PrefixTests
     {
         var prefix = Prefix.Create(null!);
         Assert.IsNotNull(prefix);
-        Assert.AreEqual(Prefix.Empty, prefix);
+        Assert.AreEqual(Prefix.None, prefix);
     }
 
     [TestMethod]
@@ -28,7 +28,7 @@ public class PrefixTests
     {
         var prefix = Prefix.Create("");
         Assert.IsNotNull(prefix);
-        Assert.AreEqual(Prefix.Empty, prefix);
+        Assert.AreEqual(Prefix.None, prefix);
     }
 
     [TestMethod]
@@ -36,7 +36,7 @@ public class PrefixTests
     {
         var prefix = Prefix.Create("  ");
         Assert.IsNotNull(prefix);
-        Assert.AreEqual(Prefix.Empty, prefix);
+        Assert.AreEqual(Prefix.None, prefix);
     }
 
     [TestMethod]
@@ -44,7 +44,7 @@ public class PrefixTests
     {
         var prefix = Prefix.Create("~~~");
         Assert.IsNotNull(prefix);
-        Assert.AreEqual(Prefix.Empty, prefix);
+        Assert.AreEqual(Prefix.None, prefix);
     }
 
     [TestMethod]

@@ -236,7 +236,7 @@ public partial class PhpBBAdapter(
         var idString = div.Id["p".Length..];
         var id = PostId.Create(idString);
 
-        return id ?? PostId.Zero;
+        return id ?? PostId.None;
     }
 
     private static Author? GetPostAuthor(HtmlNode div)

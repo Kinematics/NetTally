@@ -44,7 +44,7 @@ public static class VoteLineParser
     public static VoteLine ParseLineParts(ReadOnlySpan<char> line)
     {
         if (line.Length == 0)
-            return VoteLine.Empty;
+            return VoteLine.None;
 
         StringBuilder prefixSB = new();
         StringBuilder markerSB = new();

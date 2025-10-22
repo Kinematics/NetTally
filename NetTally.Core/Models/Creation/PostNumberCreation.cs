@@ -42,7 +42,7 @@ public static class PostNumberCreation
                 return idValue switch
                 {
                     > 0 => new PostNumber(idValue),
-                    _ => PostNumber.Zero
+                    _ => PostNumber.None
                 };
             }
 

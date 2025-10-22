@@ -225,7 +225,7 @@ public partial class VBulletin4Adapter(
     private static PostId GetPostId(HtmlNode li)
     {
         string id = li.Id["post_".Length..];
-        return PostId.Create(id) ?? PostId.Zero;
+        return PostId.Create(id) ?? PostId.None;
     }
 
     private static Author? GetPostAuthor(HtmlNode li)

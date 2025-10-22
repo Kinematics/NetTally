@@ -90,7 +90,7 @@ public partial class ManageVotes : Window, INotifyPropertyChanged
                     cmd.IsEnabled = (selectedVote != null && selectedVote.HasChildLines);
                     break;
                 case clearTaskString:
-                    cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.Empty;
+                    cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.None;
                     break;
                 case reorderTasksString:
                     cmd.IsEnabled = ContextMenuTasks.Count > 1;

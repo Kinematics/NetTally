@@ -6,8 +6,8 @@ public static class PrefixDefaults
 {
     extension(Prefix)
     {
-        public static Prefix Empty => _empty;
+        public static Prefix None => _none;
     }
 
-    private static readonly Prefix _empty = new("");
+    private static readonly Prefix _none = new("");
 }

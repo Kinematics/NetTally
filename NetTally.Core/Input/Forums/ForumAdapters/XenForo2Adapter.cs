@@ -545,7 +545,7 @@ public partial class XenForo2Adapter(
         var attribute = article.GetAttributeValue("data-content", "post-");
         var number = attribute["post-".Length..];
         var id = ForumPostTextConverter.CleanupWebString(number);
-        return PostId.Create(id) ?? PostId.Zero;
+        return PostId.Create(id) ?? PostId.None;
     }
 
     private static string GetPostText(HtmlNode article, Quest quest)

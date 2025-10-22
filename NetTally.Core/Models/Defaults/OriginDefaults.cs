@@ -14,7 +14,7 @@ public static class OriginDefaults
     static readonly Uri ExampleUri = new(Strings.ExampleHostUrl);
 
     private static readonly Origin _none = new UserOrigin(Author.None,
-        ExampleUri, ExampleUri, PostId.Zero, PostNumber.Zero, DateTimeOffset.MinValue);
+        ExampleUri, ExampleUri, PostId.None, PostNumber.None, DateTimeOffset.MinValue);
 }
 
 

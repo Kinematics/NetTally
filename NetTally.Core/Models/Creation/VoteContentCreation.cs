@@ -22,7 +22,7 @@ public static class VoteContentCreation
         {
             if (string.IsNullOrWhiteSpace(content))
             {
-                return VoteContent.Empty;
+                return VoteContent.None;
             }
 
             content = content.RemoveUnsafeCharacters().Trim();

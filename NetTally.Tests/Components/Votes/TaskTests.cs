@@ -19,21 +19,21 @@ public class TaskTests
     public void Construct_Null_Error()
     {
         var task = VoteTask.Create(null!);
-        Assert.AreEqual(VoteTask.Empty, task);
+        Assert.AreEqual(VoteTask.None, task);
     }
 
     [TestMethod]
     public void Construct_Empty_Error()
     {
         var task = VoteTask.Create("");
-        Assert.AreEqual(VoteTask.Empty, task);
+        Assert.AreEqual(VoteTask.None, task);
     }
 
     [TestMethod]
     public void Construct_Space_Error()
     {
         var task = VoteTask.Create("     ");
-        Assert.AreEqual(VoteTask.Empty, task);
+        Assert.AreEqual(VoteTask.None, task);
     }
 
     [TestMethod]

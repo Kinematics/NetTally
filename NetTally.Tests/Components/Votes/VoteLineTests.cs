@@ -30,8 +30,8 @@ public class VoteLineTests
     {
         //var prefix = Prefix.Empty;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        var task = VoteTask.None;
+        var content = VoteContent.None;
 
         Assert.ThrowsExactly<ArgumentNullException>(
             () => VoteLine.Create(null!, marker, task, content));
@@ -40,10 +40,10 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_MarkerNull_Exception()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         //var marker = Marker.Empty;
-        var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        var task = VoteTask.None;
+        var content = VoteContent.None;
 
         Assert.ThrowsExactly<ArgumentNullException>(
             () => VoteLine.Create(prefix, null!, task, content));
@@ -52,10 +52,10 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_TaskNull_Exception()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
         //var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        var content = VoteContent.None;
 
         Assert.ThrowsExactly<ArgumentNullException>(
             () => VoteLine.Create(prefix, marker, null!, content));
@@ -64,9 +64,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_ContentNull_Exception()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         //var content = VoteContent.Empty;
 
         Assert.ThrowsExactly<ArgumentNullException>(
@@ -76,21 +76,21 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_ContentEmpty_Empty()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
-        var content = VoteContent.Empty;
+        var task = VoteTask.None;
+        var content = VoteContent.None;
 
         var line = VoteLine.Create(prefix, marker, task, content);
-        Assert.AreEqual(VoteLine.Empty, line);
+        Assert.AreEqual(VoteLine.None, line);
     }
 
     [TestMethod]
     public void Construct_Basic_Normal()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line = VoteLine.Create(prefix, marker, task, content);
@@ -100,9 +100,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_Promote_None()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line = VoteLine.Create(prefix, marker, task, content);
@@ -115,7 +115,7 @@ public class VoteLineTests
     {
         var prefix = Prefix.Create("-");
         var marker = Marker.Create("X");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line = VoteLine.Create(prefix, marker, task, content);
@@ -130,7 +130,7 @@ public class VoteLineTests
     {
         var prefix = Prefix.Create("---");
         var marker = Marker.Create("X");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line = VoteLine.Create(prefix, marker, task, content);
@@ -143,9 +143,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_Compare_Same()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.None;
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line1 = VoteLine.Create(prefix, marker, task, content);
@@ -160,10 +160,10 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_CompareDiffMarkers_Same()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker1 = Marker.Create("X");
         var marker2 = Marker.Create("x");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line1 = VoteLine.Create(prefix, marker1, task, content);
@@ -178,10 +178,10 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_CompareDiffMarkerTypes_Same()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker1 = Marker.Create("X");
         var marker2 = Marker.Create("90%");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content = VoteContent.Create("A line of stuff");
 
         var line1 = VoteLine.Create(prefix, marker1, task, content);
@@ -196,9 +196,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_CompareContent_Same()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.Create("X");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content1 = VoteContent.Create("A line of stuff");
         var content2 = VoteContent.Create("A line of stuff.");
 
@@ -214,9 +214,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_CompareTaskOrder_Less()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.Create("X");
-        var task1 = VoteTask.Empty;
+        var task1 = VoteTask.None;
         var task2 = VoteTask.Create("Rig");
         var content1 = VoteContent.Create("A line of stuff");
         var content2 = VoteContent.Create("A line of stuff.");
@@ -233,9 +233,9 @@ public class VoteLineTests
     [TestMethod]
     public void Construct_CompareContentOrder_Less()
     {
-        var prefix = Prefix.Empty;
+        var prefix = Prefix.None;
         var marker = Marker.Create("X");
-        var task = VoteTask.Empty;
+        var task = VoteTask.None;
         var content1 = VoteContent.Create("Over a line of stuff");
         var content2 = VoteContent.Create("A line of stuff.");
 

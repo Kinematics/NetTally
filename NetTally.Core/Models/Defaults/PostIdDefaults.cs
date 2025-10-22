@@ -6,8 +6,8 @@ public static class PostIdDefaults
 {
     extension(PostId)
     {
-        public static PostId Zero => _zero;
+        public static PostId None => _none;
     }
 
-    public static readonly PostId _zero = new(0);
+    public static readonly PostId _none = new(0);
 }

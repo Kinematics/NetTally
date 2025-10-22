@@ -568,7 +568,7 @@ public class TallyOutput(
     #region Components for handling individual additions to the display.
     private void AddTaskInfo(VotesGroupedByTaskF task)
     {
-        string taskName = VoteTaskComparer.Instance.Equals(task.Key, VoteTask.Empty)
+        string taskName = VoteTaskComparer.Instance.Equals(task.Key, VoteTask.None)
             ? NoTask
             : task.Key.Name;
 

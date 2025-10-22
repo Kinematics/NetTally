@@ -341,7 +341,7 @@ public class VoteCounter(
         {
             return Posts
                 .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Author, p.Origin.Author) &&
-                            (maxPostId == PostId.Zero || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
+                            (maxPostId == PostId.None || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
 
         }
@@ -751,7 +751,7 @@ public class VoteCounter(
     /// <returns>The index number for ordering.</returns>
     public int TaskListIndex(VoteTask task)
     {
-        if (task == VoteTask.Empty)
+        if (task == VoteTask.None)
             return -99;
 
         for (int i = 0; i < TaskList.Count; i++)
@@ -770,7 +770,7 @@ public class VoteCounter(
     /// <param name="task">The new task to add to the knowledge base.</param>
     private void AddPotentialVoteTask(VoteTask task)
     {
-        if (task == VoteTask.Empty)
+        if (task == VoteTask.None)
         {
             return;
         }

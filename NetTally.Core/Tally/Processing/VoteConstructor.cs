@@ -217,7 +217,7 @@ public static partial class VoteConstructor
             // Users
             else
             {
-                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.Zero;
+                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.None;
 
                 PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
 
@@ -613,7 +613,7 @@ public static partial class VoteConstructor
 
         var r = VoteBlocks.GetBlocks(voteLines);
 
-        var retaskedLines = r.SelectMany(v => RecursePartitionByLineTask(v, VoteTask.Empty));
+        var retaskedLines = r.SelectMany(v => RecursePartitionByLineTask(v, VoteTask.None));
 
         return retaskedLines
             .Select(VoteBlock.Create)
@@ -627,13 +627,13 @@ public static partial class VoteConstructor
             if (block.All(a => a.Depth == block.Lines[0].Depth))
             {
                 // If there's no replacement task, we don't have to change anything
-                if (task == VoteTask.Empty)
+                if (task == VoteTask.None)
                 {
                     return [.. block];
                 }
 
                 // If there is a replacement task, replace lines that don't have their own task.
-                return block.Select(v => v.Task == VoteTask.Empty ? v with { Task = task } : v)
+                return block.Select(v => v.Task == VoteTask.None ? v with { Task = task } : v)
                     .Select(v => v.FullPromote());
             }
 
@@ -641,7 +641,7 @@ public static partial class VoteConstructor
             if (VoteBlocks.IsThisAContentBlock(block))
             {
                 var first = block.Lines[0];
-                VoteTask passTask = block.Task != VoteTask.Empty ? block.Task : task;
+                VoteTask passTask = block.Task != VoteTask.None ? block.Task : task;
 
                 return [first,
                     .. PartitionBlockForContentBlock(block, PartitionMode.ByBlockAll)

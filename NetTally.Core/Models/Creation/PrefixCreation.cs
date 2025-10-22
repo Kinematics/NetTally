@@ -20,7 +20,7 @@ public static partial class PrefixCreation
         public static Prefix Create(string indentString)
         {
             if (string.IsNullOrWhiteSpace(indentString))
-                return Prefix.Empty;
+                return Prefix.None;
 
             // If it's already well-formatted, just use that.
             if (indentString.All(c => c == '-'))
@@ -41,7 +41,7 @@ public static partial class PrefixCreation
         public static Prefix Create(int depth)
         {
             if (depth < 1)
-                return Prefix.Empty;
+                return Prefix.None;
 
             return new Prefix(new('-', depth));
         }

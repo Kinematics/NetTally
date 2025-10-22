@@ -31,8 +31,8 @@ public static class VoteLineCreation
             ArgumentNullException.ThrowIfNull(task);
             ArgumentNullException.ThrowIfNull(content);
 
-            if (content == VoteContent.Empty || marker == Marker.None)
-                return VoteLine.Empty;
+            if (content == VoteContent.None || marker == Marker.None)
+                return VoteLine.None;
 
             return new(prefix, marker, task, content);
         }

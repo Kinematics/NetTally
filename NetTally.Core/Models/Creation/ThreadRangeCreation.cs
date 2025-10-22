@@ -93,7 +93,7 @@ public static class ThreadRangeCreation
             if (startPost is null || endPost is null)
                 return null;
 
-            if (endPost == PostNumber.Zero)
+            if (endPost == PostNumber.None)
                 return CreateByStartOfRange(startPost, postsPerPage, pagesInThread);
 
             if (postsPerPage < 1)
