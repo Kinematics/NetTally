@@ -1,4 +1,4 @@
-﻿using NetTally.Models.Votes;
+﻿using NetTally.Models;
 
 namespace NetTally.Tally.Processing;
 

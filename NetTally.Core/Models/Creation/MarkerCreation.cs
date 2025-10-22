@@ -1,8 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using NetTally.Models.Defaults;
-using NetTally.Models.Votes;
 
-namespace NetTally.Models.Creation;
+namespace NetTally.Models;
 
 /// <summary>
 /// Extension class for <see cref="Marker"/> creation.

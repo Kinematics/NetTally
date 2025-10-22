@@ -1,4 +1,4 @@
-﻿namespace NetTally.Models.Votes;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// Data type to store a vote task.

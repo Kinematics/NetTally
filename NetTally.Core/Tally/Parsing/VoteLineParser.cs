@@ -1,8 +1,5 @@
 ﻿using System.Text;
-using NetTally.Models.Creation;
-using NetTally.Models.Defaults;
-using NetTally.Models.Votes;
-
+using NetTally.Models;
 using static NetTally.Configure.Strings;
 
 namespace NetTally.Tally.Parsing;

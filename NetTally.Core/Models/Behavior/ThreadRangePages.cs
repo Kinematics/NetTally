@@ -1,8 +1,6 @@
 ﻿using NetTally.Models.Mapping;
-using NetTally.Models.Posts;
-using NetTally.Models.Threads;
 
-namespace NetTally.Models.Behavior;
+namespace NetTally.Models;
 
 /// <summary>
 /// Extension class to get the start and end pages from a <see cref="ThreadRange"/>.

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Models.Votes;
+﻿namespace NetTally.Models;
 
 public abstract record Marker();
 

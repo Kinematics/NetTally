@@ -1,8 +1,4 @@
-﻿using NetTally.Models.Defaults;
-using NetTally.Models.Posts;
-using NetTally.Models.Threads;
-
-namespace NetTally.Models.Creation;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// Extension class that handles creating new <see cref="ThreadRange"/> objects.

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using NetTally.Enums;
-using NetTally.Models.Posts;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
 using NetTally.Utility.Collections;

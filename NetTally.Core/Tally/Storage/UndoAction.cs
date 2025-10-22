@@ -1,7 +1,5 @@
 ﻿using NetTally.Enums;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Tally.Counting;
 
 namespace NetTally.Tally.Storage;

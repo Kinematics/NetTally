@@ -1,5 +1,5 @@
 ﻿using NetTally.Enums;
-using NetTally.Models.Votes;
+using NetTally.Models;
 
 namespace NetTally.Tally.Storage;
 

@@ -7,15 +7,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
-using NetTally.Models.Threads;
-using NetTally.Models.Behavior;
+using NetTally.Models;
 using NetTally.Utility.Async;
 using NetTally.Utility.Filtering;
 using NetTally.Utility.HtmlNodes;
 using NetTally.Web;
-using NetTally.Models.Defaults;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 

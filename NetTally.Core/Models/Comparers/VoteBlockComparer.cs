@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
 
-namespace NetTally.Models.Comparers;
+namespace NetTally.Models;
 
 /// <summary>
 /// Comparer class for <see cref="VoteBlock"/> objects.

@@ -10,13 +10,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
-using NetTally.Models.Comparers;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 using NetTally.ViewModels;
-using NetTally.Models.Defaults;
 
 namespace NetTally.Avalonia.Views;
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
-using NetTally.Models.Posts;
+using NetTally.Models;
 using NetTally.Quests;
 using NetTally.Tally.Counting;
 using NetTally.Utility;

@@ -1,7 +1,4 @@
-﻿using NetTally.Models.Posts;
-using NetTally.Models.Threads;
-
-namespace NetTally.Models.Behavior;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// Extension methods for <see cref="Post"/> objects.

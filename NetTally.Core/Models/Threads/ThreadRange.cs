@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Posts;
-
-namespace NetTally.Models.Threads;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// A post range for use in thread information.

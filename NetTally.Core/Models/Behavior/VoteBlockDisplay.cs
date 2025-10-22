@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Votes;
-
-namespace NetTally.Models.Behavior;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// Display class for <see cref="VoteBlock"/> objects.

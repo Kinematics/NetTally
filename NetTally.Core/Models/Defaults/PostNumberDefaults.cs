@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Posts;
-
-namespace NetTally.Models.Defaults;
+﻿namespace NetTally.Models;
 
 public static class PostNumberDefaults
 {

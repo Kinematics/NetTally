@@ -1,9 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using NetTally.Configure;
-using NetTally.Models.Posts;
-using NetTally.Models.Behavior;
 
-namespace NetTally.Models.Comparers;
+namespace NetTally.Models;
 
 public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 {

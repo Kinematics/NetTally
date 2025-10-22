@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
-using NetTally.Models.Votes;
 
-namespace NetTally.Models.Posts;
+namespace NetTally.Models;
 
 /// <summary>
 /// Record for a user post.

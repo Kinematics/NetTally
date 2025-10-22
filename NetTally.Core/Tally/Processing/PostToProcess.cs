@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
-using NetTally.Models.Posts;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 
 namespace NetTally.Tally.Processing;
 

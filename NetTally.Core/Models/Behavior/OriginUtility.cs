@@ -1,9 +1,7 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Defaults;
 using NetTally.Models.Mapping;
-using NetTally.Models.Posts;
 
-namespace NetTally.Models.Behavior;
+namespace NetTally.Models;
 
 /// <summary>
 /// Extension methods for <see cref="Origin"/> objects.

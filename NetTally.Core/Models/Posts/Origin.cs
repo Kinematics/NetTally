@@ -1,4 +1,4 @@
-﻿namespace NetTally.Models.Posts;
+﻿namespace NetTally.Models;
 
 public abstract record Origin(Author Author, Uri Thread, Uri Permalink,
     PostId PostId, PostNumber PostNumber, DateTimeOffset Timestamp);

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Models.Posts;
+﻿namespace NetTally.Models;
 
 public abstract record Author();
 public sealed record NamedAuthor(string Name) : Author;

@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using NetTally.Models.Votes;
 
-namespace NetTally.Models.Behavior;
+namespace NetTally.Models;
 
 /// <summary>
 /// Extension class for handling trimming of vote content.

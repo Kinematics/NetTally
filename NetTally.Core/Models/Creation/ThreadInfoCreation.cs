@@ -1,9 +1,6 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Defaults;
-using NetTally.Models.Posts;
-using NetTally.Models.Threads;
 
-namespace NetTally.Models.Creation;
+namespace NetTally.Models;
 
 public static class ThreadInfoCreation
 {

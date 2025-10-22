@@ -1,10 +1,7 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Creation;
-using NetTally.Models.Defaults;
 using NetTally.Models.Mapping;
-using NetTally.Models.Posts;
 
-namespace NetTally.Models.Behavior;
+namespace NetTally.Models;
 
 public static class AuthorDisplay
 {

@@ -1,7 +1,6 @@
 ﻿using NetTally.Configure;
-using NetTally.Models.Votes;
 
-namespace NetTally.Models.Behavior;
+namespace NetTally.Models;
 
 public static class VoteLineDisplay
 {
@@ -28,11 +27,11 @@ public static class VoteLineDisplay
         /// </summary>
         /// <param name="markerOverride">An optional override of the marker value.</param>
         /// <param name="taskOverride">An optional override of the task value.</param>
-        public string DisplayOutput(string? markerOverride = null, string ? taskOverride = null) =>
+        public string DisplayOutput(string? markerOverride = null, string? taskOverride = null) =>
             $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content.FormatBBCode}";
     }
 
-    extension (string? str)
+    extension(string? str)
     {
         /// <summary>
         /// Put the provided string in brackets.

@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
-using NetTally.Models.Posts;
 
-namespace NetTally.Models.Creation;
+namespace NetTally.Models;
 
 /// <summary>
 /// Class for creating <see cref="PostId"/> objects.

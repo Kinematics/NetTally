@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Models.Posts;
 using NetTally.Tally.Processing;
 using NetTally.Utility.Comparers;
 
-namespace NetTally.Models.Comparers;
+namespace NetTally.Models;
 
 /// <summary>
 /// Comparer handler for <see cref="Posts"/> and <see cref="PostToProcess"/>

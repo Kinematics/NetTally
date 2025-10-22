@@ -2,9 +2,8 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using NetTally.Enums;
-using NetTally.Models.Behavior;
 
-namespace NetTally.Models.Votes;
+namespace NetTally.Models;
 
 /// <summary>
 /// Data type for a set of vote lines that can be processed as a block.

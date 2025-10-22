@@ -3,8 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Models.Comparers;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Utility.Collections;
 
 namespace NetTally.ViewModels;

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-using NetTally.Models.Defaults;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Tally.RankCounting.Reference;
 using NetTally.Tally.Storage;
 

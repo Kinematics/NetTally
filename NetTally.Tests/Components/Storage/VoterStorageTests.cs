@@ -2,11 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
-using NetTally.Models.Comparers;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Tally.Processing;
 using NetTally.Tally.Storage;
 

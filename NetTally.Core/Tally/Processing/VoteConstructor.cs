@@ -1,13 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 using NetTally.Enums;
-using NetTally.Models.Comparers;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Utility.Collections;
 using NetTally.Utility.Comparers;
-using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Processing;
 

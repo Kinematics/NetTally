@@ -1,9 +1,7 @@
-﻿using NetTally.Models.Defaults;
-using NetTally.Models.Posts;
-using NetTally.Tally.Parsing;
+﻿using NetTally.Tally.Parsing;
 using NetTally.Tally.Processing;
 
-namespace NetTally.Models.Creation;
+namespace NetTally.Models;
 
 /// <summary>
 /// Class for creating <see cref="Post"/> objects.

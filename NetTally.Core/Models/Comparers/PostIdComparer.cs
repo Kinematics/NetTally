@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Posts;
-
-namespace NetTally.Models.Comparers;
+﻿namespace NetTally.Models;
 
 public class PostIdComparer : IComparer<PostId>
 {

@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Models.Comparers;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Utility.Linq;
-using NetTally.Models.Defaults;
 
 namespace NetTally.Tally.Processing;
 

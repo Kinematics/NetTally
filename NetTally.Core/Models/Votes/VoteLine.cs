@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
-using NetTally.Models.Behavior;
 
-namespace NetTally.Models.Votes;
+namespace NetTally.Models;
 /// <summary>
 /// Data type for vote lines.
 /// </summary>

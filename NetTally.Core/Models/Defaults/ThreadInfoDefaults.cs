@@ -1,7 +1,4 @@
-﻿using NetTally.Models.Posts;
-using NetTally.Models.Threads;
-
-namespace NetTally.Models.Defaults;
+﻿namespace NetTally.Models;
 
 public static class ThreadInfoDefaults
 {

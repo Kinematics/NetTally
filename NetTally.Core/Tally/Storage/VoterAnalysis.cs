@@ -1,8 +1,5 @@
 ﻿using NetTally.Enums;
-using NetTally.Models.Comparers;
-using NetTally.Models.Posts;
-using NetTally.Models.Behavior;
-using NetTally.Models.Votes;
+using NetTally.Models;
 using NetTally.Tally.RankCounting.Reference;
 
 namespace NetTally.Tally.Storage;

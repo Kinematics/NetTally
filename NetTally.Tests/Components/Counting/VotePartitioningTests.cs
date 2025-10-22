@@ -2,9 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Models.Behavior;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
+using NetTally.Models;
 using NetTally.Tally.Processing;
 
 namespace NetTally.Tests.Components.Counting;

@@ -1,5 +1,3 @@
-﻿using NetTally.Models.Posts;
-
-namespace NetTally.Models.Threads;
+﻿namespace NetTally.Models;
 
 public sealed record ThreadInfo(string Title, Author Author, ThreadRange ThreadRange);

@@ -1,4 +1,4 @@
-﻿namespace NetTally.Models.Posts;
+﻿namespace NetTally.Models;
 
 /// <summary>
 /// A number of a post within a thread.

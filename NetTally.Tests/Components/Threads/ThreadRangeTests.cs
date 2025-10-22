@@ -1,8 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NetTally.Models.Behavior;
-using NetTally.Models.Creation;
-using NetTally.Models.Posts;
-using NetTally.Models.Threads;
+using NetTally.Models;
 
 namespace NetTally.Tests.Components.Threads;
 

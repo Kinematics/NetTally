@@ -1,7 +1,6 @@
-﻿using NetTally.Models.Posts;
-using NetTally.Utility;
+﻿using NetTally.Utility;
 
-namespace NetTally.Models.Creation;
+namespace NetTally.Models;
 
 public static class AuthorCreation
 {

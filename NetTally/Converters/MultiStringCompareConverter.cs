@@ -2,8 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
-using NetTally.Models.Comparers;
-using NetTally.Models.Votes;
+using NetTally.Models;
 
 namespace NetTally.Converters
 {

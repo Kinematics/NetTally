@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Threads;
-
-namespace NetTally.Models.Mapping;
+﻿namespace NetTally.Models.Mapping;
 
 /// <summary>
 /// Extension class to handle mapping of different behavior to each

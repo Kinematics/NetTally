@@ -1,6 +1,4 @@
-﻿using NetTally.Models.Votes;
-
-namespace NetTally.Models.Mapping;
+﻿namespace NetTally.Models.Mapping;
 
 /// <summary>
 /// Extension class containing mapping function for subclasses of <see cref="Marker"/> objects.
