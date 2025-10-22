@@ -1,9 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 using NetTally.Utility;
-
+using NetTally.Utility.Strings;
 using static NetTally.Configure.Strings;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -116,15 +115,6 @@ static partial class ForumPostTextConverter
 
     static readonly string closeUrl = $"{OpenBBCode}/url{CloseBBCode}";
     static readonly string closeColor = $"{OpenBBCode}/color{CloseBBCode}";
-
-    extension(string template)
-    {
-        string FormatWith(string prm)
-        {
-            string result = FormattableStringFactory.Create(template, prm).ToString();
-            return result;
-        }
-    }
 
     /// <summary>
     /// Extracts post text as a string from the provided HTML node.
