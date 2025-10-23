@@ -24,7 +24,7 @@ public class Schulze : IRankVoteCounter
         return winningChoices;
     }
 
-    private int[,] GetPairwisePreferences(VoteStorage taskVotes)
+    private static int[,] GetPairwisePreferences(VoteStorage taskVotes)
     {
         int[,] pairwisePreferences = new int[taskVotes.Count, taskVotes.Count];
 
@@ -149,7 +149,7 @@ public class Schulze : IRankVoteCounter
     /// <param name="winningPaths">The winning paths.</param>
     /// <param name="listOfChoices">The list of choices.</param>
     /// <returns>Returns a list of </returns>
-    private List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
+    private static List<((int rank, double rankScore) ranking, VoteStorageEntryF vote)>
         GetResultsInOrder(int[,] winningPaths, Dictionary<VoteBlock, VoterStorage> listOfChoices)
     {
         int count = listOfChoices.Count;

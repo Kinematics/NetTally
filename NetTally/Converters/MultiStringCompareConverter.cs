@@ -33,14 +33,14 @@ public class MultiStringCompareConverter : IMultiValueConverter
         };
     }
 
-    private static object CompareStringValues(object[] values)
+    private static bool CompareStringValues(object[] values)
     {
         string first = values[0].ToString() ?? "";
 
         return values.All(v => v is string vv && vv == first);
     }
 
-    private static object CompareVoteLineBlockValues(object[] values, bool inverted)
+    private static bool CompareVoteLineBlockValues(object[] values, bool inverted)
     {
         if (!values.All(v => v is VoteBlock))
             return false;

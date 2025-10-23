@@ -22,7 +22,7 @@ public class MergeData
     {
         FromVote = fromVote;
         ToVote = fromVote;
-        ToVotes = toVotes.ToList();
+        ToVotes = [.. toVotes];
         UndoActionType = actionType;
     }
 }

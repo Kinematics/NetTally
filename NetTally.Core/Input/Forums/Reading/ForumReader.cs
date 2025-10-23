@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -229,7 +230,7 @@ public class ForumReader(
         return true;
     }
 
-    private static string FormatTitle(ThreadInfo threadInfo, IList<Post> posts)
+    private static string FormatTitle(ThreadInfo threadInfo, ImmutableList<Post> posts)
     {
         long min = posts.Min(p => p.Origin.PostNumber.Value);
         long max = posts.Max(p => p.Origin.PostNumber.Value);

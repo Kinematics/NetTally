@@ -43,7 +43,7 @@ public class RatedInstantRunoff : IRankVoteCounter
     /// <param name="voterRankings">The voter rankings.</param>
     /// <param name="rankedVotes">The votes, ranked.</param>
     /// <returns></returns>
-    private (VoteStorageEntryF vote, double score)
+    private static (VoteStorageEntryF vote, double score)
         GetWinningVote(VoteStorage votes)
     {
         var options = GetTopTwoRatedOptions(votes);
@@ -89,7 +89,7 @@ public class RatedInstantRunoff : IRankVoteCounter
     /// <param name="option1">The first option up for consideration.</param>
     /// <param name="option2">The second option up for consideration.</param>
     /// <returns>Returns the winning option.</returns>
-    private VoteStorageEntryF GetOptionWithHigherPrefCount(
+    private static VoteStorageEntryF GetOptionWithHigherPrefCount(
         VoteStorageEntryF option1,
         VoteStorageEntryF option2)
     {

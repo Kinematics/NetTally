@@ -128,9 +128,7 @@ public static partial class VoteConstructor
     /// <returns>Returns true if the block of vote lines is allowed to be tallied.</returns>
     private static bool DoesTaskFilterPass(VoteBlock block, Quest quest)
     {
-        return quest.UseCustomTaskFilters
-            ? quest.TaskFilter.Allows(block.Task.Name)
-            : true;
+        return !quest.UseCustomTaskFilters || quest.TaskFilter.Allows(block.Task.Name);
     }
 
     /// <summary>
