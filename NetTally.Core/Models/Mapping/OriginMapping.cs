@@ -18,14 +18,25 @@ public static class OriginMapping
         /// <returns>The result of whichever function got applied.</returns>
         /// <exception cref="InvalidOperationException">Will trigger if another subclass is
         /// ever created, but this function hasn't been updated.</exception>
-        public T Map<T>(Func<UserOrigin, T> userMap, Func<PlanOrigin, T> planMap) =>
+        //public T Map<T>(Func<UserOrigin, T> userMap, Func<PlanOrigin, T> planMap) =>
+        //    origin switch
+        //    {
+        //        UserOrigin userOrigin => userMap(userOrigin),
+        //        PlanOrigin planOrigin => planMap(planOrigin),
+        //        _ => throw new InvalidOperationException("Unknown Origin type.")
+        //    };
+
+        public T Map<T>(
+            Func<NoOrigin, T> noOriginFunc,
+            Func<UserOrigin, T> userOriginFunc,
+            Func<PlanOrigin, T> planOriginFunc) =>
             origin switch
             {
-                UserOrigin userOrigin => userMap(userOrigin),
-                PlanOrigin planOrigin => planMap(planOrigin),
-                _ => throw new InvalidOperationException("Unknown Origin type.")
+                NoOrigin noOrigin => noOriginFunc(noOrigin),
+                UserOrigin userOrigin => userOriginFunc(userOrigin),
+                PlanOrigin planOrigin => planOriginFunc(planOrigin),
+                _ => throw new NotImplementedException($"Unknown Origin type: {origin.GetType()}")
             };
     }
 }
-
 

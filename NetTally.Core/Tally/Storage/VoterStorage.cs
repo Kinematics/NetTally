@@ -52,7 +52,7 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
 
     public bool HasPlan(Author? planAuthor)
     {
-        var origin = Origin.CreatePlanNameOnly(planAuthor);
+        var origin = Origin.CreatePlan(planAuthor);
 
         if (origin is null)
             return false;
@@ -73,7 +73,7 @@ public class VoterStorage : Dictionary<Origin, VoteBlock>
 
     public bool HasVoter(Author? voterName)
     {
-        var origin = Origin.CreateUserNameOnly(voterName);
+        var origin = Origin.CreateUser(voterName);
 
         if (origin is null) return false;
 

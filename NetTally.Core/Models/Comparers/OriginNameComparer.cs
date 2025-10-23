@@ -8,24 +8,34 @@ public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
     public int Compare(Origin? x, Origin? y)
     {
-        if (ReferenceEquals(x, y)) return 0;
-        if (x is null) return -1;
-        if (y is null) return 1;
-
-        if (x is UserOrigin ^ y is UserOrigin)
+        return (x, y) switch
         {
-            return x is PlanOrigin ? -1 : 1;
-        }
-
-        return AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
+            (null, null) => 0,
+            (null, _) => 1,
+            (_, null) => -1,
+            (NoOrigin, NoOrigin) => 0,
+            (NoOrigin, _) => 1,
+            (_, NoOrigin) => -1,
+            (PlanOrigin, UserOrigin) => -1,
+            (UserOrigin, PlanOrigin) => 1,
+            _ => AuthorComparer.Instance.Compare(x.GetName(), y.GetName())
+        };
     }
 
     public bool Equals(Origin? x, Origin? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (x is null || y is null) return false;
-
-        return Compare(x, y) == 0;
+        return (x, y) switch
+        {
+            (null, null) => true,
+            (null, _) => false,
+            (_, null) => false,
+            (NoOrigin, NoOrigin) => true,
+            (NoOrigin, _) => false,
+            (_, NoOrigin) => false,
+            (PlanOrigin, UserOrigin) => false,
+            (UserOrigin, PlanOrigin) => false,
+            _ => Compare(x, y) == 0
+        };
     }
 
     public int GetHashCode([DisallowNull] Origin obj)

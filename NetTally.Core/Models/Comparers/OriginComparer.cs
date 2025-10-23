@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using NetTally.Configure;
 
 namespace NetTally.Models;
 
@@ -9,45 +8,53 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
     public int Compare(Origin? x, Origin? y)
     {
-        if (ReferenceEquals(x, y)) return 0;
-        if (x is null) return -1;
-        if (y is null) return 1;
-
-        if (x is UserOrigin ^ y is UserOrigin)
+        return (x, y) switch
         {
-            return x is PlanOrigin ? -1 : 1;
-        }
+            (null, null) => 0,
+            (null, _) => 1,
+            (_, null) => -1,
+            (NoOrigin, NoOrigin) => 0,
+            (NoOrigin, _) => 1,
+            (_, NoOrigin) => -1,
+            (UserOrigin, PlanOrigin) => -1,
+            (PlanOrigin, UserOrigin) => 1,
+            _ => CompareWithDetails(x, y)
+        };
 
-        int result = AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
-
-        if (result == 0)
+        static int CompareWithDetails(Origin x, Origin y)
         {
-            if (x.Thread.AbsoluteUri != Strings.ExampleUri.AbsoluteUri &&
-                y.Thread.AbsoluteUri != Strings.ExampleUri.AbsoluteUri)
+            int result = AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
+
+            if (result == 0)
             {
-                result = x.Thread.AbsoluteUri.CompareTo(y.Thread.AbsoluteUri);
+                var xDetails = x.GetDetails();
+                var yDetails = y.GetDetails();
 
-                if (result == 0)
-                {
-                    result = PostIdComparer.Instance.Compare(x.PostId, y.PostId);
-                }
+                if (xDetails is not NoOriginDetail &&  yDetails is not NoOriginDetail)
+                    result = OriginDetailComparer.Instance.Compare(xDetails, yDetails);
             }
-        }
 
-        return result;
+            return result;
+        }
     }
 
     public bool Equals(Origin? x, Origin? y)
     {
-        if (ReferenceEquals(x, y)) return true;
-        if (x is null || y is null) return false;
-
-        return Compare(x, y) == 0;
+        return (x, y) switch
+        {
+            (null, null) => true,
+            (null, _) => false,
+            (_, null) => false,
+            (NoOrigin, NoOrigin) => true,
+            (NoOrigin, _) => false,
+            (_, NoOrigin) => false,
+            _ => Compare(x, y) == 0
+        };
     }
 
     public int GetHashCode([DisallowNull] Origin obj)
     {
-        return AuthorComparer.Instance.GetHashCode(obj.Author);
+        return AuthorComparer.Instance.GetHashCode(obj.GetName());
     }
 }
 

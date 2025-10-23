@@ -105,6 +105,7 @@ public static partial class VoteBlocks
         bool isPlan = false;
         (PlanStatus PlanStatus, string PlanName) = CheckIfPlan(block.Lines[0]);
 
+        // todo: Does this need to check for proposed? Already done in previous function.
         if (PlanStatus == PlanStatus.Plan || PlanStatus == PlanStatus.Proposed)
         {
             isPlan = IsThisAContentBlock(block);

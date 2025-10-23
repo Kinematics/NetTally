@@ -38,7 +38,8 @@ public class ReferenceVoteTests
         var postId = PostId.Create(123456);
         var postNumber = PostNumber.Create(101);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
@@ -51,7 +52,8 @@ public class ReferenceVoteTests
         var postId = PostId.Create(123457);
         var postNumber = PostNumber.Create(102);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
@@ -64,7 +66,8 @@ public class ReferenceVoteTests
         var postId = PostId.Create(123458);
         var postNumber = PostNumber.Create(103);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
@@ -77,7 +80,8 @@ public class ReferenceVoteTests
         var postId = PostId.Create(123459);
         var postNumber = PostNumber.Create(104);
 
-        var origin = Origin.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
@@ -332,8 +336,29 @@ public class ReferenceVoteTests
         quest.PartitionMode = PartitionMode.ByBlock;
         quest.DisableProxyVotes = false;
 
-        var post1 = GetPostFromKimberly(explicitPlan);
-        var post2 = GetPostFromAtreya(oneLine); // Name of plan without "Plan"
+        var post1 = GetPostFromAtreya(explicitPlan);
+        var post2 = GetPostFromKimberly(oneLine); // Name of plan without "Plan"
+
+        List<Post> posts = [post1, post2];
+
+        quest.ConstructVotes(titles, posts);
+
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
+
+        Assert.AreEqual(3, voters.Count());
+        Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
+        Assert.AreEqual(1, votes.Count());
+    }
+
+    [TestMethod]
+    public void Explicit_Plan_ReverseRef()
+    {
+        quest.PartitionMode = PartitionMode.ByBlock;
+        quest.DisableProxyVotes = false;
+
+        var post1 = GetPostFromAtreya(oneLine); // Name of plan without "Plan"
+        var post2 = GetPostFromKimberly(explicitPlan);
 
         List<Post> posts = [post1, post2];
 

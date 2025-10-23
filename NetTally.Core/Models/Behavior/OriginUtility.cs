@@ -1,5 +1,6 @@
 ﻿using NetTally.Configure;
 using NetTally.Models.Mapping;
+using NetTally.Utility.Strings;
 
 namespace NetTally.Models;
 
@@ -14,6 +15,7 @@ public static class OriginUtility
         /// Determine if the <see cref="Origin"/> object is a user type.
         /// </summary>
         public bool IsUser => origin.Map(
+            noOrigin => false,
             userOrigin => true,
             planOrigin => false);
 
@@ -21,6 +23,7 @@ public static class OriginUtility
         /// Determine if the <see cref="Origin"/> object is a plan type.
         /// </summary>
         public bool IsPlan => origin.Map(
+            noOrigin => false,
             userOrigin => false,
             planOrigin => true);
 
@@ -30,9 +33,19 @@ public static class OriginUtility
         /// </summary>
         /// <param name="origin"></param>
         /// <returns>The <see cref="Author"/> of the <see cref="Origin"/>.</returns>
-        public Author GetName() => origin.Map<Author>(
-            userOrigin => userOrigin.Author,
+        public Author GetName() => origin.Map(
+            noOrigin => Author.None,
+            userOrigin => userOrigin.UserName,
             planOrigin => planOrigin.PlanName);
+
+        /// <summary>
+        /// Gets the author of the <see cref="Origin"/>. If the origin is a plan,
+        /// this is the original user Author.
+        /// </summary>
+        public Author Author => origin.Map(
+            noOrigin => Author.None,
+            userOrigin => userOrigin.UserName,
+            planOrigin => planOrigin.Author);
 
         /// <summary>
         /// Gets the original <see cref="Origin"/> used as a basis for this one.
@@ -40,19 +53,49 @@ public static class OriginUtility
         /// </summary>
         /// <param name="origin">The Origin of the <see cref="Origin"/>, if any.</param>
         /// <returns></returns>
-        public Origin Source() => origin.Map<Origin>(
-            userOrigin => Origin.None,
-            planOrigin => planOrigin.Origin);
+        public OriginDetail GetDetails() => origin.Map(
+            noOrigin => OriginDetail.None,
+            userOrigin => userOrigin.Detail,
+            planOrigin => planOrigin.Detail);
+
+        public Uri? Thread => origin.Map(
+            noOrigin => null,
+            userOrigin => userOrigin.Detail.GetThread(),
+            planOrigin => planOrigin.Detail.GetThread());
+
+        public Uri? Permalink => origin.Map(
+            noOrigin => null,
+            userOrigin => userOrigin.Detail.GetPermalink(),
+            planOrigin => planOrigin.Detail.GetPermalink());
+
+        public PostId PostId => origin.Map(
+            noOrigin => PostId.None,
+            userOrigin => userOrigin.Detail.GetPostId(),
+            planOrigin => planOrigin.Detail.GetPostId());
+
+        public PostNumber PostNumber => origin.Map(
+            noOrigin => PostNumber.None,
+            userOrigin => userOrigin.Detail.GetPostNumber(),
+            planOrigin => planOrigin.Detail.GetPostNumber());
 
         /// <summary>
         /// Gets a formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.
         /// </summary>
         /// <param name="origin"></param>
         /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
-        public string GetBBCodeLink() => origin.Map(
-            userOrigin => $"[url=\"{userOrigin.Permalink}\"]{userOrigin.Author.DisplayName}[/url]",
-            planOrigin => $"[url=\"{planOrigin.Permalink}\"]{Strings.PlanNameMarker}{planOrigin.PlanName.DisplayName}[/url]");
+        public string GetBBCodeLink() => origin.GetDetails() switch
+        {
+            OriginSource source => urlTemplate.FormatWith(source.Permalink, origin.GetBBCodeAuthorFormat()),
+            _ => string.Empty
+        };
+
+        public string GetBBCodeAuthorFormat() => origin.Map(
+            noOrigin => string.Empty,
+            userOrigin => userOrigin.UserName.DisplayName,
+            planOrigin => $"{Strings.PlanNameMarker}{planOrigin.PlanName.DisplayName}");
     }
+
+    static readonly string urlTemplate = "[url=\"{0}\"]{1}[/url]";
 }
 
 

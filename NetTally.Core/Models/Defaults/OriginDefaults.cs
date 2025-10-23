@@ -1,16 +1,11 @@
-﻿using NetTally.Configure;
-
-namespace NetTally.Models;
+﻿namespace NetTally.Models;
 
 public static class OriginDefaults
 {
     extension(Origin)
     {
-        public static Origin None => _none;
+        public static Origin None => _noOrigin;
     }
 
-    private static readonly Origin _none = new UserOrigin(Author.None,
-        Strings.ExampleUri, Strings.ExampleUri, PostId.None, PostNumber.None, DateTimeOffset.MinValue);
+    private static readonly Origin _noOrigin = new NoOrigin();
 }
-
-

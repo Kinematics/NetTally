@@ -311,51 +311,44 @@ public static partial class VoteConstructor
             string label = m.Groups["label"].Value;
             string refName = m.Groups["reference"].Value;
 
+            Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
+            Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
+
             if (label == "^" || label == "↑")
             {
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
-
                 // Check to make sure the quest hasn't disabled user proxy votes.
-                if (refUser != null && quest.DisableProxyVotes == false)
+                if (refUser is UserOrigin && quest.DisableProxyVotes == false)
                     return (isReference: true, isPlan: false, isPinnedUser: true, refName: refUser);
             }
             else if (label.StartsWith("base", StringComparison.OrdinalIgnoreCase)
                   || label.StartsWith("proposed", StringComparison.OrdinalIgnoreCase))
             {
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
-
-                if (refPlan != null)
+                if (refPlan is PlanOrigin)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
             }
             else if (StringComparer.OrdinalIgnoreCase.Equals(label, "plan"))
             {
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
-
-                if (refPlan != null)
+                if (refPlan is PlanOrigin)
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
-
-                // Check user names second
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
 
                 // Check to make sure the quest hasn't disabled user proxy votes.
                 // Force pinning if requested.
-                if (refUser != null && quest.DisableProxyVotes == false)
+                if (refUser is UserOrigin && quest.DisableProxyVotes == false)
                     return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
             }
             else // Any unlabeled lines
             {
-                // Check user names first
-                Origin? refUser = quest.VoteCounter.GetVoterOriginByName(refName);
-
                 // Check to make sure the quest hasn't disabled user proxy votes.
-                if (refUser != null && quest.DisableProxyVotes == false)
+                if (refUser is UserOrigin && quest.DisableProxyVotes == false)
+                {
                     return (isReference: true, isPlan: false, isPinnedUser: quest.ForcePinnedProxyVotes, refName: refUser);
+                }
 
-                Origin? refPlan = quest.VoteCounter.GetPlanOriginByName(refName);
-
-                // Check to make sure the quest doesn't forbid non-labeled plan references.
-                if (refPlan != null && quest.ForcePlanReferencesToBeLabeled == false)
+                //// Check to make sure the quest doesn't forbid non-labeled plan references.
+                if (refPlan is PlanOrigin && quest.ForcePlanReferencesToBeLabeled == false)
+                {
                     return (isReference: true, isPlan: true, isPinnedUser: false, refName: refPlan);
+                }
             }
         }
 

@@ -489,7 +489,8 @@ public partial class XenForo1Adapter(
             author = author.Rename($"{author.DisplayName}_{id.Value}");
         }
 
-        var origin = Origin.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var details = OriginDetail.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var origin = Origin.CreateUser(author, details);
         var post = Post.Create(origin, text);
 
         return post;

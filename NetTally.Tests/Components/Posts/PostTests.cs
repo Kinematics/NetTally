@@ -33,7 +33,7 @@ public class PostTests
     {
         var author1 = Author.Create("Kinematics");
         Assert.IsNotNull(author1);
-        var origin1 = Origin.CreateUserNameOnly(author1);
+        var origin1 = Origin.CreateUser(author1);
         Assert.IsNotNull(origin1);
         var post1 = Post.Create(origin1, "Some text");
         var post2 = Post.Create(origin1, "Some text");
@@ -62,8 +62,8 @@ public class PostTests
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateUserNameOnly(author1);
-        var origin2 = Origin.CreateUserNameOnly(author2);
+        var origin1 = Origin.CreateUser(author1);
+        var origin2 = Origin.CreateUser(author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 
@@ -83,13 +83,13 @@ public class PostTests
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var origin1 = Origin.CreateUser(author1,
+        var details1 = OriginDetail.Create(
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
             PostId.Create(123456),
-            PostNumber.Create(150),
-            DateTimeOffset.MinValue);
-        var origin2 = Origin.CreateUserNameOnly(author2);
+            PostNumber.Create(150));
+        var origin1 = Origin.CreateUser(author1, details1);
+        var origin2 = Origin.CreateUser(author2);
         Assert.IsNotNull(origin1);
         Assert.IsNotNull(origin2);
 

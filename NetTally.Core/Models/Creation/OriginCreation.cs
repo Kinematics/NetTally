@@ -7,49 +7,51 @@ public static class OriginCreation
 {
     extension(Origin)
     {
-        public static Origin? CreateUser(Author? author, Uri thread, Uri permalink, PostId? postId, PostNumber? postNumber) =>
-            CreateUser(author, thread, permalink, postId, postNumber, DateTimeOffset.MinValue);
-
-        public static Origin? CreateUser(
-            Author? author,
-            Uri thread,
-            Uri permalink,
-            PostId? postId,
-            PostNumber? postNumber,
-            DateTimeOffset timestamp)
+        public static Origin? CreateUser(Author? username, OriginDetail? originDetail)
         {
-            if (author is null or NoAuthor ||
-                postId is null ||
-                postNumber is null)
+            if (username is null or NoAuthor ||
+                originDetail is null or NoOriginDetail)
                 return null;
 
-            return new UserOrigin(author, thread, permalink, postId, postNumber, timestamp);
+            return new UserOrigin(username, originDetail);
         }
 
-        public static Origin? CreatePlan(Origin origin, Author? planName)
+        public static Origin? CreatePlan(Author? planname, Author? author, OriginDetail? originDetail)
         {
-            if (planName is null or NoAuthor)
+            if (planname is null or NoAuthor ||
+                originDetail is null or NoOriginDetail)
                 return null;
 
-            return new PlanOrigin(origin, planName);
+            author ??= Author.None;
+
+            return new PlanOrigin(planname, author, originDetail);
         }
 
-        public static Origin? CreateUserNameOnly(Author? author)
+        /// <summary>
+        /// Name-only version of a user origin.
+        /// </summary>
+        /// <param name="username">The user Author.</param>
+        /// <returns>An origin based on a user that can be compared to other full origins.</returns>
+        public static Origin? CreateUser(Author? username)
         {
-            if (author is null or NoAuthor)
+            if (username is null or NoAuthor)
                 return null;
 
-            return Origin.None with { Author = author };
+            return new UserOrigin(username, OriginDetail.None);
         }
 
-        public static Origin? CreatePlanNameOnly(Author? planName)
+        /// <summary>
+        /// Name-only version of a plan origin.
+        /// </summary>
+        /// <param name="planname">The plan Author.</param>
+        /// <returns>An origin based on a plan that can be compared to other full origins.</returns>
+        public static Origin? CreatePlan(Author? planname)
         {
-            if (planName is null or NoAuthor)
+            if (planname is null or NoAuthor)
                 return null;
 
-            return new PlanOrigin(Origin.None, planName);
+            return new PlanOrigin(planname, Author.None, OriginDetail.None);
         }
     }
 }
-
 

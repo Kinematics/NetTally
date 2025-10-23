@@ -218,7 +218,7 @@ public class ForumReader(
         if (post.IsBeforeStart(threadInfo.ThreadRange) || post.IsAfterEnd(threadInfo.ThreadRange))
             return false;
 
-        if (post.Origin.Author == threadInfo.Author)
+        if (post.Origin.GetName() == threadInfo.Author)
             return false;
 
         if (post.MatchesUsernameFilter(quest))

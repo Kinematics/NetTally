@@ -145,38 +145,69 @@ public class VoteCounter(
     /// <returns></returns>
     public bool AddReferencePlan(Origin? updateOrigin, VoteBlock plan)
     {
-        if (updateOrigin == null)
+        if (updateOrigin is not PlanOrigin uo)
             return false;
 
-        // If it doesn't exist, we can just add it.
-        if (ReferenceOrigins.Add(updateOrigin))
+        // If it doesn't exist already in the origins list, we can just add it.
+        if (ReferenceOrigins.Add(uo))
         {
-            ReferencePlans.Add(updateOrigin, plan);
+            ReferencePlans.Add(uo, plan);
             return true;
         }
-        else if (CanUpdatePlans() &&
-                 ReferenceOrigins.TryGetValue(updateOrigin, out Origin? currentOrigin))
+        else if (CanUpdatePlans())
         {
             // Author can replace existing version of a plan he wrote on conditions:
             // - Options allow plan replacement
+            // - Plan has the same name
             // - Plan written by same author
-            // - Plan has the same name (surrounding if check, which includes identity type)
             // - New plan is in a later post than the previous
             // - New plan is more than one line (ie: not simply re-voting for the existing version)
             // - Content of the plan is different
 
-            if (updateOrigin.Source() != Origin.None &&
-                OriginComparer.Instance.Equals(updateOrigin.Source(), currentOrigin.Source()) &&
-                PostIdComparer.Instance.Compare(updateOrigin.PostId, currentOrigin.PostId) == 1 &&
-                plan.LineCount > 1 &&
-                ReferencePlans.TryGetValue(currentOrigin, out VoteBlock? currentPlan) &&
-                !VoteBlockComparer.Instance.Equals(plan, currentPlan))
+            if (!ReferenceOrigins.TryGetValue(updateOrigin, out Origin? currentOrigin))
+                return false;
+
+            if (currentOrigin is not PlanOrigin co)
+                return false;
+
+            if (!AuthorComparer.Instance.Equals(uo.Author, co.Author))
+                return false;
+
+            if (uo.Detail is not OriginSource uDetail)
+                return false;
+
+            if (co.Detail is not OriginSource cDetail)
+                return false;
+
+            if (uDetail.PostId < cDetail.PostId)
+                return false;
+
+            if (plan.LineCount < 2)
+                return false;
+
+            if (!ReferencePlans.TryGetValue(currentOrigin, out VoteBlock? currentPlan))
+                return false;
+
+            if (!VoteBlockComparer.Instance.Equals(plan, currentPlan))
             {
                 ReferenceOrigins.Remove(currentOrigin);
                 ReferenceOrigins.Add(updateOrigin);
                 ReferencePlans[updateOrigin] = plan;
                 return true;
             }
+
+            //if (updateOrigin.GetDetails() != OriginDetail.None &&
+            //    OriginDetailComparer.Instance.Equals(updateOrigin.GetDetails(), currentOrigin.GetDetails()) &&
+            //    PostIdComparer.Instance.Compare(uo.PostId, co.PostId) == 1 &&
+            //    plan.LineCount > 1 &&
+            //    ReferencePlans.TryGetValue(currentOrigin, out VoteBlock? currentPlan) &&
+            //    !VoteBlockComparer.Instance.Equals(plan, currentPlan))
+            //{
+            //    ReferenceOrigins.Remove(currentOrigin);
+            //    ReferenceOrigins.Add(updateOrigin);
+            //    ReferencePlans[updateOrigin] = plan;
+            //    return true;
+            //}
         }
 
         return false;
@@ -198,6 +229,7 @@ public class VoteCounter(
     /// <returns>Returns true if the voter was added, or false if the voter already exists.</returns>
     public bool AddReferenceVoter(Origin voter)
     {
+        ReferenceOrigins.Remove(voter);
         return ReferenceOrigins.Add(voter);
     }
     #endregion
@@ -212,12 +244,12 @@ public class VoteCounter(
     /// <returns>Returns whether the provided plan name exists in the current PlanNames hash set.</returns>
     public bool HasPlan(string? planName)
     {
-        return GetPlanOriginByName(planName) != null;
+        return GetPlanOriginByName(planName) is PlanOrigin;
     }
 
     public bool HasPlan(Author planAuthor)
     {
-        return GetOriginByPlanAuthor(planAuthor) != null;
+        return GetOriginByPlanAuthor(planAuthor) is PlanOrigin;
     }
 
     /// <summary>
@@ -227,12 +259,12 @@ public class VoteCounter(
     /// <returns>Returns true if the voter has voted in the current tally.</returns>
     public bool HasVoter(string? voterName)
     {
-        return GetVoterOriginByName(voterName) != null;
+        return GetVoterOriginByName(voterName) is UserOrigin;
     }
 
     public bool HasVoter(Author planAuthor)
     {
-        return GetOriginByUserAuthor(planAuthor) != null;
+        return GetOriginByUserAuthor(planAuthor) is UserOrigin;
     }
 
     /// <summary>
@@ -273,14 +305,14 @@ public class VoteCounter(
     /// <returns>The existing origin, if it exists, or null.</returns>
     private Origin? GetOriginByUserAuthor(Author author)
     {
-        var namedOrigin = Origin.CreateUserNameOnly(author);
+        var namedOrigin = Origin.CreateUser(author);
 
         return GetReferenceOrigin(namedOrigin);
     }
 
     private Origin? GetOriginByPlanAuthor(Author author)
     {
-        var namedOrigin = Origin.CreatePlanNameOnly(author);
+        var namedOrigin = Origin.CreatePlan(author);
 
         return GetReferenceOrigin(namedOrigin);
     }
@@ -335,7 +367,7 @@ public class VoteCounter(
         if (actualOrigin != null)
         {
             return Posts
-                .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Author, p.Origin.Author) &&
+                .Where(p => AuthorComparer.Instance.Equals(actualOrigin.GetName(), p.Origin.GetName()) &&
                             (maxPostId == PostId.None || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
 
@@ -427,7 +459,7 @@ public class VoteCounter(
     /// <param name="voter">The voter for this vote.</param>
     public void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin? voter)
     {
-        if (!votePartitions.Any() || voter is null)
+        if (!votePartitions.Any() || voter is null or NoOrigin)
             return;
 
         // Remove the voter from any existing votes
@@ -984,6 +1016,8 @@ public class VoteCounter(
     /// </summary>
     private void PreprocessPosts()
     {
+        // Reset to a starting state, and add unique authors' origins to a reference collection.
+        // The last origin for each author will be the 'true' entry.
         Posts.WithEach(p => p.Reset())
              .WithEach(p => AddReferenceVoter(p.Origin));
 
@@ -1002,14 +1036,14 @@ public class VoteCounter(
             {
                 VoteConstructor.PreprocessPostGetPlans(
                     Quest,
-                    p.Origin.Author,
+                    p.Origin.GetName(),
                     pp.isPlanFunction,
                     pp.postToBlocks(p))
                 .Select(pl => NormalizePlan(pl.Key, pl.Value))
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origin.CreatePlan(p.Origin, Author.Create(a.Name))))
+                              Origin: Origin.CreatePlan(Author.Create(a.Name), p.Origin.Author, p.Origin.GetDetails())))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))

@@ -190,7 +190,7 @@ public partial class ManageVotesViewModel : ObservableObject
 
         bool matchAnyVoter = GetVotersForVote(vote)
                     .Any(v => CultureInfo.InvariantCulture.CompareInfo
-                        .IndexOf(v.Author.DisplayName, filter, CompareOptions.IgnoreCase) >= 0);
+                        .IndexOf(v.GetName().DisplayName, filter, CompareOptions.IgnoreCase) >= 0);
 
         return matchVote || matchAnyVoter;
     }

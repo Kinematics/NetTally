@@ -820,7 +820,7 @@ public class TallyOutput(
         sb.Append("[url=\"");
         sb.Append(voter.Permalink);
         sb.Append("\"]");
-        sb.Append(voter.Author.DisplayName);
+        sb.Append(voter.GetName().DisplayName);
         sb.Append("[/url]");
 
         if (voter is PlanOrigin) sb.Append("[/b]");
