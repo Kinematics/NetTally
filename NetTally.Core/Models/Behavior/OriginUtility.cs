@@ -89,7 +89,7 @@ public static class OriginUtility
             _ => string.Empty
         };
 
-        public string GetBBCodeAuthorFormat() => origin.Map(
+        private string GetBBCodeAuthorFormat() => origin.Map(
             noOrigin => string.Empty,
             userOrigin => userOrigin.UserName.DisplayName,
             planOrigin => $"{Strings.PlanNameMarker}{planOrigin.PlanName.DisplayName}");

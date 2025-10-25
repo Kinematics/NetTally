@@ -10,37 +10,33 @@ public static class PostNumberCreation
     extension(PostNumber)
     {
         /// <summary>
-        /// Create a <see cref="PostNumber"/> using a numeric ID value.
+        /// Create a <see cref="PostNumber"/> using a numeric value.
         /// </summary>
-        /// <param name="id">The post number.</param>
+        /// <param name="num">The post number.</param>
         /// <returns>A <see cref="PostNumber"/> if a positive value was provided. Otherwise returns <see cref="Zero"/></returns>
-        public static PostNumber? Create(long id)
+        public static PostNumber? Create(long num)
         {
-            if (id < 1)
+            if (num < 1)
                 return null;
 
-            return new PostNumber(id);
+            return new PostNumber(num);
         }
 
         /// <summary>
         /// Create a <see cref="PostNumber"/> using a string of the number.
         /// </summary>
-        /// <param name="id">The string holding the number value.</param>
+        /// <param name="num">The string holding the number value.</param>
         /// <returns>A <see cref="PostNumber"/> if a positive numeric value was provided.
-        /// If the provided value was numeric, but not positive, returns <see cref="Zero"/>
-        /// If no numeric value could be extracted, returns <c>null</c>.</returns>
-        public static PostNumber? Create(string id)
+        /// If no valid numeric value could be extracted, returns <c>null</c>.</returns>
+        public static PostNumber? Create(string num)
         {
-            if (string.IsNullOrEmpty(id))
+            if (string.IsNullOrEmpty(num))
                 return null;
 
-            if (long.TryParse(id, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long idValue))
+            if (long.TryParse(num, NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out long numValue))
             {
-                return idValue switch
-                {
-                    > 0 => new PostNumber(idValue),
-                    _ => PostNumber.None
-                };
+                if (numValue > 0)
+                    return new PostNumber(numValue);
             }
 
             return null;

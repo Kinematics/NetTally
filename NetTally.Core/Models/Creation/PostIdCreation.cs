@@ -27,7 +27,6 @@ public static class PostIdCreation
         /// </summary>
         /// <param name="id">The string ID value.</param>
         /// <returns>A <see cref="PostId"/> if a positive numeric value was provided.
-        /// If the provided value was numeric, but not positive, returns <see cref="Zero"/>
         /// If no numeric value could be extracted, returns <c>null</c>.</returns>
         public static PostId? Create(string id)
         {

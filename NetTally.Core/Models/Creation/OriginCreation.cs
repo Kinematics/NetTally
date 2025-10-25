@@ -19,10 +19,9 @@ public static class OriginCreation
         public static Origin? CreatePlan(Author? planname, Author? author, OriginDetail? originDetail)
         {
             if (planname is null or NoAuthor ||
+                author is null or NoAuthor ||
                 originDetail is null or NoOriginDetail)
                 return null;
-
-            author ??= Author.None;
 
             return new PlanOrigin(planname, author, originDetail);
         }
