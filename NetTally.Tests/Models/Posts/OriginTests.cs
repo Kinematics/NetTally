@@ -81,11 +81,11 @@ public class OriginTests
         return Origin.None;
     }
 
-    private static OriginDetail GetOriginDetail()
+    private static Source GetOriginSource()
     {
         var defaults = GetDefaultSourceDetails();
 
-        var details = OriginDetail.Create(defaults.thread, defaults.permalink, defaults.postId, defaults.postNumber);
+        var details = Source.Create(defaults.thread, defaults.permalink, defaults.postId, defaults.postNumber);
         Assert.IsNotNull(details);
 
         return details;
@@ -94,7 +94,7 @@ public class OriginTests
     private static Origin GetUserOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var origin = Origin.CreateUser(defaults.author, detail);
         Assert.IsNotNull(origin);
 
@@ -113,7 +113,7 @@ public class OriginTests
     private static Origin GetPlanOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var planOrigin = Origin.CreatePlan(defaults.plan, defaults.author, detail);
         Assert.IsNotNull(planOrigin);
 
@@ -134,7 +134,7 @@ public class OriginTests
     public void Construct_UserOrigin_NullAuthor_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreateUser(null, detail);
         Assert.IsNull(origin);
@@ -144,7 +144,7 @@ public class OriginTests
     public void Construct_UserOrigin_NullDetail_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreateUser(defaults.author, null);
         Assert.IsNull(origin);
@@ -154,7 +154,7 @@ public class OriginTests
     public void Construct_UserOrigin_Nulls_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreateUser(null, null);
         Assert.IsNull(origin);
@@ -164,7 +164,7 @@ public class OriginTests
     public void Construct_UserOrigin_NoAuthor_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreateUser(Author.None, detail);
         Assert.IsNull(origin);
@@ -174,9 +174,9 @@ public class OriginTests
     public void Construct_UserOrigin_NoDetail_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
-        var origin = Origin.CreateUser(defaults.author, OriginDetail.None);
+        var origin = Origin.CreateUser(defaults.author, Source.None);
         Assert.IsNull(origin);
     }
 
@@ -198,7 +198,7 @@ public class OriginTests
     public void Construct_PlanOrigin_NullPlan_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(null, defaults.author, detail);
         Assert.IsNull(origin);
@@ -208,7 +208,7 @@ public class OriginTests
     public void Construct_PlanOrigin_NullAuthor_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(defaults.author, null, detail);
         Assert.IsNull(origin);
@@ -218,7 +218,7 @@ public class OriginTests
     public void Construct_PlanOrigin_NullDetail_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(defaults.author, defaults.plan, null);
         Assert.IsNull(origin);
@@ -228,7 +228,7 @@ public class OriginTests
     public void Construct_PlanOrigin_Nulls_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(null, null, null);
         Assert.IsNull(origin);
@@ -238,7 +238,7 @@ public class OriginTests
     public void Construct_PlanOrigin_NoPlan_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(Author.None, defaults.author, detail);
         Assert.IsNull(origin);
@@ -248,7 +248,7 @@ public class OriginTests
     public void Construct_PlanOrigin_NoAuthor_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
         var origin = Origin.CreatePlan(defaults.plan, Author.None, detail);
         Assert.IsNull(origin);
@@ -258,9 +258,9 @@ public class OriginTests
     public void Construct_PlanOrigin_NoDetail_Null()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
 
-        var origin = Origin.CreatePlan(defaults.plan, defaults.author, OriginDetail.None);
+        var origin = Origin.CreatePlan(defaults.plan, defaults.author, Source.None);
         Assert.IsNull(origin);
     }
 
@@ -284,7 +284,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
                 postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         Assert.IsNotNull(origin);
@@ -302,7 +302,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
                 postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var userOrigin = Origin.CreateUser(author, details);
         Assert.IsNotNull(userOrigin);
 
@@ -322,7 +322,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         var origin2 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
@@ -340,8 +340,8 @@ public class OriginTests
 
         PostId? postId2 = PostId.Create(postIdNumber + 1);
 
-        var details1 = OriginDetail.Create(thread, permalink, postId, postNumber);
-        var details2 = OriginDetail.Create(thread, permalink, postId2, postNumber);
+        var details1 = Source.Create(thread, permalink, postId, postNumber);
+        var details2 = Source.Create(thread, permalink, postId2, postNumber);
         var origin1 = Origin.CreateUser(author, details1);
         var origin2 = Origin.CreateUser(author, details2);
 
@@ -360,7 +360,7 @@ public class OriginTests
         Author? author2 = Author.Create(authorName.ToUpper());
         Assert.IsNotNull(author2);
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         var origin2 = Origin.CreateUser(author2, details);
         Assert.IsNotNull(origin1);
@@ -378,7 +378,7 @@ public class OriginTests
         Author? author2 = Author.Create("Louie");
         Assert.IsNotNull(author2);
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         var origin2 = Origin.CreateUser(author2, details);
         Assert.IsNotNull(origin1);
@@ -393,7 +393,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
@@ -401,7 +401,7 @@ public class OriginTests
         Assert.IsNotNull(origin2);
 
         Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
-        Assert.AreEqual(origin1.GetDetails(), origin2.GetDetails(), OriginDetailComparer.Instance);
+        Assert.AreEqual(origin1.GetSource(), origin2.GetSource(), SourceComparer.Instance);
     }
 
     [TestMethod]
@@ -410,13 +410,13 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
-        var origin2 = Origin.CreatePlan(plan, author, origin1.GetDetails());
+        var origin2 = Origin.CreatePlan(plan, author, origin1.GetSource());
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.CreatePlan(plan, author, origin1.GetDetails());
+        var origin3 = Origin.CreatePlan(plan, author, origin1.GetSource());
         Assert.IsNotNull(origin3);
 
         Assert.AreEqual(origin2, origin3, OriginComparer.Instance);
@@ -428,15 +428,15 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
         Author? plan1 = Author.Create("Nightlife");
         Author? plan2 = Author.Create("Beach Trip");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetDetails());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.CreatePlan(plan2, author, origin1.GetDetails());
+        var origin3 = Origin.CreatePlan(plan2, author, origin1.GetSource());
         Assert.IsNotNull(origin3);
 
         Assert.AreNotEqual(origin2, origin3, OriginComparer.Instance);
@@ -448,7 +448,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
@@ -464,7 +464,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
@@ -481,7 +481,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
@@ -498,7 +498,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
@@ -514,12 +514,12 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
         Author? plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetDetails());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
         Assert.IsNotNull(origin2);
 
         var origin3 = Origin.CreatePlan(plan1);
@@ -534,12 +534,12 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
         Author? plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetDetails());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
         Assert.IsNotNull(origin2);
 
         Author? plan2 = Author.Create("Nightlife~!");
@@ -555,7 +555,7 @@ public class OriginTests
         var (authorName, author, threadUrl, thread, permalinkUrl, permalink, postIdNumber,
             postId, threadSeqNumber, postNumber, timestamp, planName, plan) = GetDefaults1();
 
-        var details1 = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var details1 = Source.Create(thread, permalink, postId, postNumber);
         var origin1 = Origin.CreateUser(author, details1);
         Assert.IsNotNull(origin1);
 
@@ -564,7 +564,7 @@ public class OriginTests
         var permalinkUrl2 = "https://forums.spacebattles.com/threads/renascence-a-homura-quest.10402/post-2236809";
         var permalink2 = new Uri(permalinkUrl2);
 
-        var details2 = OriginDetail.Create(thread2, permalink2, postId, postNumber);
+        var details2 = Source.Create(thread2, permalink2, postId, postNumber);
         var origin2 = Origin.CreateUser(author, details2);
         Assert.IsNotNull(origin2);
 
@@ -748,27 +748,27 @@ public class OriginTests
     {
         var origin = GetNoOrigin();
 
-        Assert.AreEqual(OriginDetail.None, origin.GetDetails());
+        Assert.AreEqual(Source.None, origin.GetSource());
     }
 
     [TestMethod]
     public void Behavior_GetDetails_UserOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var origin = GetUserOrigin();
 
-        Assert.AreEqual(detail, origin.GetDetails());
+        Assert.AreEqual(detail, origin.GetSource());
     }
 
     [TestMethod]
     public void Behavior_GetDetails_UserNameOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var origin = GetUserNameOrigin();
 
-        Assert.AreEqual(OriginDetail.None, origin.GetDetails());
+        Assert.AreEqual(Source.None, origin.GetSource());
     }
 
 
@@ -776,20 +776,20 @@ public class OriginTests
     public void Behavior_GetDetails_PlanOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var origin = GetPlanOrigin();
 
-        Assert.AreEqual(detail, origin.GetDetails());
+        Assert.AreEqual(detail, origin.GetSource());
     }
 
     [TestMethod]
     public void Behavior_GetDetails_PlanNameOrigin()
     {
         var defaults = GetDefaultGeneral();
-        var detail = GetOriginDetail();
+        var detail = GetOriginSource();
         var origin = GetPlanNameOrigin();
 
-        Assert.AreEqual(OriginDetail.None, origin.GetDetails());
+        Assert.AreEqual(Source.None, origin.GetSource());
     }
 
     [TestMethod]

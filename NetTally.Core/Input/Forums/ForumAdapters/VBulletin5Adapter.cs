@@ -201,7 +201,7 @@ public partial class VBulletin5Adapter(
             author = author.Rename($"{author.DisplayName}_{id.Value}");
         }
 
-        var details = OriginDetail.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var details = Source.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
         var origin = Origin.CreateUser(author, details);
         var post = Post.Create(origin, text);
 

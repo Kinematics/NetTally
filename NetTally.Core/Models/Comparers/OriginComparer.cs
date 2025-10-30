@@ -27,11 +27,11 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
             if (result == 0)
             {
-                var xDetails = x.GetDetails();
-                var yDetails = y.GetDetails();
+                var xSource = x.GetSource();
+                var ySource = y.GetSource();
 
-                if (xDetails is not NoOriginDetail &&  yDetails is not NoOriginDetail)
-                    result = OriginDetailComparer.Instance.Compare(xDetails, yDetails);
+                if (xSource is not NoSource &&  ySource is not NoSource)
+                    result = SourceComparer.Instance.Compare(xSource, ySource);
             }
 
             return result;

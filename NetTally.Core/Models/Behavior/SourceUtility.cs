@@ -2,9 +2,9 @@
 
 namespace NetTally.Models;
 
-public static class OriginDetailUtility
+public static class SourceUtility
 {
-    extension(OriginDetail detail)
+    extension(Source detail)
     {
         public Uri? GetThread() => detail.Map<Uri?>(
             noDetail => null,

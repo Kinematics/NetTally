@@ -34,7 +34,7 @@ public class VoteConstructorPlanTests
         var postId = PostId.Create(123456);
         var postNumber = PostNumber.Create(123);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;

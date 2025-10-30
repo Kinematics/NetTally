@@ -36,7 +36,7 @@ public class VoterStorageTests
         var postId = PostId.Create(123456);
         var postNumber = PostNumber.Create(101);
 
-        var detail = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var detail = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, detail);
 
         return origin!;
@@ -50,7 +50,7 @@ public class VoterStorageTests
         var postId = PostId.Create(123457);
         var postNumber = PostNumber.Create(102);
 
-        var detail = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var detail = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, detail);
 
         return origin!;
@@ -64,7 +64,7 @@ public class VoterStorageTests
         var postId = PostId.Create(123458);
         var postNumber = PostNumber.Create(103);
 
-        var detail = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var detail = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, detail);
 
         return origin!;
@@ -78,7 +78,7 @@ public class VoterStorageTests
         var postId = PostId.Create(123459);
         var postNumber = PostNumber.Create(104);
 
-        var detail = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var detail = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, detail);
 
         return origin!;
@@ -92,7 +92,7 @@ public class VoterStorageTests
         var postId = PostId.Create(123460);
         var postNumber = PostNumber.Create(105);
 
-        var detail = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var detail = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, detail);
 
         return origin!;
@@ -234,7 +234,7 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetDetails());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
 
         Assert.IsNotNull(planOrigin);
 
@@ -273,7 +273,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetDetails());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
         Assert.IsNotNull(planOrigin);
 
         var simpleOrigin = Origin.CreatePlan(planOrigin.GetName());
@@ -294,7 +294,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetDetails());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();
@@ -326,7 +326,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetDetails());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();

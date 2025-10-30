@@ -83,7 +83,7 @@ public class PostTests
         Assert.IsNotNull(author1);
         Assert.IsNotNull(author2);
 
-        var details1 = OriginDetail.Create(
+        var details1 = Source.Create(
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/"),
             new Uri("https://forums.sufficientvelocity.com/threads/renascence-a-homura-quest.10402/post-2236809"),
             PostId.Create(123456),

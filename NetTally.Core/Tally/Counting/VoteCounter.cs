@@ -173,10 +173,10 @@ public class VoteCounter(
             if (!AuthorComparer.Instance.Equals(uo.Author, co.Author))
                 return false;
 
-            if (uo.Detail is not OriginSource uDetail)
+            if (uo.Source is not SourceLocation uDetail)
                 return false;
 
-            if (co.Detail is not OriginSource cDetail)
+            if (co.Source is not SourceLocation cDetail)
                 return false;
 
             if (uDetail.PostId < cDetail.PostId)
@@ -1043,7 +1043,7 @@ public class VoteCounter(
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origin.CreatePlan(Author.Create(a.Name), p.Origin.Author, p.Origin.GetDetails())))
+                              Origin: Origin.CreatePlan(Author.Create(a.Name), p.Origin.Author, p.Origin.GetSource())))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))

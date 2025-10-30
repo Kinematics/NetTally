@@ -7,7 +7,7 @@ namespace NetTally.Tests.Models.Posts;
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 
 [TestClass]
-public class OriginDetailTests
+public class SourceTests
 {
     [ClassInitialize]
     public static void ClassInit(TestContext _)
@@ -59,7 +59,7 @@ public class OriginDetailTests
         PostId? postId = null;
         PostNumber? postNumber = null;
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNull(detail);
     }
 
@@ -74,7 +74,7 @@ public class OriginDetailTests
         PostId? postId = new(postIdNumber);
         PostNumber? postNumber = new(threadSeqNumber);
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNull(detail);
     }
 
@@ -89,7 +89,7 @@ public class OriginDetailTests
         PostId? postId = new(postIdNumber);
         PostNumber? postNumber = new(threadSeqNumber);
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNull(detail);
     }
 
@@ -104,7 +104,7 @@ public class OriginDetailTests
         PostId? postId = null;
         PostNumber? postNumber = new(threadSeqNumber);
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNull(detail);
     }
 
@@ -119,7 +119,7 @@ public class OriginDetailTests
         PostId? postId = new(postIdNumber);
         PostNumber? postNumber = null;
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNull(detail);
     }
 
@@ -134,7 +134,7 @@ public class OriginDetailTests
         PostId? postId = new(postIdNumber);
         PostNumber? postNumber = new(threadSeqNumber);
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNotNull(detail);
     }
 
@@ -149,7 +149,7 @@ public class OriginDetailTests
         PostId? postId = new(postIdNumber);
         PostNumber? postNumber = new(threadSeqNumber);
 
-        var detail = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNotNull(detail);
         var detailThread = detail.GetThread();
         Assert.IsNotNull(detailThread);
@@ -167,7 +167,7 @@ public class OriginDetailTests
     [TestCategory("Creation")]
     public void Construct_None_Values()
     {
-        var detail = OriginDetail.None;
+        var detail = Source.None;
         Assert.IsNotNull(detail);
 
         var detailThread = detail.GetThread();
@@ -187,18 +187,18 @@ public class OriginDetailTests
     {
         var (thread, permalink, postId, postNumber) = ConvertToTypes(GetDefaults2());
 
-        var detail1 = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail1 = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNotNull(detail1);
-        var detail2 = OriginDetail.None;
+        var detail2 = Source.None;
 
-        Assert.AreEqual(0, OriginDetailComparer.Instance.Compare(null, null));
-        Assert.AreEqual(1, OriginDetailComparer.Instance.Compare(null, detail1));
-        Assert.AreEqual(1, OriginDetailComparer.Instance.Compare(null, detail2));
-        Assert.AreEqual(-1, OriginDetailComparer.Instance.Compare(detail1, null));
-        Assert.AreEqual(-1, OriginDetailComparer.Instance.Compare(detail2, null));
-        Assert.AreEqual(0, OriginDetailComparer.Instance.Compare(detail2, detail2));
-        Assert.AreEqual(-1, OriginDetailComparer.Instance.Compare(detail1, detail2));
-        Assert.AreEqual(1, OriginDetailComparer.Instance.Compare(detail2, detail1));
+        Assert.AreEqual(0, SourceComparer.Instance.Compare(null, null));
+        Assert.AreEqual(1, SourceComparer.Instance.Compare(null, detail1));
+        Assert.AreEqual(1, SourceComparer.Instance.Compare(null, detail2));
+        Assert.AreEqual(-1, SourceComparer.Instance.Compare(detail1, null));
+        Assert.AreEqual(-1, SourceComparer.Instance.Compare(detail2, null));
+        Assert.AreEqual(0, SourceComparer.Instance.Compare(detail2, detail2));
+        Assert.AreEqual(-1, SourceComparer.Instance.Compare(detail1, detail2));
+        Assert.AreEqual(1, SourceComparer.Instance.Compare(detail2, detail1));
     }
 
     [TestMethod]
@@ -207,19 +207,19 @@ public class OriginDetailTests
     {
         var (thread, permalink, postId, postNumber) = ConvertToTypes(GetDefaults2());
 
-        var detail1 = OriginDetail.Create(thread, permalink, postId, postNumber);
+        var detail1 = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNotNull(detail1);
-        var detail2 = OriginDetail.None;
+        var detail2 = Source.None;
 
-        Assert.AreEqual(null, null, OriginDetailComparer.Instance);
-        Assert.AreEqual(detail2, detail2, OriginDetailComparer.Instance);
-        Assert.AreEqual(detail1, detail1, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(null, detail2, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(detail2, null, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(null, detail1, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(detail1, null, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(detail1, detail2, OriginDetailComparer.Instance);
-        Assert.AreNotEqual(detail2, detail1, OriginDetailComparer.Instance);
+        Assert.AreEqual(null, null, SourceComparer.Instance);
+        Assert.AreEqual(detail2, detail2, SourceComparer.Instance);
+        Assert.AreEqual(detail1, detail1, SourceComparer.Instance);
+        Assert.AreNotEqual(null, detail2, SourceComparer.Instance);
+        Assert.AreNotEqual(detail2, null, SourceComparer.Instance);
+        Assert.AreNotEqual(null, detail1, SourceComparer.Instance);
+        Assert.AreNotEqual(detail1, null, SourceComparer.Instance);
+        Assert.AreNotEqual(detail1, detail2, SourceComparer.Instance);
+        Assert.AreNotEqual(detail2, detail1, SourceComparer.Instance);
     }
 
     [TestMethod]
@@ -229,12 +229,12 @@ public class OriginDetailTests
         var defaults1 = ConvertToTypes(GetDefaults2());
         var defaults2 = ConvertToTypes(GetDefaults2());
 
-        var detail1 = OriginDetail.Create(defaults1.thread, defaults1.permalink, defaults1.postId, defaults1.postNumber);
-        var detail2 = OriginDetail.Create(defaults2.thread, defaults2.permalink, defaults2.postId, defaults2.postNumber);
+        var detail1 = Source.Create(defaults1.thread, defaults1.permalink, defaults1.postId, defaults1.postNumber);
+        var detail2 = Source.Create(defaults2.thread, defaults2.permalink, defaults2.postId, defaults2.postNumber);
         Assert.IsNotNull(detail1);
         Assert.IsNotNull(detail2);
 
-        Assert.AreEqual(detail1, detail2, OriginDetailComparer.Instance);
+        Assert.AreEqual(detail1, detail2, SourceComparer.Instance);
     }
 
     [TestMethod]
@@ -244,12 +244,12 @@ public class OriginDetailTests
         var defaults1 = ConvertToTypes(GetDefaults2());
         var defaults2 = ConvertToTypes(GetDefaults3());
 
-        var detail1 = OriginDetail.Create(defaults1.thread, defaults1.permalink, defaults1.postId, defaults1.postNumber);
-        var detail2 = OriginDetail.Create(defaults2.thread, defaults2.permalink, defaults2.postId, defaults2.postNumber);
+        var detail1 = Source.Create(defaults1.thread, defaults1.permalink, defaults1.postId, defaults1.postNumber);
+        var detail2 = Source.Create(defaults2.thread, defaults2.permalink, defaults2.postId, defaults2.postNumber);
         Assert.IsNotNull(detail1);
         Assert.IsNotNull(detail2);
 
-        Assert.AreNotEqual(detail1, detail2, OriginDetailComparer.Instance);
+        Assert.AreNotEqual(detail1, detail2, SourceComparer.Instance);
     }
 }
 #pragma warning restore IDE0059 // Unnecessary assignment of a value

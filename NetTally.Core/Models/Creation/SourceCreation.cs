@@ -1,10 +1,10 @@
 ﻿namespace NetTally.Models;
 
-public static class OriginDetailCreation
+public static class SourceCreation
 {
-    extension(OriginDetail)
+    extension(Source)
     {
-        public static OriginDetail? Create(
+        public static Source? Create(
             Uri? thread,
             Uri? permalink,
             PostId? postId,
@@ -16,7 +16,7 @@ public static class OriginDetailCreation
                 postNumber is null)
                 return null;
 
-            return new OriginSource(thread, permalink, postId, postNumber);
+            return new SourceLocation(thread, permalink, postId, postNumber);
         }
     }
 }

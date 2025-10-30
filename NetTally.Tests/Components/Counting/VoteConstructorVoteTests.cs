@@ -42,7 +42,7 @@ public class VoteConstructorVoteTests
         var postId = PostId.Create(123456);
         var postNumber = PostNumber.Create(10);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;
@@ -56,7 +56,7 @@ public class VoteConstructorVoteTests
         var postId = PostId.Create(124456);
         var postNumber = PostNumber.Create(30);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;
@@ -70,7 +70,7 @@ public class VoteConstructorVoteTests
         var postId = PostId.Create(123457);
         var postNumber = PostNumber.Create(11);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;
@@ -84,7 +84,7 @@ public class VoteConstructorVoteTests
         var postId = PostId.Create(123458);
         var postNumber = PostNumber.Create(12);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;
@@ -98,7 +98,7 @@ public class VoteConstructorVoteTests
         var postId = PostId.Create(9321568);
         var postNumber = PostNumber.Create(8816);
 
-        var details = OriginDetail.Create(uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
 
         return origin!;

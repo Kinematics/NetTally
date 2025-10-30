@@ -7,20 +7,20 @@ public static class OriginCreation
 {
     extension(Origin)
     {
-        public static Origin? CreateUser(Author? username, OriginDetail? originDetail)
+        public static Origin? CreateUser(Author? username, Source? originDetail)
         {
             if (username is null or NoAuthor ||
-                originDetail is null or NoOriginDetail)
+                originDetail is null or NoSource)
                 return null;
 
             return new UserOrigin(username, originDetail);
         }
 
-        public static Origin? CreatePlan(Author? planname, Author? author, OriginDetail? originDetail)
+        public static Origin? CreatePlan(Author? planname, Author? author, Source? originDetail)
         {
             if (planname is null or NoAuthor ||
                 author is null or NoAuthor ||
-                originDetail is null or NoOriginDetail)
+                originDetail is null or NoSource)
                 return null;
 
             return new PlanOrigin(planname, author, originDetail);
@@ -36,7 +36,7 @@ public static class OriginCreation
             if (username is null or NoAuthor)
                 return null;
 
-            return new UserOrigin(username, OriginDetail.None);
+            return new UserOrigin(username, Source.None);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ public static class OriginCreation
             if (planname is null or NoAuthor)
                 return null;
 
-            return new PlanOrigin(planname, Author.None, OriginDetail.None);
+            return new PlanOrigin(planname, Author.None, Source.None);
         }
     }
 }

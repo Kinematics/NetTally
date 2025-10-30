@@ -53,39 +53,39 @@ public static class OriginUtility
         /// </summary>
         /// <param name="origin">The Origin of the <see cref="Origin"/>, if any.</param>
         /// <returns></returns>
-        public OriginDetail GetDetails() => origin.Map(
-            noOrigin => OriginDetail.None,
-            userOrigin => userOrigin.Detail,
-            planOrigin => planOrigin.Detail);
+        public Source GetSource() => origin.Map(
+            noOrigin => Source.None,
+            userOrigin => userOrigin.Source,
+            planOrigin => planOrigin.Source);
 
         public Uri? Thread => origin.Map(
             noOrigin => null,
-            userOrigin => userOrigin.Detail.GetThread(),
-            planOrigin => planOrigin.Detail.GetThread());
+            userOrigin => userOrigin.Source.GetThread(),
+            planOrigin => planOrigin.Source.GetThread());
 
         public Uri? Permalink => origin.Map(
             noOrigin => null,
-            userOrigin => userOrigin.Detail.GetPermalink(),
-            planOrigin => planOrigin.Detail.GetPermalink());
+            userOrigin => userOrigin.Source.GetPermalink(),
+            planOrigin => planOrigin.Source.GetPermalink());
 
         public PostId PostId => origin.Map(
             noOrigin => PostId.None,
-            userOrigin => userOrigin.Detail.GetPostId(),
-            planOrigin => planOrigin.Detail.GetPostId());
+            userOrigin => userOrigin.Source.GetPostId(),
+            planOrigin => planOrigin.Source.GetPostId());
 
         public PostNumber PostNumber => origin.Map(
             noOrigin => PostNumber.None,
-            userOrigin => userOrigin.Detail.GetPostNumber(),
-            planOrigin => planOrigin.Detail.GetPostNumber());
+            userOrigin => userOrigin.Source.GetPostNumber(),
+            planOrigin => planOrigin.Source.GetPostNumber());
 
         /// <summary>
         /// Gets a formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.
         /// </summary>
         /// <param name="origin"></param>
         /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
-        public string GetBBCodeLink() => origin.GetDetails() switch
+        public string GetBBCodeLink() => origin.GetSource() switch
         {
-            OriginSource source => urlTemplate.FormatWith(source.Permalink, origin.GetBBCodeAuthorFormat()),
+            SourceLocation source => urlTemplate.FormatWith(source.Permalink, origin.GetBBCodeAuthorFormat()),
             _ => string.Empty
         };
 
