@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 using Microsoft.Extensions.Hosting;
@@ -113,7 +114,7 @@ namespace NetTally.Avalonia.Views
                 // If we have a URL in the clipboard, make use of that as
                 // the default new URL for the quest.
                 if (Clipboard is not null)
-                    clipboard = await Clipboard.GetTextAsync();
+                    clipboard = await Clipboard.TryGetTextAsync();
 
                 string? uri = string.Empty;
 
