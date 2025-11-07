@@ -1,25 +1,22 @@
 ﻿namespace NetTally.Models;
 
-/// <summary>
-/// Extension methods for <see cref="Post"/> objects.
-/// </summary>
-public static class PostUtility
+public static class VoteUtility
 {
-    extension(Post post)
+    extension(Vote vote)
     {
         /// <summary>
         /// Determine if a post falls before the starting point of the tallied range.
         /// </summary>
-        /// <param name="post">The post to check</param>
+        /// <param name="vote">The <see cref="Vote"> to check</param>
         /// <param name="threadRange">The range of posts examined in the thread.</param>
         /// <returns><c>True</c> if the post falls before the tally starting point.</returns>
         public bool IsBeforeStart(ThreadRange threadRange)
         {
             return threadRange switch
             {
-                ThreadRangeByStartingId range => post.Origin.PostId < range.StartingPostId,
-                ThreadRangeByStartingPost range => post.Origin.PostNumber < range.StartPostNumber,
-                ThreadRangeByPostRange range => post.Origin.PostNumber < range.StartPostNumber,
+                ThreadRangeByStartingId range => vote.Origin.PostId < range.StartingPostId,
+                ThreadRangeByStartingPost range => vote.Origin.PostNumber < range.StartPostNumber,
+                ThreadRangeByPostRange range => vote.Origin.PostNumber < range.StartPostNumber,
                 _ => throw new NotImplementedException($"Unknown ThreadRange type: {threadRange.GetType()}")
             };
         }
@@ -27,7 +24,7 @@ public static class PostUtility
         /// <summary>
         /// Determine if a post falls after the ending point of the tallied range.
         /// </summary>
-        /// <param name="post">The post to check</param>
+        /// <param name="vote">The <see cref="Vote"> to check</param>
         /// <param name="quest">The quest being tallied</param>
         /// <param name="threadRange">The tally range</param>
         /// <returns><c>True</c> if the post falls after the tally ending point.</returns>
@@ -37,7 +34,7 @@ public static class PostUtility
             {
                 ThreadRangeByStartingId => false,
                 ThreadRangeByStartingPost => false,
-                ThreadRangeByPostRange range => post.Origin.PostNumber > range.EndPostNumber,
+                ThreadRangeByPostRange range => vote.Origin.PostNumber > range.EndPostNumber,
                 _ => throw new InvalidOperationException("Unknown ThreadRange type.")
             };
         }
@@ -45,25 +42,25 @@ public static class PostUtility
         /// <summary>
         /// Checks if a post matches a username filter in the given quest.
         /// </summary>
-        /// <param name="post">The <see cref="Post"/> to examine.</param>
+        /// <param name="vote">The <see cref="Vote"> to check</param>
         /// <param name="quest">The <see cref="Quest"/> with the filter.</param>
         /// <returns><c>True</c> if the username filter matches. Otherwise <c>false</c>.</returns>
         public bool MatchesUsernameFilter(Quest quest)
         {
-            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.GetName().DisplayName);
+            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(vote.Origin.GetName().DisplayName);
         }
 
         /// <summary>
         /// Checks if a post matches a post number filter in the given quest.
         /// </summary>
-        /// <param name="post">The <see cref="Post"/> to examine.</param>
+        /// <param name="vote">The <see cref="Vote"> to check</param>
         /// <param name="quest">The <see cref="Quest"/> with the filter.</param>
         /// <returns><c>True</c> if the post number filter matches. Otherwise <c>false</c>.</returns>
         public bool MatchesPostNumberFilter(Quest quest)
         {
             return quest.UseCustomPostFilters &&
-                (quest.PostsFilter.Blocks(post.Origin.PostNumber.Value) ||
-                 quest.PostsFilter.Blocks(post.Origin.PostId.Value));
+                (quest.PostsFilter.Blocks(vote.Origin.PostNumber.Value) ||
+                 quest.PostsFilter.Blocks(vote.Origin.PostId.Value));
         }
     }
 }

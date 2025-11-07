@@ -40,8 +40,9 @@ public class ReferenceVoteTests
 
         var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Atreya()
@@ -54,8 +55,9 @@ public class ReferenceVoteTests
 
         var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Kimberly()
@@ -68,8 +70,9 @@ public class ReferenceVoteTests
 
         var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Kinematics2()
@@ -82,8 +85,9 @@ public class ReferenceVoteTests
 
         var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
     #endregion Origins
 
@@ -91,25 +95,33 @@ public class ReferenceVoteTests
     private static Post GetPostFromKinematics1(string postText)
     {
         var origin = GetOrigin_Kinematics1();
-        return Post.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromKinematics2(string postText)
     {
         var origin = GetOrigin_Kinematics2();
-        return Post.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromAtreya(string postText)
     {
         var origin = GetOrigin_Atreya();
-        return Post.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromKimberly(string postText)
     {
         var origin = GetOrigin_Kimberly();
-        return Post.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
     #endregion Posts
 

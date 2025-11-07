@@ -107,7 +107,10 @@ public class VoterStorageTests
 
     private static VoteBlock GetVote(Post post)
     {
-        return VoteBlocks.GetBlocks(post.VoteLines).First();
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        return VoteBlocks.GetBlocks(vote.VoteLines).First();
     }
 
     private static Post GetPost_Kinematics()

@@ -212,9 +212,6 @@ public class ForumReader(
         Quest quest,
         ThreadInfo threadInfo)
     {
-        if (!post.HasVote)
-            return false;
-
         if (post.IsBeforeStart(threadInfo.ThreadRange) || post.IsAfterEnd(threadInfo.ThreadRange))
             return false;
 

@@ -29,8 +29,9 @@ public class VoteCounter(
     /// <summary>
     /// The list of posts collected from the quest. Read-only.
     /// </summary>
-    public List<PostToProcess> Posts { get; } = [];
+    public List<VoteToProcess> VotesToProcess { get; } = [];
     List<Post> RawPosts { get; } = [];
+    List<Vote> Votes { get; } = [];
 
     /// <summary>
     /// The overall collection of voters and supporters.
@@ -107,7 +108,8 @@ public class VoteCounter(
     public void ResetPosts()
     {
         RawPosts.Clear();
-        Posts.Clear();
+        Votes.Clear();
+        VotesToProcess.Clear();
     }
     #endregion Reset various storage
 
@@ -118,10 +120,23 @@ public class VoteCounter(
     /// <param name="posts">The posts to be stored in the <see cref="IVoteCounter"/>.</param>
     private void AddPosts(IEnumerable<Post> posts)
     {
-        RawPosts.Clear();
+        ResetPosts();
+
         RawPosts.AddRange(posts);
-        Posts.Clear();
-        Posts.AddRange(posts.Select(p => new PostToProcess(p)));
+
+        var foundVotes = RawPosts
+            .Select(Vote.Create)
+            .Where(v => v != null)
+            .Select(v => v!);
+
+        Votes.AddRange(foundVotes);
+
+        var votesToProcess = Votes
+            .Select(Vote.CreateToProcess)
+            .Where(v => v != null)
+            .Select(v => v!);
+
+        VotesToProcess.AddRange(votesToProcess);
     }
 
     /// <summary>
@@ -195,19 +210,6 @@ public class VoteCounter(
                 ReferencePlans[updateOrigin] = plan;
                 return true;
             }
-
-            //if (updateOrigin.GetDetails() != OriginDetail.None &&
-            //    OriginDetailComparer.Instance.Equals(updateOrigin.GetDetails(), currentOrigin.GetDetails()) &&
-            //    PostIdComparer.Instance.Compare(uo.PostId, co.PostId) == 1 &&
-            //    plan.LineCount > 1 &&
-            //    ReferencePlans.TryGetValue(currentOrigin, out VoteBlock? currentPlan) &&
-            //    !VoteBlockComparer.Instance.Equals(plan, currentPlan))
-            //{
-            //    ReferenceOrigins.Remove(currentOrigin);
-            //    ReferenceOrigins.Add(updateOrigin);
-            //    ReferencePlans[updateOrigin] = plan;
-            //    return true;
-            //}
         }
 
         return false;
@@ -354,19 +356,19 @@ public class VoteCounter(
     }
 
     /// <summary>
-    /// Get the last post made by a given author.
+    /// Get the last vote made by a given author.
     /// Possibly restrict the search range to no more than the specified post ID.
     /// </summary>
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    public PostToProcess? GetLastPostByAuthor(Origin author, PostId maxPostId)
+    public VoteToProcess? GetLastVoteByAuthor(Origin author, PostId maxPostId)
     {
         var actualOrigin = GetReferenceOrigin(author);
 
         if (actualOrigin != null)
         {
-            return Posts
+            return VotesToProcess
                 .Where(p => AuthorComparer.Instance.Equals(actualOrigin.GetName(), p.Origin.GetName()) &&
                             (maxPostId == PostId.None || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
@@ -379,15 +381,15 @@ public class VoteCounter(
     /// <summary>
     /// Determines whether the author of the provided post has made a newer vote submission.
     /// </summary>
-    /// <param name="post">The post being checked.</param>
+    /// <param name="vote">The post being checked.</param>
     /// <returns>Returns true if the voter has a newer vote already submitted.</returns>
-    public bool HasNewerVote(PostToProcess post)
+    public bool HasNewerVote(VoteToProcess vote)
     {
-        return Posts
+        return VotesToProcess
             .Any(p =>
                 p.Processed &&
-                OriginNameComparer.Instance.Equals(p.Origin, post.Origin) &&
-                PostIdComparer.Instance.Compare(p.Origin.PostId, post.Origin.PostId) == 1);
+                OriginNameComparer.Instance.Equals(p.Origin, vote.Origin) &&
+                PostIdComparer.Instance.Compare(p.Origin.PostId, vote.Origin.PostId) == 1);
     }
 
     /// <summary>
@@ -457,7 +459,7 @@ public class VoteCounter(
     /// </summary>
     /// <param name="votePartitions">A string list of all the parts of the vote to be added.</param>
     /// <param name="voter">The voter for this vote.</param>
-    public void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin? voter)
+    public void AddVotePartitions(IEnumerable<VoteBlock> votePartitions, Origin? voter)
     {
         if (!votePartitions.Any() || voter is null or NoOrigin)
             return;
@@ -993,22 +995,22 @@ public class VoteCounter(
     public static List<VoteBlock> GetVoteAsBlock(IEnumerable<VoteLine> lines) =>
         [VoteBlock.Create(lines)!];
 
-    private static Func<PostToProcess, List<VoteBlock>> PostBlocks =>
+    private static Func<VoteToProcess, List<VoteBlock>> VotesBlocks =>
         (p) => GetVoteBlocks(p.VoteLines);
 
-    private static Func<PostToProcess, List<VoteBlock>> PostAsBlock =>
+    private static Func<VoteToProcess, List<VoteBlock>> VoteAsBlock =>
         (p) => GetVoteAsBlock(p.VoteLines);
 
     // Either split the vote into blocks, or encapsulate the vote into an enumerable
     // so that it can be treated the same way.
-    static readonly List<(Func<PostToProcess, List<VoteBlock>> postToBlocks,
+    static readonly List<(Func<VoteToProcess, List<VoteBlock>> voteToBlocks,
                           Func<VoteBlock, PlanDescriptor> isPlanFunction)>
         planProcesses =
         [
-            (postToBlocks: PostBlocks, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
-            (postToBlocks: PostBlocks, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
-            (postToBlocks: PostAsBlock, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
-            (postToBlocks: PostAsBlock, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
+            (voteToBlocks: VotesBlocks, isPlanFunction: VoteBlocks.IsBlockAProposedPlan),
+            (voteToBlocks: VotesBlocks, isPlanFunction: VoteBlocks.IsBlockAnExplicitPlan),
+            (voteToBlocks: VoteAsBlock, isPlanFunction: VoteBlocks.IsBlockAnImplicitPlan),
+            (voteToBlocks: VoteAsBlock, isPlanFunction: VoteBlocks.IsBlockASingleLinePlan)
         ];
 
     /// <summary>
@@ -1018,8 +1020,9 @@ public class VoteCounter(
     {
         // Reset to a starting state, and add unique authors' origins to a reference collection.
         // The last origin for each author will be the 'true' entry.
-        Posts.WithEach(p => p.Reset())
-             .WithEach(p => AddReferenceVoter(p.Origin));
+        VotesToProcess
+            .WithEach(p => p.Reset())
+            .WithEach(p => AddReferenceVoter(p.Origin));
 
         // Run the above series of preprocessing functions to extract plans from the post list.
         PreprocessPlans();
@@ -1032,13 +1035,13 @@ public class VoteCounter(
     {
         planProcesses.ForEach(pp =>
         {
-            Posts.ForEach(p =>
+            VotesToProcess.ForEach(p =>
             {
                 VoteConstructor.PreprocessPostGetPlans(
                     Quest,
                     p.Origin.GetName(),
                     pp.isPlanFunction,
-                    pp.postToBlocks(p))
+                    pp.voteToBlocks(p))
                 .Select(pl => NormalizePlan(pl.Key, pl.Value))
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
@@ -1047,23 +1050,23 @@ public class VoteCounter(
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))
-                .WithEach(a => AddVotes(a.Partitions, a.Origin));
+                .WithEach(a => AddVotePartitions(a.Partitions, a.Origin));
             });
         });
     }
 
     private void ProcessPosts()
     {
-        Posts.TryProcess(p => VP(p, Quest), p => ForceVP(p, Quest));
+        VotesToProcess.TryProcess(p => VP(p, Quest), p => ForceVP(p, Quest));
         AddUserDefinedTasksToTaskList();
         RunMergeActions();
 
         // Handle processing each post and adding votes if successful.
-        bool VP(PostToProcess post, Quest quest)
+        bool VP(VoteToProcess vote, Quest quest)
         {
-            if (VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlock> votes))
+            if (VoteConstructor.TryProcessPostGetVotes(vote, quest, out List<VoteBlock> votes))
             {
-                AddVotes(votes, post.Origin);
+                AddVotePartitions(votes, vote.Origin);
                 return true;
             }
 
@@ -1071,11 +1074,11 @@ public class VoteCounter(
         }
 
         // Handle processing votes if the processing loop failed.
-        void ForceVP(PostToProcess post, Quest quest)
+        void ForceVP(VoteToProcess vote, Quest quest)
         {
-            post.ForceProcess = true;
-            VoteConstructor.TryProcessPostGetVotes(post, quest, out List<VoteBlock> votes);
-            AddVotes(votes, post.Origin);
+            vote.ForceProcess = true;
+            VoteConstructor.TryProcessPostGetVotes(vote, quest, out List<VoteBlock> votes);
+            AddVotePartitions(votes, vote.Origin);
         }
     }
 

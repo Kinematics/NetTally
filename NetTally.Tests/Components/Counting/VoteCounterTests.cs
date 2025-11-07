@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
@@ -184,8 +185,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -214,8 +218,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -245,8 +252,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -263,11 +273,11 @@ public class VoteCounterTests
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.GetName().DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
-        var vote1 = quest.VoteCounter.GetVotesBy(origin1).ToList();
+        var vote1a = quest.VoteCounter.GetVotesBy(origin1).ToList();
 
-        Assert.AreEqual(1, vote1.Count);
+        Assert.AreEqual(1, vote1a.Count);
 
-        var voters1 = quest.VoteCounter.GetVotersFor(vote1[0]);
+        var voters1 = quest.VoteCounter.GetVotersFor(vote1a[0]);
 
         Assert.AreEqual(2, voters1.Count());
     }
@@ -285,8 +295,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -335,8 +348,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -367,9 +383,13 @@ public class VoteCounterTests
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
 
         List<Post> posts = [post1, post2, post3];
 
@@ -399,8 +419,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -436,10 +459,15 @@ public class VoteCounterTests
         Assert.IsNotNull(post3);
         Assert.IsNotNull(post4);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
-        Assert.IsTrue(post4.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+        var vote4 = Vote.Create(post4);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
+        Assert.IsNotNull(vote4);
 
         quest.PartitionMode = PartitionMode.None;
         quest.AllowUsersToUpdatePlans = true;
@@ -491,8 +519,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -520,8 +551,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -549,8 +583,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -578,8 +615,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
         quest.ConstructVotes(titles, posts);
@@ -614,9 +654,13 @@ public class VoteCounterTests
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
 
         List<Post> posts = [post1, post2, post3];
 
@@ -657,10 +701,15 @@ public class VoteCounterTests
         Assert.IsNotNull(post3);
         Assert.IsNotNull(post4);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
-        Assert.IsTrue(post4.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+        var vote4 = Vote.Create(post4);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
+        Assert.IsNotNull(vote4);
 
         List<Post> posts = [post1, post2, post3, post4];
 
@@ -699,8 +748,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -714,8 +766,8 @@ public class VoteCounterTests
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.GetName().DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.GetName().DisplayName));
 
-        var vote1 = allVotes[0];
-        var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+        var vote1a = allVotes[0];
+        var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1a).ToList();
 
         Assert.AreEqual(2, voters.Count);
         Assert.IsTrue(voters.Contains(origin1));
@@ -736,8 +788,11 @@ public class VoteCounterTests
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -751,10 +806,10 @@ public class VoteCounterTests
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.GetName().DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.GetName().DisplayName));
 
-        var vote1 = allVotes[0];
-        var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
-        var vote2 = allVotes[1];
-        var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2).ToList();
+        var vote1a = allVotes[0];
+        var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1a).ToList();
+        var vote2a = allVotes[1];
+        var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2a).ToList();
 
         Assert.AreEqual(1, voters1.Count);
         Assert.AreEqual(1, voters2.Count);

@@ -7,5 +7,5 @@ public static class PostDefaults
         public static Post None => _none;
     }
 
-    private static readonly Post _none = new(Origin.None, "", []);
+    private static readonly Post _none = new(Origin.None, "");
 }

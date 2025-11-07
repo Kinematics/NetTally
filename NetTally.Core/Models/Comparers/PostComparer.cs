@@ -7,7 +7,7 @@ namespace NetTally.Models;
 /// <summary>
 /// Comparer handler for <see cref="Posts"/> and <see cref="PostToProcess"/>
 /// </summary>
-public class PostComparer : IEqualityComparer<Post>, IEqualityComparer<PostToProcess>
+public class PostComparer : IEqualityComparer<Post>
 {
     /// <summary>
     /// Static instance of a <see cref="PostComparer"/>
@@ -23,21 +23,8 @@ public class PostComparer : IEqualityComparer<Post>, IEqualityComparer<PostToPro
             Agnostic.InsensitiveComparer.Equals(x.Text, y.Text);
     }
 
-    public bool Equals(PostToProcess? x, PostToProcess? y)
-    {
-        if (x is null || y is null) return false;
-        if (ReferenceEquals(x, y)) return true;
-
-        return object.Equals(x.Post, y.Post);
-    }
-
     public int GetHashCode([DisallowNull] Post obj)
     {
         return OriginComparer.Instance.GetHashCode(obj.Origin);
-    }
-
-    public int GetHashCode([DisallowNull] PostToProcess obj)
-    {
-        return GetHashCode(obj.Post);
     }
 }

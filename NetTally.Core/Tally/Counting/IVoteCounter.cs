@@ -49,9 +49,14 @@ public interface IVoteCounter : INotifyPropertyChanged
     bool HasPosts { get; }
 
     /// <summary>
+    /// Whether the quest has any recorded votes.
+    /// </summary>
+    bool HasVotes { get; }
+
+    /// <summary>
     /// Access to the posts ready to be processed.
     /// </summary>
-    List<PostToProcess> Posts { get; }
+    List<VoteToProcess> VotesToProcess { get; }
 
     /// <summary>
     /// Construct votes from existing posts.
@@ -125,7 +130,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <param name="voterName">The voter being queried.</param>
     /// <param name="maxPostId">The highest post ID allowed. 0 means unrestricted.</param>
     /// <returns>Returns the last post by the requested author, if found. Otherwise null.</returns>
-    PostToProcess? GetLastPostByAuthor(Origin author, PostId maxPostId);
+    VoteToProcess? GetLastVoteByAuthor(Origin author, PostId maxPostId);
     /// <summary>
     /// Get the reference plan corresponding to the provided plan name.
     /// </summary>
@@ -167,14 +172,12 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// <returns>Returns a count of the registered reference voters.</returns>
     int GetTotalVoterCount();
 
-    bool HasVotes { get; }
-
     /// <summary>
     /// Determines if there is a more recent vote made by the author of the provided post.
     /// </summary>
     /// <param name="post">The post made by some author.</param>
     /// <returns>Returns true if there is a more recent post made by the author of the post.</returns>
-    bool HasNewerVote(PostToProcess post);
+    bool HasNewerVote(VoteToProcess post);
 
 
     /// <summary>
@@ -182,7 +185,7 @@ public interface IVoteCounter : INotifyPropertyChanged
     /// </summary>
     /// <param name="votePartitions">The vote blocks to be added.</param>
     /// <param name="voter">The voter.</param>
-    void AddVotes(IEnumerable<VoteBlock> votePartitions, Origin voter);
+    void AddVotePartitions(IEnumerable<VoteBlock> votePartitions, Origin voter);
     /// <summary>
     /// Merge the vote supporters from one vote into another.
     /// </summary>

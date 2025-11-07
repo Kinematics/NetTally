@@ -55,44 +55,44 @@ public static partial class VoteConstructor
     /// <summary>
     /// Get votes from the provided post during the processing phase.
     /// </summary>
-    /// <param name="post">The post being processed.</param>
+    /// <param name="vote">The vote being processed.</param>
     /// <param name="quest">The quest being tallied.</param>
     /// <param name="votes">Returns any votes from the post if the post was processed.</param>
     /// <returns><c>True</c> if the post was processed, or <c>false</c> if it was not.</returns>
-    public static bool TryProcessPostGetVotes(PostToProcess post, Quest quest,
+    public static bool TryProcessPostGetVotes(VoteToProcess vote, Quest quest,
         out List<VoteBlock> votes)
     {
         votes = [];
 
-        if (!post.Processed)
+        if (!vote.Processed)
         {
-            ConfigureWorkingVote(post, quest);
+            ConfigureWorkingVote(vote, quest);
 
             // If the working vote configuration is complete, process the post.
-            if (post.WorkingVoteComplete)
+            if (vote.WorkingVoteComplete)
             {
                 // If a newer vote has been registered in the vote counter, that means
                 // that this post was a prior future reference that got overridden later.
                 // If so, don't process it now, but mark the post as processed so that
                 // it doesn't get re-submitted later.
-                if (quest.VoteCounter.HasNewerVote(post))
+                if (quest.VoteCounter.HasNewerVote(vote))
                 {
-                    post.Processed = true;
+                    vote.Processed = true;
                 }
                 else
                 {
                     // Get the results of partitioning the post.
-                    var results = PartitionPost(post, quest.PartitionMode);
+                    var results = PartitionPost(vote, quest.PartitionMode);
 
                     // Add partitions that pass task filtering.
                     votes.AddRange(results.Where(p => DoesTaskFilterPass(p, quest)));
 
-                    post.Processed = true;
+                    vote.Processed = true;
                 }
             }
         }
 
-        return post.Processed;
+        return vote.Processed;
     }
     #endregion General public processing functions
 
@@ -132,14 +132,14 @@ public static partial class VoteConstructor
     }
 
     /// <summary>
-    /// Work through the original post lines, remove any base plans, and expand
+    /// Work through the original vote lines, remove any base plans, and expand
     /// any vote or plan references.  Store the information in the WorkingVote.
     /// </summary>
-    /// <param name="post">The post with the working vote to configure.</param>
+    /// <param name="vote">The working vote to configure.</param>
     /// <param name="quest">The quest being tallied.</param>
-    public static void ConfigureWorkingVote(PostToProcess post, Quest quest)
+    public static void ConfigureWorkingVote(VoteToProcess vote, Quest quest)
     {
-        if (post.WorkingVoteComplete)
+        if (vote.WorkingVoteComplete)
             return;
 
         List<VoteBlockRef> workingVote = [];
@@ -148,7 +148,7 @@ public static partial class VoteConstructor
         // Keep everything else, flattening the blocks back into a simple list of vote lines.
 
         var validVoteLines = VoteBlocks
-            .GetBlocks(post.VoteLines)
+            .GetBlocks(vote.VoteLines)
             .Where(b => !IsProposedPlan(b))
             .SelectMany(a => a)
             .ToList();
@@ -208,9 +208,9 @@ public static partial class VoteConstructor
             // Users
             else
             {
-                PostId postSearchLimit = isPinnedUser ? post.Origin.PostId : PostId.None;
+                PostId postSearchLimit = isPinnedUser ? vote.Origin.PostId : PostId.None;
 
-                PostToProcess? refUserPost = quest.VoteCounter.GetLastPostByAuthor(refName, postSearchLimit);
+                VoteToProcess? refUserPost = quest.VoteCounter.GetLastVoteByAuthor(refName, postSearchLimit);
 
                 // If we can't find the reference post, just treat this as a normal line.
                 if (refUserPost == null)
@@ -219,7 +219,7 @@ public static partial class VoteConstructor
                 }
                 // If the reference post hasn't been processed yet, bail out entirely,
                 // because we're in a future reference position.
-                else if (!refUserPost.Processed && !post.ForceProcess)
+                else if (!refUserPost.Processed && !vote.ForceProcess)
                 {
                     return;
                 }
@@ -246,8 +246,8 @@ public static partial class VoteConstructor
             }
         }
 
-        post.WorkingVote.AddRange(workingVote);
-        post.WorkingVoteComplete = true;
+        vote.WorkingVote.AddRange(workingVote);
+        vote.WorkingVoteComplete = true;
 
         //////////////////////////////////////////
 
@@ -261,7 +261,7 @@ public static partial class VoteConstructor
                 Origin? planOrigin = quest.VoteCounter.GetPlanOriginByName(proposedPlanName);
 
                 if (planOrigin != null)
-                    return planOrigin.PostId == post.Origin.PostId;
+                    return planOrigin.PostId == vote.Origin.PostId;
             }
 
             return false;
@@ -485,33 +485,33 @@ public static partial class VoteConstructor
 
     #region Paritioning Posts
     /// <summary>
-    /// Partition a post based on the requested partition mode.
+    /// Partition a vote based on the requested partition mode.
     /// </summary>
-    /// <param name="post">The post whose vote is being partitioned.</param>
+    /// <param name="vote">The vote being partitioned.</param>
     /// <param name="partitionMode">The partition mode to use.</param>
     /// <returns>Returns the partitions that are to be counted.</returns>
-    private static List<VoteBlock> PartitionPost(PostToProcess post, PartitionMode partitionMode)
+    private static List<VoteBlock> PartitionPost(VoteToProcess vote, PartitionMode partitionMode)
     {
         return partitionMode switch
         {
-            PartitionMode.None => PartitionPostByNone(post),
-            PartitionMode.ByLine => PartitionPostByLine(post),
-            PartitionMode.ByLineTask => PartitionPostByLineTask3(post),
-            PartitionMode.ByBlock => PartitionPostByBlock(post),
-            PartitionMode.ByBlockAll => PartitionPostByBlock(post),
+            PartitionMode.None => PartitionPostByNone(vote),
+            PartitionMode.ByLine => PartitionPostByLine(vote),
+            PartitionMode.ByLineTask => PartitionPostByLineTask3(vote),
+            PartitionMode.ByBlock => PartitionPostByBlock(vote),
+            PartitionMode.ByBlockAll => PartitionPostByBlock(vote),
             _ => throw new InvalidOperationException($"Unknown partition mode: {partitionMode}")
         };
     }
 
     /// <summary>
-    /// Generate the vote partitions for a post.
+    /// Generate the vote partitions for a vote.
     /// There is no partitioning, so all this does is pull in proxy references.
     /// </summary>
-    /// <param name="post">The post whose vote is being partitioned.</param>
+    /// <param name="vote">The vote being partitioned.</param>
     /// <returns>Returns the partitions that are to be counted.</returns>
-    private static List<VoteBlock> PartitionPostByNone(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByNone(VoteToProcess vote)
     {
-        var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
+        var collated = vote.WorkingVote.SelectMany(v => v.VoteBlock);
         var block = VoteBlock.Create(collated);
 
         if (block == VoteBlock.Empty)
@@ -521,14 +521,14 @@ public static partial class VoteConstructor
     }
 
     /// <summary>
-    /// Generate the vote partitions for a post, using line-level partitioning.
+    /// Generate the vote partitions for a vote, using line-level partitioning.
     /// Incorporates any proxy references.
     /// </summary>
-    /// <param name="post">The post with the vote to be partitioned.</param>
+    /// <param name="vote">The vote to be partitioned.</param>
     /// <returns>Returns a list of vote blocks.</returns>
-    private static List<VoteBlock> PartitionPostByLine(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByLine(VoteToProcess vote)
     {
-        var partitionedLines = post.WorkingVote
+        var partitionedLines = vote.WorkingVote
             .SelectMany(v => v.VoteBlock)
             .Select(VoteBlock.Create)
             .Where(v => v != null)
@@ -538,14 +538,14 @@ public static partial class VoteConstructor
     }
 
     /// <summary>
-    /// Generate the vote partitions for a post, using block-level partitioning.
+    /// Generate the vote partitions for a vote, using block-level partitioning.
     /// </summary>
-    /// <param name="post">The post with the vote to be partitioned.</param>
+    /// <param name="vote">The vote to be partitioned.</param>
     /// <returns>Returns a list of vote blocks.</returns>
-    private static List<VoteBlock> PartitionPostByBlock(PostToProcess post)
+    private static List<VoteBlock> PartitionPostByBlock(VoteToProcess vote)
     {
         // References don't get partitioned further. Non-references need to be grouped.
-        var grouped = post.WorkingVote.GroupAdjacentBySimilarKey(b => b.IsReference);
+        var grouped = vote.WorkingVote.GroupAdjacentBySimilarKey(b => b.IsReference);
 
         var partitioned = grouped.SelectMany(g => g.Key
             ? g.Select(v => v.VoteBlock)
@@ -557,11 +557,11 @@ public static partial class VoteConstructor
     /// <summary>
     /// Assigns parent-most task to all child lines.
     /// </summary>
-    /// <param name="post"></param>
-    /// <returns></returns>
-    private static List<VoteBlock> PartitionPostByLineTask2(PostToProcess post)
+    /// <param name="vote">The vote to be partitioned.</param>
+    /// <returns>Returns a list of vote blocks.</returns>
+    private static List<VoteBlock> PartitionPostByLineTask2(VoteToProcess vote)
     {
-        var collated = post.WorkingVote.SelectMany(v => v.VoteBlock);
+        var collated = vote.WorkingVote.SelectMany(v => v.VoteBlock);
 
         var blocks = VoteBlocks.GetBlocks(collated);
 
@@ -588,11 +588,11 @@ public static partial class VoteConstructor
     /// <summary>
     /// Recursively assigns parent tasks to child lines, taking the closest parent task value.
     /// </summary>
-    /// <param name="post"></param>
-    /// <returns></returns>
-    private static List<VoteBlock> PartitionPostByLineTask3(PostToProcess post)
+    /// <param name="vote">The vote to be partitioned.</param>
+    /// <returns>Returns a list of vote blocks.</returns>
+    private static List<VoteBlock> PartitionPostByLineTask3(VoteToProcess vote)
     {
-        var voteLines = post.WorkingVote
+        var voteLines = vote.WorkingVote
             .SelectMany(v => v.VoteBlock);
 
         var r = VoteBlocks.GetBlocks(voteLines);

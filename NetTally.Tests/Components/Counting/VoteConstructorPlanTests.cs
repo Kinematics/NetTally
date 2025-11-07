@@ -54,15 +54,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
             sampleQuest,
-            post.Origin.GetName(),
+            vote.Origin.GetName(),
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -81,15 +81,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
             sampleQuest,
-            post.Origin.GetName(),
+            vote.Origin.GetName(),
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -109,15 +109,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -138,15 +138,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -165,15 +165,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(1, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -194,15 +194,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(3, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -226,15 +226,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(4, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -258,15 +258,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -286,15 +286,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -315,15 +315,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -342,15 +342,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(1, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -371,15 +371,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(3, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -403,15 +403,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(4, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteBlocks(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -435,15 +435,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -463,15 +463,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -491,15 +491,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(2, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(2, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -518,15 +518,15 @@ public class VoteConstructorPlanTests
                 """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(1, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(1, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -547,15 +547,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(3, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -576,15 +576,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(3, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(3, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteAsBlock(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -608,15 +608,15 @@ public class VoteConstructorPlanTests
             """;
 
         var post = Post.Create(origin, postText);
-        Assert.IsNotNull(post);
-        Assert.IsTrue(post.HasVote);
-        Assert.AreEqual(4, post.VoteLineCount);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+        Assert.AreEqual(4, vote.VoteLines.Count);
 
-        var blocks = VoteCounter.GetVoteAsBlock(post.VoteLines);
+        var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           post.Origin.GetName(),
+           vote.Origin.GetName(),
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
