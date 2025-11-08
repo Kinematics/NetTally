@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using NetTally.Models;
 
 namespace NetTally.Configure;
 

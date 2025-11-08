@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using NetTally.Input.Forums.Reading;
+using NetTally.Models;
 using NetTally.Output;
 using NetTally.Utility.Events;
 

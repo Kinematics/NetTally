@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using NetTally.Models;
 
 namespace NetTally.Tally.Counting;
 

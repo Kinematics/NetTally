@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models;
 using NetTally.Product;
 using NetTally.Tally;
 using NetTally.Utility.Cache;

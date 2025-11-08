@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using NetTally.Configure;
+using NetTally.Models.Converters;
 using NetTally.Product;
-using NetTally.Quests;
 
 namespace NetTally.Utility.Json;
 

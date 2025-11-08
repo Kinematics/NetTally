@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Models;
 
 namespace NetTally.Tests.Utility;
 

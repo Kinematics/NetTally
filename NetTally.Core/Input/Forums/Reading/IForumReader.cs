@@ -1,4 +1,5 @@
-﻿using NetTally.Utility.Events;
+﻿using NetTally.Models;
+using NetTally.Utility.Events;
 
 namespace NetTally.Input.Forums.Reading;
 

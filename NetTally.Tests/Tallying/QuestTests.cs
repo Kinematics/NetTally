@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Input.Forums;
+using NetTally.Models;
 
 namespace NetTally.Tests.Tallying
 {

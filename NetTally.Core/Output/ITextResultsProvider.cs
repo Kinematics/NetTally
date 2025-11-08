@@ -1,4 +1,6 @@
-﻿namespace NetTally.Output;
+﻿using NetTally.Models;
+
+namespace NetTally.Output;
 
 public interface ITextResultsProvider
 {

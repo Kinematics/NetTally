@@ -1,4 +1,6 @@
-﻿namespace NetTally.Configure;
+﻿using NetTally.Models;
+
+namespace NetTally.Configure;
 
 public class UserQuests
 {
