@@ -3,7 +3,6 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Models;
 using NetTally.Product;
 using NetTally.Tally.Counting;
@@ -13,13 +12,10 @@ using NetTally.Tally.Storage;
 
 namespace NetTally.Output;
 
-public class TallyOutput(
-    ForumAdapterFactory forumAdapterFactory,
-    IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
+public class TallyOutput(IOptions<GlobalSettings> globalSettings) : ITextResultsProvider
 {
     #region Private fields
     private readonly GlobalSettings globalSettings = globalSettings.Value;
-    private readonly ForumAdapterFactory forumAdapterFactory = forumAdapterFactory;
 
     private Quest quest = null!;
     private DisplayMode displayMode;
@@ -65,18 +61,21 @@ public class TallyOutput(
     #endregion
 
     #region Setup for generating output
-
-    private void InitializeBuild(Quest quest)
+    private bool InitializeBuild(Quest quest)
     {
         this.quest = quest;
         displayMode = quest.DisplayMode;
         voteCounter = quest.VoteCounter;
         rankVoteCounter = RankVoteCounterFactory.CreateRankVoteCounter(globalSettings.RankVoteCounterMethod);
 
-        var forumAdapter = forumAdapterFactory.CreateForumAdapter(quest.ForumType, quest.ThreadUri);
-        lineBreak = forumAdapter.GetDefaultLineBreak(quest.ThreadUri);
+        if (quest.ForumAdapter is null)
+            return false;
+
+        lineBreak = quest.ForumAdapter.GetDefaultLineBreak(quest.ThreadUri);
 
         sb.Clear();
+
+        return true;
     }
 
     /// <summary>
@@ -176,24 +175,16 @@ public class TallyOutput(
             sb.AppendLine(title);
         }
 
-        sb.Append("[color=transparent]##### ");
-        sb.Append(ProductInfo.Name);
-        sb.Append(' ');
-        sb.Append(ProductInfo.Version);
-        sb.AppendLine("[/color]");
+        sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
 
         if (quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
         {
-            sb.Append("[color=transparent]Username Filters: ");
-            sb.Append(quest.CustomUsernameFilters);
-            sb.AppendLine("[/color]");
+            sb.AppendLine($"[color=transparent]Username Filters: {quest.CustomUsernameFilters}[/color]");
         }
 
         if (quest.UseCustomPostFilters && !string.IsNullOrEmpty(quest.CustomPostFilters))
         {
-            sb.Append("[color=transparent]Post Filters: ");
-            sb.Append(quest.CustomPostFilters);
-            sb.AppendLine("[/color]");
+            sb.AppendLine($"[color=transparent]Post Filters: {quest.CustomPostFilters}[/color]");
         }
 
         sb.AppendLine();
@@ -213,9 +204,7 @@ public class TallyOutput(
 
             AddLineBreak();
 
-            sb.Append("Total No. of Voters: ");
-            sb.Append(voterCount);
-            sb.AppendLine();
+            sb.AppendLine($"Total No. of Voters: {voterCount}");
             sb.AppendLine();
         }
     }
@@ -575,9 +564,7 @@ public class TallyOutput(
     {
         if (taskName.Length > 0)
         {
-            sb.Append("[b]Task: ");
-            sb.Append(taskName);
-            sb.AppendLine("[/b]");
+            sb.AppendLine($"[b]Task: {taskName}[/b]");
         }
     }
 
@@ -585,9 +572,7 @@ public class TallyOutput(
     {
         var voters = GetAllVotersInTask(task);
 
-        sb.Append("— Voters: ");
-        sb.Append(voters.Count());
-        sb.AppendLine();
+        sb.AppendLine($"— Voters: {voters.Count()}");
     }
 
     /// <summary>
@@ -600,9 +585,7 @@ public class TallyOutput(
         if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             return;
 
-        sb.Append("[b]Support: ");
-        sb.Append(supportCount);
-        sb.AppendLine("[/b]");
+        sb.AppendLine($"[b]Support: {supportCount}[/b]");
     }
 
     /// <summary>
@@ -614,9 +597,7 @@ public class TallyOutput(
         if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             return;
 
-        sb.Append("[b]Support: ");
-        sb.Append('+').Append(support.positive).Append("/-").Append(support.negative);
-        sb.AppendLine("[/b]");
+        sb.AppendLine($"[b]Support: +{support.positive}/-{support.negative}[/b]");
     }
 
     /// <summary>
@@ -628,15 +609,14 @@ public class TallyOutput(
         if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             return;
 
-        sb.Append("[b]Score: ");
-        sb.Append(score.score).Append('%');
-        if (globalSettings.DebugMode)
+        sb.AppendLine($"[b]Score: {score.score}%{DebugScore(score.lowerMargin)}[/b]");
+
+        string DebugScore(double lowerMargin)
         {
-            sb.Append(" (")
-              .AppendFormat(CultureInfo.CurrentCulture, "{0:F4}", score.lowerMargin)
-              .Append(')');
+            return globalSettings.DebugMode
+                ? string.Format(CultureInfo.CurrentCulture, " ({0:F4})", lowerMargin)
+                : "";
         }
-        sb.AppendLine("[/b]");
     }
 
     /// <summary>
@@ -648,15 +628,14 @@ public class TallyOutput(
         if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             return;
 
-        sb.Append("[b]Ranking: ");
-        sb.Append('#').Append(ranking.rank);
-        if (globalSettings.DebugMode)
+        sb.AppendLine($"[b]Ranking: #{ranking.rank}{DebugScore(ranking.rankScore)}[/b]");
+
+        string DebugScore(double lowerMargin)
         {
-            sb.Append(" (")
-              .AppendFormat(CultureInfo.CurrentCulture, "{0:F6}", ranking.rankScore)
-              .Append(')');
+            return globalSettings.DebugMode
+                ? string.Format(CultureInfo.CurrentCulture, " ({0:F6})", lowerMargin)
+                : "";
         }
-        sb.AppendLine("[/b]");
     }
 
     /// <summary>
@@ -809,23 +788,14 @@ public class TallyOutput(
 
     private void AddVoter(Origin voter, string marker = "")
     {
-        if (voter is PlanOrigin) sb.Append("[b]");
-
-        sb.Append('[');
-        sb.Append(marker);
-        sb.Append("] ");
-
-        if (voter is PlanOrigin) sb.Append("Plan: ");
-
-        sb.Append("[url=\"");
-        sb.Append(voter.Permalink);
-        sb.Append("\"]");
-        sb.Append(voter.GetName().DisplayName);
-        sb.Append("[/url]");
-
-        if (voter is PlanOrigin) sb.Append("[/b]");
-
-        sb.AppendLine();
+        if (voter is PlanOrigin)
+        {
+            sb.AppendLine($"[b][{marker}] Plan: [url=\"{voter.Permalink}\"]{voter.GetName().DisplayName}[/url][/b]");
+        }
+        else
+        {
+            sb.AppendLine($"[{marker}] [url=\"{voter.Permalink}\"]{voter.GetName().DisplayName}[/url]");
+        }
     }
 
     /// <summary>
@@ -837,9 +807,7 @@ public class TallyOutput(
         if (displayMode == DisplayMode.Compact || displayMode == DisplayMode.CompactNoVoters)
             return;
 
-        sb.Append("[b]No. of Votes: ");
-        sb.Append(count);
-        sb.AppendLine("[/b]");
+        sb.AppendLine($"[b]No. of Votes: {count}[/b]");
     }
 
     /// <summary>
