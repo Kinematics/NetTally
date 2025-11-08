@@ -68,27 +68,21 @@ public partial class Quest : ObservableValidator
     /// </summary>
     public ForumType ForumType { get; set; } = ForumType.Unknown;
 
-    /// <summary>
-    /// Get the forum adapter for this quest.
-    /// Updates the quest as necessary.
-    /// </summary>
-    /// <param name="adapterFactory">The adapter factory used to create forum adapters.</param>
-    /// <param name="token">A cancellation token.</param>
-    /// <returns>A <see cref="IForumAdapter"/> for this quest.</returns>
-    public async Task<IForumAdapter> GetForumAdapter(ForumAdapterFactory adapterFactory,
-        CancellationToken token)
-    {
-        IForumAdapter adapter = await adapterFactory
-            .CreateForumAdapterAsync(this, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+    public IForumAdapter? ForumAdapter { get; private set; }
 
+    /// <summary>
+    /// Tell the quest to use the provided forum adapter for internal settings.
+    /// </summary>
+    /// <param name="adapter">The forum adapter to use.</param>
+    public void UseForumAdapter(IForumAdapter adapter)
+    {
         if (PostsPerPage == 0)
             PostsPerPage = adapter.GetDefaultPostsPerPage(ThreadUri);
 
         if (adapter.HasRssThreadmarksFeed(ThreadUri) == BoolEx.True && UseRSSThreadmarks == BoolEx.Unknown)
             UseRSSThreadmarks = BoolEx.True;
 
-        return adapter;
+        ForumAdapter = adapter;
     }
     #endregion
 

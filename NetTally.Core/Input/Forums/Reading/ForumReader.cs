@@ -80,8 +80,11 @@ public class ForumReader(
         {
             pageProvider.StatusChanged += PageProvider_StatusChanged;
 
-            IForumAdapter adapter = await quest.GetForumAdapter(forumAdapterFactory, token)
-               .ConfigureAwait(ConfigureAwaitOptions.None);
+            IForumAdapter adapter = await forumAdapterFactory
+                .CreateForumAdapterAsync(quest, token)
+                .ConfigureAwait(ConfigureAwaitOptions.None);
+
+            quest.UseForumAdapter(adapter);
 
             var threadInfo = await adapter.GetThreadInfoAsync(quest, pageProvider, token)
                 .ConfigureAwait(ConfigureAwaitOptions.None);
