@@ -5,58 +5,57 @@ using Microsoft.Extensions.Logging;
 using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
-namespace NetTally.Avalonia.Views
+namespace NetTally.Avalonia.Views;
+
+/// <summary>
+/// Code-behind for window used for reordering tasks.
+/// </summary>
+public partial class ReorderTasks : Window
 {
-    /// <summary>
-    /// Code-behind for window used for reordering tasks.
-    /// </summary>
-    public partial class ReorderTasks : Window
+    private readonly TasksViewModel tasksViewModel;
+    private readonly ILogger<ReorderTasks> logger;
+
+    public ReorderTasks(
+        TasksViewModel tasksViewModel,
+        ILogger<ReorderTasks> logger)
     {
-        private readonly TasksViewModel tasksViewModel;
-        private readonly ILogger<ReorderTasks> logger;
+        this.tasksViewModel = tasksViewModel;
+        this.logger = logger;
 
-        public ReorderTasks(
-            TasksViewModel tasksViewModel,
-            ILogger<ReorderTasks> logger)
+        InitializeComponent();
+        DataContext = this.tasksViewModel;
+
+        this.tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        if (tasksViewModel != null)
         {
-            this.tasksViewModel = tasksViewModel;
-            this.logger = logger;
-
-            InitializeComponent();
-            DataContext = this.tasksViewModel;
-
-            this.tasksViewModel.PropertyChanged += TasksViewModel_PropertyChanged;
+            tasksViewModel.PropertyChanged -= TasksViewModel_PropertyChanged;
         }
 
-        protected override void OnClosed(EventArgs e)
-        {
-            if (tasksViewModel != null)
-            {
-                tasksViewModel.PropertyChanged -= TasksViewModel_PropertyChanged;
-            }
+        base.OnClosed(e);
+    }
 
-            base.OnClosed(e);
-        }
-
-        private void TasksViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void TasksViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(tasksViewModel.SaveCommand))
         {
-            if (e.PropertyName == nameof(tasksViewModel.SaveCommand))
-            {
-                logger.ReorderedTasksSaved();
-                Close();
-            }
+            logger.ReorderedTasksSaved();
+            Close();
         }
+    }
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 #if DEBUG
-        /// <summary>
-        /// A blank constructor is needed for Avalonia Windows. It should never be called.
-        /// </summary>
-        public ReorderTasks()
-        {
-            InitializeComponent();
-        }
+    /// <summary>
+    /// A blank constructor is needed for Avalonia Windows. It should never be called.
+    /// </summary>
+    public ReorderTasks()
+    {
+        InitializeComponent();
+    }
 #endif
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-    }
 }

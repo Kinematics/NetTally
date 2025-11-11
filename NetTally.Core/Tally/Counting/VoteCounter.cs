@@ -889,7 +889,7 @@ public class VoteCounter(
         {
             UserMerges.AddMergeRecord(originalVote, vote, UndoActionType.ReplaceTask, Quest.PartitionMode);
 
-            OnPropertyChanged("Votes");
+            OnPropertyChanged(nameof(Votes));
             OnPropertyChanged(nameof(HasUndoActions));
             return true;
         }

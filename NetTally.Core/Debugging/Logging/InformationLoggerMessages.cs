@@ -1,5 +1,4 @@
-﻿using System.Data.SqlTypes;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace NetTally.Debugging.Logging;
 
