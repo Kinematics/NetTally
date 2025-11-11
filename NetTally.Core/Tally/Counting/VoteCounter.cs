@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Models;
 using NetTally.Tally.Processing;
@@ -80,7 +81,7 @@ public class VoteCounter(
         OrderedVoteTaskList.Clear();
         TaskList.Clear();
 
-        logger.LogDebug("Vote counter was reset.");
+        logger.VoteCounterReset();
     }
 
     /// <summary>

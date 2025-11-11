@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
@@ -37,7 +38,7 @@ namespace NetTally.Views
         {
             if (e.PropertyName == nameof(tasksViewModel.SaveCommand))
             {
-                logger.LogDebug("Reordered tasks were saved.");
+                logger.ReorderedTasksSaved();
                 Close();
             }
         }

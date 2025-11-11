@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
@@ -72,7 +73,7 @@ namespace NetTally.Views
         {
             if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
             {
-                logger.LogDebug("Quest options were saved.");
+                logger.QuestOptionsSaved();
                 DialogResult = true;
                 Close();
             }

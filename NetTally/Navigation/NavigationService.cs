@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 
 namespace NetTally.Navigation
 {
@@ -24,7 +25,7 @@ namespace NetTally.Navigation
         public async Task ShowAsync<T>(params object[] parameters)
             where T : Window
         {
-            logger.LogDebug("Showing Window {type}", typeof(T));
+            logger.ShowingWindow(typeof(T));
 
             var window = serviceProvider.GetRequiredService<T>();
 
@@ -45,7 +46,7 @@ namespace NetTally.Navigation
         public async Task<bool?> ShowDialogAsync<T>(Window parentWindow, params object[] parameters)
             where T : Window
         {
-            logger.LogDebug("Showing Dialog Window {type}", typeof(T));
+            logger.ShowingDialog(typeof(T));
 
             var window = serviceProvider.GetRequiredService<T>();
             window.Owner = parentWindow;

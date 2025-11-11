@@ -6,6 +6,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Utility;
 using NetTally.Utility.Cache;
@@ -167,7 +168,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogDebug("Requested URL redirect for \"{description}\"", description);
+        logger.RedirectRequested(description);
 
         UrlDescriptions[urlString] = description;
 
@@ -175,9 +176,9 @@ public class WebPageProvider : IDisposable, IPageProvider
             .ConfigureAwait(ConfigureAwaitOptions.None);
 
         if (string.IsNullOrEmpty(responseUri))
-            logger.LogDebug("Redirect request failed for \"{description}\".", description);
+            logger.RedirectFailed(description);
         else
-            logger.LogDebug("Redirect request succeeded. Using {responseUri}", responseUri);
+            logger.RedirectedSucceeded(responseUri);
 
         return responseUri ?? urlString;
     }
@@ -197,8 +198,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
-            docType, description, urlString);
+        logger.DocumentRequested(docType, description, urlString);
 
         UrlDescriptions[urlString] = description;
 
@@ -372,7 +372,7 @@ public class WebPageProvider : IDisposable, IPageProvider
             _ => ""
         };
 
-        logger.LogDebug("{msg}", msg);
+        logger.StatusChangeMessage(msg);
 
         if (suppressNotifications == SuppressNotifications.No)
             OnStatusChanged(msg);
@@ -387,12 +387,12 @@ public class WebPageProvider : IDisposable, IPageProvider
 
         if (e.ReachedMaxRetries)
         {
-            logger.LogDebug("Tried: {description} - Attempt {count} - Failed", description, e.RetryCount);
+            logger.RetryFailed(description, e.RetryCount);
             NotifyStatusChange(PageRequestStatusType.Failed, e.Url, description, e.Exception, SuppressNotifications.No);
         }
         else
         {
-            logger.LogDebug("Tried: {description} - Attempt {count} - Retrying", description, e.RetryCount);
+            logger.RetryAgain(description, e.RetryCount);
             NotifyStatusChange(PageRequestStatusType.Retry, e.Url, description, e.Exception, SuppressNotifications.No);
         }
     }

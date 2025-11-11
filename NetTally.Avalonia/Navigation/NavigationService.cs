@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 
 namespace NetTally.Avalonia.Navigation;
 
@@ -22,7 +23,7 @@ public class AvaloniaNavigationService(IServiceProvider serviceProvider, ILogger
     /// <typeparam name="T">The type of window being requested.</typeparam>
     public void Show<T>() where T : Window
     {
-        logger.LogDebug("Showing Window {type}", typeof(T));
+        logger.ShowingWindow(typeof(T));
 
         try
         {
@@ -50,7 +51,7 @@ public class AvaloniaNavigationService(IServiceProvider serviceProvider, ILogger
         (Window parentWindow, params object[] parameters)
         where T : Window
     {
-        logger.LogDebug("Showing Dialog Window {type}", typeof(T));
+        logger.ShowingDialog(typeof(T));
 
         parameters ??= [];
 

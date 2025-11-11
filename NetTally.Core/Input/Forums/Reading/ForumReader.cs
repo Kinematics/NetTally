@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Models;
@@ -49,7 +50,7 @@ public class ForumReader(
         Quest quest,
         CancellationToken token)
     {
-        logger.LogDebug("Reading Quest {quest}", quest.ThreadName);
+        logger.ReadingQuest(quest.ThreadName);
 
         var questPosts = GetQuestSources(quest)
             .ToAsyncEnumerable()
@@ -91,13 +92,11 @@ public class ForumReader(
 
             if (threadInfo is null)
             {
-                logger.LogDebug("No thread information acquired for {questDisplayName}.",
-                    quest.DisplayName);
+                logger.ThreadInformationFailed(quest.DisplayName);
                 return QuestData.Empty;
             }
 
-            logger.LogDebug("Thread information acquired for {questDisplayName}.\n({threadData})",
-                quest.DisplayName, threadInfo);
+            logger.ThreadInformationGot(quest.DisplayName, threadInfo);
 
             QuestData questData = QuestData.Empty;
 

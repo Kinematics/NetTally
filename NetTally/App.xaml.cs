@@ -22,6 +22,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.Navigation;
 using NetTally.Product;
 using NetTally.Views;
@@ -44,7 +45,7 @@ public partial class App : Application
         // Create handlers for unhandled exceptions
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        logger.LogDebug("Application constructor completed.");
+        logger.ApplicationConstructed();
     }
 
     /// <summary>
@@ -72,7 +73,7 @@ public partial class App : Application
             // Start the app
             await AppX.AppHost.StartAsync();
 
-            logger.LogInformation("Starting application. Version: {version}", ProductInfo.Version);
+            logger.AppStartup(ProductInfo.Version);
 
             // Request the navigation service and create our main window.
             var navigationService = AppX.Services.GetRequiredService<WPFNavigationService>();

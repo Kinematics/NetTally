@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.Models;
+using NetTally.Product;
 using NetTally.Utility.Events;
 using NetTally.ViewModels;
 
@@ -33,16 +35,15 @@ class Program
         // Get a logger for debugging.
         var loggerFactory = AppX.Services.GetRequiredService<ILoggerFactory>();
         logger = loggerFactory.CreateLogger<Program>();
-        logger.LogDebug("Services defined, starting console app!");
 
         mainViewModel = AppX.Services.GetRequiredService<MainViewModel>();
         globalOptionsViewModel = AppX.Services.GetService<GlobalOptionsViewModel>();
 
         mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-        logger.LogTrace("Watching events from the main view model.");
 
         var arguments = Parser.Default.ParseArguments<Options>(args);
-        logger.LogTrace("Options parsed.");
+
+        logger.AppStartup(ProductInfo.Version);
 
         await arguments.WithParsedAsync(RunWithOptions);
     }
@@ -55,15 +56,11 @@ class Program
     /// <param name="options">The options that were parsed from the commandline arguments.</param>
     public static async Task RunWithOptions(Options options)
     {
-        logger.LogTrace("Entered RunWithOptions");
-
         verbose = options.Verbose;
 
         SetGlobalOptions(options);
 
         Quest quest = GetQuestWithOptions(options);
-
-        logger.LogTrace("Options set");
 
         await RunTally(quest);
 
@@ -78,25 +75,17 @@ class Program
         Thread.Sleep(30);
 
         bool canAddQuest = mainViewModel.AddQuestCommand.CanExecute(null);
-        logger.LogTrace("Can Add Quest: {canAddQuest} (IsTallyRunning: {IsTallyRunning})",
-            canAddQuest, mainViewModel.IsTallyRunning);
 
         if (canAddQuest)
         {
             mainViewModel.AddQuestCommand.Execute(quest);
 
-            logger.LogTrace("Quest added");
-
             mainViewModel.SelectedQuest = quest;
 
-            logger.LogTrace("Quest selected");
-
             bool canRunTally = mainViewModel.RunTallyCommand.CanExecute(null);
-            logger.LogTrace("Can Run Tally: {canRunTally}", canRunTally);
 
             if (canRunTally)
             {
-                logger.LogTrace("Running Tally...");
                 await mainViewModel.RunTallyCommand.ExecuteAsync(default);
             }
         }
@@ -108,8 +97,6 @@ class Program
     /// <param name="options">The commandline options set when run.</param>
     private static void SetGlobalOptions(Options options)
     {
-        logger.LogTrace("Setting global options");
-
         globalOptionsViewModel.DisplayMode = options.DisplayMode;
 
         globalOptionsViewModel.GlobalSpoilers = options.SpoilerAll;
@@ -128,8 +115,6 @@ class Program
     /// <returns>Returns a completed Quest instance.</returns>
     private static Quest GetQuestWithOptions(Options options)
     {
-        logger.LogTrace("Setting up quest with options.");
-
         Quest quest = new()
         {
             ThreadName = options.Thread,
@@ -189,8 +174,6 @@ class Program
     /// <param name="e"></param>
     private static void MainViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        logger.LogTrace("MainViewModel property changed event: {PropertyName}", e.PropertyName);
-
         if (e is PropertyDataChangedEventArgs<string> eData)
         {
             if (mainViewModel.IsTallyRunning && verbose)

@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using Avalonia.Controls;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -41,7 +42,7 @@ namespace NetTally.Avalonia.Views
         {
             if (e.PropertyName == nameof(tasksViewModel.SaveCommand))
             {
-                logger.LogDebug("Reordered tasks were saved.");
+                logger.ReorderedTasksSaved();
                 Close();
             }
         }

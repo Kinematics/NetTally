@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
 namespace NetTally.Views
@@ -31,7 +32,7 @@ namespace NetTally.Views
         {
             if (e.PropertyName == nameof(globalOptionsViewModel.SaveCommand))
             {
-                logger.LogDebug("Global options were saved.");
+                logger.GlobalOptionsSaved();
                 Close();
             }
         }

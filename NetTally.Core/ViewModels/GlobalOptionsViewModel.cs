@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Utility.Enumerations;
 
@@ -61,7 +62,7 @@ public partial class GlobalOptionsViewModel : ObservableObject
         AvaloniaThemeVariant = originalAvaloniaTheme;
         WPFThemeVariant = originalWPFTheme;
 
-        logger.LogDebug("Global options were reset.");
+        logger.GlobalOptionsReset();
     }
 
     [RelayCommand]

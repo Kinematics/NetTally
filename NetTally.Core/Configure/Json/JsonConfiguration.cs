@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NetTally.Debugging.Logging;
 using NetTally.Product;
 using NetTally.Utility.Json;
 
@@ -32,11 +33,11 @@ internal class JsonConfiguration(
                 JsonSerializer.Serialize(stream, config,
                     ConfigInfoSourceGeneratorContext.Default.ConfigInfo);
 
-                logger.LogDebug("Configuration saved to {path}", path);
+                logger.ConfigurationSaved(path);
             }
             catch (Exception)
             {
-                logger.LogDebug("Failed to save configuration to {path}", path);
+                logger.ConfigurationSaveFailed(path);
             }
         }
     }

@@ -7,6 +7,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Views;
+using NetTally.Debugging.Logging;
 
 namespace NetTally.Avalonia;
 
@@ -26,7 +27,7 @@ public class App : Application
         // Create handlers for unhandled exceptions
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        logger.LogDebug("Application constructor completed.");
+        logger.ApplicationConstructed();
     }
 
     #region Hosting/DI setup
@@ -81,8 +82,6 @@ public class App : Application
     {
         // Save settings on exit.
         AppX.SaveConfiguration();
-
-        logger.LogDebug("Application exit.");
     }
     #endregion Avalonia
 

@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.ViewModels;
 
 namespace NetTally.Avalonia.Views
@@ -68,7 +69,7 @@ namespace NetTally.Avalonia.Views
         {
             if (e.PropertyName == nameof(questOptionsViewModel.SaveCommand))
             {
-                logger.LogDebug("Quest options were saved.");
+                logger.QuestOptionsSaved();
                 Close(true);
             }
             else if (e.PropertyName == nameof(questOptionsViewModel.ResetCommand))

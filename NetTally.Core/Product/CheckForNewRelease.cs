@@ -57,7 +57,6 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     public void Start()
     {
         timer.Change(initialDelay, periodDelay);
-        logger.LogDebug("Timer started");
     }
 
     private async void TimerCallback(object? obj)

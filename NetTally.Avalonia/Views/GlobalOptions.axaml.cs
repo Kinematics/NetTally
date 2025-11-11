@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Styling;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.ViewModels;
 
@@ -39,7 +40,7 @@ namespace NetTally.Avalonia.Views
         {
             if (e.PropertyName == nameof(globalOptionsViewModel.SaveCommand))
             {
-                logger.LogDebug("Global options were saved.");
+                logger.GlobalOptionsSaved();
                 Close();
             }
             else if (e.PropertyName == nameof(globalOptionsViewModel.AvaloniaThemeVariant))
@@ -70,8 +71,7 @@ namespace NetTally.Avalonia.Views
             if (current == globalOptionsViewModel.AvaloniaThemeVariant)
                 return;
 
-            logger.LogDebug("Requested a change in theme from {before} to {after}",
-                current, globalOptionsViewModel.AvaloniaThemeVariant);
+            logger.ThemeChangeRequest(current, globalOptionsViewModel.AvaloniaThemeVariant);
 
             App.Current!.RequestedThemeVariant = globalOptionsViewModel.AvaloniaThemeVariant switch
             {
