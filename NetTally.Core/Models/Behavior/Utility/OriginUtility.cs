@@ -1,6 +1,4 @@
-﻿using NetTally.Configure;
-using NetTally.Models.Mapping;
-using NetTally.Utility.Strings;
+﻿using NetTally.Models.Mapping;
 
 namespace NetTally.Models;
 
@@ -78,24 +76,7 @@ public static class OriginUtility
             userOrigin => userOrigin.Source.GetPostNumber(),
             planOrigin => planOrigin.Source.GetPostNumber());
 
-        /// <summary>
-        /// Gets a formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.
-        /// </summary>
-        /// <param name="origin"></param>
-        /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
-        public string GetBBCodeLink() => origin.GetSource() switch
-        {
-            SourceLocation source => urlTemplate.FormatWith(source.Permalink, origin.GetBBCodeAuthorFormat()),
-            _ => string.Empty
-        };
-
-        private string GetBBCodeAuthorFormat() => origin.Map(
-            noOrigin => string.Empty,
-            userOrigin => userOrigin.UserName.DisplayName,
-            planOrigin => $"{Strings.PlanNameMarker}{planOrigin.PlanName.DisplayName}");
     }
-
-    static readonly string urlTemplate = "[url=\"{0}\"]{1}[/url]";
 }
 
 
