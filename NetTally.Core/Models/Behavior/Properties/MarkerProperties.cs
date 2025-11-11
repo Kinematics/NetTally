@@ -7,7 +7,7 @@ namespace NetTally.Models;
 /// Extension class that provides extensions to <see cref="Marker"/> objects
 /// based on the underlying type.
 /// </summary>
-public static partial class MarkerUtility
+public static partial class MarkerProperties
 {
     extension(Marker marker)
     {

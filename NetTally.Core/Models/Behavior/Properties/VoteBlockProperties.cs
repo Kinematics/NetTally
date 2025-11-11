@@ -1,6 +1,6 @@
 ﻿namespace NetTally.Models;
 
-public static class VoteBlockUtility
+public static class VoteBlockProperties
 {
     extension(VoteBlock voteBlock)
     {

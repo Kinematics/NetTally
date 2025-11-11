@@ -5,7 +5,7 @@ namespace NetTally.Models;
 /// <summary>
 /// Extension methods for <see cref="Origin"/> objects.
 /// </summary>
-public static class OriginUtility
+public static class OriginProperties
 {
     extension(Origin origin)
     {

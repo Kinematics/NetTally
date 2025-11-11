@@ -2,7 +2,7 @@
 
 namespace NetTally.Models;
 
-public static class SourceUtility
+public static class SourceProperties
 {
     extension(Source detail)
     {
