@@ -58,23 +58,23 @@ public static class OriginProperties
 
         public Uri? Thread => origin.Map(
             noOrigin => null,
-            userOrigin => userOrigin.Source.GetThread(),
-            planOrigin => planOrigin.Source.GetThread());
+            userOrigin => userOrigin.Source.Thread,
+            planOrigin => planOrigin.Source.Thread);
 
         public Uri? Permalink => origin.Map(
             noOrigin => null,
-            userOrigin => userOrigin.Source.GetPermalink(),
-            planOrigin => planOrigin.Source.GetPermalink());
+            userOrigin => userOrigin.Source.Permalink,
+            planOrigin => planOrigin.Source.Permalink);
 
         public PostId PostId => origin.Map(
             noOrigin => PostId.None,
-            userOrigin => userOrigin.Source.GetPostId(),
-            planOrigin => planOrigin.Source.GetPostId());
+            userOrigin => userOrigin.Source.PostId,
+            planOrigin => planOrigin.Source.PostId);
 
         public PostNumber PostNumber => origin.Map(
             noOrigin => PostNumber.None,
-            userOrigin => userOrigin.Source.GetPostNumber(),
-            planOrigin => planOrigin.Source.GetPostNumber());
+            userOrigin => userOrigin.Source.PostNumber,
+            planOrigin => planOrigin.Source.PostNumber);
 
     }
 }

@@ -4,22 +4,22 @@ namespace NetTally.Models;
 
 public static class SourceProperties
 {
-    extension(Source detail)
+    extension(Source source)
     {
-        public Uri? GetThread() => detail.Map<Uri?>(
-            noDetail => null,
-            source => source.Thread);
+        public Uri? Thread => source.Map<Uri?>(
+            noSource => null,
+            sourceLocation => sourceLocation.Thread);
 
-        public Uri? GetPermalink() => detail.Map<Uri?>(
-            noDetail => null,
-            source => source.Permalink);
+        public Uri? Permalink => source.Map<Uri?>(
+            noSource => null,
+            sourceLocation => sourceLocation.Permalink);
 
-        public PostId GetPostId() => detail.Map(
-            noDetail => PostId.None,
-            source => source.PostId);
+        public PostId PostId => source.Map(
+            noSource => Models.PostId.None,
+            sourceLocation => sourceLocation.PostId);
 
-        public PostNumber GetPostNumber() => detail.Map(
-            noDetail => PostNumber.None,
-            source => source.PostNumber);
+        public PostNumber PostNumber => source.Map(
+            noSource => Models.PostNumber.None,
+            sourceLocation => sourceLocation.PostNumber);
     }
 }

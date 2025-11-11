@@ -151,15 +151,15 @@ public class SourceTests
 
         var detail = Source.Create(thread, permalink, postId, postNumber);
         Assert.IsNotNull(detail);
-        var detailThread = detail.GetThread();
+        var detailThread = detail.Thread;
         Assert.IsNotNull(detailThread);
         Assert.AreEqual(threadUrl, detailThread.AbsoluteUri);
-        var detailPermalink = detail.GetPermalink();
+        var detailPermalink = detail.Permalink;
         Assert.IsNotNull(detailPermalink);
         Assert.AreEqual(permalinkUrl, detailPermalink.AbsoluteUri);
-        var detailPostId = detail.GetPostId();
+        var detailPostId = detail.PostId;
         Assert.AreEqual(postIdNumber, detailPostId.Value);
-        var detailNumber = detail.GetPostNumber();
+        var detailNumber = detail.PostNumber;
         Assert.AreEqual(threadSeqNumber, detailNumber.Value);
     }
 
@@ -170,13 +170,13 @@ public class SourceTests
         var detail = Source.None;
         Assert.IsNotNull(detail);
 
-        var detailThread = detail.GetThread();
+        var detailThread = detail.Thread;
         Assert.IsNull(detailThread);
-        var detailPermalink = detail.GetPermalink();
+        var detailPermalink = detail.Permalink;
         Assert.IsNull(detailPermalink);
-        var detailPostId = detail.GetPostId();
+        var detailPostId = detail.PostId;
         Assert.AreEqual(PostId.None, detailPostId);
-        var detailNumber = detail.GetPostNumber();
+        var detailNumber = detail.PostNumber;
         Assert.AreEqual(PostNumber.None, detailNumber);
     }
 
