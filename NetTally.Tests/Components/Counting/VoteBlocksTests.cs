@@ -29,8 +29,9 @@ public class VoteBlocksTests
 
         var details = Source.Create(uri, permalink, postId, postNumber);
         var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     [TestMethod]
@@ -617,6 +618,108 @@ public class VoteBlocksTests
 
         Assert.AreEqual(PlanStatus.Plan, result.PlanStatus);
         Assert.AreEqual("Kinematics", result.PlanName);
+    }
+
+    [TestMethod]
+    public void Check_ChildLines_OneLine_NoChildren()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] First action
+            """;
+
+        var post = Post.Create(origin, text);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        var block = VoteBlock.Create(vote.VoteLines);
+        Assert.AreNotEqual(VoteBlock.Empty, block);
+
+        Assert.IsFalse(block.HasChildLines);
+    }
+
+    [TestMethod]
+    public void Check_ChildLines_SimpleBlock_WithChildren()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] First action
+            -[X] With detail
+            """;
+
+        var post = Post.Create(origin, text);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        var block = VoteBlock.Create(vote.VoteLines);
+        Assert.AreNotEqual(VoteBlock.Empty, block);
+
+        Assert.IsTrue(block.HasChildLines);
+    }
+
+    [TestMethod]
+    public void Check_ChildLines_MultiBlock_NoChildren()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] First action
+            -[X] With detail
+            [X] Second action
+            -[X] More detail
+            """;
+
+        var post = Post.Create(origin, text);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        var block = VoteBlock.Create(vote.VoteLines);
+        Assert.AreNotEqual(VoteBlock.Empty, block);
+
+        Assert.IsFalse(block.HasChildLines);
+    }
+
+    [TestMethod]
+    public void Check_ChildLines_LabeledPlan_NoChildren()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] Plan BigO
+            [X] With detail 1
+            [X] With detail 2
+            [X] With detail 3
+            [X] With detail 4
+            """;
+
+        var post = Post.Create(origin, text);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        var block = VoteBlock.Create(vote.VoteLines);
+        Assert.AreNotEqual(VoteBlock.Empty, block);
+
+        Assert.IsFalse(block.HasChildLines);
+    }
+
+    [TestMethod]
+    public void Check_ChildLines_NormalPlan_WithChildren()
+    {
+        var origin = GetOrigin1();
+        var text = """
+            [X] Plan BigO
+            -[X] With detail 1
+            -[X] With detail 2
+            --[X] With detail 3
+            -[X] With detail 4
+            """;
+
+        var post = Post.Create(origin, text);
+        var vote = Vote.Create(post);
+        Assert.IsNotNull(vote);
+
+        var block = VoteBlock.Create(vote.VoteLines);
+        Assert.AreNotEqual(VoteBlock.Empty, block);
+
+        Assert.IsTrue(block.HasChildLines);
     }
 
 }
