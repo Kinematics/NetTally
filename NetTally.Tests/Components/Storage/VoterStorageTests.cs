@@ -131,7 +131,7 @@ public class VoterStorageTests
         voterStorage.Add(origin, vote);
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -146,7 +146,7 @@ public class VoterStorageTests
         Assert.ThrowsExactly<ArgumentException>(() => voterStorage.Add(origin, vote));
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -161,7 +161,7 @@ public class VoterStorageTests
         voterStorage[origin] = vote;
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -176,7 +176,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(added);
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -192,7 +192,7 @@ public class VoterStorageTests
 
         Assert.IsFalse(added);
         Assert.IsTrue(voterStorage.HasIdentity(origin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -208,7 +208,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(removed);
         Assert.IsFalse(voterStorage.HasIdentity(origin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(0, voterStorage.Count);
     }
 
@@ -226,7 +226,7 @@ public class VoterStorageTests
         Assert.IsTrue(removed);
         Assert.IsTrue(VoteBlockComparer.Instance.Equals(vote, removedVote));
         Assert.IsFalse(voterStorage.HasIdentity(origin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(0, voterStorage.Count);
     }
 
@@ -237,7 +237,7 @@ public class VoterStorageTests
         var origin = post.Origin;
         var vote = GetVote(post);
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.Source);
 
         Assert.IsNotNull(planOrigin);
 
@@ -245,7 +245,7 @@ public class VoterStorageTests
 
         Assert.IsFalse(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasIdentity(planOrigin));
-        Assert.IsFalse(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.IsTrue(voterStorage.HasPlan(planName));
         Assert.AreEqual(1, voterStorage.Count);
     }
@@ -256,7 +256,7 @@ public class VoterStorageTests
         var post = GetPost_Kinematics();
         var origin = post.Origin;
         var vote = GetVote(post);
-        var simpleOrigin = Origin.CreateUser(origin.GetName());
+        var simpleOrigin = Origin.CreateUser(origin.Name);
 
         Assert.IsNotNull(simpleOrigin);
 
@@ -264,7 +264,7 @@ public class VoterStorageTests
 
         Assert.IsTrue(voterStorage.HasIdentity(origin));
         Assert.IsTrue(voterStorage.HasIdentity(simpleOrigin));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
         Assert.AreEqual(1, voterStorage.Count);
     }
 
@@ -276,10 +276,10 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.Source);
         Assert.IsNotNull(planOrigin);
 
-        var simpleOrigin = Origin.CreatePlan(planOrigin.GetName());
+        var simpleOrigin = Origin.CreatePlan(planOrigin.Name);
         Assert.IsNotNull(simpleOrigin);
 
         voterStorage.Add(planOrigin, vote);
@@ -297,7 +297,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.Source);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();
@@ -313,11 +313,11 @@ public class VoterStorageTests
         voterStorage.Add(user5, vote);
 
         Assert.IsTrue(voterStorage.HasPlan(planName));
-        Assert.IsTrue(voterStorage.HasVoter(origin.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user2.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user3.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user4.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user5.GetName().DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(origin.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user2.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user3.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user4.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user5.Name.DisplayName));
         Assert.AreEqual(6, voterStorage.Count);
     }
 
@@ -329,7 +329,7 @@ public class VoterStorageTests
         var vote = GetVote(post);
 
         var planName = Author.Create("Zoom");
-        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.GetSource());
+        var planOrigin = Origin.CreatePlan(planName, origin.Author, origin.Source);
         Assert.IsNotNull(planOrigin);
 
         var user2 = GetOrigin_Atreya();
@@ -346,11 +346,11 @@ public class VoterStorageTests
         voterStorage.Add(user5, vote);
 
         Assert.IsTrue(voterStorage.HasPlan(planName));
-        Assert.IsFalse(voterStorage.HasVoter(origin.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user2.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user3.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user4.GetName().DisplayName));
-        Assert.IsTrue(voterStorage.HasVoter(user5.GetName().DisplayName));
+        Assert.IsFalse(voterStorage.HasVoter(origin.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user2.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user3.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user4.Name.DisplayName));
+        Assert.IsTrue(voterStorage.HasVoter(user5.Name.DisplayName));
         Assert.AreEqual(5, voterStorage.Count);
     }
 }

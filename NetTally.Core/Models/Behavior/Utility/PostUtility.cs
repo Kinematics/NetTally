@@ -50,7 +50,7 @@ public static class PostUtility
         /// <returns><c>True</c> if the username filter matches. Otherwise <c>false</c>.</returns>
         public bool MatchesUsernameFilter(Quest quest)
         {
-            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.GetName().DisplayName);
+            return quest.UseCustomUsernameFilters && quest.UsernameFilter.Blocks(post.Origin.Name.DisplayName);
         }
 
         /// <summary>

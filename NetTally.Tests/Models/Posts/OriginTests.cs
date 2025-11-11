@@ -289,7 +289,7 @@ public class OriginTests
 
         Assert.IsNotNull(origin);
         Assert.IsTrue(origin is UserOrigin);
-        Assert.AreEqual(author, origin.GetName());
+        Assert.AreEqual(author, origin.Name);
         Assert.AreEqual(thread, origin.Thread);
         Assert.AreEqual(permalink, origin.Permalink);
         Assert.AreEqual(postId, origin.PostId);
@@ -401,7 +401,7 @@ public class OriginTests
         Assert.IsNotNull(origin2);
 
         Assert.AreNotEqual(origin1, origin2, OriginComparer.Instance);
-        Assert.AreEqual(origin1.GetSource(), origin2.GetSource(), SourceComparer.Instance);
+        Assert.AreEqual(origin1.Source, origin2.Source, SourceComparer.Instance);
     }
 
     [TestMethod]
@@ -414,9 +414,9 @@ public class OriginTests
         var origin1 = Origin.CreateUser(author, details);
         Assert.IsNotNull(origin1);
 
-        var origin2 = Origin.CreatePlan(plan, author, origin1.GetSource());
+        var origin2 = Origin.CreatePlan(plan, author, origin1.Source);
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.CreatePlan(plan, author, origin1.GetSource());
+        var origin3 = Origin.CreatePlan(plan, author, origin1.Source);
         Assert.IsNotNull(origin3);
 
         Assert.AreEqual(origin2, origin3, OriginComparer.Instance);
@@ -434,9 +434,9 @@ public class OriginTests
 
         Author? plan1 = Author.Create("Nightlife");
         Author? plan2 = Author.Create("Beach Trip");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.Source);
         Assert.IsNotNull(origin2);
-        var origin3 = Origin.CreatePlan(plan2, author, origin1.GetSource());
+        var origin3 = Origin.CreatePlan(plan2, author, origin1.Source);
         Assert.IsNotNull(origin3);
 
         Assert.AreNotEqual(origin2, origin3, OriginComparer.Instance);
@@ -519,7 +519,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         Author? plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.Source);
         Assert.IsNotNull(origin2);
 
         var origin3 = Origin.CreatePlan(plan1);
@@ -539,7 +539,7 @@ public class OriginTests
         Assert.IsNotNull(origin1);
 
         Author? plan1 = Author.Create("Nightlife");
-        var origin2 = Origin.CreatePlan(plan1, author, origin1.GetSource());
+        var origin2 = Origin.CreatePlan(plan1, author, origin1.Source);
         Assert.IsNotNull(origin2);
 
         Author? plan2 = Author.Create("Nightlife~!");
@@ -658,7 +658,7 @@ public class OriginTests
     {
         var origin = GetNoOrigin();
 
-        Assert.AreEqual(Author.None, origin.GetName());
+        Assert.AreEqual(Author.None, origin.Name);
     }
 
     [TestMethod]
@@ -667,7 +667,7 @@ public class OriginTests
         var defaults = GetDefaultGeneral();
         var origin = GetUserOrigin();
 
-        Assert.AreEqual(defaults.author, origin.GetName());
+        Assert.AreEqual(defaults.author, origin.Name);
     }
 
     [TestMethod]
@@ -676,7 +676,7 @@ public class OriginTests
         var defaults = GetDefaultGeneral();
         var origin = GetUserNameOrigin();
 
-        Assert.AreEqual(defaults.author, origin.GetName());
+        Assert.AreEqual(defaults.author, origin.Name);
     }
 
 
@@ -686,7 +686,7 @@ public class OriginTests
         var defaults = GetDefaultGeneral();
         var origin = GetPlanOrigin();
 
-        Assert.AreEqual(defaults.plan, origin.GetName());
+        Assert.AreEqual(defaults.plan, origin.Name);
     }
 
     [TestMethod]
@@ -695,7 +695,7 @@ public class OriginTests
         var defaults = GetDefaultGeneral();
         var origin = GetPlanNameOrigin();
 
-        Assert.AreEqual(defaults.plan, origin.GetName());
+        Assert.AreEqual(defaults.plan, origin.Name);
     }
 
     [TestMethod]
@@ -748,7 +748,7 @@ public class OriginTests
     {
         var origin = GetNoOrigin();
 
-        Assert.AreEqual(Source.None, origin.GetSource());
+        Assert.AreEqual(Source.None, origin.Source);
     }
 
     [TestMethod]
@@ -758,7 +758,7 @@ public class OriginTests
         var detail = GetOriginSource();
         var origin = GetUserOrigin();
 
-        Assert.AreEqual(detail, origin.GetSource());
+        Assert.AreEqual(detail, origin.Source);
     }
 
     [TestMethod]
@@ -768,7 +768,7 @@ public class OriginTests
         var detail = GetOriginSource();
         var origin = GetUserNameOrigin();
 
-        Assert.AreEqual(Source.None, origin.GetSource());
+        Assert.AreEqual(Source.None, origin.Source);
     }
 
 
@@ -779,7 +779,7 @@ public class OriginTests
         var detail = GetOriginSource();
         var origin = GetPlanOrigin();
 
-        Assert.AreEqual(detail, origin.GetSource());
+        Assert.AreEqual(detail, origin.Source);
     }
 
     [TestMethod]
@@ -789,7 +789,7 @@ public class OriginTests
         var detail = GetOriginSource();
         var origin = GetPlanNameOrigin();
 
-        Assert.AreEqual(Source.None, origin.GetSource());
+        Assert.AreEqual(Source.None, origin.Source);
     }
 
     [TestMethod]

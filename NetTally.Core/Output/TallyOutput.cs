@@ -790,11 +790,11 @@ public class TallyOutput(IOptions<GlobalSettings> globalSettings) : ITextResults
     {
         if (voter is PlanOrigin)
         {
-            sb.AppendLine($"[b][{marker}] Plan: [url=\"{voter.Permalink}\"]{voter.GetName().DisplayName}[/url][/b]");
+            sb.AppendLine($"[b][{marker}] Plan: [url=\"{voter.Permalink}\"]{voter.Name.DisplayName}[/url][/b]");
         }
         else
         {
-            sb.AppendLine($"[{marker}] [url=\"{voter.Permalink}\"]{voter.GetName().DisplayName}[/url]");
+            sb.AppendLine($"[{marker}] [url=\"{voter.Permalink}\"]{voter.Name.DisplayName}[/url]");
         }
     }
 

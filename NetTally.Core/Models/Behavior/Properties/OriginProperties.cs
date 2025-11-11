@@ -31,7 +31,7 @@ public static class OriginProperties
         /// </summary>
         /// <param name="origin"></param>
         /// <returns>The <see cref="Author"/> of the <see cref="Origin"/>.</returns>
-        public Author GetName() => origin.Map(
+        public Author Name => origin.Map(
             noOrigin => Author.None,
             userOrigin => userOrigin.UserName,
             planOrigin => planOrigin.PlanName);
@@ -51,7 +51,7 @@ public static class OriginProperties
         /// </summary>
         /// <param name="origin">The Origin of the <see cref="Origin"/>, if any.</param>
         /// <returns></returns>
-        public Source GetSource() => origin.Map(
+        public Source Source => origin.Map(
             noOrigin => Source.None,
             userOrigin => userOrigin.Source,
             planOrigin => planOrigin.Source);

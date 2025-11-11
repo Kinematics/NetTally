@@ -453,7 +453,7 @@ public class VoteConstructorVoteTests
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,
-            vote.Origin.GetName(),
+            vote.Origin.Name,
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -482,7 +482,7 @@ public class VoteConstructorVoteTests
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,
-            vote.Origin.GetName(),
+            vote.Origin.Name,
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -511,7 +511,7 @@ public class VoteConstructorVoteTests
 
         var processed = VoteConstructor.PreprocessPostGetPlans(
             quest,
-            vote.Origin.GetName(),
+            vote.Origin.Name,
             VoteBlocks.IsBlockAnExplicitPlan,
             blocks);
 

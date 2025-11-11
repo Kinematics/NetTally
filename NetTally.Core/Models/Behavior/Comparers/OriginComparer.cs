@@ -23,12 +23,12 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
         static int CompareWithDetails(Origin x, Origin y)
         {
-            int result = AuthorComparer.Instance.Compare(x.GetName(), y.GetName());
+            int result = AuthorComparer.Instance.Compare(x.Name, y.Name);
 
             if (result == 0)
             {
-                var xSource = x.GetSource();
-                var ySource = y.GetSource();
+                var xSource = x.Source;
+                var ySource = y.Source;
 
                 if (xSource is not NoSource &&  ySource is not NoSource)
                     result = SourceComparer.Instance.Compare(xSource, ySource);
@@ -54,7 +54,7 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
     public int GetHashCode([DisallowNull] Origin obj)
     {
-        return AuthorComparer.Instance.GetHashCode(obj.GetName());
+        return AuthorComparer.Instance.GetHashCode(obj.Name);
     }
 }
 

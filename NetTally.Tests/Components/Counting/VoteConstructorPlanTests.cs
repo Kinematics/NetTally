@@ -62,7 +62,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
             sampleQuest,
-            vote.Origin.GetName(),
+            vote.Origin.Name,
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -89,7 +89,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
             sampleQuest,
-            vote.Origin.GetName(),
+            vote.Origin.Name,
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
@@ -117,7 +117,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -146,7 +146,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -173,7 +173,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -202,7 +202,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -234,7 +234,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
@@ -266,7 +266,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -294,7 +294,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -323,7 +323,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -350,7 +350,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -379,7 +379,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -411,7 +411,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
@@ -443,7 +443,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -471,7 +471,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -499,7 +499,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -526,7 +526,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -555,7 +555,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -584,7 +584,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
@@ -616,7 +616,7 @@ public class VoteConstructorPlanTests
 
         var plans = VoteConstructor.PreprocessPostGetPlans(
            sampleQuest,
-           vote.Origin.GetName(),
+           vote.Origin.Name,
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 

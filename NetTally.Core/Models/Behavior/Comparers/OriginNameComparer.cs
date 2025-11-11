@@ -18,7 +18,7 @@ public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
             (_, NoOrigin) => -1,
             (PlanOrigin, UserOrigin) => -1,
             (UserOrigin, PlanOrigin) => 1,
-            _ => AuthorComparer.Instance.Compare(x.GetName(), y.GetName())
+            _ => AuthorComparer.Instance.Compare(x.Name, y.Name)
         };
     }
 
@@ -40,7 +40,7 @@ public class OriginNameComparer : IEqualityComparer<Origin>, IComparer<Origin>
 
     public int GetHashCode([DisallowNull] Origin obj)
     {
-        return AuthorComparer.Instance.GetHashCode(obj.GetName());
+        return AuthorComparer.Instance.GetHashCode(obj.Name);
     }
 }
 

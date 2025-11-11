@@ -12,7 +12,7 @@ public static class OriginDisplay
         /// </summary>
         /// <param name="origin"></param>
         /// <returns>A formatted BBCode string containing the URL for the <see cref="Origin"/>'s author.</returns>
-        public string GetBBCodeLink() => origin.GetSource().GetBBCodeLink(origin.GetBBCodeAuthorFormat());
+        public string GetBBCodeLink() => origin.Source.GetBBCodeLink(origin.GetBBCodeAuthorFormat());
 
         private string GetBBCodeAuthorFormat() => origin.Map(
             noOrigin => string.Empty,

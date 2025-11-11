@@ -369,7 +369,7 @@ public class VoteCounter(
         if (actualOrigin != null)
         {
             return VotesToProcess
-                .Where(p => AuthorComparer.Instance.Equals(actualOrigin.GetName(), p.Origin.GetName()) &&
+                .Where(p => AuthorComparer.Instance.Equals(actualOrigin.Name, p.Origin.Name) &&
                             (maxPostId == PostId.None || PostIdComparer.Instance.Compare(p.Origin.PostId, maxPostId) < 0))
                 .MaxBy(p => p.Origin.PostId, PostIdComparer.Instance);
 
@@ -1039,14 +1039,14 @@ public class VoteCounter(
             {
                 VoteConstructor.PreprocessPostGetPlans(
                     Quest,
-                    p.Origin.GetName(),
+                    p.Origin.Name,
                     pp.isPlanFunction,
                     pp.voteToBlocks(p))
                 .Select(pl => NormalizePlan(pl.Key, pl.Value))
                 .Where(a => a.HasValue)
                 .Select(a => a!.Value)
                 .Select(a => (a.Contents,
-                              Origin: Origin.CreatePlan(Author.Create(a.Name), p.Origin.Author, p.Origin.GetSource())))
+                              Origin: Origin.CreatePlan(Author.Create(a.Name), p.Origin.Author, p.Origin.Source)))
                 .Where(a => AddReferencePlan(a.Origin, a.Contents))
                 .Select(a => (Partitions: VoteConstructor.PartitionPlan(a.Contents, Quest.PartitionMode),
                               a.Origin))
