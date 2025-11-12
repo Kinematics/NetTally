@@ -148,7 +148,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.HasCount(1, votes    );
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 

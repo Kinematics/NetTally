@@ -30,7 +30,7 @@ public class OriginComparer : IEqualityComparer<Origin>, IComparer<Origin>
                 var xSource = x.Source;
                 var ySource = y.Source;
 
-                if (xSource is not NoSource &&  ySource is not NoSource)
+                if (xSource is not NoSource && ySource is not NoSource)
                     result = SourceComparer.Instance.Compare(xSource, ySource);
             }
 

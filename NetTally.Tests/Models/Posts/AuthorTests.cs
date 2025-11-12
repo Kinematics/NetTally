@@ -60,7 +60,7 @@ public class AuthorTests
         var author = Author.Create("Kinematics");
         Assert.IsNotNull(author);
         Assert.IsTrue(author is NamedAuthor);
-        if (author is  NamedAuthor na)
+        if (author is NamedAuthor na)
         {
             Assert.AreEqual("Kinematics", na.Name);
         }
@@ -470,7 +470,7 @@ public class AuthorTests
 
     [TestMethod]
     [TestCategory("Extensions")]
-    public void Utility_Rename_Unknown_Fail ()
+    public void Utility_Rename_Unknown_Fail()
     {
         string to = "";
 
