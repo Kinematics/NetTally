@@ -30,5 +30,6 @@ public static partial class Strings
     public const string UntitledThread = "~Untitled~";
     public const string UnknownAuthor = "⟦Unknown⟧";
     public const string NoAuthor = "⟦None⟧";
-    public const string NoTask = "⟦NONE⟧";
+    public const string NoTask = "【NONE】";
+    public const string NoTask1 = "⟦NONE⟧";
 }
