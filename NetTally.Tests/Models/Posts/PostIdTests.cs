@@ -105,7 +105,9 @@ public class PostIdTests
         var postId = PostId.Create("4,294,967,296");
         Assert.IsNotNull(postId);
         Assert.AreEqual(4294967296, postId.Value);
-        Assert.IsTrue(postId.Value == 4294967296);
+#pragma warning disable MSTEST0037 // Use proper 'Assert' methods
+        Assert.IsTrue(postId == 4294967296);
+#pragma warning restore MSTEST0037 // Use proper 'Assert' methods
     }
 
 }

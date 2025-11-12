@@ -294,7 +294,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(2, votes.First().LineCount);
     }
@@ -308,7 +308,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(2, votes.First().LineCount);
     }
@@ -322,7 +322,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(3, votes.First().LineCount);
     }
@@ -336,7 +336,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -350,7 +350,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -364,7 +364,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(2, votes.First().LineCount);
     }
@@ -378,7 +378,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -392,7 +392,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -406,7 +406,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -422,7 +422,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -438,7 +438,7 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("Action", votes.First().Task.Name);
         Assert.AreEqual(1, votes.First().LineCount);
     }
@@ -467,7 +467,7 @@ public class VoteConstructorVoteTests
 
         Assert.AreEqual(name, normName);
         Assert.AreEqual("", normContent.Task.Name);
-        Assert.AreEqual(4, normContent.LineCount);
+        Assert.HasCount(4, normContent);
         Assert.AreEqual("Sound of Music", normName);
         Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
     }
@@ -496,7 +496,7 @@ public class VoteConstructorVoteTests
 
         Assert.AreEqual(name, normName);
         Assert.AreEqual("", normContent.Task.Name);
-        Assert.AreEqual(4, normContent.LineCount);
+        Assert.HasCount(4, normContent);
         Assert.AreEqual("Sound of Music", normName);
         Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
     }
@@ -525,7 +525,7 @@ public class VoteConstructorVoteTests
 
         Assert.AreEqual(name, normName);
         Assert.AreEqual("", normContent.Task.Name);
-        Assert.AreEqual(4, normContent.LineCount);
+        Assert.HasCount(4, normContent);
         Assert.AreEqual("Sound of Music", normName);
         Assert.AreEqual("Plan: Sound of Music", normContent.Lines[0].Content.CleanContent);
     }
@@ -541,9 +541,9 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(7, votes.Count);
+        Assert.HasCount(7, votes);
         Assert.AreEqual("", votes[0].Task.Name);
-        Assert.AreEqual(1, votes[0].LineCount);
+        Assert.HasCount(1, votes[0]);
     }
 
     [TestMethod]
@@ -555,11 +555,11 @@ public class VoteConstructorVoteTests
         var processed = VoteConstructor.TryProcessPostGetVotes(vote, quest, out var votes);
 
         Assert.IsTrue(processed);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("", votes.First().Task.Name);
-        Assert.AreEqual(1, votes[0].LineCount);
-        Assert.AreEqual(1, votes[1].LineCount);
-        Assert.AreEqual(5, votes[2].LineCount);
+        Assert.HasCount(1, votes[0]);
+        Assert.HasCount(1, votes[1]);
+        Assert.HasCount(5, votes[2]);
     }
 
     [TestMethod]

@@ -145,7 +145,7 @@ namespace NetTally.Tests.Input
 
             Assert.IsNotNull(result);
             Assert.IsTrue(Uri.IsWellFormedUriString(result, UriKind.Absolute));
-            Assert.IsFalse(result.EndsWith("latest"));
+            Assert.DoesNotEndWith("latest", result);
         }
 
         [TestMethod]

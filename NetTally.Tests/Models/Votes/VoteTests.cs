@@ -14,7 +14,7 @@ public class VoteTests
         TestStartup.ConfigureServices();
     }
 
-    private Origin? GetOrigin()
+    private static Origin? GetOrigin()
     {
         Author? author = Author.Create("Kinematics");
         var postId = PostId.Create(1234567);
@@ -27,7 +27,7 @@ public class VoteTests
         return origin;
     }
 
-    private Post? GetNonVotePost()
+    private static Post? GetNonVotePost()
     {
         var origin = GetOrigin();
         var post = Post.Create(origin, """
@@ -38,7 +38,7 @@ public class VoteTests
         return post;
     }
 
-    private Post? GetVotePost()
+    private static Post? GetVotePost()
     {
         var origin = GetOrigin();
         var post = Post.Create(origin, """
@@ -73,7 +73,7 @@ public class VoteTests
 
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(1, vote.VoteLines.Count);
+        Assert.HasCount(1, vote.VoteLines);
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class VoteTests
 
         var vote = Vote.Create(origin, voteLines);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(1, vote.VoteLines.Count);
+        Assert.HasCount(1, vote.VoteLines);
     }
 
     [TestMethod]
@@ -142,6 +142,6 @@ public class VoteTests
         var vote = Vote.Create(post);
         var voteToProcess = Vote.CreateToProcess(vote);
         Assert.IsNotNull(voteToProcess);
-        Assert.AreEqual(1, voteToProcess.VoteLines.Count);
+        Assert.HasCount(1, voteToProcess.VoteLines);
     }
 }

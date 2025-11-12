@@ -252,7 +252,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -265,7 +265,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -279,7 +279,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(2, voteLines.Count);
+        Assert.HasCount(2, voteLines);
 
         Assert.AreEqual("--[X] A line of stuff", voteLines[1].DisplayOutput());
     }
@@ -292,7 +292,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -305,7 +305,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[X][Reward] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -318,7 +318,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[#7] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -331,7 +331,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[77%] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -344,7 +344,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
     }
@@ -357,7 +357,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[] A line of stuff", voteLines[0].DisplayComparable());
     }
@@ -371,7 +371,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(2, voteLines.Count);
+        Assert.HasCount(2, voteLines);
 
         Assert.AreEqual("-[] With other stuff", voteLines[1].DisplayComparable());
     }
@@ -384,7 +384,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[] A line of stuff", voteLines[0].DisplayComparable());
     }
@@ -397,7 +397,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[][Today] A line of stuff", voteLines[0].DisplayComparable());
     }
@@ -410,7 +410,7 @@ public class VoteLineTests
             """;
         var voteLines = VoteParser.ExtractVoteLines(text);
 
-        Assert.AreEqual(1, voteLines.Count);
+        Assert.HasCount(1, voteLines);
 
         Assert.AreEqual("[][Today] A line of stuff", voteLines[0].DisplayComparable());
     }

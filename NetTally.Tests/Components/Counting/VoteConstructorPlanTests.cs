@@ -56,7 +56,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -66,7 +66,7 @@ public class VoteConstructorPlanTests
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -93,7 +93,7 @@ public class VoteConstructorPlanTests
             VoteBlocks.IsBlockAProposedPlan,
             blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -111,7 +111,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -121,7 +121,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
     }
 
@@ -140,7 +140,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -150,7 +150,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
     }
 
@@ -167,7 +167,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(1, vote.VoteLines.Count);
+        Assert.HasCount(1, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -177,7 +177,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -196,7 +196,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(3, vote.VoteLines.Count);
+        Assert.HasCount(3, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -206,7 +206,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
         Assert.AreEqual(2, plans.First().Value.Count());
     }
@@ -228,7 +228,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(4, vote.VoteLines.Count);
+        Assert.HasCount(4, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -238,7 +238,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAProposedPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
         Assert.AreEqual(2, plans.First().Value.Count());
     }
@@ -260,7 +260,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -270,7 +270,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -288,7 +288,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -298,7 +298,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
     }
 
@@ -317,7 +317,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -327,7 +327,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
     }
 
@@ -344,7 +344,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(1, vote.VoteLines.Count);
+        Assert.HasCount(1, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -354,7 +354,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -373,7 +373,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(3, vote.VoteLines.Count);
+        Assert.HasCount(3, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -383,7 +383,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
         Assert.AreEqual(2, plans.First().Value.Count());
     }
@@ -405,7 +405,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(4, vote.VoteLines.Count);
+        Assert.HasCount(4, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -415,7 +415,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnExplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
         Assert.AreEqual(2, plans.First().Value.Count());
     }
@@ -437,7 +437,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -447,7 +447,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -465,7 +465,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -475,7 +475,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -493,7 +493,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(2, vote.VoteLines.Count);
+        Assert.HasCount(2, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteAsBlock(vote.VoteLines);
 
@@ -503,7 +503,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
     }
 
@@ -520,7 +520,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(1, vote.VoteLines.Count);
+        Assert.HasCount(1, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -530,7 +530,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -549,7 +549,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(3, vote.VoteLines.Count);
+        Assert.HasCount(3, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -559,7 +559,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
 
     [TestMethod]
@@ -578,7 +578,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(3, vote.VoteLines.Count);
+        Assert.HasCount(3, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteAsBlock(vote.VoteLines);
 
@@ -588,7 +588,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Cyclops", plans.First().Key);
         Assert.AreEqual(3, plans.First().Value.Count());
     }
@@ -610,7 +610,7 @@ public class VoteConstructorPlanTests
         var post = Post.Create(origin, postText);
         var vote = Vote.Create(post);
         Assert.IsNotNull(vote);
-        Assert.AreEqual(4, vote.VoteLines.Count);
+        Assert.HasCount(4, vote.VoteLines);
 
         var blocks = VoteCounter.GetVoteBlocks(vote.VoteLines);
 
@@ -620,7 +620,7 @@ public class VoteConstructorPlanTests
            VoteBlocks.IsBlockAnImplicitPlan,
            blocks);
 
-        Assert.AreEqual(0, plans.Count);
+        Assert.IsEmpty(plans);
     }
     #endregion
 }

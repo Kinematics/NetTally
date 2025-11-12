@@ -58,7 +58,7 @@ public class ThreadRangeTests
         Assert.IsTrue(range is ThreadRangeByStartingPost);
         var postsRange = range as ThreadRangeByStartingPost;
         Assert.IsNotNull(postsRange);
-        Assert.IsTrue(postsRange.StartPostNumber == 123);
+        Assert.AreEqual(123, postsRange.StartPostNumber.Value);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(10, range.EndPage);
     }
@@ -73,7 +73,7 @@ public class ThreadRangeTests
         Assert.IsTrue(range is ThreadRangeByStartingPost);
         var postsRange = range as ThreadRangeByStartingPost;
         Assert.IsNotNull(postsRange);
-        Assert.IsTrue(postsRange.StartPostNumber == 123);
+        Assert.AreEqual(123, postsRange.StartPostNumber.Value);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(10, range.EndPage);
     }
@@ -88,8 +88,8 @@ public class ThreadRangeTests
         Assert.IsTrue(range is ThreadRangeByPostRange);
         var postsRange = range as ThreadRangeByPostRange;
         Assert.IsNotNull(postsRange);
-        Assert.IsTrue(postsRange.StartPostNumber == 123);
-        Assert.IsTrue(postsRange.EndPostNumber == 180);
+        Assert.AreEqual(123, postsRange.StartPostNumber.Value);
+        Assert.AreEqual(180, postsRange.EndPostNumber.Value);
         Assert.AreEqual(5, range.StartPage);
         Assert.AreEqual(8, range.EndPage);
     }

@@ -105,7 +105,9 @@ public class PostNumberTests
         var postNumber = PostNumber.Create("4,294,967,296");
         Assert.IsNotNull(postNumber);
         Assert.AreEqual(4294967296, postNumber.Value);
+#pragma warning disable MSTEST0037 // Use proper 'Assert' methods
         Assert.IsTrue(postNumber.Value == 4294967296);
+#pragma warning restore MSTEST0037 // Use proper 'Assert' methods
     }
 
 }

@@ -211,13 +211,19 @@ public class SourceTests
         Assert.IsNotNull(detail1);
         var detail2 = Source.None;
 
+#pragma warning disable MSTEST0032 // Assertion condition is always true
+#pragma warning disable MSTEST0037 // Use proper 'Assert' methods
         Assert.AreEqual(null, null, SourceComparer.Instance);
+#pragma warning restore MSTEST0032 // Assertion condition is always true
+        Assert.AreNotEqual(null, detail2, SourceComparer.Instance);
+        Assert.AreNotEqual(null, detail1, SourceComparer.Instance);
+#pragma warning restore MSTEST0037 // Use proper 'Assert' methods
         Assert.AreEqual(detail2, detail2, SourceComparer.Instance);
         Assert.AreEqual(detail1, detail1, SourceComparer.Instance);
-        Assert.AreNotEqual(null, detail2, SourceComparer.Instance);
+#pragma warning disable MSTEST0017 // Assertion arguments should be passed in the correct order
         Assert.AreNotEqual(detail2, null, SourceComparer.Instance);
-        Assert.AreNotEqual(null, detail1, SourceComparer.Instance);
         Assert.AreNotEqual(detail1, null, SourceComparer.Instance);
+#pragma warning restore MSTEST0017 // Assertion arguments should be passed in the correct order
         Assert.AreNotEqual(detail1, detail2, SourceComparer.Instance);
         Assert.AreNotEqual(detail2, detail1, SourceComparer.Instance);
     }

@@ -24,7 +24,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -80,7 +80,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -95,7 +95,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -110,7 +110,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -140,7 +140,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -156,7 +156,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -170,7 +170,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
     #endregion Non-Votes
 
@@ -183,7 +183,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -199,7 +199,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -215,7 +215,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -231,7 +231,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -249,7 +249,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
     }
 
@@ -264,7 +264,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.AreEqual(2, lines[1].Depth);
     }
@@ -280,7 +280,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.AreEqual(2, lines[1].Depth);
     }
@@ -296,7 +296,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.AreEqual(2, lines[1].Depth);
     }
@@ -309,7 +309,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -325,7 +325,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -341,7 +341,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -357,7 +357,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -373,7 +373,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -389,7 +389,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual("one", lines[0].Task.Name);
@@ -408,7 +408,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -424,7 +424,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -440,7 +440,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -456,7 +456,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -471,7 +471,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -487,7 +487,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -509,7 +509,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
     }
 
     [TestMethod]
@@ -526,7 +526,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
     }
 
@@ -544,7 +544,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(5, lines.Count);
+        Assert.HasCount(5, lines);
     }
 
     [TestMethod]
@@ -559,7 +559,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(lines[0].Content.CleanContent, lines[0].Content.Content);
         Assert.AreEqual(lines[1].Content.CleanContent, lines[1].Content.Content);
     }
@@ -576,7 +576,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -596,7 +596,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
         Assert.AreEqual(0, lines[0].Depth);
         Assert.IsTrue(lines[0].Marker is VoteMarker);
         Assert.AreEqual(VoteTask.None, lines[0].Task, VoteTaskComparer.Instance);
@@ -628,7 +628,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -642,7 +642,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -659,7 +659,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(4, lines.Count);
+        Assert.HasCount(4, lines);
         Assert.AreEqual("Plan Air, 『s』Earth, Water,『/s』 Fire", lines[0].Content.Content);
         Assert.AreEqual("Plan Air, Earth, Water, Fire", lines[0].Content.CleanContent);
     }
@@ -672,7 +672,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
         Assert.IsNotNull(lines);
 
-        Assert.AreEqual(1, lines.Count);
+        Assert.HasCount(1, lines);
         var line = lines[0];
 
         Assert.AreEqual(0, line.Depth);
@@ -696,7 +696,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(0, lines.Count);
+        Assert.IsEmpty(lines);
     }
 
     [TestMethod]
@@ -711,7 +711,7 @@ public class VoteParserTests
         var lines = VoteParser.ExtractVoteLines(text);
 
         Assert.IsNotNull(lines);
-        Assert.AreEqual(2, lines.Count);
+        Assert.HasCount(2, lines);
     }
     #endregion Valid Votes
 }

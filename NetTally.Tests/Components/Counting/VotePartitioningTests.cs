@@ -76,7 +76,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -94,7 +94,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -112,7 +112,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -130,7 +130,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -148,7 +148,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes    );
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -166,7 +166,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -184,7 +184,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -202,7 +202,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -220,7 +220,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -238,7 +238,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -256,7 +256,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [] Run Lola Run!
             [] National Geographic
@@ -277,7 +277,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -295,7 +295,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -313,7 +313,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -331,7 +331,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -349,7 +349,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             [] National Geographic
@@ -370,7 +370,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -388,7 +388,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -406,7 +406,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -424,7 +424,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -442,7 +442,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -463,7 +463,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
@@ -481,7 +481,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -502,7 +502,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] National Geographic", VoteBlockDisplay.ToComparableString(votes[1]));
     }
 
@@ -520,7 +520,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -541,7 +541,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -563,7 +563,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("[] Gunbuster", VoteBlockDisplay.ToComparableString(votes[2]));
     }
 
@@ -581,7 +581,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -602,7 +602,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("[][Movie] National Geographic", VoteBlockDisplay.ToComparableString(votes[1]));
     }
 
@@ -620,7 +620,7 @@ public class VotePartitioningTests
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic

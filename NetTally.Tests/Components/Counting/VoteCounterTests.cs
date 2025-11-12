@@ -198,7 +198,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
@@ -231,7 +231,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
@@ -239,7 +239,7 @@ public class VoteCounterTests
 
         allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(0, allVotes.Count);
+        Assert.IsEmpty(allVotes);
     }
 
     public static void Check_Tally_Adds_Plan()
@@ -265,7 +265,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
@@ -275,7 +275,7 @@ public class VoteCounterTests
 
         var vote1a = quest.VoteCounter.GetVotesBy(origin1).ToList();
 
-        Assert.AreEqual(1, vote1a.Count);
+        Assert.HasCount(1, vote1a);
 
         var voters1 = quest.VoteCounter.GetVotersFor(vote1a[0]);
 
@@ -308,7 +308,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
@@ -318,7 +318,7 @@ public class VoteCounterTests
 
         allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(4, allVotes.Count);
+        Assert.HasCount(4, allVotes);
         Assert.AreEqual(1, allVotes[0].LineCount);
         Assert.AreEqual(1, allVotes[1].LineCount);
         Assert.AreEqual(1, allVotes[2].LineCount);
@@ -330,7 +330,7 @@ public class VoteCounterTests
 
         allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
     }
@@ -361,7 +361,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
 
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
@@ -398,7 +398,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
@@ -432,7 +432,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
         Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
@@ -478,7 +478,7 @@ public class VoteCounterTests
 
         var plans = quest.VoteCounter.GetReferencePlans().ToList();
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
@@ -489,7 +489,7 @@ public class VoteCounterTests
 
         plans = [.. quest.VoteCounter.GetReferencePlans()];
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
@@ -500,7 +500,7 @@ public class VoteCounterTests
 
         plans = [.. quest.VoteCounter.GetReferencePlans()];
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Alchemy structure",
             plans[0].Lines[1].Content.CleanContent);
     }
@@ -532,7 +532,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
@@ -564,7 +564,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
@@ -596,7 +596,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
@@ -626,7 +626,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
@@ -669,7 +669,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
 
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual("[] Brogatar's Second post",
@@ -718,7 +718,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
@@ -761,7 +761,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
 
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
@@ -769,9 +769,9 @@ public class VoteCounterTests
         var vote1a = allVotes[0];
         var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1a).ToList();
 
-        Assert.AreEqual(2, voters.Count);
-        Assert.IsTrue(voters.Contains(origin1));
-        Assert.IsTrue(voters.Contains(origin2));
+        Assert.HasCount(2, voters);
+        Assert.Contains(origin1, voters);
+        Assert.Contains(origin2, voters);
     }
 
     public static void Test_Votes_Dont_Match(string text1, string text2)
@@ -801,7 +801,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
@@ -811,8 +811,8 @@ public class VoteCounterTests
         var vote2a = allVotes[1];
         var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2a).ToList();
 
-        Assert.AreEqual(1, voters1.Count);
-        Assert.AreEqual(1, voters2.Count);
+        Assert.HasCount(1, voters1);
+        Assert.HasCount(1, voters2);
     }
 
     [TestMethod]

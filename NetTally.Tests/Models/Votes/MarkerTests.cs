@@ -373,7 +373,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2);
-        Assert.IsTrue(marker1.Value < marker2.Value);
+        Assert.IsLessThan(marker2.Value, marker1.Value);
     }
 
     [TestMethod]
@@ -385,7 +385,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2);
-        Assert.IsTrue(marker1.Value > marker2.Value);
+        Assert.IsGreaterThan(marker2.Value, marker1.Value);
     }
 
     [TestMethod]
@@ -397,7 +397,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2);
-        Assert.IsTrue(marker1.Value < marker2.Value);
+        Assert.IsLessThan(marker2.Value, marker1.Value);
     }
 
     [TestMethod]
@@ -409,7 +409,7 @@ public class MarkerTests
         Assert.IsNotNull(marker2);
 
         Assert.AreNotEqual(marker1, marker2);
-        Assert.IsTrue(marker1.Value > marker2.Value);
+        Assert.IsGreaterThan(marker2.Value, marker1.Value);
     }
 
     [TestMethod]
