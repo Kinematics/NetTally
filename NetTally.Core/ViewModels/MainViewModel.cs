@@ -40,7 +40,7 @@ public partial class MainViewModel : ObservableObject
         checkForNewRelease.PropertyChanged += CheckForNewRelease_PropertyChanged;
     }
 
-    public static string Title => $"{ProductInfo.Name} – {ProductInfo.Version}";
+    public static string Title => $"{ProductInfo.Name} – {ProductInfo.DisplayVersion}";
 
     #region Item Source Properties
     public ObservableCollection<Quest> Quests => questsInfo.Quests;
