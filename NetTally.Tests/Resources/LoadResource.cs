@@ -3,49 +3,45 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTally.Tests
+namespace NetTally.Tests;
+
+public class LoadResource
 {
-    public class LoadResource
+    public static async Task<string?> Read(string filename)
     {
-        public static async Task<string?> Read(string filename)
+        ArgumentNullException.ThrowIfNullOrEmpty(filename);
+
+        FileInfo fi = new(filename);
+
+        byte[]? buffer = null;
+        string? result = null;
+
+        if (fi.Exists)
         {
-            if (string.IsNullOrEmpty(filename))
-                throw new ArgumentNullException(nameof(filename));
-
-            FileInfo fi = new FileInfo(filename);
-
-            byte[]? buffer = null;
-            string? result = null;
-
-            if (fi.Exists)
+            using (var reader = fi.OpenRead())
             {
-                using (var reader = fi.OpenRead())
-                {
-                    buffer = new byte[reader.Length];
+                buffer = new byte[reader.Length];
 
-                    int amountRead = await reader.ReadAsync(buffer.AsMemory(0, (int)reader.Length));
-                }
-
-                if (buffer != null)
-                {
-                    result = Encoding.UTF8.GetString(buffer);
-                }
+                int amountRead = await reader.ReadAsync(buffer.AsMemory(0, (int)reader.Length));
             }
 
-            return result;
+            if (buffer != null)
+            {
+                result = Encoding.UTF8.GetString(buffer);
+            }
         }
 
-        public static async Task Write(string filename, string content)
-        {
-            if (string.IsNullOrEmpty(filename))
-                throw new ArgumentNullException(nameof(filename));
-            if (string.IsNullOrEmpty(content))
-                throw new ArgumentNullException(nameof(content));
+        return result;
+    }
 
-            FileInfo fi = new FileInfo(filename);
+    public static async Task Write(string filename, string content)
+    {
+        ArgumentNullException.ThrowIfNullOrEmpty(filename);
+        ArgumentNullException.ThrowIfNullOrEmpty(content);
 
-            using var sr = fi.AppendText();
-            await sr.WriteAsync(content);
-        }
+        FileInfo fi = new(filename);
+
+        using var sr = fi.AppendText();
+        await sr.WriteAsync(content);
     }
 }

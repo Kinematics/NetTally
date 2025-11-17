@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
+using NetTally.Models;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -53,7 +52,7 @@ public interface IForumAdapter
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    Task<ThreadInfo> GetThreadInfoAsync(
+    Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token);

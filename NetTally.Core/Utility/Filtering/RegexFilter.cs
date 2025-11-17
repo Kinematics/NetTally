@@ -78,5 +78,5 @@ public sealed class RegexFilter : TextFilter
     };
 
     public static TextFilter DefaultThreadmarkFilter { get; } =
-        Block(RegexPattern.Create(Strings.OmakeFilter));
+        Block(RegexPattern.Create(Configure.Strings.OmakeFilter));
 }

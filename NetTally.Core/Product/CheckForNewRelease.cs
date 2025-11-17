@@ -5,6 +5,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using NetTally.Enums;
 using NetTally.Utility.HtmlNodes;
+using NetTally.Utility.Json;
 using NetTally.Web;
 
 namespace NetTally.Product;
@@ -29,12 +30,6 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
     [GeneratedRegex(@"releases/tag/v?(?<tag>.+)$")]
     private static partial Regex ReleasesTagRegex { get; }
-
-    private readonly JsonSerializerOptions jsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-    };
-
 
     public CheckForNewRelease(IPageProvider provider, ILogger<CheckForNewRelease> logger)
     {
@@ -62,7 +57,6 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     public void Start()
     {
         timer.Change(initialDelay, periodDelay);
-        logger.LogDebug("Timer started");
     }
 
     private async void TimerCallback(object? obj)
@@ -129,7 +123,10 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
         if (string.IsNullOrEmpty(json))
             return null;
 
-        var releases = JsonSerializer.Deserialize<List<GithubRelease>>(json, jsonOptions);
+        var releases = JsonSerializer.Deserialize(json,
+            GithubSourceGeneratorContext.Default.ListGithubRelease);
+
+        //var releases = JsonSerializer.Deserialize<List<GithubRelease>>(json, jsonOptions);
 
         if (releases is null)
             return null;
@@ -229,9 +226,9 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
 
         if (releasePage is not null)
         {
-            var body = releasePage.DocumentNode.Element("html").Element("body");
+            var body = releasePage.DocumentNode.Element("html")?.Element("body");
 
-            var appMain = body.GetChildWithClass("application-main");
+            var appMain = body?.GetChildWithClass("application-main");
             var repoContent = appMain?.GetDescendantWithClass("repository-content");
             var releaseEntries = repoContent?.GetDescendantsWithClass("release-entry");
 
@@ -261,7 +258,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     {
         HtmlDocument? doc = await pageProvider.GetHtmlDocumentAsync(githubReleasesPage,
             "Github Releases", CachingMode.NoCache,
-            SuppressNotifications.Yes, CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, CancellationToken.None);
 
         return doc;
     }

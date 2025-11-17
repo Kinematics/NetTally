@@ -1,10 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NetTally.Configure;
+using NetTally.Enums;
 using NetTally.Navigation;
 using NetTally.Product;
 using NetTally.ViewModels;
@@ -18,25 +22,56 @@ namespace NetTally.Views
     {
         private readonly MainViewModel mainViewModel;
         private readonly WPFNavigationService navigationService;
+        private readonly GlobalSettings globalSettings;
         private readonly ILogger<MainWindow> logger;
 
         public MainWindow(
             MainViewModel mainViewModel,
             WPFNavigationService navigationService,
+            IOptions<GlobalSettings> globalSettings,
             ILogger<MainWindow> logger)
         {
             this.mainViewModel = mainViewModel;
             this.navigationService = navigationService;
+            this.globalSettings = globalSettings.Value;
             this.logger = logger;
 
             InitializeComponent();
             DataContext = this.mainViewModel;
 
-            Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
+            Title = MainViewModel.Title;
 
+            this.Loaded += MainWindow_Loaded;
+            this.globalSettings.PropertyChanged += GlobalSettings_PropertyChanged;
             this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
         }
 
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            ApplyTheme(globalSettings.WPFThemeVariant);
+        }
+
+        private void GlobalSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(globalSettings.WPFThemeVariant))
+            {
+                ApplyTheme(globalSettings.WPFThemeVariant);
+            }
+        }
+
+        private static void ApplyTheme(WPFTheme wpfThemeVariant)
+        {
+#pragma warning disable WPF0001
+            Application.Current.ThemeMode = wpfThemeVariant switch
+            {
+                WPFTheme.None => ThemeMode.None,
+                WPFTheme.Light => ThemeMode.Light,
+                WPFTheme.Dark => ThemeMode.Dark,
+                WPFTheme.System => ThemeMode.System,
+                _ => ThemeMode.System
+            };
+#pragma warning restore WPF0001
+        }
 
         #region Event Handlers
         private async void MainViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

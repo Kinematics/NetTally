@@ -6,6 +6,7 @@ using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Utility;
 using NetTally.Utility.Cache;
@@ -101,7 +102,7 @@ public class WebPageProvider : IDisposable, IPageProvider
     #endregion Disposal
 
     #region IPageProvider Methods
-    public async Task<HtmlDocument?> GetHtmlDocumentAsync(
+    public async ValueTask<HtmlDocument?> GetHtmlDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -124,7 +125,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         return htmldoc;
     }
 
-    public async Task<XDocument?> GetXmlDocumentAsync(
+    public async ValueTask<XDocument?> GetXmlDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -146,7 +147,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         return xmlDoc;
     }
 
-    public async Task<string?> GetJsonDocumentAsync(
+    public async ValueTask<string?> GetJsonDocumentAsync(
         string urlString,
         string description,
         CachingMode cachingMode,
@@ -161,13 +162,13 @@ public class WebPageProvider : IDisposable, IPageProvider
         return content;
     }
 
-    public async Task<string> GetRedirectUrlAsync(
+    public async ValueTask<string> GetRedirectUrlAsync(
         string urlString,
         string description,
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogDebug("Requested URL redirect for \"{description}\"", description);
+        logger.RedirectRequested(description);
 
         UrlDescriptions[urlString] = description;
 
@@ -175,9 +176,9 @@ public class WebPageProvider : IDisposable, IPageProvider
             .ConfigureAwait(ConfigureAwaitOptions.None);
 
         if (string.IsNullOrEmpty(responseUri))
-            logger.LogDebug("Redirect request failed for \"{description}\".", description);
+            logger.RedirectFailed(description);
         else
-            logger.LogDebug("Redirect request succeeded. Using {responseUri}", responseUri);
+            logger.RedirectedSucceeded(responseUri);
 
         return responseUri ?? urlString;
     }
@@ -197,8 +198,7 @@ public class WebPageProvider : IDisposable, IPageProvider
         SuppressNotifications suppressNotifications,
         CancellationToken token)
     {
-        logger.LogInformation("Requested {docType} document \"{description}\" ({url})",
-            docType, description, urlString);
+        logger.DocumentRequested(docType, description, urlString);
 
         UrlDescriptions[urlString] = description;
 
@@ -372,7 +372,7 @@ public class WebPageProvider : IDisposable, IPageProvider
             _ => ""
         };
 
-        logger.LogDebug("{msg}", msg);
+        logger.StatusChangeMessage(msg);
 
         if (suppressNotifications == SuppressNotifications.No)
             OnStatusChanged(msg);
@@ -387,12 +387,12 @@ public class WebPageProvider : IDisposable, IPageProvider
 
         if (e.ReachedMaxRetries)
         {
-            logger.LogDebug("Tried: {description} - Attempt {count} - Failed", description, e.RetryCount);
+            logger.RetryFailed(description, e.RetryCount);
             NotifyStatusChange(PageRequestStatusType.Failed, e.Url, description, e.Exception, SuppressNotifications.No);
         }
         else
         {
-            logger.LogDebug("Tried: {description} - Attempt {count} - Retrying", description, e.RetryCount);
+            logger.RetryAgain(description, e.RetryCount);
             NotifyStatusChange(PageRequestStatusType.Retry, e.Url, description, e.Exception, SuppressNotifications.No);
         }
     }

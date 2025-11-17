@@ -33,7 +33,10 @@ public partial class GlobalSettings : ObservableObject
     public partial bool DebugMode { get; set; } = false;
 
     [ObservableProperty]
-    public partial AvaloniaTheme ThemeVariant { get; set; } = AvaloniaTheme.Default;
+    public partial AvaloniaTheme AvaloniaThemeVariant { get; set; } = AvaloniaTheme.Default;
+
+    [ObservableProperty]
+    public partial WPFTheme WPFThemeVariant { get; set; } = WPFTheme.None;
 
     public void UpdateFromLegacySettings(GlobalSettings legacySettings)
     {

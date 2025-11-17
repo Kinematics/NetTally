@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using NetTally.Debugging.Logging;
 
 namespace NetTally.Utility.Cache;
 
@@ -55,7 +56,7 @@ public class CacheService(
     {
         if (memoryCache is MemoryCache cache)
         {
-            logger.LogDebug("Clearing cache. Current count: {count}", cache.Count);
+            logger.ClearingCache(cache.Count);
             cache.Clear();
             return true;
         }

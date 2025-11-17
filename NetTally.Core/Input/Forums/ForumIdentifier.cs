@@ -102,8 +102,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         try
         {
             page = await pageProvider.GetHtmlDocumentAsync(uri.AbsoluteUri, uri.Host,
-                CachingMode.ReadWrite, SuppressNotifications.Yes, token)
-                .ConfigureAwait(ConfigureAwaitOptions.None);
+                CachingMode.ReadWrite, SuppressNotifications.Yes, token);
 
             if (token.IsCancellationRequested)
                 page = null;
@@ -130,7 +129,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         if (doc == null)
             return false;
 
-        return (doc.DocumentNode.Element("html").Id == "XenForo");
+        return (doc.DocumentNode.Element("html")?.Id == "XenForo");
     }
 
     /// <summary>
@@ -143,7 +142,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         if (doc == null)
             return false;
 
-        return (doc.DocumentNode.Element("html").Id == "XF");
+        return (doc.DocumentNode.Element("html")?.Id == "XF");
     }
 
     /// <summary>
@@ -157,10 +156,10 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
             return false;
 
         var html = doc.DocumentNode.Element("html");
-        if (!string.IsNullOrEmpty(html.Id))
+        if (!string.IsNullOrEmpty(html?.Id))
             return false;
 
-        var head = html.Element("head");
+        var head = html?.Element("head");
         if (head != null)
         {
             var generator = head.Elements("meta").FirstOrDefault(a => a.GetAttributeValue("name", "") == "generator");
@@ -197,7 +196,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         if (doc == null)
             return false;
 
-        return doc.DocumentNode.Element("html").Element("body")?.Id == "vb-page-body";
+        return doc.DocumentNode.Element("html")?.Element("body")?.Id == "vb-page-body";
     }
 
     /// <summary>
@@ -210,7 +209,7 @@ public class ForumIdentifier(IPageProvider pageProvider, ILogger<ForumIdentifier
         if (doc == null)
             return false;
 
-        return doc.DocumentNode.Element("html").Element("body")?.Id == "phpbb";
+        return doc.DocumentNode.Element("html")?.Element("body")?.Id == "phpbb";
     }
 
     /// <summary>

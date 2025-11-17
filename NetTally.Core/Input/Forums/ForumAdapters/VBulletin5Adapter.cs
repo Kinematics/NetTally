@@ -5,9 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -58,8 +57,7 @@ public partial class VBulletin5Adapter(
     /// <returns>Returns a URL for the page requested.</returns>
     public string GetUrlForPage(Quest quest, int page)
     {
-        if (page < 1)
-            throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
         // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire
         // https://fandompost.vbulletin.net/forum/anime-manga-discussions/general-anime-discussions/735828-kyoto-animation-fire/page2
@@ -98,14 +96,14 @@ public partial class VBulletin5Adapter(
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    public async Task<ThreadInfo> GetThreadInfoAsync(
+    public async Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token)
     {
         var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-        if (infoPage == null) return ThreadInfos.None;
+        if (infoPage == null) return ThreadInfo.None;
 
         return GetThreadInfo(infoPage, quest);
     }
@@ -118,14 +116,14 @@ public partial class VBulletin5Adapter(
     /// </summary>
     /// <param name="page">A web page from a forum that this adapter can handle.</param>
     /// <returns>Returns thread information that can be gleaned from that page.</returns>
-    private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
+    private static ThreadInfo? GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // vBulletin doesn't show thread authors
+        var author = Author.Unknown; // vBulletin doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
-        var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
-        var info = ThreadInfos.Create(title, author, range);
+        var range = ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
+        var info = ThreadInfo.Create(title, author, range);
 
         return info;
     }
@@ -141,8 +139,7 @@ public partial class VBulletin5Adapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }
@@ -155,7 +152,7 @@ public partial class VBulletin5Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
@@ -193,14 +190,20 @@ public partial class VBulletin5Adapter(
 
         var id = GetPostId(li);
         var author = GetPostAuthor(li);
-        var number = PostIds.Create(GetPostNumber(li));
+        var number = PostNumber.Create(GetPostNumber(li));
         string text = GetPostText(li, quest);
 
-        if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        if (author is null)
+            return null;
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        if (inputOptions.TrackPostAuthorsUniquely)
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
+
+        var details = Source.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var origin = Origin.CreateUser(author, details);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -208,10 +211,10 @@ public partial class VBulletin5Adapter(
     private static PostId GetPostId(HtmlNode li)
     {
         string id = li.GetAttributeValue("data-node-id", "");
-        return PostIds.Create(id) ?? PostIds.Zero;
+        return PostId.Create(id) ?? PostId.None;
     }
 
-    private static Author GetPostAuthor(HtmlNode li)
+    private static Author? GetPostAuthor(HtmlNode li)
     {
         string author = "";
 
@@ -221,7 +224,7 @@ public partial class VBulletin5Adapter(
         if (authorNode != null)
             author = ForumPostTextConverter.CleanupWebString(authorNode.InnerText);
 
-        return Authors.Create(author);
+        return Author.Create(author);
     }
 
     private static int GetPostNumber(HtmlNode li)

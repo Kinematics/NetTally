@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetTally.Product;
+
 public class GithubRelease
 {
     public string Url { get; set; } = string.Empty;
@@ -16,7 +17,7 @@ public class GithubRelease
     public bool Prerelease { get; set; }
     public DateTimeOffset Created_At { get; set; }
     public DateTimeOffset Published_At { get; set; }
-    
+
     [JsonIgnore]
     public Version? Version
     {

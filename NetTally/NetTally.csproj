@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<VersionPrefix>5.2.0</VersionPrefix>
+		<VersionPrefix>5.3.0</VersionPrefix>
 	</PropertyGroup>
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows7.0</TargetFramework>
+		<TargetFramework>net10.0-windows7.0</TargetFramework>
+		<LangVersion>preview</LangVersion>
 		<UseWPF>true</UseWPF>
 		<RollForward>LatestMajor</RollForward>
 		<ApplicationIcon>Assets\CheckVoteWin.ico</ApplicationIcon>
@@ -31,8 +32,8 @@
 		<DebugSymbols>true</DebugSymbols>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="HtmlAgilityPack" Version="1.12.0" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.3" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
 		<PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
 	</ItemGroup>
 	<ItemGroup>

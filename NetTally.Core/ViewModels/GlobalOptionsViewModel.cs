@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
+using NetTally.Debugging.Logging;
 using NetTally.Enums;
 using NetTally.Utility.Enumerations;
 
@@ -16,12 +17,19 @@ public partial class GlobalOptionsViewModel : ObservableObject
     private readonly GlobalSettings globalSettings;
     private readonly ILogger<GlobalOptionsViewModel> logger;
 
+    private readonly AvaloniaTheme originalAvaloniaTheme;
+    private readonly WPFTheme originalWPFTheme;
+
+
     public GlobalOptionsViewModel(
         IOptions<GlobalSettings> options,
         ILogger<GlobalOptionsViewModel> logger)
     {
         globalSettings = options.Value;
         this.logger = logger;
+
+        originalAvaloniaTheme = globalSettings.AvaloniaThemeVariant;
+        originalWPFTheme = globalSettings.WPFThemeVariant;
 
         LoadGlobalOptions();
     }
@@ -36,7 +44,8 @@ public partial class GlobalOptionsViewModel : ObservableObject
         TrackPostAuthorsUniquely = globalSettings.TrackPostAuthorsUniquely;
         DisableWebProxy = globalSettings.DisableWebProxy;
         DebugMode = globalSettings.DebugMode;
-        ThemeVariant = globalSettings.ThemeVariant;
+        AvaloniaThemeVariant = globalSettings.AvaloniaThemeVariant;
+        WPFThemeVariant = globalSettings.WPFThemeVariant;
     }
 
     [RelayCommand]
@@ -50,9 +59,10 @@ public partial class GlobalOptionsViewModel : ObservableObject
         TrackPostAuthorsUniquely = false;
         DisableWebProxy = false;
         DebugMode = false;
-        ThemeVariant = AvaloniaTheme.Default;
+        AvaloniaThemeVariant = originalAvaloniaTheme;
+        WPFThemeVariant = originalWPFTheme;
 
-        logger.LogDebug("Global options were reset.");
+        logger.GlobalOptionsReset();
     }
 
     [RelayCommand]
@@ -72,11 +82,12 @@ public partial class GlobalOptionsViewModel : ObservableObject
         globalSettings.TrackPostAuthorsUniquely = TrackPostAuthorsUniquely;
         globalSettings.DisableWebProxy = DisableWebProxy;
         globalSettings.DebugMode = DebugMode;
-        globalSettings.ThemeVariant = ThemeVariant;
+        globalSettings.AvaloniaThemeVariant = AvaloniaThemeVariant;
+        globalSettings.WPFThemeVariant = WPFThemeVariant;
     }
 
     // Options list
-    public List<string> RankVoteCountingModes { get; } = EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>().ToList();
+    public List<string> RankVoteCountingModes { get; } = [.. EnumExtensions.EnumDescriptionsList<RankVoteCounterMethod>()];
 
     // Vote options
     [ObservableProperty]
@@ -111,5 +122,21 @@ public partial class GlobalOptionsViewModel : ObservableObject
     public List<AvaloniaTheme> AvaloniaThemes { get; } = [AvaloniaTheme.Light, AvaloniaTheme.Dark];
 
     [ObservableProperty]
-    public partial AvaloniaTheme ThemeVariant { get; set; } = AvaloniaTheme.Default;
+    public partial AvaloniaTheme AvaloniaThemeVariant { get; set; } = AvaloniaTheme.Default;
+
+    partial void OnAvaloniaThemeVariantChanged(AvaloniaTheme value)
+    {
+        globalSettings.AvaloniaThemeVariant = value;
+    }
+
+    public List<WPFTheme> WPFThemes { get; } = [WPFTheme.None, WPFTheme.Light, WPFTheme.Dark, WPFTheme.System];
+
+    [ObservableProperty]
+    public partial WPFTheme WPFThemeVariant { get; set; } = WPFTheme.None;
+
+    partial void OnWPFThemeVariantChanged(WPFTheme value)
+    {
+        globalSettings.WPFThemeVariant = value;
+    }
+
 }

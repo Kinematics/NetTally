@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
-using NetTally.Collections;
 using NetTally.Configure;
 using NetTally.Configure.Json;
 using NetTally.Configure.Legacy;
@@ -12,10 +11,11 @@ using NetTally.Debugging.FileLogger;
 using NetTally.Input.Forums;
 using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Input.Forums.Reading;
+using NetTally.Models;
 using NetTally.Output;
 using NetTally.Product;
 using NetTally.Tally;
-using NetTally.Tally.Components.Counting;
+using NetTally.Tally.Counting;
 using NetTally.Utility.Cache;
 using NetTally.Utility.Comparers;
 using NetTally.Utility.Events;
@@ -26,8 +26,10 @@ using Polly.Extensions.Http;
 using Polly.Retry;
 
 namespace NetTally;
+
 public static class AppX
 {
+    #region Public API
     public static IHost AppHost { get; private set; } = null!;
     public static IServiceProvider Services => AppHost.Services;
 
@@ -43,6 +45,7 @@ public static class AppX
         JsonConfiguration jsonConfiguration = Services.GetRequiredService<JsonConfiguration>();
         jsonConfiguration.SaveJsonConfiguration();
     }
+    #endregion Public API
 
     #region Hosting Setup
     /// <summary>

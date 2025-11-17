@@ -10,343 +10,343 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.Logging;
 using NetTally.Avalonia.Navigation;
-using NetTally.Tally.Components.Votes;
+using NetTally.Models;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 using NetTally.ViewModels;
 
-namespace NetTally.Avalonia.Views
+namespace NetTally.Avalonia.Views;
+
+public partial class ManageVotes : Window, INotifyPropertyChanged
 {
-    public partial class ManageVotes : Window, INotifyPropertyChanged
+    private readonly ManageVotesViewModel manageVotesViewModel;
+    private readonly AvaloniaNavigationService navigationService;
+    private readonly ILogger<ManageVotes> logger;
+
+    public ManageVotes(
+        ManageVotesViewModel manageVotesViewModel,
+        AvaloniaNavigationService navigationService,
+        ILogger<ManageVotes> logger)
     {
-        private readonly ManageVotesViewModel manageVotesViewModel;
-        private readonly AvaloniaNavigationService navigationService;
-        private readonly ILogger<ManageVotes> logger;
+        this.manageVotesViewModel = manageVotesViewModel;
+        this.navigationService = navigationService;
+        this.logger = logger;
 
-        public ManageVotes(
-            ManageVotesViewModel manageVotesViewModel,
-            AvaloniaNavigationService navigationService,
-            ILogger<ManageVotes> logger)
-        {
-            this.manageVotesViewModel = manageVotesViewModel;
-            this.navigationService = navigationService;
-            this.logger = logger;
+        InitializeComponent();
 
-            InitializeComponent();
+        // Buttons that can be disabled, that we want to still show tooltips for:
+        ToolTip.SetShowOnDisabled(MergeButton, true);
+        ToolTip.SetShowOnDisabled(UndoButton, true);
+        ToolTip.SetShowOnDisabled(DeleteButton, true);
+        ToolTip.SetShowOnDisabled(JoinVotersButton, true);
 
-            // Populate the context menu with known tasks.
-            CreateContextMenuCommands();
+        // Populate the context menu with known tasks.
+        CreateContextMenuCommands();
 
-            DataContext = manageVotesViewModel;
+        DataContext = manageVotesViewModel;
 
 #if DEBUG
-            this.AttachDevTools();
+        this.AttachDevTools();
 #endif
-        }
+    }
 
-        /// <summary>
-        /// Closes the window.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
-        public void Close_Click(object sender, RoutedEventArgs e) => this.Close();
+    /// <summary>
+    /// Closes the window.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
+    public void Close_Click(object sender, RoutedEventArgs e) => this.Close();
 
-        #region INotifyPropertyChanged implementation
-        /// <summary>
-        /// Event for INotifyPropertyChanged.
-        /// </summary>
-        public new event PropertyChangedEventHandler? PropertyChanged;
+    #region INotifyPropertyChanged implementation
+    /// <summary>
+    /// Event for INotifyPropertyChanged.
+    /// </summary>
+    public new event PropertyChangedEventHandler? PropertyChanged;
 
-        /// <summary>
-        /// Function to raise events when a property has been changed.
-        /// </summary>
-        /// <param name="propertyName">The name of the property that was modified.</param>
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        #endregion
+    /// <summary>
+    /// Function to raise events when a property has been changed.
+    /// </summary>
+    /// <param name="propertyName">The name of the property that was modified.</param>
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    #endregion
 
-        #region Context Menu Events
-        private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
+    #region Context Menu Events
+    private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
+    {
+        selectedVote = GetSelectedVoteInContext(sender);
+
+        // Enable/Disable commands based on whether it's valid for the selected vote.
+        foreach (var cmd in ContextMenuCommands)
         {
-            selectedVote = GetSelectedVoteInContext(sender);
+            string? cmdHeader = cmd.Header as string;
 
-            // Enable/Disable commands based on whether it's valid for the selected vote.
-            foreach (var cmd in ContextMenuCommands)
+            switch (cmdHeader)
             {
-                string? cmdHeader = cmd.Header as string;
-
-                switch (cmdHeader)
-                {
-                    case partitionChildrenString:
-                        cmd.IsEnabled = selectedVote != null && HasChildLines(selectedVote);
-                        break;
-                    case clearTaskString:
-                        cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.Empty;
-                        break;
-                    case reorderTasksString:
-                        cmd.IsEnabled = ContextMenuTasks.Count > 1;
-                        break;
-                }
-            }
-
-            foreach (var task in ContextMenuTasks)
-            {
-                string menuTask = task.Header as string ?? "";
-                task.IsEnabled = selectedVote != null && menuTask != selectedVote.Task.Name;
-            }
-        }
-
-        private static VoteBlockType? GetSelectedVoteInContext(object? sender)
-        {
-            ContextMenu? cm =
-                (sender as ContextMenu) ??
-                (sender as MenuItem)?.Parent as ContextMenu;
-
-            if (cm != null &&
-                cm.Parent is Popup popup &&
-                popup.Parent is ListBox listBox &&
-                listBox.SelectedItem is VoteBlockType selectedVote)
-            {
-                return selectedVote;
-            }
-
-            return null;
-        }
-
-        private void PartitionChildren_Click(object? sender, RoutedEventArgs e)
-        {
-            if (selectedVote != null)
-            {
-                manageVotesViewModel.PartitionChildren(selectedVote);
-            }
-        }
-
-        private void ModifyTask_Click(object? sender, RoutedEventArgs e)
-        {
-            if (sender is MenuItem mi && selectedVote != null)
-            {
-                string? header = mi.Header?.ToString();
-
-                if (!string.IsNullOrEmpty(header))
-                {
-                    string newTask = header == "Clear Task" ? "" : header;
-                    manageVotesViewModel.ReplaceTask(selectedVote, newTask);
-                }
-            }
-        }
-
-        private async void ReorderTasks_Click(object? sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await navigationService.ShowDialogAsync<ReorderTasks>(this);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error reordering tasks.");
-            }
-        }
-
-
-        private void NewTask_Click(object? sender, RoutedEventArgs e)
-        {
-            // Show the custom input box, and put focus on the text box.
-            InputBox.IsVisible = true;
-            InputTextBox.Focus();
-        }
-
-        private void YesButton_Click(object? sender, RoutedEventArgs e)
-        {
-            AcceptInput();
-        }
-
-        private void NoButton_Click(object? sender, RoutedEventArgs e)
-        {
-            CancelInput();
-        }
-
-        private void InputTextBox_KeyDown(object? sender, KeyEventArgs e)
-        {
-            switch (e.Key)
-            {
-                case Key.Enter:
-                    AcceptInput();
-                    e.Handled = true;
+                case partitionChildrenString:
+                    cmd.IsEnabled = (selectedVote != null && selectedVote.HasChildLines);
                     break;
-                case Key.Escape:
-                    CancelInput();
-                    e.Handled = true;
+                case clearTaskString:
+                    cmd.IsEnabled = selectedVote != null && selectedVote.Task != VoteTask.None;
+                    break;
+                case reorderTasksString:
+                    cmd.IsEnabled = ContextMenuTasks.Count > 1;
                     break;
             }
         }
-        #endregion Context Menu Events
 
-        #region Context Menu Utility
-        ObservableCollectionExt<MenuItem> ContextMenuItems { get; } = [];
-        readonly List<MenuItem> ContextMenuCommands = [];
-        readonly List<MenuItem> ContextMenuTasks = [];
-        readonly MenuItem separator = new() { Header = "-" };
-        const string partitionChildrenString = "Partition Children";
-        const string clearTaskString = "Clear Task";
-        const string reorderTasksString = "Re-Order Tasks";
-        VoteBlockType? selectedVote;
-
-
-        /// <summary>
-        /// Create the basic command menu items for the context menu.
-        /// </summary>
-        private void CreateContextMenuCommands()
+        foreach (var task in ContextMenuTasks)
         {
-            MenuItem newTask = new()
-            {
-                Header = "New Task..."
-            };
-            newTask.Click += NewTask_Click;
-            ToolTip.SetTip(newTask, "Create a new task value.");
+            string menuTask = task.Header as string ?? "";
+            task.IsEnabled = selectedVote != null && menuTask != selectedVote.Task.Name;
+        }
+    }
 
-            MenuItem clearTask = new()
-            {
-                Header = clearTaskString
-            };
-            clearTask.Click += ModifyTask_Click;
-            ToolTip.SetTip(clearTask, "Clear the task from the currently selected vote.");
+    private static VoteBlock? GetSelectedVoteInContext(object? sender)
+    {
+        ContextMenu? cm =
+            (sender as ContextMenu) ??
+            (sender as MenuItem)?.Parent as ContextMenu;
 
-            MenuItem reorderTasks = new()
-            {
-                Header = reorderTasksString
-            };
-            reorderTasks.Click += ReorderTasks_Click;
-            ToolTip.SetTip(reorderTasks, "Modify the order in which the tasks appear in the output.");
-
-            MenuItem partitionChildren = new()
-            {
-                Header = partitionChildrenString
-            };
-            partitionChildren.Click += PartitionChildren_Click;
-            ToolTip.SetTip(partitionChildren, "Split child vote lines into their own vote blocks.");
-
-            ContextMenuCommands.Add(newTask);
-            ContextMenuCommands.Add(clearTask);
-            ContextMenuCommands.Add(reorderTasks);
-            ContextMenuCommands.Add(partitionChildren);
-
-            InitKnownTasks();
-            UpdateContextMenu();
+        if (cm != null &&
+            cm.Parent is Popup popup &&
+            popup.Parent is ListBox listBox &&
+            listBox.SelectedItem is VoteBlock selectedVote)
+        {
+            return selectedVote;
         }
 
-        /// <summary>
-        /// Populate the ContextMenuTasks list from known tasks on window load.
-        /// </summary>
-        private void InitKnownTasks()
-        {
-            var orderedTasks = manageVotesViewModel.TaskList.Order(VoteTaskComparer.Instance);
+        return null;
+    }
 
-            foreach (var task in orderedTasks)
-                ContextMenuTasks.Add(CreateContextMenuTaskItem(task.Name));
+    private void PartitionChildren_Click(object? sender, RoutedEventArgs e)
+    {
+        if (selectedVote != null)
+        {
+            manageVotesViewModel.PartitionChildren(selectedVote);
         }
+    }
 
-        /// <summary>
-        /// Function to create a MenuItem object for the context menu containing the provided header value.
-        /// </summary>
-        /// <param name="name">The name of the menu item.</param>
-        /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
-        private MenuItem CreateContextMenuTaskItem(string name)
+    private void ModifyTask_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem mi && selectedVote != null)
         {
-            MenuItem mi = new()
+            string? header = mi.Header?.ToString();
+
+            if (!string.IsNullOrEmpty(header))
             {
-                Header = name
-            };
-            mi.Click += ModifyTask_Click;
-            ToolTip.SetTip(mi, $"Change the task for the selected vote item to '{mi.Header}'");
-            mi.Tag = "NamedTask";
-
-            return mi;
-        }
-
-        /// <summary>
-        /// Given a new task name, create a new menu item and refresh the context menu.
-        /// </summary>
-        /// <param name="task">The name of a new task.</param>
-        private void AddTaskToContextMenu(string task)
-        {
-            if (string.IsNullOrEmpty(task))
-                return;
-
-            if (ContextMenuTasks.Any(t => string.Equals(t.Header?.ToString(), task, StringComparison.Ordinal)))
-                return;
-
-            ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
-
-            UpdateContextMenu();
-        }
-
-        /// <summary>
-        /// Recreate the context menu when new menu items are added.
-        /// Also disables the Re-Order Tasks menu item if there are no known tasks.
-        /// </summary>
-        private void UpdateContextMenu()
-        {
-            ContextMenuItems.Clear();
-
-            ContextMenuItems.AddRange(ContextMenuCommands);
-
-            ContextMenuItems.Add(separator);
-
-            ContextMenuItems.AddRange(ContextMenuTasks.OrderBy(m => m.Header));
-
-            OnPropertyChanged(nameof(ContextMenuItems));
-        }
-
-        /// <summary>
-        /// Process acceptance of the new task text.
-        /// </summary>
-        private void AcceptInput()
-        {
-            // YesButton Clicked! Let's hide our InputBox and handle the input text.
-            InputBox.IsVisible = false;
-
-            string newTask = InputTextBox.Text?.RemoveUnsafeCharacters().Trim() ?? "";
-
-            // Clear InputBox.
-            InputTextBox.Text = string.Empty;
-
-            // Do something with the Input
-            AddTaskToContextMenu(newTask);
-            manageVotesViewModel.AddUserDefinedTask(newTask);
-
-            // Update the selected item of the list box
-            if (selectedVote != null)
+                string newTask = header == "Clear Task" ? "" : header;
                 manageVotesViewModel.ReplaceTask(selectedVote, newTask);
+            }
         }
+    }
 
-        /// <summary>
-        /// Process rejecting the new task text.
-        /// </summary>
-        private void CancelInput()
+    private async void ReorderTasks_Click(object? sender, RoutedEventArgs e)
+    {
+        try
         {
-            // NoButton Clicked! Let's hide our InputBox.
-            InputBox.IsVisible = false;
-
-            // Clear InputBox.
-            InputTextBox.Text = string.Empty;
+            await navigationService.ShowDialogAsync<ReorderTasks>(this);
         }
-
-        private static bool HasChildLines(VoteBlockType vote)
+        catch (Exception ex)
         {
-            return (vote.LineCount > 1 && vote.Lines.Skip(1).All(v => v.Depth > 0));
+            logger.LogError(ex, "Error reordering tasks.");
         }
-        #endregion
+    }
+
+
+    private void NewTask_Click(object? sender, RoutedEventArgs e)
+    {
+        // Show the custom input box, and put focus on the text box.
+        InputBox.IsVisible = true;
+        InputTextBox.Focus();
+    }
+
+    private void YesButton_Click(object? sender, RoutedEventArgs e)
+    {
+        AcceptInput();
+    }
+
+    private void NoButton_Click(object? sender, RoutedEventArgs e)
+    {
+        CancelInput();
+    }
+
+    private void InputTextBox_KeyDown(object? sender, KeyEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case Key.Enter:
+                AcceptInput();
+                e.Handled = true;
+                break;
+            case Key.Escape:
+                CancelInput();
+                e.Handled = true;
+                break;
+        }
+    }
+    #endregion Context Menu Events
+
+    #region Context Menu Utility
+    ObservableCollectionExt<MenuItem> ContextMenuItems { get; } = [];
+    readonly List<MenuItem> ContextMenuCommands = [];
+    readonly List<MenuItem> ContextMenuTasks = [];
+    readonly MenuItem separator = new() { Header = "-" };
+    const string partitionChildrenString = "Partition Children";
+    const string clearTaskString = "Clear Task";
+    const string reorderTasksString = "Re-Order Tasks";
+    VoteBlock? selectedVote;
+
+
+    /// <summary>
+    /// Create the basic command menu items for the context menu.
+    /// </summary>
+    private void CreateContextMenuCommands()
+    {
+        MenuItem newTask = new()
+        {
+            Header = "New Task..."
+        };
+        newTask.Click += NewTask_Click;
+        ToolTip.SetTip(newTask, "Create a new task value.");
+
+        MenuItem clearTask = new()
+        {
+            Header = clearTaskString
+        };
+        clearTask.Click += ModifyTask_Click;
+        ToolTip.SetTip(clearTask, "Clear the task from the currently selected vote.");
+
+        MenuItem reorderTasks = new()
+        {
+            Header = reorderTasksString
+        };
+        reorderTasks.Click += ReorderTasks_Click;
+        ToolTip.SetTip(reorderTasks, "Modify the order in which the tasks appear in the output.");
+
+        MenuItem partitionChildren = new()
+        {
+            Header = partitionChildrenString
+        };
+        partitionChildren.Click += PartitionChildren_Click;
+        ToolTip.SetTip(partitionChildren, "Split child vote lines into their own vote blocks.");
+
+        ContextMenuCommands.Add(newTask);
+        ContextMenuCommands.Add(clearTask);
+        ContextMenuCommands.Add(reorderTasks);
+        ContextMenuCommands.Add(partitionChildren);
+
+        InitKnownTasks();
+        UpdateContextMenu();
+    }
+
+    /// <summary>
+    /// Populate the ContextMenuTasks list from known tasks on window load.
+    /// </summary>
+    private void InitKnownTasks()
+    {
+        var orderedTasks = manageVotesViewModel.TaskList.Order(VoteTaskComparer.Instance);
+
+        foreach (var task in orderedTasks)
+            ContextMenuTasks.Add(CreateContextMenuTaskItem(task.Name));
+    }
+
+    /// <summary>
+    /// Function to create a MenuItem object for the context menu containing the provided header value.
+    /// </summary>
+    /// <param name="name">The name of the menu item.</param>
+    /// <returns>Returns a MenuItem object with appropriate tooltip and click handler.</returns>
+    private MenuItem CreateContextMenuTaskItem(string name)
+    {
+        MenuItem mi = new()
+        {
+            Header = name
+        };
+        mi.Click += ModifyTask_Click;
+        ToolTip.SetTip(mi, $"Change the task for the selected vote item to '{mi.Header}'");
+        mi.Tag = "NamedTask";
+
+        return mi;
+    }
+
+    /// <summary>
+    /// Given a new task name, create a new menu item and refresh the context menu.
+    /// </summary>
+    /// <param name="task">The name of a new task.</param>
+    private void AddTaskToContextMenu(string task)
+    {
+        if (string.IsNullOrEmpty(task))
+            return;
+
+        if (ContextMenuTasks.Any(t => string.Equals(t.Header?.ToString(), task, StringComparison.Ordinal)))
+            return;
+
+        ContextMenuTasks.Add(CreateContextMenuTaskItem(task));
+
+        UpdateContextMenu();
+    }
+
+    /// <summary>
+    /// Recreate the context menu when new menu items are added.
+    /// Also disables the Re-Order Tasks menu item if there are no known tasks.
+    /// </summary>
+    private void UpdateContextMenu()
+    {
+        ContextMenuItems.Clear();
+
+        ContextMenuItems.AddRange(ContextMenuCommands);
+
+        ContextMenuItems.Add(separator);
+
+        ContextMenuItems.AddRange(ContextMenuTasks.OrderBy(m => m.Header));
+
+        OnPropertyChanged(nameof(ContextMenuItems));
+    }
+
+    /// <summary>
+    /// Process acceptance of the new task text.
+    /// </summary>
+    private void AcceptInput()
+    {
+        // YesButton Clicked! Let's hide our InputBox and handle the input text.
+        InputBox.IsVisible = false;
+
+        string newTask = InputTextBox.Text?.RemoveUnsafeCharacters().Trim() ?? "";
+
+        // Clear InputBox.
+        InputTextBox.Text = string.Empty;
+
+        // Do something with the Input
+        AddTaskToContextMenu(newTask);
+        manageVotesViewModel.AddUserDefinedTask(newTask);
+
+        // Update the selected item of the list box
+        if (selectedVote != null)
+            manageVotesViewModel.ReplaceTask(selectedVote, newTask);
+    }
+
+    /// <summary>
+    /// Process rejecting the new task text.
+    /// </summary>
+    private void CancelInput()
+    {
+        // NoButton Clicked! Let's hide our InputBox.
+        InputBox.IsVisible = false;
+
+        // Clear InputBox.
+        InputTextBox.Text = string.Empty;
+    }
+    #endregion
 
 #pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 #if DEBUG
-        /// <summary>
-        /// A blank constructor is needed for Avalonia Windows. It should never be called.
-        /// </summary>
-        public ManageVotes()
-        {
-            InitializeComponent();
-        }
+    /// <summary>
+    /// A blank constructor is needed for Avalonia Windows. It should never be called.
+    /// </summary>
+    public ManageVotes()
+    {
+        InitializeComponent();
+    }
 #endif
 #pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-    }
 }

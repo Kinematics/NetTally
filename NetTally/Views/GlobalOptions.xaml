@@ -7,7 +7,7 @@
         xmlns:converters="clr-namespace:NetTally.Converters"
         xmlns:viewmodels="clr-namespace:NetTally.ViewModels;assembly=NetTally.Core"
         d:DataContext="{d:DesignInstance Type=viewmodels:GlobalOptionsViewModel}"
-        Title="Global Options" Height="370" Width="640" ResizeMode="NoResize"
+        Title="Global Options" Height="456" Width="640" ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner" Icon="/Assets/CheckVoteWin.ico" ShowInTaskbar="False">
 
     <Window.Resources>
@@ -42,6 +42,9 @@
         <CheckBox x:Name="allowUsersToUpdatePlans" Content="Users can update plans"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,72,0,0"
                   IsChecked="{Binding Path=AllowUsersToUpdatePlans, Converter={StaticResource ThreeStateBoolConverter}}" IsThreeState="True" />
+        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
+                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
+                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
 
         <Label x:Name="labelOutput" Content="Output" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,117,0,0"/>
         <CheckBox x:Name="globalSpoilers" Content="Always Use Full Spoilers"
@@ -51,18 +54,31 @@
                   Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,165,0,0"
                   IsChecked="{Binding Path=DisplayPlansWithNoVotes}"/>
 
-        <Label x:Name="labelNetworking" Content="Networking" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
+        <Label x:Name="labelNetworking" Content="Networking" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="10,190,0,0"/>
         <CheckBox x:Name="disableWebProxy" Content="Disable Web Proxy"
                   Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,218,0,0"
                   IsChecked="{Binding Path=DisableWebProxy}" />
 
-        <Label x:Name="labelDebugging" Content="Debugging" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,190,0,0"/>
-        <CheckBox x:Name="trackPostAuthorsUniquely" Content="Track Post Authors Uniquely"
-                  Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,92,0,0"
-                  IsChecked="{Binding Path=TrackPostAuthorsUniquely}"/>
+        <Label x:Name="labelDebugging" Content="Debugging" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="9,238,0,0"/>
         <CheckBox x:Name="debugMode" Content="Debug Mode"
-                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,238,0,0"
+                  Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="33,269,0,0"
                   IsChecked="{Binding Path=DebugMode}" />
+
+        <!--<Label x:Name="labelTheming" Content="Theming" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="9,286,0,0"/>
+        <ComboBox x:Name="wpfTheme" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" 
+                  Margin="33,317,0,0" Height="30" Width="145" Padding="8,2,4,3" VerticalContentAlignment="Center"
+                  ItemsSource="{Binding Path=WPFThemes}"
+                  SelectedIndex="{Binding Path=WPFThemeVariant}">
+            <ComboBox.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                </Style>
+            </ComboBox.ItemContainerStyle>
+        </ComboBox>-->
 
         <!-- External Tooltip Descriptions -->
         <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=rankedVoteAlgorithm, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
@@ -110,6 +126,11 @@
             <TextBlock TextWrapping="Wrap" Text="When set, disables usage of the proxy defined on the local system, and attempts to connect to web sites directly.  Fixes a problem with some Vista and Windows 7 systems."/>
             <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="This only takes effect after the next program restart."/>
         </StackPanel>
+
+        <!--<StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,5,0" Visibility="{Binding ElementName=wpfTheme, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <TextBlock TextWrapping="Wrap" FontWeight="Bold" Margin="0,0,0,5" Text="Choose Color Theme"/>
+            <TextBlock TextWrapping="Wrap" Text="Sets the color scheme for the program."/>
+        </StackPanel>-->
 
         <Button x:Name="ResetAllButton" Content="Reset All" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10" Width="100" Height="32"
                 HorizontalAlignment="Left" VerticalAlignment="Bottom" Command="{Binding ResetCommand}">

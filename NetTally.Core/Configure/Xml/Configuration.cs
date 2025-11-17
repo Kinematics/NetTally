@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
-using NetTally.Collections;
 using NetTally.Configure.Legacy;
+using NetTally.Models;
 
 namespace NetTally.Configure.Xml;
 

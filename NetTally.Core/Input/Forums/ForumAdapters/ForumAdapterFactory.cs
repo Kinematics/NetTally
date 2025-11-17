@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using NetTally.Enums;
+using NetTally.Models;
 
 namespace NetTally.Input.Forums.ForumAdapters;
 

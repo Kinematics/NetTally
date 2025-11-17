@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="NetTally.Avalonia/NetTally.Avalonia.csproj" />
+  <Project Path="NetTally.Console/NetTally.Console.csproj" />
+  <Project Path="NetTally.Core/NetTally.Core.csproj" />
+  <Project Path="NetTally.Tests/NetTally.Tests.csproj" />
+  <Project Path="NetTally/NetTally.csproj" />
+</Solution>

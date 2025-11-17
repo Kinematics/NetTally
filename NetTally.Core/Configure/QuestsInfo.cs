@@ -1,8 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NetTally.Tally.Components.Counting;
-using NetTally.Utility;
+using NetTally.Debugging.Logging;
+using NetTally.Models;
+using NetTally.Tally.Counting;
 
 namespace NetTally.Configure;
 
@@ -58,7 +59,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
 
         globalSettings.UpdateFromLegacySettings(legacyConfig.GlobalSettings);
 
-        logger.LogDebug("Loaded {count} legacy quests", Quests.Count);
+        logger.LoadedLegacyQuests(Quests.Count);
     }
 
     /// <summary>
@@ -75,7 +76,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
                 .FirstOrDefault(q => q.ThreadName == userQuests.CurrentQuest);
         }
 
-        logger.LogDebug("Loaded {count} user quests", Quests.Count);
+        logger.LoadedUserQuests(Quests.Count);
     }
 
     /// <summary>
@@ -151,7 +152,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
 
         Quests.Move(index, newIndex);
 
-        logger.LogDebug("Moved quest {name} from position {start} to position {end}.", quest.DisplayName, index, newIndex);
+        logger.MovedQuest(quest.DisplayName, index, newIndex);
     }
 
     /// <summary>
@@ -167,7 +168,7 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
         if (quest == SelectedQuest)
             SelectedQuest = null;
 
-        logger.LogDebug("Removing quest {name}", quest.DisplayName);
+        logger.RemovingQuest(quest.DisplayName);
 
         return Quests.Remove(quest);
     }
@@ -182,6 +183,6 @@ public partial class QuestsInfo : IQuestsInfo, IQuestsInfoMod
         if (quest.LinkedQuestIds.Count == 0)
             return [];
 
-        return Quests.Where(quest.HasLinkedQuest).ToList();
+        return [.. Quests.Where(quest.HasLinkedQuest)];
     }
 }

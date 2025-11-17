@@ -6,11 +6,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
+using NetTally.Models;
 using NetTally.Utility.Async;
 using NetTally.Utility.Filtering;
+using NetTally.Utility.HtmlNodes;
 using NetTally.Utility.Linq;
 using NetTally.Web;
 
@@ -118,7 +117,7 @@ public partial class XenForo1Adapter(
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    public async Task<ThreadInfo> GetThreadInfoAsync(
+    public async Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token)
@@ -128,15 +127,15 @@ public partial class XenForo1Adapter(
         if (page != null)
         {
             string title = GetPageTitle(page);
-            var author = GetPageAuthor(page);
+            var author = GetPageAuthor(page) ?? Author.Unknown;
             int pages = GetMaxPageNumberOfThread(page);
 
             var range = await GetRangeInfoAsync(quest, pageProvider, pages, token);
 
-            return ThreadInfos.Create(title, author, range);
+            return ThreadInfo.Create(title, author, range);
         }
 
-        return ThreadInfos.None;
+        return ThreadInfo.None;
     }
 
     #endregion IForumAdapter interface
@@ -150,7 +149,7 @@ public partial class XenForo1Adapter(
     /// <param name="pageProvider">The page provider to use to load any needed pages.</param>
     /// <param name="token">The cancellation token to check for cancellation requests.</param>
     /// <returns>Returns a ThreadRangeInfo describing which pages to load for the tally.</returns>
-    private async Task<ThreadRange> GetRangeInfoAsync(
+    private async Task<ThreadRange?> GetRangeInfoAsync(
             Quest quest,
             IPageProvider pageProvider,
             int numberOfPages,
@@ -171,7 +170,7 @@ public partial class XenForo1Adapter(
             }
         }
 
-        return ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, numberOfPages);
+        return ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, numberOfPages);
     }
 
     private async Task<HtmlDocument?> GetInfoPageAsync(
@@ -185,8 +184,7 @@ public partial class XenForo1Adapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }
@@ -200,12 +198,12 @@ public partial class XenForo1Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
 
-    private static Author GetPageAuthor(HtmlDocument page)
+    private static Author? GetPageAuthor(HtmlDocument page)
     {
         // Find a common parent for other data
         HtmlNode? pageContent = GetPageContent(page, PageType.Thread)
@@ -219,7 +217,7 @@ public partial class XenForo1Adapter(
         HtmlNode? authorNode = page.GetElementbyId("pageDescription")?.GetChildWithClass("username");
 
         string authorName = ForumPostTextConverter.CleanupWebString(authorNode?.InnerText ?? "");
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static int GetMaxPageNumberOfThread(HtmlDocument page)
@@ -238,26 +236,26 @@ public partial class XenForo1Adapter(
     #endregion Get Page Information
 
     #region Get ThreadInfoRange information
-    private async Task<(bool, ThreadRange)> TryGetThreadmarksRange(
+    private async Task<(bool, ThreadRange?)> TryGetThreadmarksRange(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // Load the threadmarks so that we can find the starting post page or number.
         HtmlDocument? threadmarksPage = await pageProvider.GetHtmlDocumentAsync(
             GetThreadmarksPageUrl(quest.ThreadUri), "Threadmarks",
             CachingMode.ReadWrite,
-            SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.No, token);
 
         if (threadmarksPage == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         var threadmarks = GetThreadmarksListFromPage(threadmarksPage, quest);
 
         // If there aren't any threadmarks, bail.
         if (!threadmarks.Any())
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // Threadmarks have already been filtered, so just pick the last one,
         // and get the URL for the threadmark.
@@ -265,7 +263,7 @@ public partial class XenForo1Adapter(
 
         // Make sure we found something.
         if (string.IsNullOrEmpty(lastThreadmarkHref))
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         // The threadmark list might use the long version of the URL (including thread info),
         // or the short version (which only shows the post number).
@@ -276,10 +274,10 @@ public partial class XenForo1Adapter(
         {
             // Get the post ID for the threadmark
             string tmID = mShort.Groups["tmID"].Value;
-            var postId = PostIds.Create(tmID);
+            var postId = PostId.Create(tmID);
 
             if (postId == null)
-                return (false, ThreadRanges.None);
+                return (false, ThreadRange.None);
 
             // The threadmark href might be a relative path, so make sure to
             // create a proper absolute path to load.
@@ -288,7 +286,7 @@ public partial class XenForo1Adapter(
             // Attempt to load the threadmark page's headers.  Use cache if available, and cache the result as appropriate.
             string fullUrl = await pageProvider.GetRedirectUrlAsync(
                 permalink.AbsoluteUri, "",
-                SuppressNotifications.Yes, token).ConfigureAwait(ConfigureAwaitOptions.None);
+                SuppressNotifications.Yes, token);
 
             if (!string.IsNullOrEmpty(fullUrl))
                 lastThreadmarkHref = fullUrl;
@@ -308,42 +306,42 @@ public partial class XenForo1Adapter(
 
             // If neither matched, it's post 1/page 1
             if (page == 0 && post == 0)
-                return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
+                return (true, ThreadRange.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-            var postId = PostIds.Create(post);
+            var postId = PostId.Create(post);
 
             // Otherwise create a range based on the post ID.
-            return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
+            return (true, ThreadRange.CreateByPostId(postId, page, numberOfPages));
         }
 
         // Failed to find anything.
-        return (false, ThreadRanges.None);
+        return (false, ThreadRange.None);
     }
 
-    private static async Task<(bool found, ThreadRange)> TryGetRSSThreadmarksRange(
+    private static async Task<(bool found, ThreadRange?)> TryGetRSSThreadmarksRange(
         Quest quest, IPageProvider pageProvider, int numberOfPages, CancellationToken token)
     {
         if (quest == null || quest.ThreadUri == null)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         if (quest.UseRSSThreadmarks == BoolEx.False)
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         XDocument? rss = await pageProvider.GetXmlDocumentAsync(
             GetRssThreadmarksUrl(quest.ThreadUri), "Threadmarks",
             CachingMode.ReadWrite,
-            SuppressNotifications.No, token).ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.No, token);
 
         if (rss == null)
         {
             if (quest.UseRSSThreadmarks == BoolEx.Unknown)
                 quest.UseRSSThreadmarks = BoolEx.False;
 
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
         }
 
         if (rss.Root?.Name != "rss")
-            return (false, ThreadRanges.None);
+            return (false, ThreadRange.None);
 
         var channel = rss.Root.Element(XName.Get("channel", ""));
 
@@ -387,17 +385,17 @@ public partial class XenForo1Adapter(
                     // If neither matched, it's post 1/page 1
                     // Return a By Post range
                     if (page == 0 || post == 0)
-                        return (true, ThreadRanges.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
+                        return (true, ThreadRange.CreateByRange(1, 0, quest.PostsPerPage, numberOfPages));
 
-                    var postId = PostIds.Create(post);
+                    var postId = PostId.Create(post);
 
                     // Otherwise create a range based on the post ID.
-                    return (true, ThreadRanges.CreateByPostId(postId, page, numberOfPages));
+                    return (true, ThreadRange.CreateByPostId(postId, page, numberOfPages));
                 }
             }
         }
 
-        return (false, ThreadRanges.None);
+        return (false, ThreadRange.None);
     }
 
     private IEnumerable<HtmlNode> GetThreadmarksListFromPage(HtmlDocument threadmarksPage, Quest quest)
@@ -438,8 +436,11 @@ public partial class XenForo1Adapter(
                     .FirstOrDefault(e => e.Elements("li").Any(a => a.HasClass("threadmarkItem")));
             }
 
-            return listOfThreadmarks?.Elements("li")
+            return listOfThreadmarks
+                ?.Elements("li")
                 .TraverseList(childSelector, nodeSelector, filterLambda)
+                .Where(n => n != null)
+                .Select(n => n!)
                 ?? [];
         }
         catch (ArgumentNullException e)
@@ -450,13 +451,13 @@ public partial class XenForo1Adapter(
         return [];
 
         // Local functions
-        bool filterLambda(HtmlNode n) => n != null &&
+        bool filterLambda(HtmlNode? n) => n != null &&
             ((quest.UseCustomThreadmarkFilters && quest.ThreadmarkFilter.Allows(n.InnerText)) ||
             (!quest.UseCustomThreadmarkFilters && RegexFilter.DefaultThreadmarkFilter.Allows(n.InnerText)));
 
         static IEnumerable<HtmlNode> childSelector(HtmlNode i) => i.Element("ul")?.Elements("li") ?? [];
 
-        static HtmlNode nodeSelector(HtmlNode n) => n.Element("a");
+        static HtmlNode? nodeSelector(HtmlNode n) => n.Element("a");
     }
     #endregion Get ThreadInfoRange information
 
@@ -478,28 +479,34 @@ public partial class XenForo1Adapter(
         var id = GetPostId(li);
         var author = GetPostAuthor(li);
         string text = GetPostText(li, quest);
-        var number = PostIds.Create(GetPostNumber(li));
+        var number = PostNumber.Create(GetPostNumber(li));
+
+        if (author is null)
+            return null;
 
         if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        var details = Source.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var origin = Origin.CreateUser(author, details);
+        var post = Post.Create(origin, text);
 
         return post;
     }
 
-    private static Author GetPostAuthor(HtmlNode li)
+    private static Author? GetPostAuthor(HtmlNode li)
     {
         string authorName = li.GetAttributeValue("data-author", "");
         authorName = ForumPostTextConverter.CleanupWebString(authorName);
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static PostId GetPostId(HtmlNode li)
     {
         string id = li.Id["post-".Length..];
-        return PostIds.Create(id) ?? PostIds.Zero;
+        return PostId.Create(id) ?? PostId.None;
     }
 
     private static string GetPostText(HtmlNode li, Quest quest)

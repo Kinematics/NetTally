@@ -106,7 +106,7 @@
 
         <!-- Grid 1,0 : Vote Controls -->
 
-        <Button Grid.Column="1" Grid.Row="0" Name="Merge" Content="Merge ⇒"
+        <Button Grid.Column="1" Grid.Row="0" Name="MergeButton" Content="Merge ⇒"
 				Command="{Binding MergeCommand}"
 				Margin="10,47,10,0" Height="35" VerticalAlignment="Top" FontSize="13.333">
             <ToolTip.Tip>
@@ -116,7 +116,7 @@
                 </StackPanel>
             </ToolTip.Tip>
         </Button>
-        <Button Grid.Column="1" Grid.Row="0" Name="Delete" Content="⊘ Delete"
+        <Button Grid.Column="1" Grid.Row="0" Name="DeleteButton" Content="⊘ Delete"
 				Command="{Binding DeleteCommand}"
 				Margin="10,196,10,0" Height="35" VerticalAlignment="Top" FontSize="13.333">
             <ToolTip.Tip>
@@ -127,7 +127,7 @@
             </ToolTip.Tip>
         </Button>
 
-        <Button Grid.Column="1" Grid.Row="0" Name="Undo" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
+        <Button Grid.Column="1" Grid.Row="0" Name="UndoButton" Content="Undo" Height="35" Margin="10,268,10,0" VerticalAlignment="Top"
                 HotKey="Ctrl+Z" Command="{Binding UndoCommand}">
             <ToolTip.Tip>
                 <StackPanel>
@@ -139,7 +139,7 @@
 
         <!-- Grid 1,1 : Voter Controls -->
 
-      <Button Grid.Column="1" Grid.Row="1" Name="JoinVoters" Content="Join ⇒"
+      <Button Grid.Column="1" Grid.Row="1" Name="JoinVotersButton" Content="Join ⇒"
 			  Command="{Binding JoinCommand}"
 			  Height="35" Margin="10,35,10,0" VerticalAlignment="Top" FontSize="13.333">
         <ToolTip.Tip>

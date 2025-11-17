@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
-using NetTally.Utility;
+using NetTally.Models;
 
 namespace NetTally.Tests.Components.Counting;
+
 [TestClass]
 public class ReferenceVoteTests
 {
@@ -31,54 +32,62 @@ public class ReferenceVoteTests
     #region Origins
     private static Origin GetOrigin_Kinematics1()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(101);
+        var postId = PostId.Create(123456);
+        var postNumber = PostNumber.Create(101);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Atreya()
     {
-        var author = Authors.Create("Atreya");
+        var author = Author.Create("Atreya");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123457);
-        var postNumber = PostIds.Create(102);
+        var postId = PostId.Create(123457);
+        var postNumber = PostNumber.Create(102);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Kimberly()
     {
-        var author = Authors.Create("Kimberly");
+        var author = Author.Create("Kimberly");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123458);
-        var postNumber = PostIds.Create(103);
+        var postId = PostId.Create(123458);
+        var postNumber = PostNumber.Create(103);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
 
     private static Origin GetOrigin_Kinematics2()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123459);
-        var postNumber = PostIds.Create(104);
+        var postId = PostId.Create(123459);
+        var postNumber = PostNumber.Create(104);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
+        Assert.IsNotNull(origin);
 
-        return origin!;
+        return origin;
     }
     #endregion Origins
 
@@ -86,25 +95,33 @@ public class ReferenceVoteTests
     private static Post GetPostFromKinematics1(string postText)
     {
         var origin = GetOrigin_Kinematics1();
-        return Posting.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromKinematics2(string postText)
     {
         var origin = GetOrigin_Kinematics2();
-        return Posting.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromAtreya(string postText)
     {
         var origin = GetOrigin_Atreya();
-        return Posting.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
 
     private static Post GetPostFromKimberly(string postText)
     {
         var origin = GetOrigin_Kimberly();
-        return Posting.Create(origin!, postText)!;
+        var post = Post.Create(origin, postText);
+        Assert.IsNotNull(post);
+        return post;
     }
     #endregion Posts
 
@@ -331,8 +348,29 @@ public class ReferenceVoteTests
         quest.PartitionMode = PartitionMode.ByBlock;
         quest.DisableProxyVotes = false;
 
-        var post1 = GetPostFromKimberly(explicitPlan);
-        var post2 = GetPostFromAtreya(oneLine); // Name of plan without "Plan"
+        var post1 = GetPostFromAtreya(explicitPlan);
+        var post2 = GetPostFromKimberly(oneLine); // Name of plan without "Plan"
+
+        List<Post> posts = [post1, post2];
+
+        quest.ConstructVotes(titles, posts);
+
+        var voters = quest.VoteCounter.GetAllVoters();
+        var votes = quest.VoteCounter.GetAllVotes();
+
+        Assert.AreEqual(3, voters.Count());
+        Assert.AreEqual(2, voters.Where(v => v.IsUser).Count());
+        Assert.AreEqual(1, votes.Count());
+    }
+
+    [TestMethod]
+    public void Explicit_Plan_ReverseRef()
+    {
+        quest.PartitionMode = PartitionMode.ByBlock;
+        quest.DisableProxyVotes = false;
+
+        var post1 = GetPostFromAtreya(oneLine); // Name of plan without "Plan"
+        var post2 = GetPostFromKimberly(explicitPlan);
 
         List<Post> posts = [post1, post2];
 

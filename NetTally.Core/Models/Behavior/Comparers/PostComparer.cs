@@ -1,0 +1,29 @@
+﻿using System.Diagnostics.CodeAnalysis;
+using NetTally.Utility.Comparers;
+
+namespace NetTally.Models;
+
+/// <summary>
+/// Comparer handler for <see cref="Posts"/> and <see cref="PostToProcess"/>
+/// </summary>
+public class PostComparer : IEqualityComparer<Post>
+{
+    /// <summary>
+    /// Static instance of a <see cref="PostComparer"/>
+    /// </summary>
+    public static PostComparer Instance { get; } = new();
+
+    public bool Equals(Post? x, Post? y)
+    {
+        if (x is null || y is null) return false;
+        if (ReferenceEquals(x, y)) return true;
+
+        return OriginComparer.Instance.Equals(x.Origin, y.Origin) &&
+            Agnostic.InsensitiveComparer.Equals(x.Text, y.Text);
+    }
+
+    public int GetHashCode([DisallowNull] Post obj)
+    {
+        return OriginComparer.Instance.GetHashCode(obj.Origin);
+    }
+}

@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
-using NetTally.Collections;
 using NetTally.Configure.Legacy;
 using NetTally.Enums;
+using NetTally.Models;
 
 namespace NetTally.Configure.Xml;
 

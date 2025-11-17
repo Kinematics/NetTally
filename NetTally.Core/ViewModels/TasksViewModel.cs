@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Votes;
+using NetTally.Models;
 using NetTally.Utility.Collections;
 
 namespace NetTally.ViewModels;
@@ -16,7 +16,7 @@ public partial class TasksViewModel : ObservableObject
     private readonly Quest quest;
     private readonly ILogger<TasksViewModel> logger;
 
-    public ObservableCollectionExt<VoteTaskType> Tasks { get; } = [];
+    public ObservableCollectionExt<VoteTask> Tasks { get; } = [];
 
     public TasksViewModel(
         IQuestsInfo questsInfo,

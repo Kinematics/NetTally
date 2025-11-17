@@ -1,12 +1,12 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Votes;
-using NetTally.Utility;
+using NetTally.Models;
+using NetTally.Tally.Processing;
 
 namespace NetTally.Tests.Components.Counting;
+
 [TestClass]
 public class VotePartitioningTests
 {
@@ -22,13 +22,14 @@ public class VotePartitioningTests
     #region Data
     private static Origin GetOrigin_Kinematics()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(10);
+        var postId = PostId.Create(123456);
+        var postNumber = PostNumber.Create(10);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
@@ -64,176 +65,198 @@ public class VotePartitioningTests
     [TestMethod]
     public void SingleLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
-        
+
     [TestMethod]
     public void SingleLineTask_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLineTask_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLineTask_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLineTask_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void SingleLineTask_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), oneLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), oneLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [] Run Lola Run!
             [] National Geographic
@@ -243,80 +266,90 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
-        
+
     [TestMethod]
     public void TwoLineTask_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             [] National Geographic
@@ -326,80 +359,90 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoLineTask_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLineTask_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLineTask_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void TwoLineTask_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoLineTaskVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoLineTaskVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void ChildLine_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), childLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -409,32 +452,36 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), childLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] Run Lola Run!", VoteBlockDisplay.ToComparableString(votes[0]));
     }
 
     [TestMethod]
     public void ChildLine_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), childLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -444,32 +491,36 @@ public class VotePartitioningTests
     [TestMethod]
     public void ChildLine_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), childLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("[][Movie] National Geographic", VoteBlockDisplay.ToComparableString(votes[1]));
     }
 
     [TestMethod]
     public void ChildLine_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), childLineVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), childLineVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -479,16 +530,18 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_None()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoChunkVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.None;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(1, votes.Count);
+        Assert.HasCount(1, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -499,32 +552,36 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByLine()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoChunkVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLine;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("[] Gunbuster", VoteBlockDisplay.ToComparableString(votes[2]));
     }
 
     [TestMethod]
     public void TwoChunk_Partitioning_ByBlock()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoChunkVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlock;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic
@@ -534,32 +591,36 @@ public class VotePartitioningTests
     [TestMethod]
     public void TwoChunk_Partitioning_ByLineTask()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoChunkVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByLineTask;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(3, votes.Count);
+        Assert.HasCount(3, votes);
         Assert.AreEqual("[][Movie] National Geographic", VoteBlockDisplay.ToComparableString(votes[1]));
     }
 
     [TestMethod]
     public void TwoChunk_Partitioning_ByBlockAll()
     {
-        var post = Posting.CreateToProcess(GetOrigin_Kinematics(), twoChunkVote);
-        Assert.IsNotNull(post);
+        var post = Post.Create(GetOrigin_Kinematics(), twoChunkVote);
+        var vote = Vote.Create(post);
+        var voteToProcess = Vote.CreateToProcess(vote);
+        Assert.IsNotNull(voteToProcess);
 
         quest.PartitionMode = PartitionMode.ByBlockAll;
 
-        var processed = VoteConstructor.TryProcessPostGetVotes(post, quest, out var votes);
+        var processed = VoteConstructor.TryProcessPostGetVotes(voteToProcess, quest, out var votes);
 
         Assert.IsTrue(processed);
         Assert.IsNotNull(votes);
-        Assert.AreEqual(2, votes.Count);
+        Assert.HasCount(2, votes);
         Assert.AreEqual("""
             [][Movie] Run Lola Run!
             -[] National Geographic

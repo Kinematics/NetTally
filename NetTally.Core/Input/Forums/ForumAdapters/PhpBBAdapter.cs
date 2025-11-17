@@ -4,9 +4,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -59,8 +58,7 @@ public partial class PhpBBAdapter(
     /// <returns>Returns a URL for the page requested.</returns>
     public string GetUrlForPage(Quest quest, int page)
     {
-        if (page < 1)
-            throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
         int skipPosts = quest.PostsPerPage * (page - 1);
 
@@ -92,12 +90,12 @@ public partial class PhpBBAdapter(
     }
 
 
-    public async Task<ThreadInfo>
+    public async Task<ThreadInfo?>
         GetThreadInfoAsync(Quest quest, IPageProvider pageProvider, CancellationToken token)
     {
         var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-        if (infoPage == null) return ThreadInfos.None;
+        if (infoPage == null) return ThreadInfo.None;
 
         return GetThreadInfo(infoPage, quest);
     }
@@ -111,14 +109,14 @@ public partial class PhpBBAdapter(
     /// <param name="page">A web page from a forum that this adapter can handle.</param>
     /// <param name="quest">The quest we're getting info for.</param>
     /// <returns>Returns thread information that can be gleaned from that page.</returns>
-    private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
+    private static ThreadInfo? GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // PhpBB doesn't show thread authors
+        var author = Author.Unknown; // PhpBB doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
-        var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
-        var info = ThreadInfos.Create(title, author, range);
+        var range = ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
+        var info = ThreadInfo.Create(title, author, range);
 
         return info;
     }
@@ -134,8 +132,7 @@ public partial class PhpBBAdapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }
@@ -150,7 +147,7 @@ public partial class PhpBBAdapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
@@ -212,15 +209,21 @@ public partial class PhpBBAdapter(
             return null;
 
         var id = GetPostId(div);
-        var author = GetPostAuthor(div);
-        var number = PostIds.Create(postNumber);
+        Author? author = GetPostAuthor(div);
+        var number = PostNumber.Create(postNumber);
         string text = GetPostText(div, quest);
 
-        if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        if (author is null)
+            return null;
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        if (inputOptions.TrackPostAuthorsUniquely)
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
+
+        var details = Source.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var origin = Origin.CreateUser(author, details);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -228,12 +231,12 @@ public partial class PhpBBAdapter(
     private static PostId GetPostId(HtmlNode div)
     {
         var idString = div.Id["p".Length..];
-        var id = PostIds.Create(idString);
+        var id = PostId.Create(idString);
 
-        return id ?? PostIds.Zero;
+        return id ?? PostId.None;
     }
 
-    private static Author GetPostAuthor(HtmlNode div)
+    private static Author? GetPostAuthor(HtmlNode div)
     {
         HtmlNode? inner = div.GetChildWithClass("div", "inner");
         HtmlNode? postbody = inner?.GetChildWithClass("div", "postbody");
@@ -243,7 +246,7 @@ public partial class PhpBBAdapter(
 
         string authorName = ForumPostTextConverter.CleanupWebString(authorAnchor?.InnerText);
 
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static string GetPostText(HtmlNode div, Quest quest)

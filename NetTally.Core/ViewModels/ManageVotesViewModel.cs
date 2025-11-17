@@ -3,9 +3,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NetTally.Configure;
-using NetTally.Tally.Components.Counting;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Votes;
+using NetTally.Models;
+using NetTally.Tally.Processing;
 using NetTally.Utility;
 using NetTally.Utility.Collections;
 
@@ -29,9 +28,9 @@ public partial class ManageVotesViewModel : ObservableObject
         UpdateVotersCollection();
     }
 
-    public ObservableCollectionExt<VoteBlockType> AllVotesCollection { get; } = [];
+    public ObservableCollectionExt<VoteBlock> AllVotesCollection { get; } = [];
     public ObservableCollectionExt<Origin> AllVotersCollection { get; } = [];
-    public ObservableCollectionExt<VoteTaskType> TaskList => quest.VoteCounter.TaskList;
+    public ObservableCollectionExt<VoteTask> TaskList => quest.VoteCounter.TaskList;
 
     public bool HasUndoActions => quest.VoteCounter.HasUndoActions;
     public bool HasTasks => TaskList.Count > 0;
@@ -41,14 +40,14 @@ public partial class ManageVotesViewModel : ObservableObject
     /// <summary>
     /// Get the votes for the From side of the window.
     /// </summary>
-    public IEnumerable<VoteBlockType> VotesFrom => AllVotesCollection
+    public IEnumerable<VoteBlock> VotesFrom => AllVotesCollection
         .Where(FilterFromVote)
         .Order(VoteBlockComparer.Instance);
 
     /// <summary>
     /// Get the votes for the To side of the window.
     /// </summary>
-    public IEnumerable<VoteBlockType> VotesTo => AllVotesCollection
+    public IEnumerable<VoteBlock> VotesTo => AllVotesCollection
         .Where(FilterToVote)
         .Order(VoteBlockComparer.Instance);
 
@@ -65,9 +64,9 @@ public partial class ManageVotesViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-    public partial VoteBlockType? SelectedFromVote { get; set; }
+    public partial VoteBlock? SelectedFromVote { get; set; }
 
-    partial void OnSelectedFromVoteChanged(VoteBlockType? value)
+    partial void OnSelectedFromVoteChanged(VoteBlock? value)
     {
         if (value is null)
         {
@@ -82,9 +81,9 @@ public partial class ManageVotesViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(MergeCommand))]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-    public partial VoteBlockType? SelectedToVote { get; set; }
+    public partial VoteBlock? SelectedToVote { get; set; }
 
-    partial void OnSelectedToVoteChanged(VoteBlockType? value)
+    partial void OnSelectedToVoteChanged(VoteBlock? value)
     {
         if (value is null)
         {
@@ -105,7 +104,7 @@ public partial class ManageVotesViewModel : ObservableObject
     /// </summary>
     /// <param name="vote">The vote to get voters for.</param>
     /// <returns>A list of voter origins.</returns>
-    public IEnumerable<Origin> GetVotersForVote(VoteBlockType? vote) =>
+    public IEnumerable<Origin> GetVotersForVote(VoteBlock? vote) =>
         (vote != null) ? quest.VoteCounter.GetUserVotersFor(vote) : [];
 
     #endregion Observable Vote List Properties
@@ -158,7 +157,7 @@ public partial class ManageVotesViewModel : ObservableObject
     /// </summary>
     /// <param name="vote">The vote being tested.</param>
     /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-    private bool FilterFromVote(VoteBlockType vote)
+    private bool FilterFromVote(VoteBlock vote)
     {
         return FilterVotes(VoteFromFilter, vote);
     }
@@ -168,7 +167,7 @@ public partial class ManageVotesViewModel : ObservableObject
     /// </summary>
     /// <param name="vote">The vote being tested.</param>
     /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-    private bool FilterToVote(VoteBlockType vote)
+    private bool FilterToVote(VoteBlock vote)
     {
         return FilterVotes(VoteToFilter, vote);
     }
@@ -181,7 +180,7 @@ public partial class ManageVotesViewModel : ObservableObject
     /// <param name="filter">The filter to apply.</param>
     /// <param name="vote">The vote to test.</param>
     /// <returns>True if the vote should be displayed, or false if it should be hidden.</returns>
-    private bool FilterVotes(string filter, VoteBlockType vote)
+    private bool FilterVotes(string filter, VoteBlock vote)
     {
         if (string.IsNullOrEmpty(filter))
             return true;
@@ -191,7 +190,7 @@ public partial class ManageVotesViewModel : ObservableObject
 
         bool matchAnyVoter = GetVotersForVote(vote)
                     .Any(v => CultureInfo.InvariantCulture.CompareInfo
-                        .IndexOf(v.Author.Name, filter, CompareOptions.IgnoreCase) >= 0);
+                        .IndexOf(v.Name.DisplayName, filter, CompareOptions.IgnoreCase) >= 0);
 
         return matchVote || matchAnyVoter;
     }
@@ -238,14 +237,14 @@ public partial class ManageVotesViewModel : ObservableObject
     #endregion Collection Updates
 
     #region Commands
-    public void ReplaceTask(VoteBlockType selectedVote, string newTask)
+    public void ReplaceTask(VoteBlock selectedVote, string newTask)
     {
         var task = VoteTask.Create(newTask);
         quest.VoteCounter.ReplaceTask(selectedVote, task);
         UpdateVotesCollection();
     }
 
-    public void PartitionChildren(VoteBlockType selectedVote)
+    public void PartitionChildren(VoteBlock selectedVote)
     {
         quest.VoteCounter.Split(selectedVote, VoteConstructor.PartitionChildren(selectedVote));
         UpdateVotesCollection();
@@ -347,7 +346,7 @@ public partial class ManageVotesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private static void RunTest(VoteBlockType? voteLines)
+    private static void RunTest(VoteBlock? voteLines)
     {
         // context menu experiment.
         if (voteLines is not null)

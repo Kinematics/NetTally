@@ -5,9 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Votes;
-using NetTally.Utility;
+using NetTally.Models;
 
 namespace NetTally.Tests.Components.Counting;
 
@@ -43,73 +41,78 @@ public class VoteCounterTests
     }
     #endregion
 
-    #region Origins
+    #region Origin
     private static Origin GetOrigin_Kinematics()
     {
-        var author = Authors.Create("Kinematics");
+        var author = Author.Create("Kinematics");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123426);
-        var postNumber = PostIds.Create(98);
+        var postId = PostId.Create(123426);
+        var postNumber = PostNumber.Create(98);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Brogatar1()
     {
-        var author = Authors.Create("Brogatar");
+        var author = Author.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123456);
-        var postNumber = PostIds.Create(100);
+        var postId = PostId.Create(123456);
+        var postNumber = PostNumber.Create(100);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Brogatar2()
     {
-        var author = Authors.Create("Brogatar");
+        var author = Author.Create("Brogatar");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123476);
-        var postNumber = PostIds.Create(110);
+        var postId = PostId.Create(123476);
+        var postNumber = PostNumber.Create(110);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Madfish1()
     {
-        var author = Authors.Create("Madfish");
+        var author = Author.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123460);
-        var postNumber = PostIds.Create(101);
+        var postId = PostId.Create(123460);
+        var postNumber = PostNumber.Create(101);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
 
     private static Origin GetOrigin_Madfish2()
     {
-        var author = Authors.Create("Madfish");
+        var author = Author.Create("Madfish");
         Uri uri = new(Strings.ExampleHostUrl);
         Uri permalink = new(Strings.ExampleHostUrl);
-        var postId = PostIds.Create(123466);
-        var postNumber = PostIds.Create(105);
+        var postId = PostId.Create(123466);
+        var postNumber = PostNumber.Create(105);
 
-        var origin = Origins.CreateUser(author, uri, permalink, postId, postNumber);
+        var details = Source.Create(uri, permalink, postId, postNumber);
+        var origin = Origin.CreateUser(author, details);
 
         return origin!;
     }
 
-    #endregion Origins
+    #endregion Origin
 
     #region Post Text
     static readonly List<string> titles = ["A title for testing"];
@@ -175,14 +178,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText2);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -191,12 +197,12 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
 
@@ -205,14 +211,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText2);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -221,29 +230,32 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
         quest.VoteCounter.Reset();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(0, allVotes.Count);
+        Assert.IsEmpty(allVotes);
     }
 
     public static void Check_Tally_Adds_Plan()
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText3);
-        var post2 = Posting.Create(origin2, postText2);
+        var post1 = Post.Create(origin1, postText3);
+        var post2 = Post.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -252,19 +264,19 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
 
-        var vote1 = quest.VoteCounter.GetVotesBy(origin1).ToList();
+        var vote1a = quest.VoteCounter.GetVotesBy(origin1).ToList();
 
-        Assert.AreEqual(1, vote1.Count);
+        Assert.HasCount(1, vote1a);
 
-        var voters1 = quest.VoteCounter.GetVotersFor(vote1[0]);
+        var voters1 = quest.VoteCounter.GetVotersFor(vote1a[0]);
 
         Assert.AreEqual(2, voters1.Count());
     }
@@ -276,14 +288,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText2);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -292,7 +307,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
 
@@ -300,9 +315,9 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(4, allVotes.Count);
+        Assert.HasCount(4, allVotes);
         Assert.AreEqual(1, allVotes[0].LineCount);
         Assert.AreEqual(1, allVotes[1].LineCount);
         Assert.AreEqual(1, allVotes[2].LineCount);
@@ -312,9 +327,9 @@ public class VoteCounterTests
 
         quest.ConstructVotes();
 
-        allVotes = quest.VoteCounter.GetAllVotes().ToList();
+        allVotes = [.. quest.VoteCounter.GetAllVotes()];
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(3, allVotes[1].LineCount);
     }
@@ -326,14 +341,17 @@ public class VoteCounterTests
 
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postTextRef);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postTextRef);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -342,11 +360,11 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
 
@@ -356,17 +374,21 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
         var origin1a = GetOrigin_Brogatar2();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText2);
-        var post3 = Posting.Create(origin1a, postText2);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText2);
+        var post3 = Post.Create(origin1a, postText2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
 
         List<Post> posts = [post1, post2, post3];
 
@@ -375,12 +397,12 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
     [TestMethod]
@@ -390,14 +412,17 @@ public class VoteCounterTests
 
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
-        var post1 = Posting.Create(origin1, postText4);
-        var post2 = Posting.Create(origin2, postTextRef);
+        var post1 = Post.Create(origin1, postText4);
+        var post2 = Post.Create(origin2, postTextRef);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -406,13 +431,13 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
         Assert.AreEqual(0, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
         Assert.IsTrue(quest.VoteCounter.HasPlan("Experiment"));
     }
 
@@ -423,20 +448,25 @@ public class VoteCounterTests
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Kinematics();
         var origin1a = GetOrigin_Brogatar2();
-        var post1 = Posting.Create(origin1, postText5);
-        var post2 = Posting.Create(origin2, postText6);
-        var post3 = Posting.Create(origin3, postText6);
-        var post4 = Posting.Create(origin1a, postText6);
+        var post1 = Post.Create(origin1, postText5);
+        var post2 = Post.Create(origin2, postText6);
+        var post3 = Post.Create(origin3, postText6);
+        var post4 = Post.Create(origin1a, postText6);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
         Assert.IsNotNull(post4);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
-        Assert.IsTrue(post4.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+        var vote4 = Vote.Create(post4);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
+        Assert.IsNotNull(vote4);
 
         quest.PartitionMode = PartitionMode.None;
         quest.AllowUsersToUpdatePlans = true;
@@ -447,7 +477,7 @@ public class VoteCounterTests
 
         var plans = quest.VoteCounter.GetReferencePlans().ToList();
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
@@ -456,9 +486,9 @@ public class VoteCounterTests
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounter.GetReferencePlans().ToList();
+        plans = [.. quest.VoteCounter.GetReferencePlans()];
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Add this to your list of experiments for today.",
             plans[0].Lines[1].Content.CleanContent);
 
@@ -467,9 +497,9 @@ public class VoteCounterTests
 
         quest.ConstructVotes(titles, posts);
 
-        plans = quest.VoteCounter.GetReferencePlans().ToList();
+        plans = [.. quest.VoteCounter.GetReferencePlans()];
 
-        Assert.AreEqual(1, plans.Count);
+        Assert.HasCount(1, plans);
         Assert.AreEqual("Alchemy structure",
             plans[0].Lines[1].Content.CleanContent);
     }
@@ -482,14 +512,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText7);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText7);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -498,12 +531,12 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
     [TestMethod]
@@ -511,14 +544,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText8);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText8);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -527,12 +563,12 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
     [TestMethod]
@@ -540,14 +576,17 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText9);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText9);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -556,12 +595,12 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
     [TestMethod]
@@ -569,26 +608,29 @@ public class VoteCounterTests
     {
         var origin1 = GetOrigin_Kinematics();
         var origin2 = GetOrigin_Brogatar1();
-        var post1 = Posting.Create(origin1, postText1);
-        var post2 = Posting.Create(origin2, postText10);
+        var post1 = Post.Create(origin1, postText1);
+        var post2 = Post.Create(origin2, postText10);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
         quest.ConstructVotes(titles, posts);
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
         Assert.AreEqual(3, allVotes[0].LineCount);
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
     #endregion Callouts as proxies
 
@@ -603,17 +645,21 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Brogatar2();
-        var post1 = Posting.Create(origin1, text1);
-        var post2 = Posting.Create(origin2, text2);
-        var post3 = Posting.Create(origin3, text3);
+        var post1 = Post.Create(origin1, text1);
+        var post2 = Post.Create(origin2, text2);
+        var post3 = Post.Create(origin3, text3);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
 
         List<Post> posts = [post1, post2, post3];
 
@@ -622,14 +668,14 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
 
         Assert.AreEqual(2, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[0]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
 
     [TestMethod]
@@ -644,20 +690,25 @@ public class VoteCounterTests
         var origin2 = GetOrigin_Madfish1();
         var origin3 = GetOrigin_Madfish2();
         var origin4 = GetOrigin_Brogatar2();
-        var post1 = Posting.Create(origin1, text1);
-        var post2 = Posting.Create(origin2, text2);
-        var post3 = Posting.Create(origin3, text3);
-        var post4 = Posting.Create(origin4, text4);
+        var post1 = Post.Create(origin1, text1);
+        var post2 = Post.Create(origin2, text2);
+        var post3 = Post.Create(origin3, text3);
+        var post4 = Post.Create(origin4, text4);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
         Assert.IsNotNull(post3);
         Assert.IsNotNull(post4);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
-        Assert.IsTrue(post3.HasVote);
-        Assert.IsTrue(post4.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+        var vote3 = Vote.Create(post3);
+        var vote4 = Vote.Create(post4);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
+        Assert.IsNotNull(vote3);
+        Assert.IsNotNull(vote4);
 
         List<Post> posts = [post1, post2, post3, post4];
 
@@ -666,7 +717,7 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[0]));
         Assert.AreEqual(1, quest.VoteCounter.VoteStorage.GetUserSupportCountFor(allVotes[1]));
@@ -676,8 +727,8 @@ public class VoteCounterTests
         Assert.AreEqual("[] Brogatar's Second post",
             VoteBlockDisplay.ToComparableString(allVotes[1]));
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
     }
     #endregion Future references
 
@@ -690,14 +741,17 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
 
-        var post1 = Posting.Create(origin1, text1);
-        var post2 = Posting.Create(origin2, text2);
+        var post1 = Post.Create(origin1, text1);
+        var post2 = Post.Create(origin2, text2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -706,17 +760,17 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(1, allVotes.Count);
+        Assert.HasCount(1, allVotes);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
 
-        var vote1 = allVotes[0];
-        var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
+        var vote1a = allVotes[0];
+        var voters = quest.VoteCounter.VoteStorage.GetVotersFor(vote1a).ToList();
 
-        Assert.AreEqual(2, voters.Count);
-        Assert.IsTrue(voters.Contains(origin1));
-        Assert.IsTrue(voters.Contains(origin2));
+        Assert.HasCount(2, voters);
+        Assert.Contains(origin1, voters);
+        Assert.Contains(origin2, voters);
     }
 
     public static void Test_Votes_Dont_Match(string text1, string text2)
@@ -727,14 +781,17 @@ public class VoteCounterTests
         var origin1 = GetOrigin_Brogatar1();
         var origin2 = GetOrigin_Madfish1();
 
-        var post1 = Posting.Create(origin1, text1);
-        var post2 = Posting.Create(origin2, text2);
+        var post1 = Post.Create(origin1, text1);
+        var post2 = Post.Create(origin2, text2);
 
         Assert.IsNotNull(post1);
         Assert.IsNotNull(post2);
 
-        Assert.IsTrue(post1.HasVote);
-        Assert.IsTrue(post2.HasVote);
+        var vote1 = Vote.Create(post1);
+        var vote2 = Vote.Create(post2);
+
+        Assert.IsNotNull(vote1);
+        Assert.IsNotNull(vote2);
 
         List<Post> posts = [post1, post2];
 
@@ -743,18 +800,18 @@ public class VoteCounterTests
 
         var allVotes = quest.VoteCounter.GetAllVotes().ToList();
 
-        Assert.AreEqual(2, allVotes.Count);
+        Assert.HasCount(2, allVotes);
 
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Author.Name));
-        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Author.Name));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin1.Name.DisplayName));
+        Assert.IsTrue(quest.VoteCounter.HasVoter(origin2.Name.DisplayName));
 
-        var vote1 = allVotes[0];
-        var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1).ToList();
-        var vote2 = allVotes[1];
-        var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2).ToList();
+        var vote1a = allVotes[0];
+        var voters1 = quest.VoteCounter.VoteStorage.GetVotersFor(vote1a).ToList();
+        var vote2a = allVotes[1];
+        var voters2 = quest.VoteCounter.VoteStorage.GetVotersFor(vote2a).ToList();
 
-        Assert.AreEqual(1, voters1.Count);
-        Assert.AreEqual(1, voters2.Count);
+        Assert.HasCount(1, voters1);
+        Assert.HasCount(1, voters2);
     }
 
     [TestMethod]

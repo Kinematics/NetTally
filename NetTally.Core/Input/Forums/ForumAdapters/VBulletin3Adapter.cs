@@ -4,9 +4,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
+using NetTally.Models;
 using NetTally.Utility.HtmlNodes;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -57,8 +56,7 @@ public partial class VBulletin3Adapter(
     /// <returns>Returns a URL for the page requested.</returns>
     public string GetUrlForPage(Quest quest, int page)
     {
-        if (page < 1)
-            throw new ArgumentException($"Invalid page number: {page}", nameof(page));
+        ArgumentOutOfRangeException.ThrowIfLessThan(page, 1);
 
         string append = page > 1 ? $"&page={page}" : "";
 
@@ -94,14 +92,14 @@ public partial class VBulletin3Adapter(
     /// <param name="pageProvider">A page provider for loading pages.</param>
     /// <param name="token">A cancellation token.</param>
     /// <returns><see cref="ThreadInfo"/> containing thread information.</returns>
-    public async Task<ThreadInfo> GetThreadInfoAsync(
+    public async Task<ThreadInfo?> GetThreadInfoAsync(
         Quest quest,
         IPageProvider pageProvider,
         CancellationToken token)
     {
         var infoPage = await GetInfoPageAsync(quest, pageProvider, token);
 
-        if (infoPage == null) return ThreadInfos.None;
+        if (infoPage == null) return ThreadInfo.None;
 
         return GetThreadInfo(infoPage, quest);
     }
@@ -114,14 +112,14 @@ public partial class VBulletin3Adapter(
     /// </summary>
     /// <param name="page">A web page from a forum that this adapter can handle.</param>
     /// <returns>Returns thread information that can be gleaned from that page.</returns>
-    private static ThreadInfo GetThreadInfo(HtmlDocument page, Quest quest)
+    private static ThreadInfo? GetThreadInfo(HtmlDocument page, Quest quest)
     {
         string title = GetPageTitle(page);
-        var author = Authors.Unknown; // vBulletin doesn't show thread authors
+        var author = Author.Unknown; // vBulletin doesn't show thread authors
         int pages = GetMaxPageNumberOfThread(page);
 
-        var range = ThreadRanges.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
-        var info = ThreadInfos.Create(title, author, range);
+        var range = ThreadRange.CreateByRange(quest.StartPost, quest.EndPost, quest.PostsPerPage, pages);
+        var info = ThreadInfo.Create(title, author, range);
 
         return info;
     }
@@ -137,8 +135,7 @@ public partial class VBulletin3Adapter(
         HtmlDocument? page = await pageProvider.GetHtmlDocumentAsync(
             infoPageUrl, "Info Page",
             CachingMode.WriteOnly,
-            SuppressNotifications.Yes, token)
-            .ConfigureAwait(ConfigureAwaitOptions.None);
+            SuppressNotifications.Yes, token);
 
         return page;
     }
@@ -151,7 +148,7 @@ public partial class VBulletin3Adapter(
         return ForumPostTextConverter.CleanupWebString(
             page.DocumentNode
                 .Element("html")
-                .Element("head")
+                ?.Element("head")
                 ?.Element("title")
                 ?.InnerText);
     }
@@ -160,7 +157,11 @@ public partial class VBulletin3Adapter(
     {
         // If there's no pagenav div, that means there's no navigation to alternate pages,
         // which means there's only one page in the thread.
-        var pageNavDiv = page.DocumentNode.Element("html").Element("body").GetDescendantWithClass("div", "pagenav");
+        var pageNavDiv = page
+            .DocumentNode
+            .Element("html")
+            ?.Element("body")
+            ?.GetDescendantWithClass("div", "pagenav");
 
         if (pageNavDiv != null)
         {
@@ -205,14 +206,20 @@ public partial class VBulletin3Adapter(
 
         var id = GetPostId(table);
         var author = GetPostAuthor(page, id);
-        var number = PostIds.Create(GetPostNumber(page, id));
+        var number = PostNumber.Create(GetPostNumber(page, id));
         string text = GetPostText(page, id, quest);
 
-        if (inputOptions.TrackPostAuthorsUniquely)
-            author = author with { Name = $"{author.Name}_{id.Value}" };
+        if (author is null)
+            return null;
 
-        var origin = Origins.CreateUser(author, quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
-        var post = Posting.Create(origin, text);
+        if (inputOptions.TrackPostAuthorsUniquely)
+        {
+            author = author.Rename($"{author.DisplayName}_{id.Value}");
+        }
+
+        var details = Source.Create(quest.ThreadUri, GetPermalinkForId(quest.ThreadUri, id), id, number);
+        var origin = Origin.CreateUser(author, details);
+        var post = Post.Create(origin, text);
 
         return post;
     }
@@ -220,14 +227,14 @@ public partial class VBulletin3Adapter(
     private static PostId GetPostId(HtmlNode table)
     {
         var idString = table.Id["post".Length..];
-        var id = PostIds.Create(idString);
+        var id = PostId.Create(idString);
 
-        return id ?? PostIds.Zero;
+        return id ?? PostId.None;
     }
 
-    private static Author GetPostAuthor(HtmlDocument page, PostId id)
+    private static Author? GetPostAuthor(HtmlDocument page, PostId id)
     {
-        string authorName = "";
+        string? authorName = null;
         string postAuthorDivID = $"postmenu_{id.Value}";
 
         var authorAnchor = page.GetElementbyId(postAuthorDivID).Element("a");
@@ -237,7 +244,7 @@ public partial class VBulletin3Adapter(
             // ??
             if (authorAnchor.Element("span") != null)
             {
-                authorName = authorAnchor.Element("span").InnerText;
+                authorName = authorAnchor.Element("span")?.InnerText;
             }
             else
             {
@@ -247,7 +254,7 @@ public partial class VBulletin3Adapter(
 
         authorName = ForumPostTextConverter.CleanupWebString(authorName);
 
-        return Authors.Create(authorName);
+        return Author.Create(authorName);
     }
 
     private static string GetPostText(HtmlDocument page, PostId id, Quest quest)

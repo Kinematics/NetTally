@@ -110,7 +110,7 @@
 		  <TextBlock Classes="Label" Text="Theme" />
 		  <!-- Listbox in place of radio buttons: https://github.com/AvaloniaUI/Avalonia/issues/3016 -->
 		  <ListBox ItemsSource="{Binding AvaloniaThemes}"
-				SelectedItem="{Binding ThemeVariant}"
+				SelectedItem="{Binding AvaloniaThemeVariant}"
 				Margin="16,0,0,5"
 				Classes="RadioButtonListBox"/>
 	  </StackPanel>

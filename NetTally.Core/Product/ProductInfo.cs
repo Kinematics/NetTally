@@ -49,4 +49,16 @@ public class ProductInfo
     /// Gets the assembly version of the product.
     /// </summary>
     public static Version AssemblyVersion { get; }
+
+    public static string DisplayVersion
+    {
+        get
+        {
+#if DEBUG
+            return Version;
+#else
+            return FileVersion.ToString();
+#endif
+        }
+    }
 }

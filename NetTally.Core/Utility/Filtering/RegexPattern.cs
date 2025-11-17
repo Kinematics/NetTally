@@ -82,7 +82,7 @@ public partial class RegexPattern
 
         bool invert = CheckForInversion(ref pattern);
 
-        return (CheckIfJs(ref pattern) 
+        return (CheckIfJs(ref pattern)
                 ? CreateJsRegex(pattern)
                 : CreateSimpleRegex(pattern),
                 invert);

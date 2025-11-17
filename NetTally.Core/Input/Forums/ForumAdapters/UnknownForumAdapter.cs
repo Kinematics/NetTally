@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
-using NetTally.Tally.Components.Posts;
-using NetTally.Tally.Components.Threads;
+using NetTally.Models;
 using NetTally.Web;
 
 namespace NetTally.Input.Forums.ForumAdapters;
@@ -24,9 +23,9 @@ class UnknownForumAdapter(
     public IEnumerable<Post> GetPosts(HtmlDocument page, Quest quest, int pageNumber) => [];
     public string GetUrlForPage(Quest quest, int page) => "";
 
-    public Task<ThreadInfo> GetThreadInfoAsync(
+    public Task<ThreadInfo?> GetThreadInfoAsync(
         Quest _0, IPageProvider _1, CancellationToken _2)
     {
-        return Task.FromResult(ThreadInfos.None);
+        return Task.FromResult<ThreadInfo?>(ThreadInfo.None);
     }
 }
