@@ -39,7 +39,7 @@ namespace NetTally.Views
             InitializeComponent();
             DataContext = this.mainViewModel;
 
-            Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
+            Title = MainViewModel.Title;
 
             this.Loaded += MainWindow_Loaded;
             this.globalSettings.PropertyChanged += GlobalSettings_PropertyChanged;

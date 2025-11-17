@@ -63,7 +63,7 @@ public partial class MainWindow : Window
 
         mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
-        Title = $"{ProductInfo.Name} - {ProductInfo.Version}";
+        Title = MainViewModel.Title;
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
