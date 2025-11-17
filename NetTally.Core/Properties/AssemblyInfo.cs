@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Allow the unit test project access to 'internal' classes in the core library.
-[assembly: InternalsVisibleTo("TallyUnitTest")]
 [assembly: InternalsVisibleTo("NetTally.Tests")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
