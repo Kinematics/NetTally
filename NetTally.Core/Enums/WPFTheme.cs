@@ -5,8 +5,8 @@ namespace NetTally.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter<WPFTheme>))]
 public enum WPFTheme
 {
-    None,
+    System,
     Light,
     Dark,
-    System
+    //None,
 }

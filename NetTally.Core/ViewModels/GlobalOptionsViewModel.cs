@@ -129,10 +129,10 @@ public partial class GlobalOptionsViewModel : ObservableObject
         globalSettings.AvaloniaThemeVariant = value;
     }
 
-    public List<WPFTheme> WPFThemes { get; } = [WPFTheme.None, WPFTheme.Light, WPFTheme.Dark, WPFTheme.System];
+    public List<WPFTheme> WPFThemes { get; } = [WPFTheme.System, WPFTheme.Light, WPFTheme.Dark];
 
     [ObservableProperty]
-    public partial WPFTheme WPFThemeVariant { get; set; } = WPFTheme.None;
+    public partial WPFTheme WPFThemeVariant { get; set; } = WPFTheme.System;
 
     partial void OnWPFThemeVariantChanged(WPFTheme value)
     {
