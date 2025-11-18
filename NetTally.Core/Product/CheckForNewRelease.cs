@@ -56,7 +56,11 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     #region Timer
     public void Start()
     {
+#if DEBUG
+        HasNewRelease = true;
+#else
         timer.Change(initialDelay, periodDelay);
+#endif
     }
 
     private async void TimerCallback(object? obj)
@@ -74,7 +78,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
             logger.LogWarning(e, "Check for new release update attempt failed.");
         }
     }
-    #endregion Timer
+#endregion Timer
 
     #region Private version checking methods
     /// <summary>
