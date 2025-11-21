@@ -13,7 +13,6 @@ using NetTally.Avalonia.Navigation;
 using NetTally.Configure;
 using NetTally.Debugging.Logging;
 using NetTally.Enums;
-using NetTally.Product;
 using NetTally.Utility.Events;
 using NetTally.ViewModels;
 
