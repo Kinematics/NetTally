@@ -175,7 +175,11 @@ public class TallyOutput(IOptions<GlobalSettings> globalSettings) : ITextResults
             sb.AppendLine(title);
         }
 
-        sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {ProductInfo.Version}[/color]");
+        var versionStr = globalSettings.DebugMode
+            ? ProductInfo.Version
+            : ProductInfo.DisplayVersion;
+
+        sb.AppendLine($"[color=transparent]##### {ProductInfo.Name} {versionStr}[/color]");
 
         if (quest.UseCustomUsernameFilters && !string.IsNullOrEmpty(quest.CustomUsernameFilters))
         {
