@@ -35,7 +35,7 @@ public static partial class MarkerProperties
 
         /// <summary>
         /// Gets whether the marker's current state can be considered a 'positive' result.
-        /// Returns <c>null</c> if there is no meaningful way to answer.
+        /// Returns <see langword="null"/> if there is no meaningful way to answer.
         /// </summary>
         public bool? IsPositive => marker.Map<bool?>(
             voteMarker => true,

@@ -118,7 +118,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     /// Try to read the JSON API page Github provides for the repo,
     /// and extract the latest version released.
     /// </summary>
-    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    /// <returns>The latest <see cref="Version"/> it can find, or <see langword="null"/></returns>
     private async Task<Version?> GetLatestVersionViaApi()
     {
         var json = await pageProvider.GetJsonDocumentAsync(githubApiPage,
@@ -149,7 +149,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     /// Try to load the URL that should just return a redirection
     /// with the latest version tag first.
     /// </summary>
-    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    /// <returns>The latest <see cref="Version"/> it can find, or <see langword="null"/></returns>
     private async Task<Version?> GetLatestVersionViaRedirect()
     {
         // Try to load the URL that should just return a redirection
@@ -163,7 +163,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     /// Try to load the entire releases page and filter that for
     /// the latest version information.
     /// </summary>
-    /// <returns>The latest <see cref="Version"/> it can find, or <c>null</c></returns>
+    /// <returns>The latest <see cref="Version"/> it can find, or <see langword="null"/></returns>
     private async Task<Version?> GetLatestVersionViaScrape()
     {
         var versions = await GetReleaseVersionsAsync();
@@ -192,7 +192,7 @@ public partial class CheckForNewRelease : ObservableObject, IDisposable
     /// to a tagged page. If so, and that tag can be parsed as a version,
     /// return that version value.
     /// </summary>
-    /// <returns>The latest version tag, if found. Otherwise <c>null</c>.</returns>
+    /// <returns>The latest version tag, if found. Otherwise <see langword="null"/>.</returns>
     private async Task<Version?> GetLatestRedirectVersion()
     {
         string redirectURL = await pageProvider.GetRedirectUrlAsync(

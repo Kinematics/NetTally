@@ -189,7 +189,7 @@ public class WebPageProvider : IDisposable, IPageProvider
     /// Generic content loader function that handles checking cache, and then
     /// loading the requested URL if no cache item is found.
     /// </summary>
-    /// <returns>The string content of the URL, if found. Otherwise <c>null</c>.</returns>
+    /// <returns>The string content of the URL, if found. Otherwise <see langword="null"/>.</returns>
     private async Task<string?> GetDocumentContentAsync(
         string urlString,
         string description,

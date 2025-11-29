@@ -45,9 +45,9 @@ public class BatchingLoggerOptions
     }
 
     /// <summary>
-    /// Gets or sets a maximum number of events to include in a single batch or null for no limit.
+    /// Gets or sets a maximum number of events to include in a single batch, or <see langword="null"/> for no limit.
     /// </summary>
-    /// Defaults to <c>null</c>.
+    /// <remarks>Defaults to <see langword="null"/>.</remarks>
     public int? BatchSize
     {
         get { return _batchSize; }
