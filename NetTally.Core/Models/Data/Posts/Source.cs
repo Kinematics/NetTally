@@ -1,13 +1,16 @@
 ﻿namespace NetTally.Models;
 
 /// <summary>
-/// A record containing identifying information for the source of a post or other object.
+/// The uniquely identifying information for the source of a post or other object.
 /// </summary>
 public abstract record Source();
 
 /// <summary>
-/// A type indicating that no source is available.
+/// Represents a source that does not provide any data or content.
 /// </summary>
+/// <remarks>Use this type to indicate the absence of a source in scenarios where a source is required by the API
+/// but no actual data should be supplied. This can be useful for disabling source-based operations or as a default
+/// placeholder.</remarks>
 public sealed record NoSource() : Source;
 
 /// <summary>

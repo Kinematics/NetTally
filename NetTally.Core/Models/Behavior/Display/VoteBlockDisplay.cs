@@ -36,4 +36,10 @@ public static class VoteBlockDisplay
                 : a.DisplayComparable())
             .Aggregate((a, b) => $"{a}\r\n{b}");
     }
+
+    extension(VoteBlock block)
+    {
+        public string ManageVotesDisplay2 =>
+            ToOutputString(block, marker: "", subMarker: "");
+    }
 }
