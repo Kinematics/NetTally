@@ -7,12 +7,12 @@ public static class VoteLineDisplay
     extension(VoteLine voteLine)
     {
         /// <summary>
-        /// Gets the raw vote line formatted as a string.
+        /// Gets the vote line formatted as a string, with BBCode punctuation properly substituted in.
         /// </summary>
         /// <param name="markerOverride">An optional override of the marker value.</param>
         /// <param name="taskOverride">An optional override of the task value.</param>
         public string Display(string? markerOverride = null, string? taskOverride = null) =>
-            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content}";
+            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content.FormatBBCode}";
 
         /// <summary>
         /// Get the vote line formatted as a string suitable for comparing.
@@ -21,14 +21,6 @@ public static class VoteLineDisplay
         /// <param name="taskOverride">An optional override of the task value.</param>
         public string DisplayComparable(string? taskOverride = null) =>
             $"{voteLine.Prefix.Indent}[]{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.CleanContent}";
-
-        /// <summary>
-        /// Gets the vote line formatted as a string, with BBCode punctuation properly substituted in.
-        /// </summary>
-        /// <param name="markerOverride">An optional override of the marker value.</param>
-        /// <param name="taskOverride">An optional override of the task value.</param>
-        public string DisplayOutput(string? markerOverride = null, string? taskOverride = null) =>
-            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content.FormatBBCode}";
     }
 
     extension(string? str)

@@ -4,53 +4,52 @@ using Microsoft.Extensions.Time.Testing;
 using NetTally.Models;
 using NetTally.Tally.Counting;
 
-namespace NetTally.Tests
+namespace NetTally.Tests;
+
+/// <summary>
+/// Class to initialize the hosting/logging/DI systems when
+/// running tests.
+/// </summary>
+public static class TestStartup
 {
+    private static FakeTimeProvider? fakeTimeProvider;
+
     /// <summary>
-    /// Class to initialize the hosting/logging/DI systems when
-    /// running tests.
+    /// Call the initialization in the core library, with a callback to
+    /// initialize testing-specific service injection.
     /// </summary>
-    public static class TestStartup
+    /// <param name="fakeTimeProvider">An optional fake time provider
+    /// that a test class may need, to be injected into the DI system.</param>
+    /// <returns>The service provider that the hosting system built.</returns>
+    public static IServiceProvider ConfigureServices(FakeTimeProvider? fakeTimeProvider = null)
     {
-        private static FakeTimeProvider? fakeTimeProvider;
+        TestStartup.fakeTimeProvider = fakeTimeProvider;
 
-        /// <summary>
-        /// Call the initialization in the core library, with a callback to
-        /// initialize testing-specific service injection.
-        /// </summary>
-        /// <param name="fakeTimeProvider">An optional fake time provider
-        /// that a test class may need, to be injected into the DI system.</param>
-        /// <returns>The service provider that the hosting system built.</returns>
-        public static IServiceProvider ConfigureServices(FakeTimeProvider? fakeTimeProvider = null)
+        AppX.Initialize(AddTestServices);
+
+        return AppX.Services;
+    }
+
+    /// <summary>
+    /// Callback for setting up DI services that will override the
+    /// services added by the core library.
+    /// </summary>
+    /// <param name="services">The service collection to add services to.</param>
+    private static void AddTestServices(IServiceCollection services)
+    {
+        if (fakeTimeProvider != null)
         {
-            TestStartup.fakeTimeProvider = fakeTimeProvider;
-
-            AppX.Initialize(AddTestServices);
-
-            return AppX.Services;
+            services.AddSingleton<TimeProvider>(fakeTimeProvider);
         }
+    }
 
-        /// <summary>
-        /// Callback for setting up DI services that will override the
-        /// services added by the core library.
-        /// </summary>
-        /// <param name="services">The service collection to add services to.</param>
-        private static void AddTestServices(IServiceCollection services)
-        {
-            if (fakeTimeProvider != null)
-            {
-                services.AddSingleton<TimeProvider>(fakeTimeProvider);
-            }
-        }
+    public static Quest GetExampleQuest(IServiceProvider serviceProvider)
+    {
+        var voteCounterFactory = serviceProvider.GetRequiredService<VoteCounterFactory>();
 
-        public static Quest GetExampleQuest(IServiceProvider serviceProvider)
-        {
-            var voteCounterFactory = serviceProvider.GetRequiredService<VoteCounterFactory>();
+        Quest quest = new();
+        quest.VoteCounter = voteCounterFactory.GetVoteCounter(quest);
 
-            Quest quest = new();
-            quest.VoteCounter = voteCounterFactory.GetVoteCounter(quest);
-
-            return quest;
-        }
+        return quest;
     }
 }

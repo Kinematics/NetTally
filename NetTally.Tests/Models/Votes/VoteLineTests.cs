@@ -254,7 +254,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -267,7 +267,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -281,7 +281,7 @@ public class VoteLineTests
 
         Assert.HasCount(2, voteLines);
 
-        Assert.AreEqual("--[X] A line of stuff", voteLines[1].DisplayOutput());
+        Assert.AreEqual("--[X] A line of stuff", voteLines[1].Display());
     }
 
     [TestMethod]
@@ -294,7 +294,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -307,7 +307,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[X][Reward] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[X][Reward] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -320,7 +320,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[#7] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[#7] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -333,7 +333,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[77%] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[77%] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]
@@ -346,7 +346,7 @@ public class VoteLineTests
 
         Assert.HasCount(1, voteLines);
 
-        Assert.AreEqual("[X] A line of stuff", voteLines[0].DisplayOutput());
+        Assert.AreEqual("[X] A line of stuff", voteLines[0].Display());
     }
 
     [TestMethod]

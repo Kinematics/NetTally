@@ -10,211 +10,209 @@ using Microsoft.Extensions.Options;
 using NetTally.Configure;
 using NetTally.Enums;
 using NetTally.Navigation;
-using NetTally.Product;
 using NetTally.ViewModels;
 
-namespace NetTally.Views
+namespace NetTally.Views;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    private readonly MainViewModel mainViewModel;
+    private readonly WPFNavigationService navigationService;
+    private readonly GlobalSettings globalSettings;
+    private readonly ILogger<MainWindow> logger;
+
+    public MainWindow(
+        MainViewModel mainViewModel,
+        WPFNavigationService navigationService,
+        IOptions<GlobalSettings> globalSettings,
+        ILogger<MainWindow> logger)
     {
-        private readonly MainViewModel mainViewModel;
-        private readonly WPFNavigationService navigationService;
-        private readonly GlobalSettings globalSettings;
-        private readonly ILogger<MainWindow> logger;
+        this.mainViewModel = mainViewModel;
+        this.navigationService = navigationService;
+        this.globalSettings = globalSettings.Value;
+        this.logger = logger;
 
-        public MainWindow(
-            MainViewModel mainViewModel,
-            WPFNavigationService navigationService,
-            IOptions<GlobalSettings> globalSettings,
-            ILogger<MainWindow> logger)
-        {
-            this.mainViewModel = mainViewModel;
-            this.navigationService = navigationService;
-            this.globalSettings = globalSettings.Value;
-            this.logger = logger;
+        InitializeComponent();
+        DataContext = this.mainViewModel;
 
-            InitializeComponent();
-            DataContext = this.mainViewModel;
+        Title = MainViewModel.Title;
 
-            Title = MainViewModel.Title;
+        this.Loaded += MainWindow_Loaded;
+        this.globalSettings.PropertyChanged += GlobalSettings_PropertyChanged;
+        this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+    }
 
-            this.Loaded += MainWindow_Loaded;
-            this.globalSettings.PropertyChanged += GlobalSettings_PropertyChanged;
-            this.mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-        }
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        ApplyTheme(globalSettings.WPFThemeVariant);
+    }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    private void GlobalSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(globalSettings.WPFThemeVariant))
         {
             ApplyTheme(globalSettings.WPFThemeVariant);
         }
+    }
 
-        private void GlobalSettings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(globalSettings.WPFThemeVariant))
-            {
-                ApplyTheme(globalSettings.WPFThemeVariant);
-            }
-        }
-
-        private static void ApplyTheme(WPFTheme wpfThemeVariant)
-        {
+    private static void ApplyTheme(WPFTheme wpfThemeVariant)
+    {
 #pragma warning disable WPF0001
-            Application.Current.ThemeMode = wpfThemeVariant switch
-            {
-                WPFTheme.None => ThemeMode.None,
-                WPFTheme.Light => ThemeMode.Light,
-                WPFTheme.Dark => ThemeMode.Dark,
-                WPFTheme.System => ThemeMode.System,
-                _ => ThemeMode.System
-            };
+        Application.Current.ThemeMode = wpfThemeVariant switch
+        {
+            WPFTheme.None => ThemeMode.None,
+            WPFTheme.Light => ThemeMode.Light,
+            WPFTheme.Dark => ThemeMode.Dark,
+            WPFTheme.System => ThemeMode.System,
+            _ => ThemeMode.System
+        };
 #pragma warning restore WPF0001
-        }
+    }
 
-        #region Event Handlers
-        private async void MainViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    #region Event Handlers
+    private async void MainViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
+
+        // If a new quest was added, load the QuestOptions dialog to
+        // allow setting the URL and display name.
+        if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
         {
-            logger.LogInformation("Received notification of property change from MainViewModel: {PropertyName}.", e.PropertyName);
+            // If we have a URL in the clipboard, make use of that as
+            // the default new URL for the quest.
+            string clipboard = Clipboard.GetText();
 
-            // If a new quest was added, load the QuestOptions dialog to
-            // allow setting the URL and display name.
-            if (e.PropertyName == nameof(mainViewModel.AddQuestCommand))
+            string uri = string.Empty;
+
+            if (Uri.IsWellFormedUriString(clipboard, UriKind.Absolute))
             {
-                // If we have a URL in the clipboard, make use of that as
-                // the default new URL for the quest.
-                string clipboard = Clipboard.GetText();
+                uri = clipboard;
+            }
 
-                string uri = string.Empty;
+            var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
 
-                if (Uri.IsWellFormedUriString(clipboard, UriKind.Absolute))
-                {
-                    uri = clipboard;
-                }
-
-                var result = await navigationService.ShowDialogAsync<QuestOptions>(this, uri);
-
-                // If the QuestOptions dialog was canceled, remove the quest we just added.
-                // Otherwise, update the position of the quest.
-                if (!result.HasValue || result.Value == false)
-                {
-                    mainViewModel.RemoveQuestCommand.Execute(null);
-                }
-                else
-                {
-                    mainViewModel.RepositionQuest();
-                }
+            // If the QuestOptions dialog was canceled, remove the quest we just added.
+            // Otherwise, update the position of the quest.
+            if (!result.HasValue || result.Value == false)
+            {
+                mainViewModel.RemoveQuestCommand.Execute(null);
+            }
+            else
+            {
+                mainViewModel.RepositionQuest();
             }
         }
+    }
 
-        private void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            CopyOutputTextToClipboard();
-        }
+    private void CopyToClipboardButton_Click(object sender, RoutedEventArgs e)
+    {
+        CopyOutputTextToClipboard();
+    }
 
-        private void CopyOutputTextToClipboard()
-        {
-            try
-            {
-                if (OperatingSystem.IsWindows())
-                {
-                    Clipboard.SetText(mainViewModel.Output);
-                }
-            }
-            catch (Exception e1)
-            {
-                try
-                {
-                    // Try again
-                    Clipboard.SetDataObject(mainViewModel.Output, false);
-                }
-                catch (Exception)
-                {
-                    logger.LogWarning(e1, "Unable to copy output to the clipboard.");
-                }
-            }
-        }
-
-        private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await navigationService.ShowDialogAsync<ManageVotes>(this);
-
-                mainViewModel.UpdateOutput();
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Error managing votes");
-            }
-        }
-
-        private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await navigationService.ShowDialogAsync<GlobalOptions>(this);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Error handling global options");
-            }
-        }
-
-        private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await navigationService.ShowDialogAsync<QuestOptions>(this);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "Error handling quest options");
-            }
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.C &&
-                (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
-            {
-                CopyOutputTextToClipboard();
-                e.Handled = true;
-            }
-        }
-
-        private void TextEntry_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox tb)
-            {
-                tb.SelectAll();
-            }
-        }
-
-        private void TextEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is TextBox tb)
-            {
-                if (!tb.IsKeyboardFocusWithin)
-                {
-                    tb.Focus();
-                    e.Handled = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Open a browser to view the wiki URL.
-        /// </summary>
-        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    private void CopyOutputTextToClipboard()
+    {
+        try
         {
             if (OperatingSystem.IsWindows())
             {
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {e.Uri.AbsoluteUri}") { CreateNoWindow = true });
+                Clipboard.SetText(mainViewModel.Output);
+            }
+        }
+        catch (Exception e1)
+        {
+            try
+            {
+                // Try again
+                Clipboard.SetDataObject(mainViewModel.Output, false);
+            }
+            catch (Exception)
+            {
+                logger.LogWarning(e1, "Unable to copy output to the clipboard.");
+            }
+        }
+    }
+
+    private async void OpenManageVotesWindow_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await navigationService.ShowDialogAsync<ManageVotes>(this);
+
+            mainViewModel.UpdateOutput();
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Error managing votes");
+        }
+    }
+
+    private async void GlobalOptionsButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await navigationService.ShowDialogAsync<GlobalOptions>(this);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Error handling global options");
+        }
+    }
+
+    private async void QuestOptionsButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await navigationService.ShowDialogAsync<QuestOptions>(this);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Error handling quest options");
+        }
+    }
+
+    private void Window_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.C &&
+            (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+        {
+            CopyOutputTextToClipboard();
+            e.Handled = true;
+        }
+    }
+
+    private void TextEntry_GotFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox tb)
+        {
+            tb.SelectAll();
+        }
+    }
+
+    private void TextEntry_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is TextBox tb)
+        {
+            if (!tb.IsKeyboardFocusWithin)
+            {
+                tb.Focus();
                 e.Handled = true;
             }
         }
-        #endregion Event Handlers
     }
+
+    /// <summary>
+    /// Open a browser to view the wiki URL.
+    /// </summary>
+    private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {e.Uri.AbsoluteUri}") { CreateNoWindow = true });
+            e.Handled = true;
+        }
+    }
+    #endregion Event Handlers
 }

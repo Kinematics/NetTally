@@ -18,8 +18,8 @@ public static class VoteBlockDisplay
     {
         return block.Lines
             .Select((a, b) => b == 0
-                ? a.DisplayOutput(marker, block.Task.Name)
-                : a.DisplayOutput(subMarker))
+                ? a.Display(marker, block.Task.Name)
+                : a.Display(subMarker))
             .Aggregate((a, b) => $"{a}\n{b}");
     }
 
