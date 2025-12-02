@@ -3,42 +3,41 @@ using System.Globalization;
 using System.Windows.Data;
 using NetTally.Enums;
 
-namespace NetTally.Converters
+namespace NetTally.Converters;
+
+/// <summary>
+/// Data binding conversion class to convert a DisplayMode enum to
+/// an index value or back.
+/// </summary>
+[ValueConversion(typeof(DisplayMode), typeof(int))]
+public class DisplayModeConverter : IValueConverter
 {
     /// <summary>
-    /// Data binding conversion class to convert a DisplayMode enum to
-    /// an index value or back.
+    /// Convert from source (property enum) to target (control index).
     /// </summary>
-    [ValueConversion(typeof(DisplayMode), typeof(int))]
-    public class DisplayModeConverter : IValueConverter
+    /// <returns>Returns whether the specified target control value should be on or off.</returns>
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        /// <summary>
-        /// Convert from source (property enum) to target (control index).
-        /// </summary>
-        /// <returns>Returns whether the specified target control value should be on or off.</returns>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        if (value is DisplayMode dm)
         {
-            if (value is DisplayMode dm)
-            {
-                return (int)dm;
-            }
-
-            return -1;
+            return (int)dm;
         }
 
-        /// <summary>
-        /// Convert from target (control index) to source (property enum).
-        /// </summary>
-        /// <returns>Returns what the source property value should be set to
-        /// based on the target value.</returns>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is int dmv)
-            {
-                return (DisplayMode)dmv;
-            }
+        return -1;
+    }
 
-            return DisplayMode.Normal;
+    /// <summary>
+    /// Convert from target (control index) to source (property enum).
+    /// </summary>
+    /// <returns>Returns what the source property value should be set to
+    /// based on the target value.</returns>
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int dmv)
+        {
+            return (DisplayMode)dmv;
         }
+
+        return DisplayMode.Normal;
     }
 }

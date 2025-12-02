@@ -5,26 +5,25 @@ using NetTally.Input.Forums.ForumAdapters;
 using NetTally.Tests;
 using NetTally.Web;
 
-namespace NTTests.Resources
+namespace NTTests.Resources;
+
+[TestClass]
+public class ConvertResources
 {
-    [TestClass]
-    public class ConvertResources
+    static IPageProvider pageProvider = null!;
+    static IServiceProvider serviceProvider = null!;
+    static ForumAdapterFactory forumAdapterFactory = null!;
+
+    [ClassInitialize]
+    public static void ClassInit(TestContext context)
     {
-        static IPageProvider pageProvider = null!;
-        static IServiceProvider serviceProvider = null!;
-        static ForumAdapterFactory forumAdapterFactory = null!;
+        serviceProvider = TestStartup.ConfigureServices();
 
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
-        {
-            serviceProvider = TestStartup.ConfigureServices();
+        pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
+        forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
+    }
 
-            pageProvider = serviceProvider.GetRequiredService<IPageProvider>();
-            forumAdapterFactory = serviceProvider.GetRequiredService<ForumAdapterFactory>();
-        }
-
-        public void ConvertResourcePosts()
-        {
-        }
+    public void ConvertResourcePosts()
+    {
     }
 }

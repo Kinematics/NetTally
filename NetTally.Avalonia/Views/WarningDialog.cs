@@ -3,31 +3,30 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Enums;
 
-namespace NetTally.Avalonia.Views
+namespace NetTally.Avalonia.Views;
+
+
+/// <summary>
+/// Simple class for handling Warning Dialogs.
+/// </summary>
+public static class WarningDialog
 {
-
     /// <summary>
-    /// Simple class for handling Warning Dialogs.
+    /// Simplified handling of showing a warning for errors that have been logged.
     /// </summary>
-    public static class WarningDialog
+    /// <param name="primaryMessage">The main text to show before showing where the logs have been saved.</param>
+    /// <param name="title">The text to use as the title of the message box.</param>
+    public static Task<ButtonResult> Show(string primaryMessage, string title, bool logsSaved = true)
     {
-        /// <summary>
-        /// Simplified handling of showing a warning for errors that have been logged.
-        /// </summary>
-        /// <param name="primaryMessage">The main text to show before showing where the logs have been saved.</param>
-        /// <param name="title">The text to use as the title of the message box.</param>
-        public static Task<ButtonResult> Show(string primaryMessage, string title, bool logsSaved = true)
-        {
-            primaryMessage += (logsSaved) ? $"\nLogs have been saved." : "";
+        primaryMessage += (logsSaved) ? $"\nLogs have been saved." : "";
 
-            return MessageBoxManager.GetMessageBoxStandard(StandardParamGenerator(title, primaryMessage)).ShowAsync();
-        }
-
-        private static MessageBoxStandardParams StandardParamGenerator(string title, string message) =>
-            new()
-            {
-                ContentTitle = title,
-                ContentMessage = message
-            };
+        return MessageBoxManager.GetMessageBoxStandard(StandardParamGenerator(title, primaryMessage)).ShowAsync();
     }
+
+    private static MessageBoxStandardParams StandardParamGenerator(string title, string message) =>
+        new()
+        {
+            ContentTitle = title,
+            ContentMessage = message
+        };
 }
