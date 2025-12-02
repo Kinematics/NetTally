@@ -74,7 +74,7 @@ public static class CompactVote
     public static IEnumerable<CompactVoteType> GetCompactVotes(VoteStorageType votes)
     {
         // Group votes by first vote line, as that's the basis for further consolidation.
-        return votes.GroupBy(v => v.Key.Lines[0])
+        return votes.GroupBy(v => v.Key.Lines[0], VoteLineComparer.Instance)
                     .Select(g => Create(
                                 line: g.Key,
                                 parent: None,
@@ -124,7 +124,7 @@ public static class CompactVote
         var childLines = GetChildLinesOfLine(childLine, votes);
 
         // Filter the voters to only those that contain the current child line.
-        votes = votes.Where(v => v.Key.Lines.Contains(childLine));
+        votes = votes.Where(v => v.Key.Lines.Contains(childLine, VoteLineComparer.Instance));
 
         return Create(childLine, parent, childLines, votes);
     }
@@ -148,7 +148,7 @@ public static class CompactVote
         foreach (var (vote, voteSupport) in voteGroupList)
         {
             tempHolding.Clear();
-            int index = vote.Lines.IndexOf(key);
+            int index = vote.Lines.IndexOf(key, 0, VoteLineComparer.Instance);
 
             if (index >= 0)
             {
@@ -168,7 +168,7 @@ public static class CompactVote
             holding.AddRange(tempHolding.WithMin(a => a.Depth));
         }
 
-        return holding.Distinct();
+        return holding.Distinct(VoteLineComparer.Instance);
     }
 }
 
