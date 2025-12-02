@@ -12,7 +12,7 @@ public static class VoteLineDisplay
         /// <param name="markerOverride">An optional override of the marker value.</param>
         /// <param name="taskOverride">An optional override of the task value.</param>
         public string Display(string? markerOverride = null, string? taskOverride = null) =>
-            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content}";
+            $"{voteLine.Prefix.Indent}{markerOverride.Bracket ?? voteLine.Marker.BracketedDisplay}{taskOverride.Bracket ?? voteLine.Task.BracketedDisplay} {voteLine.Content.Content.FormatBBCode}";
 
         /// <summary>
         /// Get the vote line formatted as a string suitable for comparing.
