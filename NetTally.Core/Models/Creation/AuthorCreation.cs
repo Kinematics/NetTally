@@ -2,6 +2,12 @@
 
 namespace NetTally.Models;
 
+/// <summary>
+/// Provides static methods for creating instances of <see cref="Author"/> with validated and sanitized names.
+/// </summary>
+/// <remarks>This class is intended for use when constructing <see cref="Author"/> objects from user input or
+/// external sources. All methods ensure that author names are free of unsafe characters and are properly trimmed before
+/// instantiation.</remarks>
 public static class AuthorCreation
 {
     extension(Author)
